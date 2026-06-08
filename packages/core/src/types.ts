@@ -1843,6 +1843,10 @@ export interface SessionMetadata {
    * touched.
    */
   displayNameUserSet?: boolean;
+  /** SDLC orchestrator linkage (added by @aoagents/ao-sdlc). */
+  sdlcRunId?: string;
+  sdlcTaskId?: string;
+  sdlcPhase?: string;
 }
 
 // =============================================================================
