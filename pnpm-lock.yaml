@@ -765,6 +765,9 @@ importers:
       '@aoagents/ao-plugin-workspace-worktree':
         specifier: workspace:*
         version: link:../plugins/workspace-worktree
+      '@aoagents/ao-sdlc':
+        specifier: workspace:*
+        version: link:../sdlc
       '@xterm/addon-fit':
         specifier: 0.12.0-beta.256
         version: 0.12.0-beta.256(@xterm/xterm@6.1.0-beta.256)
