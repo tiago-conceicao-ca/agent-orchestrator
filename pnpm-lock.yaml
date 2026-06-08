@@ -127,6 +127,9 @@ importers:
       '@aoagents/ao-plugin-workspace-worktree':
         specifier: workspace:*
         version: link:../plugins/workspace-worktree
+      '@aoagents/ao-sdlc':
+        specifier: workspace:*
+        version: link:../sdlc
       '@aoagents/ao-web':
         specifier: workspace:*
         version: link:../web

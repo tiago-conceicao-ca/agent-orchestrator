@@ -46,6 +46,10 @@ export default defineConfig({
         replacement: resolve(__dirname, "../core/src/index.ts"),
       },
       {
+        find: "@aoagents/ao-sdlc",
+        replacement: resolve(__dirname, "../sdlc/src/index.ts"),
+      },
+      {
         find: "@aoagents/ao-plugin-agent-claude-code",
         replacement: resolve(__dirname, "../plugins/agent-claude-code/src/index.ts"),
       },
