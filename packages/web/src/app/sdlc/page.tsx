@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { COLUMNS, type BoardColumn, type RunView } from "@/lib/sdlc-board";
 
 // Independent poller for SDLC runs. The existing session SSE (useSessionEvents, 5s)
@@ -20,30 +20,43 @@ export default function SdlcPage() {
   const [runs, setRuns] = useState<RunView[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      try {
-        const res = await fetch("/api/sdlc/runs");
-        const data = (await res.json()) as { runs?: RunView[]; error?: string };
-        if (!active) return;
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-        setError(null);
-        setRuns(data.runs ?? []);
-      } catch (e) {
-        if (active) setError(e instanceof Error ? e.message : "Failed to load runs");
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch("/api/sdlc/runs");
+      const data = (await res.json()) as { runs?: RunView[]; error?: string };
+      if (data.error) {
+        setError(data.error);
+        return;
       }
-    };
-    void load();
-    const timer = setInterval(load, POLL_INTERVAL_MS);
-    return () => {
-      active = false;
-      clearInterval(timer);
-    };
+      setError(null);
+      setRuns(data.runs ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load runs");
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+    const timer = setInterval(() => void load(), POLL_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [load]);
+
+  const approve = useCallback(
+    async (runId: string) => {
+      try {
+        await fetch("/api/sdlc/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ runId }),
+        });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to approve run");
+      } finally {
+        void load();
+      }
+    },
+    [load],
+  );
 
   return (
     <main className="min-h-screen bg-[var(--color-bg-base)] p-6 text-[var(--color-text-primary)]">
@@ -63,6 +76,15 @@ export default function SdlcPage() {
                 <span className="text-xs uppercase tracking-wide text-[var(--color-text-tertiary)]">
                   {run.status}
                 </span>
+                {run.status === "awaiting_approval" && (
+                  <button
+                    type="button"
+                    onClick={() => void approve(run.id)}
+                    className="ml-auto rounded border border-[var(--color-accent)] bg-[var(--color-accent)] px-3 py-1 text-xs font-medium text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-hover)]"
+                  >
+                    Approve
+                  </button>
+                )}
               </header>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
                 {COLUMNS.map((col) => (

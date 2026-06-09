@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SdlcPage from "../page";
 
@@ -17,11 +17,11 @@ const sampleRun = {
   },
 };
 
+let fetchMock: ReturnType<typeof vi.fn>;
+
 function mockFetch(payload: unknown) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async () => ({ json: async () => payload })) as unknown as typeof fetch,
-  );
+  fetchMock = vi.fn(async () => ({ json: async () => payload }));
+  vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
 }
 
 describe("SdlcPage", () => {
@@ -48,5 +48,17 @@ describe("SdlcPage", () => {
     mockFetch({ runs: [] });
     render(<SdlcPage />);
     await waitFor(() => expect(screen.getByText("No SDLC runs yet.")).toBeInTheDocument());
+  });
+
+  it("posts to the approve endpoint when Approve is clicked", async () => {
+    render(<SdlcPage />);
+    const button = await screen.findByRole("button", { name: "Approve" });
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/sdlc/approve",
+        expect.objectContaining({ method: "POST" }),
+      ),
+    );
   });
 });
