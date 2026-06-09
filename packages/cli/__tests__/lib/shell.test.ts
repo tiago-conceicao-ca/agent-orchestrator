@@ -80,6 +80,24 @@ describe("exec", () => {
     mockFailure("bad command");
     await expect(exec("bad", [])).rejects.toThrow("bad command");
   });
+
+  it("forwards an explicit timeout to execFile (time-boxes a stalled child)", async () => {
+    mockSuccess("ok");
+    await exec("claude", ["-p", "go"], { timeout: 600_000 });
+    expect(mockExecFile).toHaveBeenCalledWith(
+      "claude",
+      ["-p", "go"],
+      expect.objectContaining({ timeout: 600_000 }),
+      expect.any(Function),
+    );
+  });
+
+  it("leaves timeout undefined when not provided (backward-compatible)", async () => {
+    mockSuccess("ok");
+    await exec("cmd", ["arg"]);
+    const opts = mockExecFile.mock.calls[0][2];
+    expect(opts.timeout).toBeUndefined();
+  });
 });
 
 describe("execSilent", () => {

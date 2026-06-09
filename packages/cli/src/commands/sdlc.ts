@@ -143,7 +143,11 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
 
 /** Run `claude` headless (print mode) and return its stdout. */
 async function runClaudeHeadless(prompt: string): Promise<string> {
-  const { stdout } = await exec("claude", ["-p", prompt]);
+  // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
+  // prompt) would otherwise block gate.evaluate → engine.advance forever. On
+  // timeout exec kills the child and rejects; the rejection propagates to the
+  // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
+  const { stdout } = await exec("claude", ["-p", prompt], { timeout: 10 * 60 * 1_000 });
   return stdout;
 }
 

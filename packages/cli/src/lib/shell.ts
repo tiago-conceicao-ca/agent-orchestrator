@@ -12,13 +12,17 @@ export interface ExecResult {
 export async function exec(
   cmd: string,
   args: string[],
-  options?: { cwd?: string; env?: Record<string, string> },
+  options?: { cwd?: string; env?: Record<string, string>; timeout?: number },
 ): Promise<ExecResult> {
+  // `timeout` is optional and forwarded as-is: undefined leaves execFile's
+  // default (0 = no timeout), so existing callers are unaffected. When set,
+  // execFile kills the child and rejects after the bound elapses.
   const { stdout, stderr } = await execFileAsync(cmd, args, {
     cwd: options?.cwd,
     env: options?.env ? { ...process.env, ...options.env } : undefined,
     maxBuffer: 10 * 1024 * 1024,
     windowsHide: true,
+    timeout: options?.timeout,
   });
   return { stdout: stdout.trimEnd(), stderr: stderr.trimEnd() };
 }

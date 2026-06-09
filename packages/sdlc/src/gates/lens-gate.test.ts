@@ -57,6 +57,16 @@ describe("lens gate", () => {
     const gate = makeLensGate("tactical", "PROMPT", runner);
     expect((await gate.evaluate("plan.md", "tactical")).verdict).toBe("pass");
   });
+  it("handles an escaped quote inside a JSON string value", async () => {
+    // The \" must NOT close the string, and the } inside it must be ignored —
+    // so the whole object is captured and the detail round-trips intact.
+    const runner = async () =>
+      '{"verdict":"pass","issues":[{"severity":"low","title":"t","detail":"a \\" and a } inside"}]}';
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    const v = await gate.evaluate("plan.md", "tactical");
+    expect(v.verdict).toBe("pass");
+    expect(v.issues[0].detail).toBe('a " and a } inside');
+  });
 });
 
 describe("loadLensPrompt", () => {

@@ -30,10 +30,17 @@ import { getServices } from "./services";
 const execFileAsync = promisify(execFile);
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
+const CLAUDE_HEADLESS_TIMEOUT_MS = 10 * 60 * 1_000; // 10min — bound a stalled `claude -p`
 
 async function runClaudeHeadless(prompt: string): Promise<string> {
+  // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
+  // prompt) would otherwise block gate.evaluate → engine.advance forever. On
+  // timeout execFile kills the child and rejects; the rejection propagates to the
+  // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
   const { stdout } = await execFileAsync("claude", ["-p", prompt], {
     maxBuffer: 10 * 1024 * 1024,
+    timeout: CLAUDE_HEADLESS_TIMEOUT_MS,
+    killSignal: "SIGKILL",
   });
   return stdout;
 }
