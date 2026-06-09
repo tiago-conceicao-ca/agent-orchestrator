@@ -46,4 +46,10 @@ export interface WorkflowRun {
   verdicts: GateVerdict[];
   pendingApproval: { phaseId: string; since: string } | null;
   createdAt: string;
+  /**
+   * The epic produced by `normalize-plan`, persisted so later phases (and a
+   * resume after a human gate) can recover it — `advance()`'s local epic does
+   * not survive the pause/resume boundary.
+   */
+  epic?: Epic;
 }

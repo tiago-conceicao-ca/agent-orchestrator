@@ -54,7 +54,8 @@ export class WorkflowEngine {
   private async advance(id: string, input: string): Promise<WorkflowRun> {
     let run = await this.require(id);
     const def = this.deps.definitions[run.workflow];
-    let epic: Epic | null = null;
+    // Recover the epic persisted by a prior phase (survives pause/resume).
+    let epic: Epic | null = run.epic ?? null;
 
     while (run.currentPhaseIndex < def.phases.length) {
       const phase = def.phases[run.currentPhaseIndex];
@@ -82,7 +83,11 @@ export class WorkflowEngine {
       let artifactRef: string;
       try {
         const result = await executor.run(ctx);
-        if (result.epic) epic = result.epic;
+        if (result.epic) {
+          epic = result.epic;
+          // Persist so the epic survives a human-gate pause/resume.
+          run = await this.deps.store.update(id, (r) => ({ ...r, epic: result.epic }));
+        }
         artifactRef = result.artifactRef;
       } catch (e) {
         await this.deps.store.update(id, (r) => ({
