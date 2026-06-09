@@ -93,7 +93,10 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     sdlcTaskId: string;
     metadata: Record<string, string>;
   }): Promise<{ id: string; workspacePath?: string }> => {
-    const session = await deps.sessionManager.spawn({ projectId: cfg.projectId, prompt: cfg.prompt });
+    const session = await deps.sessionManager.spawn({
+      projectId: cfg.projectId,
+      prompt: cfg.prompt,
+    });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
@@ -128,7 +131,11 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
   // placeholder), loaded from the @aoagents/ao-sdlc package's gates/prompts.
   const gates = {
     tactical: makeLensGate("tactical", loadLensPrompt("tactical"), deps.runLensAgent),
-    architectural: makeLensGate("architectural", loadLensPrompt("architectural"), deps.runLensAgent),
+    architectural: makeLensGate(
+      "architectural",
+      loadLensPrompt("architectural"),
+      deps.runLensAgent,
+    ),
     "pattern-library": makePatternLibraryGate(deps.runEvalCommand),
   };
 
@@ -189,6 +196,7 @@ function genPromptFromInstruction(instruction: string): (task: WorkflowTask) => 
 async function buildLiveEngine(
   projectId?: string,
   generationInstruction?: string,
+  skipLens = false,
 ): Promise<{ engine: WorkflowEngine; store: RunStore }> {
   const config = loadConfig();
   const resolvedProjectId = resolveProjectId(config, projectId);
@@ -197,12 +205,23 @@ async function buildLiveEngine(
     baseDir: getProjectDir(resolvedProjectId),
     sessionManager,
     projectId: resolvedProjectId,
-    // Grant the lens agent read access to the artifact's directory (the plan is
-    // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
-    // interactive permission prompt — otherwise its Read tool is denied and it
-    // returns needs_fixes without ever evaluating the plan.
-    runLensAgent: (prompt, artifactRef) =>
-      runClaudeHeadless(prompt, ["--add-dir", dirname(artifactRef), "--dangerously-skip-permissions"]),
+    // When --skip-lens is set, the lens runner returns a trivially-passing
+    // plan_review WITHOUT calling claude — for demo/testing a minimal plan that
+    // the tactical/architectural lens would otherwise reject by design. The
+    // pattern-library/eval gate on generate-backend is left untouched.
+    runLensAgent: skipLens
+      ? async () =>
+          JSON.stringify({ type: "plan_review", lens: "tactical", issues: [], verdict: "pass" })
+      : // Grant the lens agent read access to the artifact's directory (the plan is
+        // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
+        // interactive permission prompt — otherwise its Read tool is denied and it
+        // returns needs_fixes without ever evaluating the plan.
+        (prompt, artifactRef) =>
+          runClaudeHeadless(prompt, [
+            "--add-dir",
+            dirname(artifactRef),
+            "--dangerously-skip-permissions",
+          ]),
     runPlanWriteAgent: (input) => runClaudeHeadless(input),
     // Lenient smoke eval: pass only if the generated worktree path(s) contain
     // files. Swap in the real ContaAzul /avaliar-artefato here for a ca-* repo.
@@ -236,26 +255,42 @@ export function registerSdlc(program: Command): void {
       "-g, --generation-instruction <text>",
       "override the per-task generation instruction (default: /gerar-backend). Pass the same value to `approve`.",
     )
-    .action(async (planFileOrText: string, opts: { project?: string; generationInstruction?: string }) => {
-      try {
-        const input = existsSync(planFileOrText)
-          ? readFileSync(planFileOrText, "utf-8")
-          : planFileOrText;
-        const epicId =
-          slug(existsSync(planFileOrText) ? basename(planFileOrText).replace(/\.[^.]+$/, "") : "plan") ||
-          "plan";
-        const { engine } = await buildLiveEngine(opts.project, opts.generationInstruction);
-        const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input);
-        console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
-        printRun(run);
-        if (run.status === "awaiting_approval") {
-          console.log(chalk.yellow(`\nApprove with: ao sdlc approve ${run.id}`));
+    .option(
+      "--skip-lens",
+      "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
+    )
+    .action(
+      async (
+        planFileOrText: string,
+        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+      ) => {
+        try {
+          const input = existsSync(planFileOrText)
+            ? readFileSync(planFileOrText, "utf-8")
+            : planFileOrText;
+          const epicId =
+            slug(
+              existsSync(planFileOrText)
+                ? basename(planFileOrText).replace(/\.[^.]+$/, "")
+                : "plan",
+            ) || "plan";
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input);
+          console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
+          printRun(run);
+          if (run.status === "awaiting_approval") {
+            console.log(chalk.yellow(`\nApprove with: ao sdlc approve ${run.id}`));
+          }
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
         }
-      } catch (err) {
-        console.error(chalk.red(err instanceof Error ? err.message : String(err)));
-        process.exit(1);
-      }
-    });
+      },
+    );
 
   sdlc
     .command("approve <runId>")
@@ -265,21 +300,34 @@ export function registerSdlc(program: Command): void {
       "-g, --generation-instruction <text>",
       "per-task generation instruction for the resumed generate-backend phase (match the value passed to `start`)",
     )
-    .action(async (runId: string, opts: { project?: string; generationInstruction?: string }) => {
-      try {
-        const { engine } = await buildLiveEngine(opts.project, opts.generationInstruction);
-        const current = await engine.load(runId);
-        if (!current) throw new Error(`Run not found: ${runId}`);
-        if (current.status !== "awaiting_approval")
-          throw new Error(`Run '${runId}' is '${current.status}', not awaiting approval.`);
-        const run = await engine.resume(runId);
-        console.log(chalk.green(`Approved run ${chalk.bold(runId)}.`));
-        printRun(run);
-      } catch (err) {
-        console.error(chalk.red(err instanceof Error ? err.message : String(err)));
-        process.exit(1);
-      }
-    });
+    .option(
+      "--skip-lens",
+      "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
+    )
+    .action(
+      async (
+        runId: string,
+        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+      ) => {
+        try {
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const current = await engine.load(runId);
+          if (!current) throw new Error(`Run not found: ${runId}`);
+          if (current.status !== "awaiting_approval")
+            throw new Error(`Run '${runId}' is '${current.status}', not awaiting approval.`);
+          const run = await engine.resume(runId);
+          console.log(chalk.green(`Approved run ${chalk.bold(runId)}.`));
+          printRun(run);
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
+        }
+      },
+    );
 
   sdlc
     .command("status <runId>")
