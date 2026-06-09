@@ -13,7 +13,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { basename } from "node:path";
+import { basename, dirname } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
 import {
@@ -142,12 +142,14 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
 }
 
 /** Run `claude` headless (print mode) and return its stdout. */
-async function runClaudeHeadless(prompt: string): Promise<string> {
+async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Promise<string> {
   // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
   // prompt) would otherwise block gate.evaluate → engine.advance forever. On
   // timeout exec kills the child and rejects; the rejection propagates to the
   // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
-  const { stdout } = await exec("claude", ["-p", prompt], { timeout: 10 * 60 * 1_000 });
+  const { stdout } = await exec("claude", ["-p", prompt, ...extraArgs], {
+    timeout: 10 * 60 * 1_000,
+  });
   return stdout;
 }
 
@@ -195,7 +197,12 @@ async function buildLiveEngine(
     baseDir: getProjectDir(resolvedProjectId),
     sessionManager,
     projectId: resolvedProjectId,
-    runLensAgent: (prompt) => runClaudeHeadless(prompt),
+    // Grant the lens agent read access to the artifact's directory (the plan is
+    // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
+    // interactive permission prompt — otherwise its Read tool is denied and it
+    // returns needs_fixes without ever evaluating the plan.
+    runLensAgent: (prompt, artifactRef) =>
+      runClaudeHeadless(prompt, ["--add-dir", dirname(artifactRef), "--dangerously-skip-permissions"]),
     runPlanWriteAgent: (input) => runClaudeHeadless(input),
     // Lenient smoke eval: pass only if the generated worktree path(s) contain
     // files. Swap in the real ContaAzul /avaliar-artefato here for a ca-* repo.

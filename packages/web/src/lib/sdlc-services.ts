@@ -1,6 +1,7 @@
 import "server-only";
 
 import { execFile } from "node:child_process";
+import { dirname } from "node:path";
 import { promisify } from "node:util";
 import {
   getProjectDir,
@@ -32,12 +33,12 @@ const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
 const CLAUDE_HEADLESS_TIMEOUT_MS = 10 * 60 * 1_000; // 10min — bound a stalled `claude -p`
 
-async function runClaudeHeadless(prompt: string): Promise<string> {
+async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Promise<string> {
   // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
   // prompt) would otherwise block gate.evaluate → engine.advance forever. On
   // timeout execFile kills the child and rejects; the rejection propagates to the
   // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
-  const { stdout } = await execFileAsync("claude", ["-p", prompt], {
+  const { stdout } = await execFileAsync("claude", ["-p", prompt, ...extraArgs], {
     maxBuffer: 10 * 1024 * 1024,
     timeout: CLAUDE_HEADLESS_TIMEOUT_MS,
     killSignal: "SIGKILL",
@@ -115,8 +116,16 @@ export async function buildWebSdlcEngine(
       }),
     },
     gates: {
-      tactical: makeLensGate("tactical", loadLensPrompt("tactical"), (prompt) =>
-        runClaudeHeadless(prompt),
+      // Grant the lens agent read access to the artifact's directory (the plan is
+      // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
+      // interactive permission prompt — otherwise its Read tool is denied and it
+      // returns needs_fixes without ever evaluating the plan.
+      tactical: makeLensGate("tactical", loadLensPrompt("tactical"), (prompt, artifactRef) =>
+        runClaudeHeadless(prompt, [
+          "--add-dir",
+          dirname(artifactRef),
+          "--dangerously-skip-permissions",
+        ]),
       ),
       "pattern-library": makePatternLibraryGate((artifactRef) => smokeEvalArtifact(artifactRef)),
     },
