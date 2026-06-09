@@ -64,4 +64,31 @@ describe("generate-backend executor", () => {
     const { ctx: c } = ctx();
     await expect(exec.run(c)).rejects.toThrow(/failed/i);
   });
+
+  it("uses an injected buildTaskPrompt when provided (default stays /gerar-backend)", async () => {
+    const prompts: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      prompts.push(cfg.prompt);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({
+      spawn,
+      projectId: "backend",
+      waitForDone: async () => "done",
+      buildTaskPrompt: (t) => `NODE: implement ${t.title} as plain Node.js`,
+    });
+    const { ctx: c } = ctx();
+    await exec.run(c);
+    expect(prompts[0]).toBe("NODE: implement Repo as plain Node.js");
+    expect(prompts.join("\n")).not.toContain("gerar-backend");
+  });
+
+  it("returns the spawned worktree path(s) as artifactRef when provided", async () => {
+    const spawn: SpawnFn = async (cfg) => ({ id: "s", workspacePath: `/wt/${cfg.sdlcTaskId}` });
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "backend", waitForDone: async () => "done" });
+    const { ctx: c } = ctx();
+    const result = await exec.run(c);
+    expect(result.artifactRef).toContain("/wt/t-repo");
+    expect(result.artifactRef).toContain("/wt/t-svc");
+  });
 });

@@ -4,8 +4,9 @@ export { normalizePlan, extractTaskSectionNames } from "./plan/normalizer.js";
 
 // Gates
 export * from "./gates/types.js";
-export { makeLensGate, type AgentRunner } from "./gates/lens-gate.js";
+export { makeLensGate, loadLensPrompt, type AgentRunner, type LensName } from "./gates/lens-gate.js";
 export { makePatternLibraryGate, type EvalCommandRunner } from "./gates/pattern-library-gate.js";
+export { smokeEvalArtifact } from "./gates/smoke-eval.js";
 
 // Workflow engine
 export * from "./workflow/types.js";

@@ -7,7 +7,7 @@ export interface SpawnConfig {
   sdlcTaskId: string;
   metadata: Record<string, string>;
 }
-export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string }>;
+export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
 /** Polls AO until the spawned session reaches a terminal state; returns "done" | "failed". */
 export type WaitForDoneFn = (sessionId: string) => Promise<"done" | "failed">;
 
@@ -15,6 +15,12 @@ export interface GenerateBackendDeps {
   spawn: SpawnFn; // wraps SessionManager.spawn (Task 16 wires the real one)
   waitForDone: WaitForDoneFn;
   projectId: string;
+  /**
+   * Build the per-task generation instruction. Defaults to the canonical
+   * `/gerar-backend` wording; the smoke injects a generic (e.g. plain Node.js)
+   * instruction so it needn't satisfy that skill's workspace prerequisites.
+   */
+  buildTaskPrompt?: (task: WorkflowTask) => string;
 }
 
 /** Kahn topological order over the epic's blocking edges. */
@@ -57,15 +63,18 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
     id: "generate-backend",
     async run(ctx: PhaseContext): Promise<PhaseResult> {
       if (!ctx.epic) throw new Error("generate-backend requires an epic from the prior phase.");
+      const promptFor = deps.buildTaskPrompt ?? backendPrompt;
       const order = topoOrder(ctx.epic);
+      const workspacePaths: string[] = [];
       for (const task of order) {
         await ctx.setTaskStatus(task.id, "in_progress");
-        const { id: sessionId } = await deps.spawn({
+        const { id: sessionId, workspacePath } = await deps.spawn({
           projectId: deps.projectId,
-          prompt: backendPrompt(task),
+          prompt: promptFor(task),
           sdlcTaskId: task.id,
           metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
         });
+        if (workspacePath) workspacePaths.push(workspacePath);
         const outcome = await deps.waitForDone(sessionId);
         if (outcome === "failed") {
           await ctx.setTaskStatus(task.id, "blocked");
@@ -73,7 +82,9 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
         }
         await ctx.setTaskStatus(task.id, "done");
       }
-      return { artifactRef: `epic:${ctx.epic.id}` };
+      // Real artifact for the eval gate: the spawned task worktree path(s), one
+      // per line. Falls back to an epic ref when no workspace path is available.
+      return { artifactRef: workspacePaths.length ? workspacePaths.join("\n") : `epic:${ctx.epic.id}` };
     },
   };
 }

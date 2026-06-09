@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node --input-type=commonjs -e \"require('fs').cpSync('src/gates/prompts','dist/gates/prompts',{recursive:true})\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { makeLensGate } from "./lens-gate";
+import { loadLensPrompt, makeLensGate } from "./lens-gate";
 
 describe("lens gate", () => {
   it("returns a pass verdict from the agent's JSON output", async () => {
@@ -35,5 +35,39 @@ describe("lens gate", () => {
     const v = await gate.evaluate("plan.md", "architectural");
     expect(v.verdict).toBe("pass");
     expect(v.issues).toEqual([]);
+  });
+  it("ignores a closing brace inside a JSON string value", async () => {
+    const runner = async () =>
+      '{"verdict":"needs_fixes","issues":[{"severity":"low","title":"t","detail":"use a } brace"}]}';
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    const v = await gate.evaluate("plan.md", "tactical");
+    expect(v.verdict).toBe("needs_fixes");
+    expect(v.issues[0].detail).toBe("use a } brace");
+  });
+  it("ignores an opening brace inside a JSON string value", async () => {
+    const runner = async () =>
+      '{"verdict":"pass","issues":[{"severity":"low","title":"t","detail":"an { brace"}]}';
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    const v = await gate.evaluate("plan.md", "tactical");
+    expect(v.verdict).toBe("pass");
+    expect(v.issues[0].detail).toBe("an { brace");
+  });
+  it("ignores an unmatched trailing brace in prose after the verdict", async () => {
+    const runner = async () => '{"verdict":"pass","issues":[]}\n(end of review) }';
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    expect((await gate.evaluate("plan.md", "tactical")).verdict).toBe("pass");
+  });
+});
+
+describe("loadLensPrompt", () => {
+  it("loads the tactical prompt body with the {artifact} placeholder", () => {
+    const p = loadLensPrompt("tactical");
+    expect(p).toContain("Plan Review Tactical");
+    expect(p).toContain("{artifact}");
+  });
+  it("loads each lens prompt", () => {
+    for (const name of ["tactical", "architectural", "adversarial"] as const) {
+      expect(loadLensPrompt(name).length).toBeGreaterThan(0);
+    }
   });
 });

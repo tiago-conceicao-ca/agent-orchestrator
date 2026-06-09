@@ -1,3 +1,6 @@
+import { writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { PhaseExecutor, PhaseContext, PhaseResult } from "../workflow/types.js";
 import { normalizePlan } from "../plan/normalizer.js";
 
@@ -23,7 +26,10 @@ export function makeNormalizePlanExecutor(deps: NormalizePlanDeps): PhaseExecuto
         description: "",
       });
       for (const t of epic.tasks) await ctx.setTaskStatus(t.id, "backlog");
-      return { epic, artifactRef: `plan:${ctx.run.epicId}.md` };
+      // Write the normalized plan to a real file so the lens agent can Read it.
+      const artifactRef = join(tmpdir(), `ao-sdlc-${ctx.run.id}-plan.md`);
+      writeFileSync(artifactRef, planMarkdown, "utf-8");
+      return { epic, artifactRef };
     },
   };
 }

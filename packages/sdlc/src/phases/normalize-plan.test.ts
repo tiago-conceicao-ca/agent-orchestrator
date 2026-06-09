@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
 import { makeNormalizePlanExecutor } from "./normalize-plan";
 import type { PhaseContext } from "../workflow/types";
 
@@ -54,7 +55,10 @@ describe("normalize-plan executor", () => {
     const result = await exec.run(ctx);
     expect(result.epic?.tasks[0].title).toBe("Repo");
     expect(statuses["epic-1__repo"]).toBe("backlog");
-    expect(result.artifactRef).toMatch(/\.md$|plan/i);
+    // artifactRef is an absolute path to a real readable plan file (for the lens agent)
+    expect(result.artifactRef.endsWith(".md")).toBe(true);
+    expect(existsSync(result.artifactRef)).toBe(true);
+    expect(readFileSync(result.artifactRef, "utf-8")).toContain("## Task Graph");
   });
   it("calls the adapter when input has no Task Graph", async () => {
     let called = false;

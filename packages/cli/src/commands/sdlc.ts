@@ -25,20 +25,26 @@ import {
 } from "@aoagents/ao-core";
 import {
   CA_PLAN_TO_BACKEND,
+  loadLensPrompt,
   makeGenerateBackendExecutor,
   makeInputAdapter,
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
   RunStore,
+  smokeEvalArtifact,
   WorkflowEngine,
+  type WorkflowTask,
 } from "@aoagents/ao-sdlc";
 import { getSessionManager } from "../lib/create-session-manager.js";
 import { exec } from "../lib/shell.js";
 
 /** Minimal SessionManager surface the engine wiring needs (real or fake). */
 interface SdlcSessionManager {
-  spawn(cfg: { projectId: string; prompt: string }): Promise<{ id: string }>;
+  spawn(cfg: {
+    projectId: string;
+    prompt: string;
+  }): Promise<{ id: string; workspacePath?: string | null }>;
   get(id: string): Promise<Session | null>;
 }
 
@@ -49,6 +55,8 @@ export interface SdlcServiceDeps {
   runLensAgent: (prompt: string, artifactRef: string) => Promise<string>;
   runEvalCommand: (artifactRef: string) => Promise<string>;
   runPlanWriteAgent: (input: string) => Promise<string>;
+  /** Optional per-task generation instruction (defaults to /gerar-backend wording). */
+  buildTaskPrompt?: (task: WorkflowTask) => string;
 }
 
 const TASK_POLL_INTERVAL_MS = 5_000;
@@ -84,10 +92,10 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     prompt: string;
     sdlcTaskId: string;
     metadata: Record<string, string>;
-  }): Promise<{ id: string }> => {
+  }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await deps.sessionManager.spawn({ projectId: cfg.projectId, prompt: cfg.prompt });
     updateMetadata(dataDir, session.id, cfg.metadata);
-    return { id: session.id };
+    return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
 
   // waitForDone: poll SessionManager.get(id) until a terminal lifecycle state.
@@ -112,14 +120,15 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
       spawn,
       waitForDone,
       projectId: deps.projectId,
+      buildTaskPrompt: deps.buildTaskPrompt,
     }),
   };
 
-  // Lens templates default to the bare artifact ref; richer prompt bodies live in
-  // src/gates/prompts/*.md and can be loaded by the runner as a follow-up.
+  // Lens templates are the ported plan-review prompt bodies (with the {artifact}
+  // placeholder), loaded from the @aoagents/ao-sdlc package's gates/prompts.
   const gates = {
-    tactical: makeLensGate("tactical", "{artifact}", deps.runLensAgent),
-    architectural: makeLensGate("architectural", "{artifact}", deps.runLensAgent),
+    tactical: makeLensGate("tactical", loadLensPrompt("tactical"), deps.runLensAgent),
+    architectural: makeLensGate("architectural", loadLensPrompt("architectural"), deps.runLensAgent),
     "pattern-library": makePatternLibraryGate(deps.runEvalCommand),
   };
 
@@ -157,11 +166,24 @@ function resolveProjectId(config: ReturnType<typeof loadConfig>, explicit?: stri
   );
 }
 
+/** Wrap a generic generation instruction into a per-task prompt. */
+function genPromptFromInstruction(instruction: string): (task: WorkflowTask) => string {
+  return (task) => {
+    const ac = task.acceptanceCriteria.map((c) => `- ${c}`).join("\n");
+    return [
+      instruction,
+      `Task: ${task.title}`,
+      `Summary: ${task.summary}`,
+      `Acceptance criteria:\n${ac}`,
+    ].join("\n\n");
+  };
+}
+
 /** Build the live engine for a project, wiring real agent runners. */
-async function buildLiveEngine(projectId?: string): Promise<{
-  engine: WorkflowEngine;
-  store: RunStore;
-}> {
+async function buildLiveEngine(
+  projectId?: string,
+  generationInstruction?: string,
+): Promise<{ engine: WorkflowEngine; store: RunStore }> {
   const config = loadConfig();
   const resolvedProjectId = resolveProjectId(config, projectId);
   const sessionManager = await getSessionManager(config);
@@ -171,10 +193,12 @@ async function buildLiveEngine(projectId?: string): Promise<{
     projectId: resolvedProjectId,
     runLensAgent: (prompt) => runClaudeHeadless(prompt),
     runPlanWriteAgent: (input) => runClaudeHeadless(input),
-    runEvalCommand: (artifactRef) =>
-      runClaudeHeadless(
-        `Run the pattern-library backend eval over the code in ${artifactRef} and output ONLY the JSON result: {"passed":boolean,"score":number,"findings":[{"severity":"high|medium|low","title":string,"detail":string}]}.`,
-      ),
+    // Lenient smoke eval: pass only if the generated worktree path(s) contain
+    // files. Swap in the real ContaAzul /avaliar-artefato here for a ca-* repo.
+    runEvalCommand: (artifactRef) => smokeEvalArtifact(artifactRef),
+    buildTaskPrompt: generationInstruction
+      ? genPromptFromInstruction(generationInstruction)
+      : undefined,
   });
 }
 
@@ -197,7 +221,11 @@ export function registerSdlc(program: Command): void {
     .command("start <planFileOrText>")
     .description("Start an SDLC workflow run from a plan file (or inline plan text)")
     .option("-p, --project <id>", "project id to run backend generation in")
-    .action(async (planFileOrText: string, opts: { project?: string }) => {
+    .option(
+      "-g, --generation-instruction <text>",
+      "override the per-task generation instruction (default: /gerar-backend). Pass the same value to `approve`.",
+    )
+    .action(async (planFileOrText: string, opts: { project?: string; generationInstruction?: string }) => {
       try {
         const input = existsSync(planFileOrText)
           ? readFileSync(planFileOrText, "utf-8")
@@ -205,7 +233,7 @@ export function registerSdlc(program: Command): void {
         const epicId =
           slug(existsSync(planFileOrText) ? basename(planFileOrText).replace(/\.[^.]+$/, "") : "plan") ||
           "plan";
-        const { engine } = await buildLiveEngine(opts.project);
+        const { engine } = await buildLiveEngine(opts.project, opts.generationInstruction);
         const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input);
         console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
         printRun(run);
@@ -222,9 +250,13 @@ export function registerSdlc(program: Command): void {
     .command("approve <runId>")
     .description("Approve a run paused at a human gate and resume it")
     .option("-p, --project <id>", "project id the run belongs to")
-    .action(async (runId: string, opts: { project?: string }) => {
+    .option(
+      "-g, --generation-instruction <text>",
+      "per-task generation instruction for the resumed generate-backend phase (match the value passed to `start`)",
+    )
+    .action(async (runId: string, opts: { project?: string; generationInstruction?: string }) => {
       try {
-        const { engine } = await buildLiveEngine(opts.project);
+        const { engine } = await buildLiveEngine(opts.project, opts.generationInstruction);
         const current = await engine.load(runId);
         if (!current) throw new Error(`Run not found: ${runId}`);
         if (current.status !== "awaiting_approval")

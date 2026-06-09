@@ -10,12 +10,14 @@ import {
 } from "@aoagents/ao-core";
 import {
   CA_PLAN_TO_BACKEND,
+  loadLensPrompt,
   makeGenerateBackendExecutor,
   makeInputAdapter,
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
   RunStore,
+  smokeEvalArtifact,
   WorkflowEngine,
 } from "@aoagents/ao-sdlc";
 import { getServices } from "./services";
@@ -73,10 +75,10 @@ export async function buildWebSdlcEngine(
     prompt: string;
     sdlcTaskId: string;
     metadata: Record<string, string>;
-  }): Promise<{ id: string }> => {
+  }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await sessionManager.spawn({ projectId: cfg.projectId, prompt: cfg.prompt });
     updateMetadata(dataDir, session.id, cfg.metadata);
-    return { id: session.id };
+    return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
 
   const waitForDone = async (sessionId: string): Promise<"done" | "failed"> => {
@@ -106,12 +108,10 @@ export async function buildWebSdlcEngine(
       }),
     },
     gates: {
-      tactical: makeLensGate("tactical", "{artifact}", (prompt) => runClaudeHeadless(prompt)),
-      "pattern-library": makePatternLibraryGate((artifactRef) =>
-        runClaudeHeadless(
-          `Run the pattern-library backend eval over the code in ${artifactRef} and output ONLY the JSON result: {"passed":boolean,"score":number,"findings":[{"severity":"high|medium|low","title":string,"detail":string}]}.`,
-        ),
+      tactical: makeLensGate("tactical", loadLensPrompt("tactical"), (prompt) =>
+        runClaudeHeadless(prompt),
       ),
+      "pattern-library": makePatternLibraryGate((artifactRef) => smokeEvalArtifact(artifactRef)),
     },
   });
 

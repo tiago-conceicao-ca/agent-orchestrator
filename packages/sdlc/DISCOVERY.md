@@ -121,3 +121,80 @@ This is a **pre-existing sandbox/environment artifact**, fully orthogonal to
 `pnpm --filter @aoagents/ao-sdlc test` (+ the targeted core test for the 3 metadata
 fields). At wrap-up, `pnpm -r test` is EXPECTED to show exactly those 6 sqlite failures;
 any NEW failure, or ANY failure outside that one file, is a regression.
+
+---
+
+## Task 20 — real gate wiring (live-smoke seam)
+
+V1 shipped the gate path stubbed (bare `{artifact}` template + synthetic `plan:`/`epic:`
+artifact refs). Task 20 wires it for real so a run can complete end-to-end.
+
+### pattern-library availability (this host)
+
+`claude` 2.1.161 is on PATH and the ContaAzul pattern-library plugin is installed
+user-level at `~/.claude/plugins/cache/ca-pattern-library` (with the `gerar-backend`
+skill). So headless `claude -p` sessions spawned by AO on this host inherit
+pattern-library.
+
+### gerar-backend ContaAzul-workspace prerequisite
+
+The `/gerar-backend` skill's own prereq check requires a ContaAzul-shaped workspace
+(sibling `{servico}/` + `{servico}-infra/` + the CodeRabbit CLI). On a generic /
+throwaway repo that gate trips and the session halts early without producing output.
+This is why the smoke does **not** use `/gerar-backend`: see the injectable instruction
+below.
+
+### Injectable per-task generation instruction
+
+`makeGenerateBackendExecutor`'s `GenerateBackendDeps.buildTaskPrompt?` overrides the
+per-task prompt; it **defaults** to the canonical `/gerar-backend` wording (so the
+canonical `ca-plan-to-backend` workflow + its tests are unchanged). The CLI exposes it
+as `ao sdlc start --generation-instruction <text>` (and the same flag on `ao sdlc
+approve`, since approve resumes into generate-backend — pass the same value to both).
+The Node-CRUD smoke passes a generic instruction like *"Implement this task as plain
+Node.js. Write the code files…"* — no ContaAzul skill, no prereq gate.
+
+### Readable artifact paths
+
+- `normalize-plan` writes the normalized plan markdown to
+  `${os.tmpdir()}/ao-sdlc-${runId}-plan.md` and returns that absolute path as
+  `artifactRef`, so the lens agent can `Read` it.
+- `generate-backend` returns the spawned task worktree path(s) (one per line) as
+  `artifactRef` (`Session.workspacePath`, surfaced through `SpawnFn`), falling back to
+  `epic:${id}` when no path is available (e.g. injected-fake unit tests).
+
+### Lenient smoke-eval (`smokeEvalArtifact`) + how to swap in the real eval
+
+`smokeEvalArtifact(artifactRef)` is an `EvalCommandRunner` exported from
+`@aoagents/ao-sdlc`. It splits `artifactRef` on newlines and passes **only** if at least
+one path contains generated files (recursive; ignoring `.git`/`node_modules`/`.ao`);
+otherwise it returns `{passed:false}` **with a finding**. It is NOT a silent pass.
+Both factories (`buildSdlcServices` in cli, `buildWebSdlcEngine` in web) inject it as
+`runEvalCommand`. To use the real ContaAzul eval on a `ca-*` repo, swap the injected
+`runEvalCommand` for an invocation of `/avaliar-artefato` (the eval-runner) — the
+`Gate`/`EvalCommandRunner` seam is unchanged.
+
+### Prereq-fail-is-graceful
+
+If a generation session halts early (e.g. the gerar-backend prereq gate) and produces
+no output: `waitForDone` still returns a terminal outcome (bounded by a 2h poll cap),
+the task is marked done/blocked, then `smokeEvalArtifact` finds an empty worktree →
+`needs_fixes` → the engine marks the run **failed cleanly** (no hang, no stuck-running).
+The gate loop is wrapped in try/catch, so even a throwing eval fails the run rather than
+leaving it `running`. This guarantees the skeleton-only smoke completes even when the
+generator can't run on a non-ContaAzul repo.
+
+### Lens prompt bodies at runtime
+
+`loadLensPrompt(name)` reads `gates/prompts/<name>.md` relative to its compiled module
+(`import.meta.url`) — `src/gates/prompts` under vitest, `dist/gates/prompts` at runtime
+(the build copies them via `cpSync`). The web keeps `@aoagents/ao-sdlc` in
+`next.config.js` `serverExternalPackages` so Next does not bundle it (bundling would
+rewrite `import.meta.url` and break the prompt path).
+
+### Smoke target — repo-agnostic
+
+The orchestrator wiring hardcodes no target. `ao sdlc start --project <id>` parameterizes
+the spawn target; at live-smoke time the target is a FRESH THROWAWAY dir so the generated
+Node CRUD lands there, not in agent-orchestrator. `examples/sample-plan.md` is the 2-task
+Node Users CRUD plan (`User store` → `HTTP CRUD API`).
