@@ -13,7 +13,7 @@ export function extractTaskGraphYaml(content: string): string {
 }
 
 function asStringArray(v: unknown): string[] {
-  if (v == null) return [];
+  if (v === null || v === undefined) return [];
   if (!Array.isArray(v) || v.some((x) => typeof x !== "string"))
     throw new Error("Expected a list of strings.");
   return v as string[];

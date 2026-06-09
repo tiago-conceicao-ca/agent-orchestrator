@@ -1,6 +1,6 @@
 import { getProjectDir } from "@aoagents/ao-core";
 import { RunStore } from "@aoagents/ao-sdlc";
-import { toKanban, type RunView } from "@/lib/sdlc-board";
+import { titlesFromRun, toKanban, type RunView } from "@/lib/sdlc-board";
 
 // NOTE: Next.js 15 route modules may only export valid route fields (GET, dynamic, …).
 // The pure `toKanban` mapper lives in @/lib/sdlc-board and is unit-tested there.
@@ -20,7 +20,7 @@ export async function GET() {
           workflow: run.workflow,
           status: run.status,
           pendingApproval: run.pendingApproval,
-          board: toKanban(run, {}),
+          board: toKanban(run, titlesFromRun(run)),
         });
       }
     }

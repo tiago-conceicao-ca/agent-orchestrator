@@ -33,6 +33,11 @@ function emptyBoard(): Board {
   return { backlog: [], ready: [], in_progress: [], in_review: [], done: [], blocked: [] };
 }
 
+/** Map task id → title from the run's persisted epic (empty when no epic yet). */
+export function titlesFromRun(run: WorkflowRun): Record<string, string> {
+  return Object.fromEntries((run.epic?.tasks ?? []).map((t) => [t.id, t.title]));
+}
+
 /** Group a run's tasks by status into kanban columns. Unknown statuses are ignored. */
 export function toKanban(run: WorkflowRun, titles: Record<string, string>): Board {
   const board = emptyBoard();

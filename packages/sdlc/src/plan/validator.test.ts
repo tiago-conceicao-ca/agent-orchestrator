@@ -36,6 +36,18 @@ describe("validateTaskGraph", () => {
     const r = validateTaskGraph(g, ["A", "B"]);
     expect(r.issues.some((i) => i.code === "CYCLE_DETECTED")).toBe(true);
   });
+  it("does not emit a spurious cycle when task names are duplicated", () => {
+    const g: TaskGraph = {
+      tasks: [
+        { name: "A", complexity: "LOW", tdd: true, dependsOn: ["B"], summary: "", acceptanceCriteria: [] },
+        { name: "A", complexity: "LOW", tdd: true, dependsOn: ["B"], summary: "", acceptanceCriteria: [] },
+        { name: "B", complexity: "LOW", tdd: true, dependsOn: [], summary: "", acceptanceCriteria: [] },
+      ],
+    };
+    const r = validateTaskGraph(g, ["A", "B"]);
+    expect(r.issues.some((i) => i.code === "DUPLICATE_NAME")).toBe(true);
+    expect(r.issues.some((i) => i.code === "CYCLE_DETECTED")).toBe(false);
+  });
   it("flags a task with no matching ## Task section", () => {
     const r = validateTaskGraph(ok, ["A"]); // B has no section
     expect(r.issues.some((i) => i.code === "MISSING_TASK_SECTION" && i.message.includes("B"))).toBe(

@@ -20,8 +20,10 @@ export class WorkflowEngine {
   async start(workflow: string, epicId: string, input: string): Promise<WorkflowRun> {
     const def = this.deps.definitions[workflow];
     if (!def) throw new Error(`Unknown workflow '${workflow}'.`);
+    // Unique per start so re-running the same plan never overwrites a prior run.
+    const uniqueSuffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const run: WorkflowRun = {
-      id: `run-${epicId}-${def.phases.length}`,
+      id: `run-${epicId}-${uniqueSuffix}`,
       workflow,
       epicId,
       status: "running",
@@ -98,20 +100,31 @@ export class WorkflowEngine {
         throw e;
       }
 
-      // run gates (lenses) sequentially; first needs_fixes fails the run
-      for (const lens of phase.gates) {
-        const gate = this.deps.gates[lens];
-        if (!gate) throw new Error(`No gate registered for lens '${lens}'.`);
-        const verdict = await gate.evaluate(artifactRef, lens);
-        run = await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
-        if (verdict.verdict === "needs_fixes") {
-          run = await this.deps.store.update(id, (r) => ({
-            ...r,
-            status: "failed",
-            phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
-          }));
-          return run;
+      // run gates (lenses) sequentially; first needs_fixes fails the run.
+      // Wrapped like the executor: a gate that throws must not leave the run
+      // persisted as "running" — mark it failed, then rethrow.
+      try {
+        for (const lens of phase.gates) {
+          const gate = this.deps.gates[lens];
+          if (!gate) throw new Error(`No gate registered for lens '${lens}'.`);
+          const verdict = await gate.evaluate(artifactRef, lens);
+          run = await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
+          if (verdict.verdict === "needs_fixes") {
+            run = await this.deps.store.update(id, (r) => ({
+              ...r,
+              status: "failed",
+              phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
+            }));
+            return run;
+          }
         }
+      } catch (e) {
+        await this.deps.store.update(id, (r) => ({
+          ...r,
+          status: "failed",
+          phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
+        }));
+        throw e;
       }
 
       run = await this.deps.store.update(id, (r) => ({

@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Gate, GateVerdict } from "./types";
-import { parseLensVerdict } from "./types";
+import { parseLensVerdict, type Gate, type GateVerdict } from "./types";
 
 describe("gate types", () => {
   it("a gate verdict mirrors tm's lens JSON shape", () => {

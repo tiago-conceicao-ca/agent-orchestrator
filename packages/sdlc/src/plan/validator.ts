@@ -44,8 +44,10 @@ export function validateTaskGraph(graph: TaskGraph, sectionNames: string[]): Val
         message: `Task '${n}' has no matching '## Task: ${n}' section.`,
       });
 
-  // cycle detection (Kahn's algorithm) — only if deps resolve, to avoid noise
-  if (!issues.some((i) => i.code === "UNRESOLVED_DEPENDENCY")) {
+  // cycle detection (Kahn's algorithm) — only if deps resolve AND names are unique.
+  // The inDeg/adj maps de-dupe by name while `names.length` counts duplicates, so a
+  // duplicate-name graph would otherwise report a spurious cycle.
+  if (!issues.some((i) => i.code === "UNRESOLVED_DEPENDENCY" || i.code === "DUPLICATE_NAME")) {
     const inDeg = new Map<string, number>(names.map((n) => [n, 0]));
     const adj = new Map<string, string[]>(names.map((n) => [n, []]));
     for (const t of graph.tasks)

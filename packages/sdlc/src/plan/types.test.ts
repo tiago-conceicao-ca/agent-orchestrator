@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import type { TaskGraph, TaskGraphTask, Epic, WorkflowTask, Dependency } from "./types";
-import { COMPLEXITY } from "./types";
+import {
+  COMPLEXITY,
+  type TaskGraph,
+  type TaskGraphTask,
+  type Epic,
+  type WorkflowTask,
+  type Dependency,
+} from "./types";
 
 describe("plan types", () => {
   it("COMPLEXITY enumerates LOW/MEDIUM/HIGH", () => {

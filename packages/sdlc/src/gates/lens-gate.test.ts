@@ -22,4 +22,18 @@ describe("lens gate", () => {
     const gate = makeLensGate("adversarial", "PROMPT", runner);
     expect((await gate.evaluate("plan.md", "adversarial")).verdict).toBe("pass");
   });
+  it("ignores a stray brace in prose before the verdict", async () => {
+    const runner = async () =>
+      "Note: handle {curly} braces carefully.\nReview:\n{\"verdict\":\"pass\",\"issues\":[]}";
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    expect((await gate.evaluate("plan.md", "tactical")).verdict).toBe("pass");
+  });
+  it("returns the LAST JSON object when the agent echoes an earlier example", async () => {
+    const runner = async () =>
+      '{"verdict":"needs_fixes","issues":[{"severity":"high","title":"example","detail":"placeholder"}]}\n\n{"verdict":"pass","issues":[]}';
+    const gate = makeLensGate("architectural", "PROMPT", runner);
+    const v = await gate.evaluate("plan.md", "architectural");
+    expect(v.verdict).toBe("pass");
+    expect(v.issues).toEqual([]);
+  });
 });

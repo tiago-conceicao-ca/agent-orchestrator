@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toKanban } from "@/lib/sdlc-board";
+import { titlesFromRun, toKanban } from "@/lib/sdlc-board";
 import type { WorkflowRun } from "@aoagents/ao-sdlc";
 
 describe("toKanban", () => {
@@ -18,6 +18,33 @@ describe("toKanban", () => {
     const run = { id: "r", taskStatus: { "epic__x": "blocked" } } as unknown as WorkflowRun;
     const board = toKanban(run, {});
     expect(board.blocked).toEqual([{ taskId: "epic__x", title: "epic__x", status: "blocked" }]);
+  });
+
+  it("derives card titles from the run's persisted epic", () => {
+    const run = {
+      id: "r",
+      taskStatus: { "epic-1__repo": "done" },
+      epic: {
+        id: "epic-1",
+        title: "X",
+        description: "",
+        tasks: [
+          {
+            id: "epic-1__repo",
+            title: "Repo layer",
+            summary: "",
+            complexity: "LOW",
+            tdd: true,
+            acceptanceCriteria: [],
+            status: "done",
+          },
+        ],
+        dependencies: [],
+      },
+    } as unknown as WorkflowRun;
+    expect(titlesFromRun(run)).toEqual({ "epic-1__repo": "Repo layer" });
+    const board = toKanban(run, titlesFromRun(run));
+    expect(board.done).toEqual([{ taskId: "epic-1__repo", title: "Repo layer", status: "done" }]);
   });
 
   it("ignores unknown statuses", () => {
