@@ -1,6 +1,33 @@
 import { describe, it, expect } from "vitest";
-import { titlesFromRun, toKanban } from "@/lib/sdlc-board";
+import { filterRunsByProject, titlesFromRun, toKanban, type RunView } from "@/lib/sdlc-board";
 import type { WorkflowRun } from "@aoagents/ao-sdlc";
+
+function makeRunView(id: string, projectId: string): RunView {
+  return {
+    id,
+    projectId,
+    workflow: "ca-plan-to-backend",
+    status: "running",
+    pendingApproval: undefined,
+    board: { backlog: [], ready: [], in_progress: [], in_review: [], done: [], blocked: [] },
+  };
+}
+
+describe("filterRunsByProject", () => {
+  const runs = [makeRunView("run-a", "alpha"), makeRunView("run-b", "beta")];
+
+  it("scopes runs to the given project", () => {
+    expect(filterRunsByProject(runs, "alpha").map((r) => r.id)).toEqual(["run-a"]);
+  });
+
+  it("returns every run for the all-projects view (undefined projectId)", () => {
+    expect(filterRunsByProject(runs, undefined).map((r) => r.id)).toEqual(["run-a", "run-b"]);
+  });
+
+  it("returns an empty list when no run matches the project", () => {
+    expect(filterRunsByProject(runs, "gamma")).toEqual([]);
+  });
+});
 
 describe("toKanban", () => {
   it("groups a run's tasks by status into columns", () => {

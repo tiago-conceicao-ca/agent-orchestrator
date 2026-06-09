@@ -23,6 +23,7 @@ export const COLUMNS: BoardColumn[] = [
 
 export interface RunView {
   id: string;
+  projectId: string;
   workflow: string;
   status: string;
   pendingApproval: WorkflowRun["pendingApproval"];
@@ -46,4 +47,13 @@ export function toKanban(run: WorkflowRun, titles: Record<string, string>): Boar
     if (col) col.push({ taskId, title: titles[taskId] ?? taskId, status });
   }
   return board;
+}
+
+/**
+ * Scope runs to a single project. `undefined` projectId is the all-projects
+ * view (mirrors ReviewDashboard's `allProjectsView`) and returns every run.
+ */
+export function filterRunsByProject(runs: RunView[], projectId: string | undefined): RunView[] {
+  if (!projectId) return runs;
+  return runs.filter((run) => run.projectId === projectId);
 }

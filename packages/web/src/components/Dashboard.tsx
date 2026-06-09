@@ -28,7 +28,12 @@ import { DashboardNotificationButton } from "./DashboardNotificationButton";
 import { SidebarContext, useSidebarContext } from "./workspace/SidebarContext";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { isOrchestratorSession } from "@aoagents/ao-core/types";
-import { projectDashboardPath, projectReviewPath, projectSessionPath } from "@/lib/routes";
+import {
+  projectDashboardPath,
+  projectReviewPath,
+  projectSdlcPath,
+  projectSessionPath,
+} from "@/lib/routes";
 import { BottomSheet } from "./BottomSheet";
 
 interface DashboardProps {
@@ -247,6 +252,7 @@ function DashboardInner({
   const allProjectsView = projects.length > 1 && projectId === undefined;
   const codingHref = projectId ? projectDashboardPath(projectId) : "/?project=all";
   const reviewHref = projectReviewPath(projectId);
+  const sdlcHref = projectSdlcPath(projectId);
   const currentProjectOrchestrator = useMemo(
     () =>
       projectId
@@ -559,6 +565,9 @@ function DashboardInner({
                     </Link>
                     <Link href={reviewHref} className="workspace-mode-switch__item">
                       Reviews
+                    </Link>
+                    <Link href={sdlcHref} className="workspace-mode-switch__item">
+                      SDLC
                     </Link>
                   </nav>
                 </div>

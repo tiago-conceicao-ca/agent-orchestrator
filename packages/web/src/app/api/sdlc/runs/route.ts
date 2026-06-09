@@ -17,6 +17,7 @@ export async function GET() {
       for (const run of await store.list()) {
         runs.push({
           id: run.id,
+          projectId,
           workflow: run.workflow,
           status: run.status,
           pendingApproval: run.pendingApproval,
