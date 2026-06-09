@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SdlcDashboard } from "../SdlcDashboard";
-import type { RunView } from "@/lib/sdlc-board";
+import type { RunView, SdlcTaskDetail } from "@/lib/sdlc-board";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -12,6 +12,27 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ resolvedTheme: "dark", setTheme: vi.fn() }),
 }));
 
+function makeTask(overrides: Partial<SdlcTaskDetail> = {}): SdlcTaskDetail {
+  return {
+    number: 1,
+    id: "epic-1__repo",
+    title: "Repo layer",
+    status: "backlog",
+    summary: "Persist the aggregate via the repository.",
+    acceptanceCriteria: ["repository saves the aggregate", "integration test passes"],
+    dependsOn: [],
+    complexity: "LOW",
+    tdd: true,
+    agent: "claude-code",
+    model: null,
+    createdAt: "2026-06-08T00:00:00Z",
+    updatedAt: "2026-06-08T00:00:00Z",
+    prompt: "Run the /gerar-backend skill to implement this task.\n\nTask: Repo layer",
+    linkedSession: null,
+    ...overrides,
+  };
+}
+
 function makeRun(overrides: Partial<RunView> = {}): RunView {
   return {
     id: "run-1",
@@ -19,14 +40,16 @@ function makeRun(overrides: Partial<RunView> = {}): RunView {
     workflow: "ca-plan-to-backend",
     status: "awaiting_approval",
     pendingApproval: { phaseId: "normalize-plan", since: "2026-06-08T00:00:00Z" },
+    createdAt: "2026-06-08T00:00:00Z",
     board: {
-      backlog: [{ taskId: "epic-1__repo", title: "Repo layer", status: "backlog" }],
+      backlog: [{ number: 1, taskId: "epic-1__repo", title: "Repo layer", status: "backlog" }],
       ready: [],
       in_progress: [],
       in_review: [],
       done: [],
       blocked: [],
     },
+    tasks: [makeTask()],
     ...overrides,
   };
 }
@@ -77,6 +100,23 @@ describe("SdlcDashboard", () => {
     expect(screen.getByText("run-1")).toBeInTheDocument();
     expect(screen.getByText("Backlog")).toBeInTheDocument();
     expect(screen.getByText("In Review")).toBeInTheDocument();
+    // Card shows its T-number.
+    expect(screen.getByText("T1")).toBeInTheDocument();
+  });
+
+  it("opens the read-only detail panel when a task card is clicked", async () => {
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    const card = await screen.findByRole("button", { name: "Open task T1: Repo layer" });
+    fireEvent.click(card);
+
+    const panel = await screen.findByRole("dialog", { name: "Task T1: Repo layer" });
+    expect(panel).toBeInTheDocument();
+    // Detail content: description, an acceptance criterion, and the prompt toggle.
+    expect(screen.getByText("Persist the aggregate via the repository.")).toBeInTheDocument();
+    expect(screen.getByText("repository saves the aggregate")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /View Agent Prompt/ })).toBeInTheDocument();
+    expect(screen.getByText("Not dispatched")).toBeInTheDocument();
   });
 
   it("shows an empty state when there are no runs", async () => {
@@ -110,13 +150,14 @@ describe("SdlcDashboard", () => {
         id: "run-2",
         projectId: "other-app",
         board: {
-          backlog: [{ taskId: "epic-2__svc", title: "Other service", status: "backlog" }],
+          backlog: [{ number: 1, taskId: "epic-2__svc", title: "Other service", status: "backlog" }],
           ready: [],
           in_progress: [],
           in_review: [],
           done: [],
           blocked: [],
         },
+        tasks: [makeTask({ id: "epic-2__svc", title: "Other service" })],
       }),
     ]);
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);

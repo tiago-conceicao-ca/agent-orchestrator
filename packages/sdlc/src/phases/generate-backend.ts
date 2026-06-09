@@ -47,10 +47,24 @@ function topoOrder(epic: Epic): WorkflowTask[] {
   return order;
 }
 
-function backendPrompt(task: WorkflowTask): string {
+/** Canonical /gerar-backend wording used as the default generation instruction. */
+export const GERAR_BACKEND_INSTRUCTION = "Run the /gerar-backend skill to implement this task.";
+
+/**
+ * Pure render of the per-task agent prompt. This is the single source of truth
+ * for what the generate-backend executor dispatches to a spawned session, reused
+ * by the dashboard to show a read-only preview of the exact prompt per task.
+ * `generationInstruction` defaults to the canonical /gerar-backend wording; the
+ * smoke injects a generic instruction so it needn't satisfy that skill's
+ * workspace prerequisites.
+ */
+export function previewTaskPrompt(
+  task: WorkflowTask,
+  generationInstruction: string = GERAR_BACKEND_INSTRUCTION,
+): string {
   const ac = task.acceptanceCriteria.map((c) => `- ${c}`).join("\n");
   return [
-    `Run the /gerar-backend skill to implement this task.`,
+    generationInstruction,
     `Task: ${task.title}`,
     `Summary: ${task.summary}`,
     `Acceptance criteria:\n${ac}`,
@@ -63,7 +77,7 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
     id: "generate-backend",
     async run(ctx: PhaseContext): Promise<PhaseResult> {
       if (!ctx.epic) throw new Error("generate-backend requires an epic from the prior phase.");
-      const promptFor = deps.buildTaskPrompt ?? backendPrompt;
+      const promptFor = deps.buildTaskPrompt ?? previewTaskPrompt;
       const order = topoOrder(ctx.epic);
       const workspacePaths: string[] = [];
       for (const task of order) {

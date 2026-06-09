@@ -14,6 +14,7 @@ import {
 import { projectDashboardPath, projectReviewPath, projectSdlcPath } from "@/lib/routes";
 import type { DashboardOrchestratorLink, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
+import { SdlcStatusBadge, SdlcTaskDetail } from "./SdlcTaskDetail";
 import { SidebarContext } from "./workspace/SidebarContext";
 
 // Independent poller for SDLC runs. The session SSE (useSessionEvents, 5s) is
@@ -59,6 +60,7 @@ export function SdlcDashboard({
   const [approvingIds, setApprovingIds] = useState<Set<string>>(() => new Set());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selected, setSelected] = useState<{ runId: string; taskId: string } | null>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
   const load = useCallback(async () => {
@@ -107,6 +109,14 @@ export function SdlcDashboard({
   );
 
   const visibleRuns = useMemo(() => filterRunsByProject(runs, projectId), [runs, projectId]);
+
+  const selectedTask = useMemo(() => {
+    if (!selected) return null;
+    const run = visibleRuns.find((r) => r.id === selected.runId);
+    if (!run) return null;
+    const task = run.tasks.find((t) => t.id === selected.taskId);
+    return task ? { runId: run.id, task } : null;
+  }, [selected, visibleRuns]);
 
   const allProjectsView = !projectId;
   const awaitingCount = visibleRuns.filter((run) => run.status === "awaiting_approval").length;
@@ -259,12 +269,20 @@ export function SdlcDashboard({
                     allProjectsView={allProjectsView}
                     isApproving={approvingIds.has(run.id)}
                     onApprove={approve}
+                    onSelectTask={(taskId) => setSelected({ runId: run.id, taskId })}
                   />
                 ))}
               </div>
             )}
           </main>
         </div>
+        {selectedTask ? (
+          <SdlcTaskDetail
+            task={selectedTask.task}
+            runId={selectedTask.runId}
+            onClose={() => setSelected(null)}
+          />
+        ) : null}
       </div>
     </SidebarContext.Provider>
   );
@@ -285,11 +303,13 @@ function SdlcRunSection({
   allProjectsView,
   isApproving,
   onApprove,
+  onSelectTask,
 }: {
   run: RunView;
   allProjectsView: boolean;
   isApproving: boolean;
   onApprove: (run: RunView) => void;
+  onSelectTask: (taskId: string) => void;
 }) {
   const awaitingApproval = run.status === "awaiting_approval";
   return (
@@ -312,7 +332,12 @@ function SdlcRunSection({
       <div className="kanban-board-wrap">
         <div className="sdlc-kanban-board">
           {COLUMNS.map((column) => (
-            <SdlcColumn key={column} column={column} cards={run.board[column]} />
+            <SdlcColumn
+              key={column}
+              column={column}
+              cards={run.board[column]}
+              onSelectTask={onSelectTask}
+            />
           ))}
         </div>
       </div>
@@ -320,7 +345,15 @@ function SdlcRunSection({
   );
 }
 
-function SdlcColumn({ column, cards }: { column: BoardColumn; cards: KanbanCard[] }) {
+function SdlcColumn({
+  column,
+  cards,
+  onSelectTask,
+}: {
+  column: BoardColumn;
+  cards: KanbanCard[];
+  onSelectTask: (taskId: string) => void;
+}) {
   return (
     <div className="kanban-column sdlc-kanban-column" data-sdlc-column={column}>
       <div className="kanban-column__header">
@@ -333,9 +366,19 @@ function SdlcColumn({ column, cards }: { column: BoardColumn; cards: KanbanCard[
         {cards.length > 0 ? (
           <div className="kanban-column__stack">
             {cards.map((card) => (
-              <article key={card.taskId} className="sdlc-card">
-                {card.title}
-              </article>
+              <button
+                key={card.taskId}
+                type="button"
+                className="sdlc-card"
+                onClick={() => onSelectTask(card.taskId)}
+                aria-label={`Open task T${card.number}: ${card.title}`}
+              >
+                <span className="sdlc-card__head">
+                  <span className="sdlc-card__num">T{card.number}</span>
+                  <SdlcStatusBadge status={card.status} />
+                </span>
+                <span className="sdlc-card__title">{card.title}</span>
+              </button>
             ))}
           </div>
         ) : null}

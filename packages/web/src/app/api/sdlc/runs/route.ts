@@ -1,9 +1,11 @@
 import { getProjectDir } from "@aoagents/ao-core";
 import { RunStore } from "@aoagents/ao-sdlc";
-import { titlesFromRun, toKanban, type RunView } from "@/lib/sdlc-board";
+import { assignTaskNumbers, titlesFromRun, toKanban, type RunView } from "@/lib/sdlc-board";
+import { enrichRunTasks, linkedSessionsByTaskId } from "@/lib/sdlc-tasks";
 
 // NOTE: Next.js 15 route modules may only export valid route fields (GET, dynamic, …).
-// The pure `toKanban` mapper lives in @/lib/sdlc-board and is unit-tested there.
+// The pure mappers (toKanban, assignTaskNumbers) live in @/lib/sdlc-board and the
+// server-only task enrichment in @/lib/sdlc-tasks — both unit-tested there.
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,7 @@ export async function GET() {
     const runs: RunView[] = [];
     for (const projectId of Object.keys(config.projects)) {
       const store = new RunStore(getProjectDir(projectId));
+      const linked = linkedSessionsByTaskId(projectId);
       for (const run of await store.list()) {
         runs.push({
           id: run.id,
@@ -21,7 +24,9 @@ export async function GET() {
           workflow: run.workflow,
           status: run.status,
           pendingApproval: run.pendingApproval,
-          board: toKanban(run, titlesFromRun(run)),
+          createdAt: run.createdAt,
+          board: toKanban(run, titlesFromRun(run), assignTaskNumbers(run)),
+          tasks: enrichRunTasks(run, linked),
         });
       }
     }

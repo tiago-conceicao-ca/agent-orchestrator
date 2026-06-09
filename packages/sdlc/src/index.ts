@@ -17,6 +17,8 @@ export { RunStore } from "./workflow/run-store.js";
 export { makeNormalizePlanExecutor, type AdaptToPlanFn } from "./phases/normalize-plan.js";
 export {
   makeGenerateBackendExecutor,
+  previewTaskPrompt,
+  GERAR_BACKEND_INSTRUCTION,
   type SpawnFn,
   type SpawnConfig,
   type WaitForDoneFn,
