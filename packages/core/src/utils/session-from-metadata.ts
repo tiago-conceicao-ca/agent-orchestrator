@@ -11,6 +11,7 @@ import { deriveLegacyStatus, parseCanonicalLifecycle } from "../lifecycle-state.
 import { createActivitySignal } from "../activity-signal.js";
 import { AGENT_REPORT_METADATA_KEYS } from "../agent-report.js";
 import { dedupePrInfos, parsePrFromUrl } from "./pr.js";
+import { parseSiblings } from "./siblings.js";
 import { safeJsonParse, validateStatus } from "./validation.js";
 
 interface SessionFromMetadataOptions {
@@ -108,6 +109,7 @@ export function sessionFromMetadata(
     issueId: meta["issue"] || null,
     pr: prs[0] ?? null,
     prs,
+    siblings: parseSiblings(meta),
     workspacePath: meta["worktree"] || options.workspacePathFallback || null,
     runtimeHandle: lifecycle.runtime.handle ?? runtimeHandle,
     agentInfo: meta["summary"] ? { summary: meta["summary"], agentSessionId: null } : null,

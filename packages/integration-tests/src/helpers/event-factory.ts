@@ -53,6 +53,7 @@ export function makeSession(overrides: Partial<Session> = {}): Session {
     issueId: null,
     pr: null,
     prs: [],
+    siblings: [],
     workspacePath: "/tmp/workspace",
     runtimeHandle: null,
     agentInfo: null,

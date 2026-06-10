@@ -310,6 +310,13 @@ export interface Session {
    *  Populated from metadata field "prs" (comma-separated URLs) on load. */
   prs: PRInfo[];
 
+  /** Sibling repos mounted into this session (secondary worktrees / read-only refs).
+   *  Always present (empty for sessions with no siblings). Populated from the
+   *  metadata field "siblings" (a JSON-encoded SiblingRef[]) on load — mirrors the
+   *  metadata-backed pattern used by prs (#1821). Old sessions with no "siblings"
+   *  field load as []. */
+  siblings: SiblingRef[];
+
   /** Workspace path on disk */
   workspacePath: string | null;
 
@@ -970,6 +977,26 @@ export interface PRInfo {
   branch: string;
   baseBranch: string;
   isDraft: boolean;
+}
+
+/** How a sibling repo is materialized into a session. */
+export type SiblingMode = "worktree" | "readonly-symlink";
+
+/**
+ * A sibling repo mounted into a session (#1095). The catalog of mountable
+ * siblings is the set of registered projects; each project's `path` is the
+ * source repo for the `git worktree add`. Mounting is per-session and isolated
+ * so two parallel sessions mounting the same source repo never collide.
+ */
+export interface SiblingRef {
+  /** Source repo identifier — the registered project id (or owner/name) it was mounted from. */
+  repo: string;
+  /** On-disk location of the mounted sibling (the isolated worktree, or the symlink for readonly-symlink mode). */
+  path: string;
+  /** Branch checked out in the sibling worktree (or the source default branch for readonly-symlink mode). */
+  branch: string;
+  /** "worktree" = writable git worktree; "readonly-symlink" = symlink to the source repo (read-only reference). */
+  mode: SiblingMode;
 }
 
 export type PRState = "open" | "merged" | "closed";
@@ -1896,6 +1923,14 @@ export interface SessionManager {
   ): Promise<CleanupResult>;
   send(sessionId: SessionId, message: string): Promise<void>;
   claimPR(sessionId: SessionId, prRef: string, options?: ClaimPROptions): Promise<ClaimPRResult>;
+  /** Mount a sibling repo (#1095) into a session — isolated per-session worktree (or read-only symlink). */
+  addSibling(
+    sessionId: SessionId,
+    repoOrProjectId: string,
+    options?: AddSiblingOptions,
+  ): Promise<SiblingRef>;
+  /** Unmount a sibling repo: remove its worktree/symlink and drop it from the session metadata. */
+  removeSibling(sessionId: SessionId, repo: string): Promise<void>;
 }
 
 /** OpenCode-specific session manager with remap capability */
@@ -1909,6 +1944,13 @@ export interface OpenCodeSessionManager extends SessionManager {
 export interface ClaimPROptions {
   assignOnGithub?: boolean;
   takeover?: boolean;
+}
+
+export interface AddSiblingOptions {
+  /** Branch to create in the sibling worktree. Defaults to a unique per-session branch based off the source project's default branch. Ignored for readonly-symlink mode. */
+  branch?: string;
+  /** "worktree" (default, writable) or "readonly-symlink" (symlink to source, read-only). */
+  mode?: SiblingMode;
 }
 
 export interface ClaimPRResult {

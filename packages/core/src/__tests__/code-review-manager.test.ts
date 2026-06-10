@@ -90,6 +90,7 @@ function makeSession(overrides: Partial<Session> & { id?: string } = {}): Sessio
         isDraft: false,
       },
     ],
+    siblings: [],
     workspacePath: "/tmp/app-worktree",
     runtimeHandle: { id: "tmux-app-1", runtimeName: "tmux", data: {} },
     agentInfo: null,
@@ -126,6 +127,12 @@ function makeSessionManager(
     cleanup: async () => ({ killed: [], skipped: [], errors: [] }),
     send: async () => {},
     claimPR: async () => {
+      throw new Error("not implemented");
+    },
+    addSibling: async () => {
+      throw new Error("not implemented");
+    },
+    removeSibling: async () => {
       throw new Error("not implemented");
     },
   };

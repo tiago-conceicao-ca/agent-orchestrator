@@ -106,6 +106,7 @@ export function makeSession(overrides: Partial<Session> = {}): Session {
     issueId: null,
     pr: null,
     prs: [],
+    siblings: [],
     workspacePath: "/tmp/ws",
     runtimeHandle: { id: "rt-1", runtimeName: "mock", data: {} },
     agentInfo: null,
@@ -523,5 +524,12 @@ export function createMockSessionManager(): OpenCodeSessionManager {
       githubAssigned: true,
       takenOverFrom: [],
     }),
+    addSibling: vi.fn().mockResolvedValue({
+      repo: "sibling-repo",
+      path: "/tmp/ws-sib",
+      branch: "main",
+      mode: "worktree",
+    }),
+    removeSibling: vi.fn().mockResolvedValue(undefined),
   } as OpenCodeSessionManager;
 }

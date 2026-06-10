@@ -720,6 +720,7 @@ async function showFallbackStatus(): Promise<void> {
         issueId: null,
         pr: null,
         prs: [],
+        siblings: [],
         workspacePath: null,
         runtimeHandle: lifecycle.runtime.handle,
         agentInfo: null,

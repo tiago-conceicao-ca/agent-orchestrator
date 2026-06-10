@@ -76,6 +76,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     issueId: null,
     pr: null,
     prs: [],
+    siblings: [],
     workspacePath: "/workspace/test",
     runtimeHandle: null,
     agentInfo: null,
