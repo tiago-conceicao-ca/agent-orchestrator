@@ -22,6 +22,10 @@ const nextConfig = {
     "yaml",
     "zod",
     "@aoagents/ao-core",
+    // Kept external so @aoagents/ao-sdlc's loadLensPrompt() can resolve its
+    // dist/gates/prompts/*.md via import.meta.url at runtime (bundling would
+    // rewrite the module URL and break the prompt path).
+    "@aoagents/ao-sdlc",
     "better-sqlite3",
   ],
   webpack: (config, { isServer }) => {

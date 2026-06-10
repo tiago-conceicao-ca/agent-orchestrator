@@ -18,6 +18,7 @@ import {
   projectDashboardSessionPath,
   projectDashboardPath,
   projectReviewPath,
+  projectSdlcPath,
   projectSessionHashPath,
   projectSessionPath,
 } from "@/lib/routes";
@@ -235,6 +236,7 @@ function ReviewDashboardInner({
     : workerOptions;
   const codingHref = projectId ? projectDashboardPath(projectId) : "/?project=all";
   const reviewHref = projectReviewPath(projectId);
+  const sdlcHref = projectSdlcPath(projectId);
   const headerProjectLabel = projectName ?? (allProjectsView ? "All projects" : "Reviews");
 
   const handleToggleSidebar = () => {
@@ -557,6 +559,9 @@ function ReviewDashboardInner({
               aria-current="page"
             >
               Reviews
+            </Link>
+            <Link href={sdlcHref} className="workspace-mode-switch__item">
+              SDLC
             </Link>
           </nav>
           <div className="dashboard-app-header__spacer" />
