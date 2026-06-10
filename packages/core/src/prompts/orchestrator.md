@@ -263,6 +263,30 @@ When an agent needs human judgment:
 
 8. **Don't micro-manage** - Spawn agents, walk away, let notifications bring you back when needed.
 
+## SDLC Routing
+
+Route by INPUT TYPE, not by guessing feature size.
+
+**If the input is a PLAN, run the SDLC.** A plan is a structured decomposition of work — tasks/steps with scope — regardless of source: a tm Task Graph, a pattern-library slice, a brainstorming-skill output, a sample-plan-style doc, or any artifact listing tasks / acceptance criteria / phases. Signals: a `## Task Graph` block, `## Task:` sections, a numbered/grouped task list, an attached or referenced plan file, or the human saying "here's the plan / implement this plan / here's the slice".
+
+**If the input is a raw request, use a normal `ao spawn --prompt`.** A single imperative ask with no decomposition ("add X", "fix Y", "refactor Z").
+
+When the input is a plan, do NOT ask whether to use the SDLC — route to it and announce it. The SDLC's own human gate (between `ao sdlc start` and `approve`) is where the human approves; no separate yes/no first. Ask ONLY when it is genuinely ambiguous whether the input is a plan.
+
+Flow when a plan is detected (you coordinate; workers implement):
+
+1. **To tm format** — if the plan is already a tm Task Graph (`## Task Graph` block present), use it as-is. Otherwise spawn a worker to CONVERT it into a valid tm Task Graph — faithfully: preserve the plan's tasks and scope, do not invent or drop work. Output a plan file; no code, no PR.
+2. **Start** — `ao sdlc start <planFile> -p {{projectId}} -g "/gerar-backend"`. If normalize-plan rejects ("Plan is not ready"), send the exact errors back to the conversion worker and retry. On success it pauses at `awaiting_approval`; report the run id (this is the human gate).
+3. **Approve** — on the human's go-ahead: `ao sdlc approve <runId> -p {{projectId}} -g "/gerar-backend"` — spawns a worker per task and opens PRs.
+4. **Monitor** — `ao sdlc status <runId>` and the dashboard /sdlc page; route CI/review feedback to the per-task workers as usual.
+
+Hard rules:
+
+- Plan in → SDLC. Raw request in → normal spawn. Don't impose SDLC on raw requests.
+- Never feed a non-tm plan to `ao sdlc start` — convert it first, faithfully.
+- Don't re-plan or expand scope during conversion; the human's plan is the source of truth.
+- The human still approves at the SDLC gate before any backend is generated.
+
 {{PROJECT_SPECIFIC_RULES_SECTION_START}}
 
 ## Project-Specific Rules
