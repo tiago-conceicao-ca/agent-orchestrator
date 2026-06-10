@@ -46,19 +46,41 @@ async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Prom
   return stdout;
 }
 
+/**
+ * Map an AO session's terminal state to the engine's done/failed outcome.
+ *
+ * A successful agent that has OPENED a PR (CI green/pending) is "done" — a merge
+ * is NOT required. Only a still-working session with no PR yet keeps polling.
+ */
 function classifyTerminal(session: Session): "done" | "failed" | null {
-  if (session.lifecycle?.pr?.state === "merged") return "done";
+  const prState = session.lifecycle?.pr?.state;
+  const prExists = prState === "open" || prState === "merged";
+  const ciFailing =
+    session.status === "ci_failed" || session.lifecycle?.pr?.reason === "ci_failing";
+
+  // Hard failure: the process died, or a PR exists but its CI is failing.
+  if (
+    session.status === "errored" ||
+    session.status === "killed" ||
+    session.status === "terminated" ||
+    ciFailing
+  ) {
+    return "failed";
+  }
+
+  // Success: a PR exists (open or merged, CI green/pending), or the legacy
+  // status already advanced past PR creation. A merge is NOT required.
+  if (prExists) return "done";
   switch (session.status) {
+    case "pr_open":
+    case "review_pending":
+    case "mergeable":
     case "merged":
     case "done":
     case "cleanup":
       return "done";
-    case "errored":
-    case "killed":
-    case "terminated":
-      return "failed";
     default:
-      return null;
+      return null; // still working with no PR yet — keep polling
   }
 }
 
