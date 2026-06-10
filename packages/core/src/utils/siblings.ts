@@ -1,11 +1,14 @@
 import { lstatSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
-import { basename, dirname } from "node:path";
+import { basename, dirname, join } from "node:path";
 import type { SiblingRef, SiblingMode } from "../types.js";
 import { isWindows } from "../platform.js";
 import { safeJsonParse } from "./validation.js";
 
 /** Separator between the session id and the sibling name in an isolated worktree path. */
 export const SIBLING_PATH_SEP = "__sib__";
+
+/** Suffix marking a session's assembled adjacency-view directory ({sessionId}__ws). */
+export const SIBLING_ASSEMBLED_SUFFIX = "__ws";
 
 /** Safe characters for a worktree directory segment (matches workspace-worktree's guard). */
 const SAFE_PATH_SEGMENT = /^[a-zA-Z0-9_-]+$/;
@@ -83,6 +86,18 @@ export function defaultSiblingBranch(sessionId: string, name: string): string {
   return `sib/${sessionId}/${name}`;
 }
 
+/**
+ * Recover the sibling's real repo name from its isolated-worktree path. The path
+ * basename is the segment `{sessionId}__sib__{name}`; stripping the known
+ * `{sessionId}__sib__` prefix yields the name. Returns null when the path does not
+ * belong to this session (used on removeSibling to drop the adjacency link).
+ */
+export function siblingNameFromPath(sessionId: string, siblingPath: string): string | null {
+  const prefix = `${sessionId}${SIBLING_PATH_SEP}`;
+  const segment = basename(siblingPath.replace(/[/\\]+$/, ""));
+  return segment.startsWith(prefix) ? segment.slice(prefix.length) : null;
+}
+
 /** Whether `target` currently exists as any filesystem entry (including a broken symlink). */
 function pathExists(target: string): boolean {
   try {
@@ -94,19 +109,100 @@ function pathExists(target: string): boolean {
 }
 
 /**
- * Create a read-only adjacency symlink at `linkPath` pointing to the source repo.
+ * Create (or replace) a directory symlink at `linkPath` pointing to `targetPath`.
  * Uses a junction on Windows (no admin/Developer Mode needed for directories).
  */
-export function createReadonlySiblingLink(sourcePath: string, linkPath: string): void {
+function linkDir(targetPath: string, linkPath: string): void {
   if (pathExists(linkPath)) {
     rmSync(linkPath, { recursive: true, force: true });
   }
   mkdirSync(dirname(linkPath), { recursive: true });
-  symlinkSync(sourcePath, linkPath, isWindows() ? "junction" : "dir");
+  symlinkSync(targetPath, linkPath, isWindows() ? "junction" : "dir");
+}
+
+/**
+ * Create a read-only adjacency symlink at `linkPath` pointing to the source repo.
+ * Uses a junction on Windows (no admin/Developer Mode needed for directories).
+ */
+export function createReadonlySiblingLink(sourcePath: string, linkPath: string): void {
+  linkDir(sourcePath, linkPath);
 }
 
 /** Best-effort removal of a sibling symlink/junction (and any stale dir at the path). */
 export function removeSiblingLink(linkPath: string): void {
   if (!pathExists(linkPath)) return;
   rmSync(linkPath, { recursive: true, force: true });
+}
+
+// ---------------------------------------------------------------------------
+// Assembled adjacency view (#1095 Decision 3 / Option 1)
+//
+// A worktree-mode sibling lives at {worktreeDir}/{sessionId}__sib__{name}, while
+// the session's primary worktree is {worktreeDir}/{sessionId} — siblings of the
+// SAME parent dir, so a naive ../{name} from the primary would not resolve and
+// the parent is shared across sessions (the #1095 collision). Instead each
+// session gets its own assembled view at {worktreeDir}/{sessionId}__ws/ holding
+// symlinks named by the REAL repo name: the primary worktree and each sibling
+// worktree. Sibling-aware tools run with cwd = {sessionId}__ws/{primaryRepoName},
+// so ../{siblingRepoName} resolves. Per-session __ws → no cross-session collision.
+// ---------------------------------------------------------------------------
+
+/** The per-session assembled-view directory: `{worktreeDir}/{sessionId}__ws`. */
+export function assembledViewDir(worktreeDir: string, sessionId: string): string {
+  const segment = `${sessionId}${SIBLING_ASSEMBLED_SUFFIX}`;
+  if (!SAFE_PATH_SEGMENT.test(segment)) {
+    throw new Error(
+      `Invalid assembled-view segment "${segment}": must match ${SAFE_PATH_SEGMENT}`,
+    );
+  }
+  return join(worktreeDir, segment);
+}
+
+/** The assembled primary-view path tools run in: `{__ws}/{primaryRepoName}`. */
+export function assembledPrimaryViewPath(
+  worktreeDir: string,
+  sessionId: string,
+  primaryRepoName: string,
+): string {
+  return join(assembledViewDir(worktreeDir, sessionId), primaryRepoName);
+}
+
+/**
+ * Ensure the assembled view exists with the primary repo symlinked under its real
+ * name. Idempotent (creating the primary link also creates the `__ws` dir).
+ * Returns the assembled primary-view path — the cwd for sibling-aware tools.
+ */
+export function ensureAssembledPrimaryView(
+  worktreeDir: string,
+  sessionId: string,
+  primaryRepoName: string,
+  primaryWorktreePath: string,
+): string {
+  const primaryView = assembledPrimaryViewPath(worktreeDir, sessionId, primaryRepoName);
+  linkDir(primaryWorktreePath, primaryView);
+  return primaryView;
+}
+
+/** Symlink a sibling's worktree into the assembled view under its real repo name. */
+export function linkSiblingIntoView(
+  worktreeDir: string,
+  sessionId: string,
+  siblingRepoName: string,
+  siblingWorktreePath: string,
+): void {
+  linkDir(siblingWorktreePath, join(assembledViewDir(worktreeDir, sessionId), siblingRepoName));
+}
+
+/** Remove a sibling's adjacency symlink from the assembled view (best-effort). */
+export function unlinkSiblingFromView(
+  worktreeDir: string,
+  sessionId: string,
+  siblingRepoName: string,
+): void {
+  removeSiblingLink(join(assembledViewDir(worktreeDir, sessionId), siblingRepoName));
+}
+
+/** Remove the entire per-session assembled view (best-effort) — used on kill. */
+export function removeAssembledView(worktreeDir: string, sessionId: string): void {
+  removeSiblingLink(assembledViewDir(worktreeDir, sessionId));
 }

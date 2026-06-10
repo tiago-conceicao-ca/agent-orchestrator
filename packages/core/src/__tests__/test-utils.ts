@@ -107,6 +107,7 @@ export function makeSession(overrides: Partial<Session> = {}): Session {
     pr: null,
     prs: [],
     siblings: [],
+    assembledViewPath: null,
     workspacePath: "/tmp/ws",
     runtimeHandle: { id: "rt-1", runtimeName: "mock", data: {} },
     agentInfo: null,

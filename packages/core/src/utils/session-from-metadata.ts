@@ -110,6 +110,7 @@ export function sessionFromMetadata(
     pr: prs[0] ?? null,
     prs,
     siblings: parseSiblings(meta),
+    assembledViewPath: meta["assembledView"] || null,
     workspacePath: meta["worktree"] || options.workspacePathFallback || null,
     runtimeHandle: lifecycle.runtime.handle ?? runtimeHandle,
     agentInfo: meta["summary"] ? { summary: meta["summary"], agentSessionId: null } : null,

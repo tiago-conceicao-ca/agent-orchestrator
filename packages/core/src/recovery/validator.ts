@@ -124,6 +124,7 @@ export async function validateSession(
         pr: null,
         prs: [],
         siblings: [],
+        assembledViewPath: null,
         workspacePath,
         runtimeHandle,
         agentInfo: null,

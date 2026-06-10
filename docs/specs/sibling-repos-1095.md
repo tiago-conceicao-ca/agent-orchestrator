@@ -105,4 +105,9 @@ Esta PR entrega a **fundação** do #1095: o modelo de dados e o núcleo (core).
 
 **Testes (TDD):** round-trip de metadata + back-compat; `addSibling` cria worktree isolado no caminho por-sessão; duas sessões paralelas montando o mesmo repo recebem worktrees DIFERENTES (sem colisão); `removeSibling` limpa; kill remove os siblings; `readonly-symlink` cria symlink e não worktree.
 
-**EM ABERTO — bifurcação de layout da adjacência (Decisão 3):** a adjacência `../{name}` ainda NÃO foi implementada. O worktree primário da AO vive em `{worktreeDir}/{sessionId}/` cujo PARENT é compartilhado entre sessões, então um `../{name}` ingênuo colidiria. As opções de layout (per-session sibling-root de symlinks vs. cwd montado vs. symlink dentro do primário) estão sob decisão antes de implementar essa parte.
+**Adjacência `../{name}` (Decisão 3 / Option 1 — IMPLEMENTADA):** o worktree primário vive em `{worktreeDir}/{sessionId}/` cujo PARENT é compartilhado entre sessões, então um `../{name}` ingênuo colidiria. Solução: uma **assembled-view por sessão** em `{worktreeDir}/{sessionId}__ws/` com symlinks (junctions no Windows) nomeados pelo **nome real do repo** — o worktree primário sob o nome do repo primário, e cada sibling `mode: worktree` sob o nome do repo fonte. Ferramentas sibling-aware (pattern-library) rodam com `cwd = {sessionId}__ws/{primaryRepoName}`, de onde `../{siblingRepoName}` resolve para o worktree isolado do sibling. `__ws` por sessão ⇒ zero colisão entre sessões paralelas.
+
+- A view + symlink primário são criados lazy no primeiro `addSibling` em `mode: worktree`; o symlink do sibling é adicionado em `addSibling` e removido em `removeSibling`.
+- `kill()` remove o `__ws` inteiro (best-effort) — apenas os symlinks; os worktrees apontados são destruídos à parte.
+- O caminho da primary-view montada é exposto em `Session.assembledViewPath` (metadata-backed; `null` até o primeiro sibling worktree).
+- Helpers em `utils/siblings.ts`: `assembledViewDir`, `assembledPrimaryViewPath`, `ensureAssembledPrimaryView`, `linkSiblingIntoView`, `unlinkSiblingFromView`, `removeAssembledView`, `siblingNameFromPath`.

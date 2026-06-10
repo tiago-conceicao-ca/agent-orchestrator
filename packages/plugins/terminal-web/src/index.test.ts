@@ -25,6 +25,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     pr: null,
     prs: [],
     siblings: [],
+    assembledViewPath: null,
     workspacePath: "/tmp/workspace",
     runtimeHandle: null,
     agentInfo: null,

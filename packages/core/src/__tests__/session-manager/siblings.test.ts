@@ -1,10 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { existsSync, lstatSync, mkdirSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
 import { writeMetadata, readMetadataRaw } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
-import { parseSiblings } from "../../utils/siblings.js";
+import {
+  parseSiblings,
+  assembledViewDir,
+  assembledPrimaryViewPath,
+} from "../../utils/siblings.js";
 import {
   type OrchestratorConfig,
   type ProjectConfig,
@@ -64,16 +75,16 @@ describe("addSibling / removeSibling (#1095)", () => {
     };
   }
 
-  /** Workspace mock that mirrors the real worktree path scheme: {worktreeDir}/{sessionId}. */
+  /** Workspace mock that mirrors the real worktree path scheme: {worktreeDir}/{sessionId}.
+   *  Materializes the worktree dir on disk so adjacency symlinks resolve to a real target. */
   function pathAwareWorkspace(): Workspace {
     return {
       name: "mock-ws",
-      create: vi.fn().mockImplementation(async (cfg) => ({
-        path: join(cfg.worktreeDir, cfg.sessionId),
-        branch: cfg.branch,
-        sessionId: cfg.sessionId,
-        projectId: cfg.projectId,
-      })),
+      create: vi.fn().mockImplementation(async (cfg) => {
+        const path = join(cfg.worktreeDir, cfg.sessionId);
+        mkdirSync(path, { recursive: true });
+        return { path, branch: cfg.branch, sessionId: cfg.sessionId, projectId: cfg.projectId };
+      }),
       destroy: vi.fn().mockResolvedValue(undefined),
       list: vi.fn().mockResolvedValue([]),
       findManagedWorkspace: vi.fn().mockResolvedValue(null),
@@ -94,8 +105,10 @@ describe("addSibling / removeSibling (#1095)", () => {
   }
 
   function writeWorker(sessionId: string): void {
+    const worktree = join(getProjectWorktreesDir("my-app"), sessionId);
+    mkdirSync(worktree, { recursive: true });
     writeMetadata(sessionsDir, sessionId, {
-      worktree: join(getProjectWorktreesDir("my-app"), sessionId),
+      worktree,
       branch: "feat/work",
       status: "working",
       project: "my-app",
@@ -240,5 +253,114 @@ describe("addSibling / removeSibling (#1095)", () => {
 
     expect(workspace.destroy).toHaveBeenCalledWith(worktreeRef.path);
     expect(existsSync(symlinkRef.path)).toBe(false);
+  });
+
+  describe("../{name} adjacency view (#1095 Decision 3 / Option 1)", () => {
+    /** The per-session assembled-view dir and primary-view path for "my-app"/"app-1". */
+    const viewDir = () => assembledViewDir(getProjectWorktreesDir("my-app"), "app-1");
+    const primaryView = () =>
+      assembledPrimaryViewPath(getProjectWorktreesDir("my-app"), "app-1", "my-app");
+
+    it("assembles a per-session view where ../{repoName} resolves to the sibling worktree", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      const ref = await sm.addSibling("app-1", "lib-shared");
+
+      // From the assembled primary view, ../lib-shared resolves (through the
+      // symlink) to the sibling's isolated worktree.
+      const adjacent = join(primaryView(), "..", "lib-shared");
+      expect(realpathSync(adjacent)).toBe(realpathSync(ref.path));
+    });
+
+    it("names the symlinks by the real repo name (primary + each sibling)", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared");
+      await sm.addSibling("app-1", "ui-kit");
+
+      // The primary repo (my-app) plus both siblings, each under its real name.
+      expect(readdirSync(viewDir()).sort()).toEqual(["lib-shared", "my-app", "ui-kit"]);
+      expect(lstatSync(join(viewDir(), "my-app")).isSymbolicLink()).toBe(true);
+      // The primary symlink points at the session's primary worktree.
+      expect(realpathSync(join(viewDir(), "my-app"))).toBe(
+        realpathSync(join(getProjectWorktreesDir("my-app"), "app-1")),
+      );
+    });
+
+    it("exposes the assembled primary-view path on the session", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared");
+
+      const session = await sm.get("app-1");
+      expect(session?.assembledViewPath).toBe(primaryView());
+    });
+
+    it("gives two parallel sessions separate __ws dirs (no collision)", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+      writeWorker("app-2");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared");
+      await sm.addSibling("app-2", "lib-shared");
+
+      const view1 = assembledViewDir(getProjectWorktreesDir("my-app"), "app-1");
+      const view2 = assembledViewDir(getProjectWorktreesDir("my-app"), "app-2");
+      expect(view1).not.toBe(view2);
+      expect(existsSync(view1)).toBe(true);
+      expect(existsSync(view2)).toBe(true);
+      // app-2's view does not contain app-1's sibling link, and vice versa —
+      // each ../lib-shared resolves to that session's own worktree.
+      expect(realpathSync(join(view1, "lib-shared"))).not.toBe(
+        realpathSync(join(view2, "lib-shared")),
+      );
+    });
+
+    it("removeSibling drops the sibling's adjacency link but keeps the view", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared");
+      await sm.addSibling("app-1", "ui-kit");
+
+      await sm.removeSibling("app-1", "lib-shared");
+
+      expect(existsSync(join(viewDir(), "lib-shared"))).toBe(false);
+      // ui-kit and the primary link survive.
+      expect(readdirSync(viewDir()).sort()).toEqual(["my-app", "ui-kit"]);
+    });
+
+    it("kill removes the entire __ws view", async () => {
+      const workspace = pathAwareWorkspace();
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared");
+      expect(existsSync(viewDir())).toBe(true);
+
+      await sm.kill("app-1");
+      expect(existsSync(viewDir())).toBe(false);
+    });
+
+    it("does not assemble a view for a readonly-symlink-only session", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+
+      expect(existsSync(viewDir())).toBe(false);
+      const session = await sm.get("app-1");
+      expect(session?.assembledViewPath).toBeNull();
+    });
   });
 });

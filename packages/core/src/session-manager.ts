@@ -100,10 +100,15 @@ import {
   parseSiblings,
   serializeSiblings,
   siblingName,
+  siblingNameFromPath,
   siblingPathSegment,
   defaultSiblingBranch,
   createReadonlySiblingLink,
   removeSiblingLink,
+  ensureAssembledPrimaryView,
+  linkSiblingIntoView,
+  unlinkSiblingFromView,
+  removeAssembledView,
 } from "./utils/siblings.js";
 import { safeJsonParse, validateStatus } from "./utils/validation.js";
 import { isGitBranchNameSafe } from "./utils.js";
@@ -1551,6 +1556,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         pr: null,
         prs: [],
         siblings: [],
+        assembledViewPath: null,
         workspacePath,
         runtimeHandle: handle,
         agentInfo: null,
@@ -2040,6 +2046,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       pr: null,
       prs: [],
       siblings: [],
+      assembledViewPath: null,
       workspacePath,
       runtimeHandle: handle,
       agentInfo: null,
@@ -2614,6 +2621,21 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     // (the session is terminated, not edited) — mirrors how `worktree` is kept.
     for (const sib of parseSiblings(raw)) {
       await destroySiblingResource(sib, project, projectId, sessionId);
+    }
+    // Tear down the assembled adjacency view (__ws) — its symlinks are removed,
+    // not their targets (the worktrees above own those). Best-effort.
+    try {
+      removeAssembledView(getProjectWorktreesDir(projectId), sessionId);
+    } catch (err) {
+      recordActivityEvent({
+        projectId,
+        sessionId,
+        source: "session-manager",
+        kind: "workspace.sibling_destroy_failed",
+        level: "warn",
+        summary: `assembled-view cleanup failed: ${sessionId}`,
+        data: { reason: err instanceof Error ? err.message : String(err) },
+      });
     }
 
     let didPurgeOpenCodeSession = false;
@@ -3804,6 +3826,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     const mode = options?.mode ?? "worktree";
 
     let ref: SiblingRef;
+    let assembledViewPath: string | undefined;
     if (mode === "readonly-symlink") {
       const linkPath = join(worktreeDir, segment);
       createReadonlySiblingLink(expandHome(source.project.path), linkPath);
@@ -3833,11 +3856,27 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         worktreeDir,
       });
       ref = { repo: source.repoId, path: wsInfo.path, branch: wsInfo.branch, mode };
+
+      // #1095 Decision 3 / Option 1 — assemble the per-session adjacency view so
+      // sibling-aware tools (pattern-library) resolve ../{siblingRepoName} relative
+      // to the primary checkout. The view + primary symlink are created lazily on
+      // the first worktree-mode sibling; the per-session __ws dir means two parallel
+      // sessions never collide. Symlinks are named by the REAL repo name.
+      const primaryWorktree = raw["worktree"] || expandHome(project.path);
+      assembledViewPath = ensureAssembledPrimaryView(
+        worktreeDir,
+        sessionId,
+        siblingName(project.path),
+        primaryWorktree,
+      );
+      linkSiblingIntoView(worktreeDir, sessionId, name, ref.path);
     }
 
-    updateMetadata(sessionsDir, sessionId, {
+    const metadataUpdate: Record<string, string> = {
       siblings: serializeSiblings([...existing, ref]),
-    });
+    };
+    if (assembledViewPath) metadataUpdate.assembledView = assembledViewPath;
+    updateMetadata(sessionsDir, sessionId, metadataUpdate);
     invalidateCache();
     recordActivityEvent({
       projectId,
@@ -3860,6 +3899,14 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     }
 
     await destroySiblingResource(ref, project, projectId, sessionId);
+
+    // Drop the sibling's adjacency symlink from the assembled view (#1095).
+    // The view + primary symlink are left for any remaining worktree siblings;
+    // kill() removes the whole __ws dir.
+    if (ref.mode === "worktree") {
+      const name = siblingNameFromPath(sessionId, ref.path);
+      if (name) unlinkSiblingFromView(getProjectWorktreesDir(projectId), sessionId, name);
+    }
 
     updateMetadata(sessionsDir, sessionId, {
       siblings: serializeSiblings(existing.filter((s) => s.repo !== repo)),

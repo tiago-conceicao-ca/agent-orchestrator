@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { parseSiblings, serializeSiblings } from "../utils/siblings.js";
+import { join } from "node:path";
+import {
+  parseSiblings,
+  serializeSiblings,
+  assembledViewDir,
+  assembledPrimaryViewPath,
+  siblingNameFromPath,
+  SIBLING_ASSEMBLED_SUFFIX,
+} from "../utils/siblings.js";
 import type { SiblingRef } from "../types.js";
 
 describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
@@ -59,5 +67,42 @@ describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
 
   it("serializes an empty list to an empty-array string", () => {
     expect(serializeSiblings([])).toBe("[]");
+  });
+});
+
+describe("assembled adjacency view paths (#1095 Decision 3)", () => {
+  const worktreeDir = "/home/u/.agent-orchestrator/projects/svc/worktrees";
+
+  it("assembledViewDir is the per-session __ws dir", () => {
+    expect(assembledViewDir(worktreeDir, "ao-10")).toBe(
+      join(worktreeDir, `ao-10${SIBLING_ASSEMBLED_SUFFIX}`),
+    );
+    expect(SIBLING_ASSEMBLED_SUFFIX).toBe("__ws");
+  });
+
+  it("assembledPrimaryViewPath nests the primary repo name under __ws", () => {
+    expect(assembledPrimaryViewPath(worktreeDir, "ao-10", "agent-orchestrator")).toBe(
+      join(worktreeDir, "ao-10__ws", "agent-orchestrator"),
+    );
+  });
+
+  it("two parallel sessions get distinct __ws dirs (no collision)", () => {
+    expect(assembledViewDir(worktreeDir, "ao-10")).not.toBe(
+      assembledViewDir(worktreeDir, "ao-11"),
+    );
+  });
+
+  it("rejects an unsafe session id in the assembled-view segment", () => {
+    expect(() => assembledViewDir(worktreeDir, "../evil")).toThrow(/invalid assembled-view/i);
+  });
+
+  it("siblingNameFromPath strips the {sessionId}__sib__ prefix to the real repo name", () => {
+    const path = join(worktreeDir, "ao-10__sib__svc-infra");
+    expect(siblingNameFromPath("ao-10", path)).toBe("svc-infra");
+  });
+
+  it("siblingNameFromPath returns null when the segment does not match the session prefix", () => {
+    expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-11__sib__svc-infra"))).toBeNull();
+    expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-10"))).toBeNull();
   });
 });

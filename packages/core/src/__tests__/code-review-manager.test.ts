@@ -91,6 +91,7 @@ function makeSession(overrides: Partial<Session> & { id?: string } = {}): Sessio
       },
     ],
     siblings: [],
+    assembledViewPath: null,
     workspacePath: "/tmp/app-worktree",
     runtimeHandle: { id: "tmux-app-1", runtimeName: "tmux", data: {} },
     agentInfo: null,

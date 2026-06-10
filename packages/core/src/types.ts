@@ -317,6 +317,12 @@ export interface Session {
    *  field load as []. */
   siblings: SiblingRef[];
 
+  /** Path of the assembled adjacency view (#1095) where sibling-aware tools run —
+   *  `{worktreeDir}/{sessionId}__ws/{primaryRepoName}`, from which `../{siblingRepoName}`
+   *  resolves to each worktree-mode sibling. null until the first worktree-mode sibling
+   *  is mounted. Populated from the metadata field "assembledView" on load. */
+  assembledViewPath: string | null;
+
   /** Workspace path on disk */
   workspacePath: string | null;
 

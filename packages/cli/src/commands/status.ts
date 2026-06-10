@@ -721,6 +721,7 @@ async function showFallbackStatus(): Promise<void> {
         pr: null,
         prs: [],
         siblings: [],
+        assembledViewPath: null,
         workspacePath: null,
         runtimeHandle: lifecycle.runtime.handle,
         agentInfo: null,

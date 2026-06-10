@@ -175,4 +175,16 @@ describe("sessionFromMetadata — siblings (#1095)", () => {
     const session = sessionFromMetadata("app-1", { branch: "main" }, baseOptions);
     expect(session.siblings).toEqual([]);
   });
+
+  it("exposes assembledViewPath from the assembledView metadata field", () => {
+    const assembledView =
+      "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__ws/my-app";
+    const session = sessionFromMetadata("app-1", { assembledView }, baseOptions);
+    expect(session.assembledViewPath).toBe(assembledView);
+  });
+
+  it("defaults assembledViewPath to null when the field is absent (back-compat)", () => {
+    const session = sessionFromMetadata("app-1", { branch: "main" }, baseOptions);
+    expect(session.assembledViewPath).toBeNull();
+  });
 });

@@ -75,6 +75,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     pr: null,
     prs: [],
     siblings: [],
+    assembledViewPath: null,
     workspacePath: "/tmp/repo",
     runtimeHandle: null,
     agentInfo: null,
