@@ -4971,6 +4971,12 @@ body:not(.is-resizing-x) .sidebar-wrapper {
   padding: 2px 0 4px;
 }
 
+/* Session row + its mounted siblings (#1095) stacked as one unit. */
+.project-sidebar__sess-group {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Collapsed icon styles */
 .project-sidebar__collapsed-icon {
   display: flex;
