@@ -193,6 +193,12 @@ export function sessionToDashboard(session: Session): DashboardSession {
         }
       : null,
     prs: (session.prs ?? []).map((p) => basicPRToDashboard(p)),
+    siblings: (session.siblings ?? []).map((s) => ({
+      repo: s.repo,
+      path: s.path,
+      branch: s.branch,
+      mode: s.mode,
+    })),
     metadata: session.metadata,
     agentReportAudit: [],
   });

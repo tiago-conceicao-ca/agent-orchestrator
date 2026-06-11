@@ -49,7 +49,7 @@ import {
   type CanonicalRuntimeReason,
   type DashboardAttentionZoneMode,
 } from "@aoagents/ao-core/types";
-import type { AgentReportedState } from "@aoagents/ao-core";
+import type { AgentReportedState, SiblingRef } from "@aoagents/ao-core";
 
 // Re-export for use in client components
 export { CI_STATUS, TERMINAL_STATUSES, TERMINAL_ACTIVITIES, NON_RESTORABLE_STATUSES };
@@ -122,10 +122,19 @@ export interface DashboardSession {
    *  Mirrors core Session.prs — array of DashboardPR objects.
    *  Empty array when no PRs exist. */
   prs: DashboardPR[];
+  /** Sibling repos mounted into this session (#1095).
+   *  Mirrors core Session.siblings — empty array when none are mounted. */
+  siblings: DashboardSibling[];
   metadata: Record<string, string>;
   agentReportAudit?: DashboardAgentReportAuditEntry[];
   attentionLevel?: AttentionLevel;
 }
+
+/**
+ * A sibling repo mounted into a session (#1095), for dashboard rendering.
+ * JSON-safe mirror of core SiblingRef (no Date fields), aliased to avoid drift.
+ */
+export type DashboardSibling = SiblingRef;
 
 export interface DashboardAgentReportAuditSnapshot {
   legacyStatus: SessionStatus;

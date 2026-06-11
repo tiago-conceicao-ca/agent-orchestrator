@@ -321,6 +321,48 @@ describe("sessionToDashboard", () => {
 
     expect(dashboard.pr).toBeNull();
   });
+
+  it("should map session siblings to dashboard siblings", () => {
+    const coreSession = createCoreSession({
+      siblings: [
+        {
+          repo: "ds-front",
+          path: "/wt/test-1__sib__ds-front",
+          branch: "sib/test-1/ds-front",
+          mode: "worktree",
+        },
+        {
+          repo: "shared-lib",
+          path: "/wt/test-1__sib__shared-lib",
+          branch: "master",
+          mode: "readonly-symlink",
+        },
+      ],
+    });
+    const dashboard = sessionToDashboard(coreSession);
+
+    expect(dashboard.siblings).toEqual([
+      {
+        repo: "ds-front",
+        path: "/wt/test-1__sib__ds-front",
+        branch: "sib/test-1/ds-front",
+        mode: "worktree",
+      },
+      {
+        repo: "shared-lib",
+        path: "/wt/test-1__sib__shared-lib",
+        branch: "master",
+        mode: "readonly-symlink",
+      },
+    ]);
+  });
+
+  it("should default siblings to an empty array when the session has none", () => {
+    const coreSession = createCoreSession({ siblings: [] });
+    const dashboard = sessionToDashboard(coreSession);
+
+    expect(dashboard.siblings).toEqual([]);
+  });
 });
 
 describe("resolveProject", () => {
