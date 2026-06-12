@@ -4,11 +4,13 @@ import {
   lstatSync,
   mkdirSync,
   readdirSync,
+  readFileSync,
   realpathSync,
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
+import { loadConfig } from "../../config.js";
 import { writeMetadata, readMetadataRaw, updateMetadata } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
 import {
@@ -556,6 +558,58 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(existsSync(assembledViewDir(getProjectWorktreesDir("my-app"), session.id))).toBe(
         false,
       );
+    });
+
+    it("configure-then-spawn end to end: YAML config → loadConfig → spawn mounts the readonly sibling with working adjacency", async () => {
+      // The same wrapped agent-orchestrator.yaml shape a user writes (and the
+      // web PATCH /api/projects/[id] persists) — exercises the full chain:
+      // YAML → loadConfig (Zod) → ProjectConfig.siblings → _spawnInner auto-mount.
+      // JSON.stringify keeps Windows backslash paths valid YAML.
+      writeFileSync(
+        ctx.configPath,
+        [
+          "projects:",
+          "  my-app:",
+          `    path: ${JSON.stringify(join(ctx.tmpDir, "my-app"))}`,
+          "    repo: org/my-app",
+          "    defaultBranch: main",
+          "    sessionPrefix: app",
+          "    siblings:",
+          "      - lib-shared",
+          "  lib-shared:",
+          `    path: ${JSON.stringify(join(ctx.tmpDir, "lib-shared"))}`,
+          "    repo: org/lib-shared",
+          "    defaultBranch: master",
+          "",
+        ].join("\n"),
+      );
+      const sourcePath = join(ctx.tmpDir, "lib-shared");
+      mkdirSync(sourcePath, { recursive: true });
+      writeFileSync(join(sourcePath, "MARKER.txt"), "hello");
+
+      const loaded = loadConfig(ctx.configPath);
+      expect(loaded.projects["my-app"]?.siblings).toEqual(["lib-shared"]);
+
+      const workspace = pathAwareWorkspace();
+      const sm = makeManager(workspace, loaded);
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      // The returned session carries the mounted readonly ref…
+      expect(session.siblings).toHaveLength(1);
+      const ref = session.siblings[0]!;
+      expect(ref.repo).toBe("lib-shared");
+      expect(ref.mode).toBe("readonly-symlink");
+      expect(lstatSync(ref.path).isSymbolicLink()).toBe(true);
+
+      // …with a working ../{name} adjacency path from the assembled view…
+      expect(session.assembledViewPath).toBeTruthy();
+      const adjacent = join(session.assembledViewPath!, "..", "lib-shared");
+      expect(realpathSync(adjacent)).toBe(realpathSync(sourcePath));
+      expect(readFileSync(join(adjacent, "MARKER.txt"), "utf-8")).toBe("hello");
+
+      // …persisted in the session metadata.
+      const raw = readMetadataRaw(sessionsDir, session.id);
+      expect(parseSiblings(raw!)).toEqual([ref]);
     });
 
     it("restore does not re-mount configured siblings (no double-mount)", async () => {
