@@ -350,17 +350,80 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(existsSync(viewDir())).toBe(false);
     });
 
-    it("does not assemble a view for a readonly-symlink-only session", async () => {
+    it("assembles the view for a readonly-symlink sibling: ../{name} resolves to the source", async () => {
+      const workspace = pathAwareWorkspace();
+      const sourcePath = join(ctx.tmpDir, "lib-shared");
+      mkdirSync(sourcePath, { recursive: true });
+      writeFileSync(join(sourcePath, "MARKER.txt"), "hello");
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+
+      // From the assembled primary view, ../lib-shared resolves (through the
+      // view link and the per-session readonly symlink) to the SOURCE repo.
+      const adjacent = join(primaryView(), "..", "lib-shared");
+      expect(realpathSync(adjacent)).toBe(realpathSync(sourcePath));
+      expect(existsSync(join(adjacent, "MARKER.txt"))).toBe(true);
+      // The view links to the per-session symlink (the mounted ref), not straight
+      // to the source — removeSibling stays uniform across modes.
+      expect(realpathSync(join(viewDir(), "lib-shared"))).toBe(realpathSync(ref.path));
+
+      const session = await sm.get("app-1");
+      expect(session?.assembledViewPath).toBe(primaryView());
+    });
+
+    it("gives two parallel sessions separate __ws views for the same readonly source", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+      writeWorker("app-1");
+      writeWorker("app-2");
+
+      const sm = makeManager(workspace);
+      const ref1 = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+      const ref2 = await sm.addSibling("app-2", "lib-shared", { mode: "readonly-symlink" });
+
+      const view1 = assembledViewDir(getProjectWorktreesDir("my-app"), "app-1");
+      const view2 = assembledViewDir(getProjectWorktreesDir("my-app"), "app-2");
+      expect(view1).not.toBe(view2);
+      expect(existsSync(view1)).toBe(true);
+      expect(existsSync(view2)).toBe(true);
+      // Each session owns a distinct per-session symlink and view link; only the
+      // final target (the read-only source) is shared.
+      expect(ref1.path).not.toBe(ref2.path);
+      expect(lstatSync(join(view1, "lib-shared")).isSymbolicLink()).toBe(true);
+      expect(lstatSync(join(view2, "lib-shared")).isSymbolicLink()).toBe(true);
+    });
+
+    it("removeSibling after a readonly mount leaves no orphan symlink or adjacency link", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+      writeWorker("app-1");
+
+      const sm = makeManager(workspace);
+      const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+      expect(existsSync(ref.path)).toBe(true);
+      expect(existsSync(join(viewDir(), "lib-shared"))).toBe(true);
+
+      await sm.removeSibling("app-1", "lib-shared");
+
+      expect(existsSync(ref.path)).toBe(false);
+      expect(existsSync(join(viewDir(), "lib-shared"))).toBe(false);
+      const raw = readMetadataRaw(sessionsDir, "app-1");
+      expect(parseSiblings(raw!)).toEqual([]);
+    });
+
+    it("kill removes the __ws view of a readonly-symlink-only session", async () => {
       const workspace = pathAwareWorkspace();
       mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
       writeWorker("app-1");
 
       const sm = makeManager(workspace);
       await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+      expect(existsSync(viewDir())).toBe(true);
 
+      await sm.kill("app-1");
       expect(existsSync(viewDir())).toBe(false);
-      const session = await sm.get("app-1");
-      expect(session?.assembledViewPath).toBeNull();
     });
   });
 });

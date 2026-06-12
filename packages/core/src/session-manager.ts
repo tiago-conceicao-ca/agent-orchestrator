@@ -3826,7 +3826,6 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     const mode = options?.mode ?? "worktree";
 
     let ref: SiblingRef;
-    let assembledViewPath: string | undefined;
     if (mode === "readonly-symlink") {
       const linkPath = join(worktreeDir, segment);
       createReadonlySiblingLink(expandHome(source.project.path), linkPath);
@@ -3856,26 +3855,28 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         worktreeDir,
       });
       ref = { repo: source.repoId, path: wsInfo.path, branch: wsInfo.branch, mode };
-
-      // #1095 Decision 3 / Option 1 — assemble the per-session adjacency view so
-      // sibling-aware tools (pattern-library) resolve ../{siblingRepoName} relative
-      // to the primary checkout. The view + primary symlink are created lazily on
-      // the first worktree-mode sibling; the per-session __ws dir means two parallel
-      // sessions never collide. Symlinks are named by the REAL repo name.
-      const primaryWorktree = raw["worktree"] || expandHome(project.path);
-      assembledViewPath = ensureAssembledPrimaryView(
-        worktreeDir,
-        sessionId,
-        siblingName(project.path),
-        primaryWorktree,
-      );
-      linkSiblingIntoView(worktreeDir, sessionId, name, ref.path);
     }
+
+    // #1095 Decision 3 / Option 1 — assemble the per-session adjacency view so
+    // sibling-aware tools (pattern-library) resolve ../{siblingRepoName} relative
+    // to the primary checkout. The view + primary symlink are created lazily on
+    // the first sibling of either mode; the per-session __ws dir means two parallel
+    // sessions never collide. Symlinks are named by the REAL repo name and target
+    // the mounted ref.path (for readonly-symlink that is the per-session symlink,
+    // keeping removeSibling uniform across modes).
+    const primaryWorktree = raw["worktree"] || expandHome(project.path);
+    const assembledViewPath = ensureAssembledPrimaryView(
+      worktreeDir,
+      sessionId,
+      siblingName(project.path),
+      primaryWorktree,
+    );
+    linkSiblingIntoView(worktreeDir, sessionId, name, ref.path);
 
     const metadataUpdate: Record<string, string> = {
       siblings: serializeSiblings([...existing, ref]),
+      assembledView: assembledViewPath,
     };
-    if (assembledViewPath) metadataUpdate.assembledView = assembledViewPath;
     updateMetadata(sessionsDir, sessionId, metadataUpdate);
     invalidateCache();
     recordActivityEvent({
@@ -3901,12 +3902,11 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     await destroySiblingResource(ref, project, projectId, sessionId);
 
     // Drop the sibling's adjacency symlink from the assembled view (#1095).
-    // The view + primary symlink are left for any remaining worktree siblings;
+    // Both modes mount at {sessionId}__sib__{name}, so the name recovers the
+    // same way. The view + primary symlink are left for any remaining siblings;
     // kill() removes the whole __ws dir.
-    if (ref.mode === "worktree") {
-      const name = siblingNameFromPath(sessionId, ref.path);
-      if (name) unlinkSiblingFromView(getProjectWorktreesDir(projectId), sessionId, name);
-    }
+    const name = siblingNameFromPath(sessionId, ref.path);
+    if (name) unlinkSiblingFromView(getProjectWorktreesDir(projectId), sessionId, name);
 
     updateMetadata(sessionsDir, sessionId, {
       siblings: serializeSiblings(existing.filter((s) => s.repo !== repo)),
