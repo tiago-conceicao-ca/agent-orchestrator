@@ -1599,6 +1599,9 @@ export interface ProjectConfig {
   /** Files/dirs to symlink into workspaces */
   symlinks?: string[];
 
+  /** Sibling repos auto-mounted read-only into every session. Each entry is a registered project id or "owner/name" repo. */
+  siblings?: string[];
+
   /** Commands to run after workspace creation */
   postCreate?: string[];
 

@@ -6,10 +6,12 @@ import { parse as parseYaml } from "yaml";
 import {
   generateExternalId,
   loadGlobalConfig,
+  loadLocalProjectConfigDetailed,
   migrateToGlobalConfig,
   repairWrappedLocalProjectConfig,
   registerProjectInGlobalConfig,
   resolveProjectIdentity,
+  writeLocalProjectConfig,
 } from "../global-config.js";
 
 describe("global-config storage identity", () => {
@@ -541,6 +543,65 @@ describe("global-config storage identity", () => {
       runtime: "tmux",
       postCreate: ["pnpm install"],
     });
+  });
+
+  it("carries siblings from local config through resolveProjectIdentity", () => {
+    const repoPath = createRepo("with-siblings", "https://github.com/OpenAI/with-siblings.git");
+    const projectId = generateExternalId(repoPath, "https://github.com/OpenAI/with-siblings.git");
+
+    registerProjectInGlobalConfig("with-siblings", "With Siblings", repoPath, undefined, configPath);
+    writeFileSync(
+      join(repoPath, "agent-orchestrator.yaml"),
+      ["siblings:", "  - other-project", "  - OpenAI/another-repo", ""].join("\n"),
+    );
+
+    expect(resolveProjectIdentity(projectId, loadGlobalConfig(configPath)!, configPath)).toMatchObject(
+      {
+        siblings: ["other-project", "OpenAI/another-repo"],
+      },
+    );
+  });
+
+  it("round-trips siblings through writeLocalProjectConfig", () => {
+    const repoPath = createRepo("sibling-roundtrip", "https://github.com/OpenAI/roundtrip.git");
+
+    writeLocalProjectConfig(repoPath, {
+      agent: "codex",
+      siblings: ["other-project", "OpenAI/another-repo"],
+    });
+
+    const onDisk = parseYaml(readFileSync(join(repoPath, "agent-orchestrator.yaml"), "utf-8"));
+    expect(onDisk).toEqual({
+      agent: "codex",
+      siblings: ["other-project", "OpenAI/another-repo"],
+    });
+
+    const loaded = loadLocalProjectConfigDetailed(repoPath);
+    expect(loaded.kind).toBe("loaded");
+    expect(loaded.config?.siblings).toEqual(["other-project", "OpenAI/another-repo"]);
+  });
+
+  it("loads legacy local config without siblings unchanged", () => {
+    const repoPath = createRepo("no-siblings", "https://github.com/OpenAI/no-siblings.git");
+    const projectId = generateExternalId(repoPath, "https://github.com/OpenAI/no-siblings.git");
+
+    registerProjectInGlobalConfig("no-siblings", "No Siblings", repoPath, undefined, configPath);
+    writeFileSync(join(repoPath, "agent-orchestrator.yaml"), "agent: codex\n");
+
+    const resolved = resolveProjectIdentity(projectId, loadGlobalConfig(configPath)!, configPath);
+    expect(resolved).toMatchObject({ agent: "codex" });
+    expect(resolved?.["siblings"]).toBeUndefined();
+  });
+
+  it("rejects local config with non-string siblings entries", () => {
+    const repoPath = createRepo("bad-siblings", "https://github.com/OpenAI/bad-siblings.git");
+    writeFileSync(
+      join(repoPath, "agent-orchestrator.yaml"),
+      ["siblings:", "  - 42", ""].join("\n"),
+    );
+
+    const loaded = loadLocalProjectConfigDetailed(repoPath);
+    expect(loaded.kind).toBe("invalid");
   });
 
   it("defaults the global runtime to the platform-appropriate value", () => {

@@ -282,6 +282,7 @@ export const LocalProjectConfigSchema = z
       .passthrough()
       .optional(),
     symlinks: z.array(z.string()).optional(),
+    siblings: z.array(z.string()).optional(),
     postCreate: z.array(z.string()).optional(),
     agentConfig: z
       .object({

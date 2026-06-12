@@ -262,6 +262,7 @@ const ProjectConfigSchema = z.object({
   tracker: TrackerConfigSchema.optional(),
   scm: SCMConfigSchema.optional(),
   symlinks: z.array(z.string()).optional(),
+  siblings: z.array(z.string()).optional(),
   postCreate: z.array(z.string()).optional(),
   agentConfig: AgentSpecificConfigSchema.default({}),
   orchestrator: RoleAgentConfigSchema,

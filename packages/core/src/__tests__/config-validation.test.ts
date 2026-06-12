@@ -1305,3 +1305,51 @@ describe("Config Validation - Observability Config", () => {
     ).toThrow();
   });
 });
+
+describe("Config Validation - Project Siblings", () => {
+  it("accepts and carries a siblings string array", () => {
+    const config = {
+      projects: {
+        proj1: {
+          path: "/repos/test",
+          repo: "org/test",
+          defaultBranch: "main",
+          siblings: ["other-project", "org/another-repo"],
+        },
+      },
+    };
+
+    const validated = validateConfig(config);
+    expect(validated.projects.proj1.siblings).toEqual(["other-project", "org/another-repo"]);
+  });
+
+  it("leaves siblings undefined for legacy projects without the field", () => {
+    const config = {
+      projects: {
+        proj1: {
+          path: "/repos/test",
+          repo: "org/test",
+          defaultBranch: "main",
+        },
+      },
+    };
+
+    const validated = validateConfig(config);
+    expect(validated.projects.proj1.siblings).toBeUndefined();
+  });
+
+  it("rejects non-string siblings entries", () => {
+    const config = {
+      projects: {
+        proj1: {
+          path: "/repos/test",
+          repo: "org/test",
+          defaultBranch: "main",
+          siblings: [42],
+        },
+      },
+    };
+
+    expect(() => validateConfig(config)).toThrow();
+  });
+});
