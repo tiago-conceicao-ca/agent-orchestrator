@@ -33,6 +33,8 @@ import {
   type CleanupResult,
   type ClaimPROptions,
   type ClaimPRResult,
+  type AddSiblingOptions,
+  type SiblingRef,
   type KillOptions,
   type KillResult,
   type LifecycleKillReason,
@@ -75,6 +77,7 @@ import {
   getProjectWorktreesDir,
   getProjectDir,
   generateSessionName,
+  expandHome,
 } from "./paths.js";
 import { asValidOpenCodeSessionId } from "./opencode-session-id.js";
 import {
@@ -93,6 +96,20 @@ import {
 } from "./orchestrator-session-strategy.js";
 import { sessionFromMetadata } from "./utils/session-from-metadata.js";
 import { dedupePrUrls } from "./utils/pr.js";
+import {
+  parseSiblings,
+  serializeSiblings,
+  siblingName,
+  siblingNameFromPath,
+  siblingPathSegment,
+  defaultSiblingBranch,
+  createReadonlySiblingLink,
+  removeSiblingLink,
+  ensureAssembledPrimaryView,
+  linkSiblingIntoView,
+  unlinkSiblingFromView,
+  removeAssembledView,
+} from "./utils/siblings.js";
 import { safeJsonParse, validateStatus } from "./utils/validation.js";
 import { isGitBranchNameSafe } from "./utils.js";
 import { resolveAgentSelection, resolveAgentSelectionForSession } from "./agent-selection.js";
@@ -1538,6 +1555,8 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         issueId: spawnConfig.issueId ?? null,
         pr: null,
         prs: [],
+        siblings: [],
+        assembledViewPath: null,
         workspacePath,
         runtimeHandle: handle,
         agentInfo: null,
@@ -2026,6 +2045,8 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       issueId: null,
       pr: null,
       prs: [],
+      siblings: [],
+      assembledViewPath: null,
       workspacePath,
       runtimeHandle: handle,
       agentInfo: null,
@@ -2593,6 +2614,28 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
           });
         }
       }
+    }
+
+    // Remove the session's sibling worktrees/symlinks too (#1095), same
+    // best-effort semantics as the primary worktree. Metadata is left intact
+    // (the session is terminated, not edited) — mirrors how `worktree` is kept.
+    for (const sib of parseSiblings(raw)) {
+      await destroySiblingResource(sib, project, projectId, sessionId);
+    }
+    // Tear down the assembled adjacency view (__ws) — its symlinks are removed,
+    // not their targets (the worktrees above own those). Best-effort.
+    try {
+      removeAssembledView(getProjectWorktreesDir(projectId), sessionId);
+    } catch (err) {
+      recordActivityEvent({
+        projectId,
+        sessionId,
+        source: "session-manager",
+        kind: "workspace.sibling_destroy_failed",
+        level: "warn",
+        summary: `assembled-view cleanup failed: ${sessionId}`,
+        data: { reason: err instanceof Error ? err.message : String(err) },
+      });
     }
 
     let didPurgeOpenCodeSession = false;
@@ -3705,6 +3748,172 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     return restoredSession;
   }
 
+  /** Resolve a sibling source from the catalog (registered projects) by id or repo. */
+  function resolveSiblingSource(
+    repoOrProjectId: string,
+  ): { repoId: string; project: ProjectConfig } | null {
+    for (const [id, proj] of Object.entries(config.projects)) {
+      if (id === repoOrProjectId || proj.repo === repoOrProjectId) {
+        return { repoId: id, project: proj };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Tear down a single sibling resource (best-effort). Worktree-mode siblings go
+   * through workspace.destroy (guarded by shouldDestroyWorkspacePath); symlink
+   * siblings are unlinked. Failures are surfaced as activity events, never thrown
+   * — cleanup must not block kill or leave the session half-removed.
+   */
+  async function destroySiblingResource(
+    ref: SiblingRef,
+    project: ProjectConfig | undefined,
+    projectId: string | undefined,
+    sessionId: SessionId,
+  ): Promise<void> {
+    try {
+      if (ref.mode === "readonly-symlink") {
+        removeSiblingLink(ref.path);
+        return;
+      }
+      if (shouldDestroyWorkspacePath(project, projectId, ref.path)) {
+        const workspace = project
+          ? resolvePlugins(project).workspace
+          : registry.get<Workspace>("workspace", config.defaults.workspace);
+        if (workspace) await workspace.destroy(ref.path);
+      }
+    } catch (err) {
+      recordActivityEvent({
+        projectId,
+        sessionId,
+        source: "session-manager",
+        kind: "workspace.sibling_destroy_failed",
+        level: "warn",
+        summary: `sibling cleanup failed: ${ref.repo}`,
+        data: {
+          repo: ref.repo,
+          path: ref.path,
+          mode: ref.mode,
+          reason: err instanceof Error ? err.message : String(err),
+        },
+      });
+    }
+  }
+
+  async function addSibling(
+    sessionId: SessionId,
+    repoOrProjectId: string,
+    options?: AddSiblingOptions,
+  ): Promise<SiblingRef> {
+    const { raw, sessionsDir, project, projectId } = requireSessionRecord(sessionId);
+
+    const source = resolveSiblingSource(repoOrProjectId);
+    if (!source) {
+      throw new Error(
+        `Unknown sibling repo "${repoOrProjectId}": no registered project matches that id or repo`,
+      );
+    }
+
+    const existing = parseSiblings(raw);
+    if (existing.some((s) => s.repo === source.repoId)) {
+      throw new Error(`Sibling "${source.repoId}" is already mounted on session ${sessionId}`);
+    }
+
+    const name = siblingName(source.project.path);
+    const segment = siblingPathSegment(sessionId, name);
+    const worktreeDir = getProjectWorktreesDir(projectId);
+    const mode = options?.mode ?? "worktree";
+
+    let ref: SiblingRef;
+    let assembledViewPath: string | undefined;
+    if (mode === "readonly-symlink") {
+      const linkPath = join(worktreeDir, segment);
+      createReadonlySiblingLink(expandHome(source.project.path), linkPath);
+      ref = {
+        repo: source.repoId,
+        path: linkPath,
+        branch: options?.branch ?? source.project.defaultBranch,
+        mode,
+      };
+    } else {
+      const workspace = resolvePlugins(project).workspace;
+      if (!workspace) {
+        throw new Error(`No workspace plugin available to mount sibling "${source.repoId}"`);
+      }
+      // A unique per-session branch (based off the source default branch) avoids
+      // git's "branch already checked out" error and guarantees no cross-session
+      // collision when two sessions mount the same source repo.
+      const branch = options?.branch ?? defaultSiblingBranch(sessionId, name);
+      if (!isGitBranchNameSafe(branch)) {
+        throw new Error(`Invalid sibling branch name "${branch}"`);
+      }
+      const wsInfo = await workspace.create({
+        projectId,
+        project: source.project,
+        sessionId: segment,
+        branch,
+        worktreeDir,
+      });
+      ref = { repo: source.repoId, path: wsInfo.path, branch: wsInfo.branch, mode };
+
+      // #1095 Decision 3 / Option 1 — assemble the per-session adjacency view so
+      // sibling-aware tools (pattern-library) resolve ../{siblingRepoName} relative
+      // to the primary checkout. The view + primary symlink are created lazily on
+      // the first worktree-mode sibling; the per-session __ws dir means two parallel
+      // sessions never collide. Symlinks are named by the REAL repo name.
+      const primaryWorktree = raw["worktree"] || expandHome(project.path);
+      assembledViewPath = ensureAssembledPrimaryView(
+        worktreeDir,
+        sessionId,
+        siblingName(project.path),
+        primaryWorktree,
+      );
+      linkSiblingIntoView(worktreeDir, sessionId, name, ref.path);
+    }
+
+    const metadataUpdate: Record<string, string> = {
+      siblings: serializeSiblings([...existing, ref]),
+    };
+    if (assembledViewPath) metadataUpdate.assembledView = assembledViewPath;
+    updateMetadata(sessionsDir, sessionId, metadataUpdate);
+    invalidateCache();
+    recordActivityEvent({
+      projectId,
+      sessionId,
+      source: "session-manager",
+      kind: "session.sibling_added",
+      summary: `mounted sibling ${source.repoId} (${mode})`,
+      data: { repo: source.repoId, mode, path: ref.path, branch: ref.branch },
+    });
+    return ref;
+  }
+
+  async function removeSibling(sessionId: SessionId, repo: string): Promise<void> {
+    const { raw, sessionsDir, project, projectId } = requireSessionRecord(sessionId);
+
+    const existing = parseSiblings(raw);
+    const ref = existing.find((s) => s.repo === repo);
+    if (!ref) {
+      throw new Error(`Sibling "${repo}" is not mounted on session ${sessionId}`);
+    }
+
+    await destroySiblingResource(ref, project, projectId, sessionId);
+
+    // Drop the sibling's adjacency symlink from the assembled view (#1095).
+    // The view + primary symlink are left for any remaining worktree siblings;
+    // kill() removes the whole __ws dir.
+    if (ref.mode === "worktree") {
+      const name = siblingNameFromPath(sessionId, ref.path);
+      if (name) unlinkSiblingFromView(getProjectWorktreesDir(projectId), sessionId, name);
+    }
+
+    updateMetadata(sessionsDir, sessionId, {
+      siblings: serializeSiblings(existing.filter((s) => s.repo !== repo)),
+    });
+    invalidateCache();
+  }
+
   return {
     spawn,
     spawnOrchestrator,
@@ -3720,5 +3929,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     send,
     claimPR,
     remap,
+    addSibling,
+    removeSibling,
   };
 }

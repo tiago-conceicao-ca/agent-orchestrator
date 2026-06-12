@@ -41,6 +41,8 @@ export function makeSession(
     issueId: null,
     pr: null,
     prs: [],
+    siblings: [],
+    assembledViewPath: null,
     workspacePath,
     runtimeHandle: handle,
     agentInfo: null,

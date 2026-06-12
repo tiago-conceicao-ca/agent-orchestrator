@@ -16,6 +16,7 @@ import { cn } from "@/lib/cn";
 import { getSessionTitle } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
 import { DoneSessionCard } from "./SessionCard.parts";
+import { MountedSiblings } from "./SessionSiblings";
 import { projectSessionHashPath } from "@/lib/routes";
 
 /**
@@ -219,6 +220,13 @@ function SessionCardView({ session, onKill, onMerge, onRestore }: SessionCardPro
             </>
           )}
         </div>
+
+        {/* Mounted sibling repos (#1095), read-only on the card. */}
+        {session.siblings && session.siblings.length > 0 ? (
+          <div className="px-[10px] pb-[5px]">
+            <MountedSiblings siblings={session.siblings} />
+          </div>
+        ) : null}
 
         {/* Per-PR rows: shown only when session has more than one PR.
             Clicking a row selects it — the footer detail below updates to that PR. */}

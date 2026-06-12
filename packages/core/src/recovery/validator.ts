@@ -123,6 +123,8 @@ export async function validateSession(
         issueId: normalizedMetadata["issue"] ?? null,
         pr: null,
         prs: [],
+        siblings: [],
+        assembledViewPath: null,
         workspacePath,
         runtimeHandle,
         agentInfo: null,

@@ -552,4 +552,97 @@ export function registerSession(program: Command): void {
         process.exit(1);
       }
     });
+
+  // ── sibling repos (#1095) — thin wrappers over sm.addSibling/removeSibling/get ──
+  const sibling = session
+    .command("sibling")
+    .description("Mount/list/unmount sibling repos for a session (#1095)");
+
+  sibling
+    .command("add")
+    .description("Mount a sibling repo (a registered project) into a session")
+    .argument("<session>", "Session name to mount the sibling into")
+    .argument("<repo>", "Source repo: a registered project id or its owner/name")
+    .option("--branch <ref>", "Branch to check out in the sibling worktree")
+    .option("--readonly", "Mount as a read-only symlink instead of a writable worktree")
+    .action(
+      async (
+        sessionName: string,
+        repo: string,
+        opts: { branch?: string; readonly?: boolean },
+      ) => {
+        const config = loadConfig();
+        const sm = await getSessionManager(config);
+
+        try {
+          const ref = await sm.addSibling(sessionName, repo, {
+            branch: opts.branch,
+            mode: opts.readonly ? "readonly-symlink" : undefined,
+          });
+          console.log(chalk.green(`\nSession ${sessionName} mounted sibling ${ref.repo}.`));
+          console.log(chalk.dim(`  Path:   ${ref.path}`));
+          console.log(chalk.dim(`  Branch: ${ref.branch}`));
+          console.log(chalk.dim(`  Mode:   ${ref.mode}`));
+        } catch (err) {
+          console.error(
+            chalk.red(`Failed to mount sibling ${repo} on ${sessionName}: ${formatError(err)}`),
+          );
+          process.exit(1);
+        }
+      },
+    );
+
+  sibling
+    .command("ls")
+    .description("List the sibling repos mounted on a session")
+    .argument("<session>", "Session name to inspect")
+    .action(async (sessionName: string) => {
+      const config = loadConfig();
+      const sm = await getSessionManager(config);
+
+      const sessionInfo = await sm.get(sessionName);
+      if (!sessionInfo) {
+        console.error(chalk.red(`Session '${sessionName}' not found`));
+        process.exit(1);
+        return;
+      }
+
+      const siblings = sessionInfo.siblings ?? [];
+      if (siblings.length === 0) {
+        console.log(chalk.dim(`\nSession ${sessionName} has no siblings.`));
+        return;
+      }
+
+      console.log(chalk.bold(`\nSiblings for ${sessionName}:`));
+      for (const sib of siblings) {
+        const parts = [chalk.green(sib.repo), chalk.cyan(sib.branch), chalk.dim(`[${sib.mode}]`)];
+        console.log(`  ${parts.join("  ")}`);
+        console.log(chalk.dim(`    ${sib.path}`));
+      }
+    });
+
+  sibling
+    .command("rm")
+    .description("Unmount a sibling repo from a session")
+    .argument("<session>", "Session name to unmount the sibling from")
+    .argument("<repo>", "Source repo: the registered project id or owner/name it was mounted from")
+    .action(async (sessionName: string, repo: string) => {
+      const config = loadConfig();
+      const sm = await getSessionManager(config);
+
+      try {
+        await sm.removeSibling(sessionName, repo);
+        console.log(chalk.green(`\nSession ${sessionName} unmounted sibling ${repo}.`));
+      } catch (err) {
+        console.error(
+          chalk.red(`Failed to unmount sibling ${repo} from ${sessionName}: ${formatError(err)}`),
+        );
+        process.exit(1);
+      }
+    });
+}
+
+/** Surface a thrown value's message without the noisy "Error: " prefix. */
+function formatError(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }

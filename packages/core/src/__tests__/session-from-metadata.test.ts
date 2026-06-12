@@ -144,3 +144,47 @@ describe("sessionFromMetadata — multi-PR (issue #1821)", () => {
     expect(session.pr).toBe(session.prs[0]);
   });
 });
+
+describe("sessionFromMetadata — siblings (#1095)", () => {
+  const baseOptions = { projectId: "my-app" };
+
+  it("parses siblings from the metadata field", () => {
+    const siblings = [
+      {
+        repo: "ca-starters-front",
+        path: "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__sib__ca-starters-front",
+        branch: "master",
+        mode: "readonly-symlink",
+      },
+      {
+        repo: "svc-infra",
+        path: "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__sib__svc-infra",
+        branch: "sib/app-1/svc-infra",
+        mode: "worktree",
+      },
+    ];
+    const session = sessionFromMetadata(
+      "app-1",
+      { siblings: JSON.stringify(siblings) },
+      baseOptions,
+    );
+    expect(session.siblings).toEqual(siblings);
+  });
+
+  it("defaults siblings to [] for old sessions with no siblings field (back-compat)", () => {
+    const session = sessionFromMetadata("app-1", { branch: "main" }, baseOptions);
+    expect(session.siblings).toEqual([]);
+  });
+
+  it("exposes assembledViewPath from the assembledView metadata field", () => {
+    const assembledView =
+      "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__ws/my-app";
+    const session = sessionFromMetadata("app-1", { assembledView }, baseOptions);
+    expect(session.assembledViewPath).toBe(assembledView);
+  });
+
+  it("defaults assembledViewPath to null when the field is absent (back-compat)", () => {
+    const session = sessionFromMetadata("app-1", { branch: "main" }, baseOptions);
+    expect(session.assembledViewPath).toBeNull();
+  });
+});

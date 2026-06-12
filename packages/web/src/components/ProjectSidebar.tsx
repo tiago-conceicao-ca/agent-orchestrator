@@ -15,6 +15,12 @@ import { ThemeToggle } from "./ThemeToggle";
 import { AppMark } from "./AppMark";
 import { AddProjectModal } from "./AddProjectModal";
 import { ProjectSettingsModal } from "./ProjectSettingsModal";
+import {
+  SessionSiblings,
+  SiblingCatalogList,
+  MountedSiblings,
+  type SiblingCatalogEntry,
+} from "./SessionSiblings";
 
 /** Minimal shape needed to render an orchestrator link in the sidebar. */
 export interface ProjectSidebarOrchestrator {
@@ -466,6 +472,13 @@ function ProjectSidebarInner({
     [visibleProjects],
   );
 
+  // The available-siblings catalog (#1095) = the registered projects. Each
+  // project's catalog is every OTHER project (filtered per-project below).
+  const siblingCatalogEntries = useMemo<SiblingCatalogEntry[]>(
+    () => visibleProjects.map((p) => ({ id: p.id, name: p.name })),
+    [visibleProjects],
+  );
+
   const orchestratorByProject = useMemo(
     () => new Map((orchestrators ?? []).map((o) => [o.projectId, o])),
     [orchestrators],
@@ -813,6 +826,8 @@ function ProjectSidebarInner({
           const projectHref = projectDashboardPath(project.id);
           // sessionsByProject already applies the showDone filter consistently.
           const visibleSessions = workerSessions;
+          // Sibling catalog for this project = every OTHER registered project (#1095).
+          const projectSiblingCatalog = siblingCatalogEntries.filter((c) => c.id !== project.id);
           const orchestratorLink = orchestratorByProject.get(project.id) ?? null;
           // Look up the full session object so navigate() can cache it in
           // sessionStorage — prevents the "Session unavailable" flash on
@@ -1039,6 +1054,8 @@ function ProjectSidebarInner({
               {/* Sessions */}
               {!isDegraded && isExpanded && (
                 <div className="project-sidebar__sessions">
+                  {/* Available-siblings catalog (#1095): the other registered projects. */}
+                  <SiblingCatalogList catalog={projectSiblingCatalog} />
                   {sessions === null ? (
                     <div className="space-y-2 px-3 py-2" aria-label="Loading sessions">
                       {Array.from({ length: 3 }, (_, index) => (
@@ -1057,51 +1074,65 @@ function ProjectSidebarInner({
                       const level = getAttentionLevel(session);
                       const isSessionActive = activeSessionId === session.id;
                       const isEditing = editingSessionId === session.id;
-                      if (isEditing) {
-                        return (
-                          <div
-                            key={session.id}
-                            className={cn(
-                              "project-sidebar__sess-row",
-                              isSessionActive && "project-sidebar__sess-row--active",
-                            )}
-                            data-editing="true"
-                          >
-                            <SessionDot level={level} />
-                            <input
-                              type="text"
-                              autoFocus
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  void submitRename(session.id);
-                                } else if (e.key === "Escape") {
-                                  e.preventDefault();
-                                  cancelRename();
-                                }
-                              }}
-                              onFocus={(e) => e.currentTarget.select()}
-                              onBlur={() => void submitRename(session.id)}
-                              maxLength={80}
-                              aria-label={`Rename ${session.id}`}
-                              className="project-sidebar__sess-rename-input"
-                            />
-                          </div>
-                        );
-                      }
+                      const sessionSiblings = session.siblings ?? [];
                       return (
-                        <SessionRow
-                          key={session.id}
-                          session={session}
-                          level={level}
-                          isActive={isSessionActive}
-                          showSessionId={showSessionId}
-                          pendingRename={pendingRenames.get(session.id)}
-                          onNavigate={navigate}
-                          onStartRename={startRename}
-                        />
+                        <div key={session.id} className="project-sidebar__sess-group">
+                          {isEditing ? (
+                            <div
+                              className={cn(
+                                "project-sidebar__sess-row",
+                                isSessionActive && "project-sidebar__sess-row--active",
+                              )}
+                              data-editing="true"
+                            >
+                              <SessionDot level={level} />
+                              <input
+                                type="text"
+                                autoFocus
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    void submitRename(session.id);
+                                  } else if (e.key === "Escape") {
+                                    e.preventDefault();
+                                    cancelRename();
+                                  }
+                                }}
+                                onFocus={(e) => e.currentTarget.select()}
+                                onBlur={() => void submitRename(session.id)}
+                                maxLength={80}
+                                aria-label={`Rename ${session.id}`}
+                                className="project-sidebar__sess-rename-input"
+                              />
+                            </div>
+                          ) : (
+                            <SessionRow
+                              session={session}
+                              level={level}
+                              isActive={isSessionActive}
+                              showSessionId={showSessionId}
+                              pendingRename={pendingRenames.get(session.id)}
+                              onNavigate={navigate}
+                              onStartRename={startRename}
+                            />
+                          )}
+                          {/* Siblings (#1095): the active session gets the interactive
+                              picker + unmount; others show a read-only mounted list. */}
+                          {isSessionActive ? (
+                            <SessionSiblings
+                              sessionId={session.id}
+                              siblings={sessionSiblings}
+                              catalog={projectSiblingCatalog}
+                            />
+                          ) : (
+                            <MountedSiblings
+                              siblings={sessionSiblings}
+                              className="ml-4 mt-0.5 border-l border-[var(--color-border-subtle)] pl-2"
+                            />
+                          )}
+                        </div>
                       );
                     })
                   ) : error ? (

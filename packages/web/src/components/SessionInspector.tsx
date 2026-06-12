@@ -6,6 +6,7 @@ import type { DashboardSession } from "@/lib/types";
 import { useResizable } from "@/hooks/useResizable";
 import { StatusBadge } from "./StatusBadge";
 import { SessionDetailPRCard } from "./SessionDetailPRCard";
+import { MountedSiblings } from "./SessionSiblings";
 import { askAgentToFix } from "./session-detail-agent-actions";
 import { formatTimeCompact } from "./session-detail-utils";
 
@@ -175,6 +176,14 @@ function SummaryView({ session }: { session: DashboardSession }) {
           <Row k="Started" v={formatTimeCompact(session.createdAt)} mono />
           <Row k="Session" v={session.id} mono />
         </dl>
+      </Section>
+
+      <Section title="Siblings">
+        {session.siblings && session.siblings.length > 0 ? (
+          <MountedSiblings siblings={session.siblings} />
+        ) : (
+          <p className="inspector-empty">No sibling repos mounted.</p>
+        )}
       </Section>
     </div>
   );

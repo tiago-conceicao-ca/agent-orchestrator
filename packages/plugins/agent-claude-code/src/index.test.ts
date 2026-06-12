@@ -100,6 +100,8 @@ function makeSession(overrides: Partial<Session> = {}): Session {
     issueId: null,
     pr: null,
     prs: [],
+    siblings: [],
+    assembledViewPath: null,
     workspacePath: "/workspace/test-project",
     runtimeHandle: null,
     agentInfo: null,

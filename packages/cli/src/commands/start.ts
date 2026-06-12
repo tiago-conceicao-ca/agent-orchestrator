@@ -50,6 +50,7 @@ import {
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { exec, execSilent, git } from "../lib/shell.js";
 import { getSessionManager } from "../lib/create-session-manager.js";
+import { buildSiblingCatalog, formatSiblingCatalog } from "../lib/sibling-catalog.js";
 import { listLifecycleWorkers } from "../lib/lifecycle-service.js";
 import { startBunTmpJanitor } from "../lib/bun-tmp-janitor.js";
 import {
@@ -969,6 +970,18 @@ async function runStartup(
         { cause: err },
       );
     }
+  }
+
+  // Expose the available-siblings catalog (#1095): the other registered projects
+  // that sessions here can mount via `ao session sibling add`. Establishing the
+  // catalog is a pure derivation from config — it creates NO worktree at start
+  // (a shared sibling worktree would reintroduce the #1095 collision).
+  const siblingCatalogSummary = formatSiblingCatalog(
+    buildSiblingCatalog(config.projects, { excludeProjectId: projectId }),
+  );
+  if (siblingCatalogSummary) {
+    console.log(chalk.dim(`\n  Sibling repos available to mount: ${siblingCatalogSummary}`));
+    console.log(chalk.dim("  Mount with: ao session sibling add <session> <repo>\n"));
   }
 
   if (shouldStartLifecycle) {
