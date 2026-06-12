@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { makePR, makeSession } from "@/__tests__/helpers";
 
@@ -722,6 +722,65 @@ describe("ProjectSidebar", () => {
       await waitFor(() => {
         expect(screen.getByRole("link", { name: "Open Original" })).toBeInTheDocument();
       });
+    });
+  });
+
+  // ── Project siblings (#1095) ─────────────────────────────────────────
+
+  describe("project siblings", () => {
+    it("renders the project siblings editor with configured siblings under the project header", () => {
+      render(
+        <ProjectSidebar
+          projects={[
+            {
+              id: "project-1",
+              name: "Project One",
+              sessionPrefix: "project-1",
+              siblings: [{ id: "project-2", name: "Project Two" }],
+            },
+            { id: "project-2", name: "Project Two", sessionPrefix: "project-2" },
+          ]}
+          sessions={[]}
+          activeProjectId="project-1"
+          activeSessionId={undefined}
+        />,
+      );
+
+      const editor = screen.getByLabelText("Sibling repos for project-1");
+      expect(within(editor).getByText("Project Two")).toBeInTheDocument();
+      expect(
+        within(editor).getByRole("button", { name: /add sibling to project-1/i }),
+      ).toBeInTheDocument();
+      expect(
+        within(editor).getByRole("button", { name: /remove sibling Project Two/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows read-only mounted siblings for session rows without picker or unmount", () => {
+      render(
+        <ProjectSidebar
+          projects={projects}
+          sessions={[
+            makeSession({
+              id: "worker-1",
+              projectId: "project-1",
+              summary: "Review API changes",
+              siblings: [
+                { repo: "project-2", path: "/wt/x", branch: "main", mode: "readonly-symlink" },
+              ],
+            }),
+          ]}
+          activeProjectId="project-1"
+          activeSessionId="worker-1"
+        />,
+      );
+
+      // The mounted sibling renders read-only, even for the active session…
+      const mounted = screen.getByLabelText("Mounted sibling repos");
+      expect(within(mounted).getByText("project-2")).toBeInTheDocument();
+      // …with no per-session unmount control or "+ sibling" picker.
+      expect(screen.queryByRole("button", { name: /unmount/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /^add sibling repo$/i })).not.toBeInTheDocument();
     });
   });
 });
