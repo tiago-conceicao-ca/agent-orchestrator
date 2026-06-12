@@ -9,10 +9,11 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
-import { writeMetadata, readMetadataRaw } from "../../metadata.js";
+import { writeMetadata, readMetadataRaw, updateMetadata } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
 import {
   parseSiblings,
+  serializeSiblings,
   assembledViewDir,
   assembledPrimaryViewPath,
 } from "../../utils/siblings.js";
@@ -424,6 +425,168 @@ describe("addSibling / removeSibling (#1095)", () => {
 
       await sm.kill("app-1");
       expect(existsSync(viewDir())).toBe(false);
+    });
+  });
+
+  describe("auto-mount at spawn (project.siblings, #1095)", () => {
+    /** configWithSibling, with the given siblings configured on my-app. */
+    function configWithProjectSiblings(siblings: string[]): OrchestratorConfig {
+      const cfg = configWithSibling();
+      const myApp = cfg.projects["my-app"];
+      if (!myApp) throw new Error("test setup: my-app missing");
+      return {
+        ...cfg,
+        projects: { ...cfg.projects, "my-app": { ...myApp, siblings } },
+      };
+    }
+
+    it("mounts configured siblings as readonly symlinks with working adjacency", async () => {
+      const workspace = pathAwareWorkspace();
+      const sourcePath = join(ctx.tmpDir, "lib-shared");
+      mkdirSync(sourcePath, { recursive: true });
+      writeFileSync(join(sourcePath, "MARKER.txt"), "hello");
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["lib-shared"]));
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toHaveLength(1);
+      const ref = session.siblings[0]!;
+      expect(ref.repo).toBe("lib-shared");
+      expect(ref.mode).toBe("readonly-symlink");
+      expect(lstatSync(ref.path).isSymbolicLink()).toBe(true);
+
+      // ../{name} adjacency from the assembled primary view resolves to the source.
+      expect(session.assembledViewPath).toBe(
+        assembledPrimaryViewPath(getProjectWorktreesDir("my-app"), session.id, "my-app"),
+      );
+      const adjacent = join(session.assembledViewPath!, "..", "lib-shared");
+      expect(realpathSync(adjacent)).toBe(realpathSync(sourcePath));
+
+      // The mounted refs are persisted in metadata.
+      const raw = readMetadataRaw(sessionsDir, session.id);
+      expect(parseSiblings(raw!)).toEqual([ref]);
+    });
+
+    it("fails the spawn with full rollback when a configured repo is unknown", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+
+      const sm = makeManager(
+        workspace,
+        configWithProjectSiblings(["lib-shared", "does-not-exist"]),
+      );
+      await expect(sm.spawn({ projectId: "my-app" })).rejects.toThrow(/does-not-exist/);
+
+      // No leaked session metadata, sibling symlink, adjacency view, worktree, or runtime.
+      expect(readMetadataRaw(sessionsDir, "app-1")).toBeNull();
+      const worktreeDir = getProjectWorktreesDir("my-app");
+      expect(existsSync(join(worktreeDir, "app-1__sib__lib-shared"))).toBe(false);
+      expect(existsSync(assembledViewDir(worktreeDir, "app-1"))).toBe(false);
+      expect(workspace.destroy).toHaveBeenCalledWith(join(worktreeDir, "app-1"));
+      expect(ctx.mockRuntime.destroy).toHaveBeenCalled();
+    });
+
+    it("skips self-reference entries (by project id and by repo)", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+
+      const sm = makeManager(
+        workspace,
+        configWithProjectSiblings(["my-app", "org/my-app", "lib-shared"]),
+      );
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings.map((s) => s.repo)).toEqual(["lib-shared"]);
+    });
+
+    it("creates no view or mounts when the configured list is self-only", async () => {
+      const workspace = pathAwareWorkspace();
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["my-app"]));
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toEqual([]);
+      expect(session.assembledViewPath).toBeNull();
+      expect(existsSync(assembledViewDir(getProjectWorktreesDir("my-app"), session.id))).toBe(
+        false,
+      );
+    });
+
+    it("spawns exactly as before when the project has no siblings configured", async () => {
+      const workspace = pathAwareWorkspace();
+
+      const sm = makeManager(workspace, configWithSibling());
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toEqual([]);
+      expect(session.assembledViewPath).toBeNull();
+      expect(existsSync(assembledViewDir(getProjectWorktreesDir("my-app"), session.id))).toBe(
+        false,
+      );
+      const raw = readMetadataRaw(sessionsDir, session.id);
+      expect(raw?.["siblings"]).toBeUndefined();
+      expect(raw?.["assembledView"]).toBeUndefined();
+    });
+
+    it("treats an empty siblings array the same as no siblings", async () => {
+      const workspace = pathAwareWorkspace();
+
+      const sm = makeManager(workspace, configWithProjectSiblings([]));
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toEqual([]);
+      expect(session.assembledViewPath).toBeNull();
+      expect(existsSync(assembledViewDir(getProjectWorktreesDir("my-app"), session.id))).toBe(
+        false,
+      );
+    });
+
+    it("kill cleans up auto-mounted sibling symlinks and the view", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["lib-shared"]));
+      const session = await sm.spawn({ projectId: "my-app" });
+      const ref = session.siblings[0]!;
+      expect(existsSync(ref.path)).toBe(true);
+
+      await sm.kill(session.id);
+
+      expect(existsSync(ref.path)).toBe(false);
+      expect(existsSync(assembledViewDir(getProjectWorktreesDir("my-app"), session.id))).toBe(
+        false,
+      );
+    });
+
+    it("restore does not re-mount configured siblings (no double-mount)", async () => {
+      const workspace = pathAwareWorkspace();
+      mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
+      const worktreeDir = getProjectWorktreesDir("my-app");
+      const wsPath = join(worktreeDir, "app-1");
+      mkdirSync(wsPath, { recursive: true });
+      const ref = {
+        repo: "lib-shared",
+        path: join(worktreeDir, "app-1__sib__lib-shared"),
+        branch: "master",
+        mode: "readonly-symlink" as const,
+      };
+      writeMetadata(sessionsDir, "app-1", {
+        worktree: wsPath,
+        branch: "feat/work",
+        status: "killed",
+        project: "my-app",
+        runtimeHandle: makeHandle("rt-old"),
+      });
+      updateMetadata(sessionsDir, "app-1", { siblings: serializeSiblings([ref]) });
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["lib-shared"]));
+      const restored = await sm.restore("app-1");
+
+      // The metadata-carried ref is preserved exactly once — restore performs
+      // no mounting, so the (killed) symlink is not re-created.
+      expect(restored.siblings).toEqual([ref]);
+      expect(parseSiblings(readMetadataRaw(sessionsDir, "app-1")!)).toEqual([ref]);
+      expect(existsSync(ref.path)).toBe(false);
     });
   });
 });

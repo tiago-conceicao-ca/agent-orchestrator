@@ -1622,6 +1622,31 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       }
       invalidateCache();
 
+      // Auto-mount the project's configured sibling repos as read-only refs
+      // (#1095). This must stay AFTER the writeMetadata above: addSibling
+      // resolves the session via requireSessionRecord, which needs the
+      // persisted `worktree` key. Any mount failure — including an unknown
+      // configured repo (addSibling throws naming it) — lands in the catch
+      // below and rolls back the entire spawn. Self-references are skipped:
+      // the project itself is the session's writable repo.
+      const configuredSiblings = (project.siblings ?? []).filter(
+        (entry) => resolveSiblingSource(entry)?.repoId !== spawnConfig.projectId,
+      );
+      if (configuredSiblings.length > 0) {
+        const worktreesDir = getProjectWorktreesDir(spawnConfig.projectId);
+        // Undo for the assembled __ws view (kill() owns it on the happy path);
+        // the per-sibling undos below unmount the per-session symlinks first
+        // (LIFO), while the session metadata they read still exists.
+        cleanupStack.push(() => removeAssembledView(worktreesDir, reservedSessionId));
+        for (const entry of configuredSiblings) {
+          const ref = await addSibling(reservedSessionId, entry, { mode: "readonly-symlink" });
+          cleanupStack.push(() => removeSibling(reservedSessionId, ref.repo));
+          session.siblings.push(ref);
+        }
+        session.assembledViewPath =
+          readMetadataRaw(sessionsDir, reservedSessionId)?.["assembledView"] ?? null;
+      }
+
       // Past this point every resource that needed an undo is on disk in its
       // final form. Dismiss the stack so nothing below can trigger a rollback.
       cleanupStack.dismiss();
