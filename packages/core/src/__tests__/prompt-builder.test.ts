@@ -309,6 +309,49 @@ describe("buildPrompt", () => {
   });
 });
 
+describe("buildConfigLayer sibling repos", () => {
+  it("renders a Sibling Repos section from pre-resolved adjacency", () => {
+    const { systemPrompt } = buildPrompt({
+      project,
+      projectId: "test-app",
+      issueId: "INT-100",
+      siblingAdjacency: [
+        { repo: "org/api", name: "api", displayName: "API Service" },
+        { repo: "org/shared-lib", name: "shared-lib", displayName: "Shared Lib" },
+      ],
+    });
+
+    expect(systemPrompt).toContain("## Sibling Repos");
+    // Writable repo is the current project.
+    expect(systemPrompt).toContain("Your writable checkout is Test App");
+    // Read-only mounts use the resolved basename at ../{name}.
+    expect(systemPrompt).toContain("read-only");
+    expect(systemPrompt).toContain("API Service → `../api`");
+    expect(systemPrompt).toContain("Shared Lib → `../shared-lib`");
+    // Does not promise writability for siblings.
+    expect(systemPrompt).not.toContain("write into `../api`");
+  });
+
+  it("omits the Sibling Repos section when adjacency is empty", () => {
+    const { systemPrompt } = buildPrompt({
+      project,
+      projectId: "test-app",
+      issueId: "INT-100",
+      siblingAdjacency: [],
+    });
+    expect(systemPrompt).not.toContain("## Sibling Repos");
+  });
+
+  it("omits the Sibling Repos section when adjacency is absent", () => {
+    const { systemPrompt } = buildPrompt({
+      project,
+      projectId: "test-app",
+      issueId: "INT-100",
+    });
+    expect(systemPrompt).not.toContain("## Sibling Repos");
+  });
+});
+
 describe("BASE_AGENT_PROMPT", () => {
   it("is a non-empty string", () => {
     expect(typeof BASE_AGENT_PROMPT).toBe("string");

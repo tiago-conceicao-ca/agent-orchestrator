@@ -17,6 +17,7 @@ import {
   isTerminalSession,
   isWindows,
   loadConfig,
+  resolveSiblingAdjacency,
   getProjectSessionsDir,
   readAgentReportAuditTrailAsync,
   createCodeReviewStore,
@@ -386,6 +387,24 @@ function printReviewStatus(summary: ProjectReviewStatus): void {
   }
 }
 
+/**
+ * Render a project's configured siblings as a dimmed one-line summary for the
+ * status header, resolving each entry to its `../{name}` adjacency via the shared
+ * resolveSiblingAdjacency helper (so this never disagrees with the prompts).
+ * Returns null when the project has no resolvable siblings.
+ */
+export function formatConfiguredSiblings(
+  projects: Record<string, ProjectConfig>,
+  project: ProjectConfig,
+  projectId: string,
+): string | null {
+  const siblings = resolveSiblingAdjacency(projects, project.siblings, projectId);
+  if (siblings.length === 0) return null;
+
+  const names = siblings.map((s) => `${s.displayName} → ../${s.name}`).join(", ");
+  return chalk.dim(`  Siblings: ${names}`);
+}
+
 export function registerStatus(program: Command): void {
   program
     .command("status")
@@ -513,6 +532,10 @@ export function registerStatus(program: Command): void {
 
           if (!opts.json) {
             console.log(header(projectConfig.name || projectId));
+            const siblingsLine = formatConfiguredSiblings(config.projects, projectConfig, projectId);
+            if (siblingsLine) {
+              console.log(siblingsLine);
+            }
           }
 
           if (projectSessions.length === 0) {
