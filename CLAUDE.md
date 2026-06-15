@@ -145,6 +145,17 @@ Hash = SHA-256 of config directory (first 12 chars). Prevents collision across m
 2. Config prompt (project-specific rules from YAML)
 3. Rules files (optional `.agent-rules.md` from repo)
 
+### Sibling Repos
+
+A project can declare other registered projects as **siblings** so their code is reachable while a worker runs. Sibling repos are configured per-project and auto-mount **read-only** into every spawned session.
+
+- **Config:** `project.siblings?: string[]` (`packages/core/src/types.ts` — `ProjectConfig.siblings`). Each entry is a registered project id or `owner/name` repo. Mounted refs are tracked per-session as `SiblingRef[]` (same file, `mode: "readonly-symlink"`).
+- **Auto-mount:** on spawn, `session-manager.ts` resolves each entry via `resolveSiblingSource` (`id === entry || project.repo === entry`), skips self-references, and calls `addSibling(..., { mode: "readonly-symlink" })` to create a read-only symlink. Mounts roll back with the spawn on failure.
+- **Adjacency:** a sibling is reachable at `../{name}` next to the worker's checkout, where `{name}` is the basename of the resolved project's on-disk `path` — **not** the raw config string. Use the shared `resolveSiblingAdjacency(projects, entries, selfProjectId)` helper (`packages/core/src/utils/siblings.ts`, exported from `@aoagents/ao-core`) to render the correct `../{name}` everywhere — it is the single source of truth used by the orchestrator prompt, the worker prompt, and `ao status`.
+- **The write-into-a-sibling rule:** siblings are read-only — never edit a `../{name}` mount in place. To *write* into a sibling repo, spawn the worker under **that sibling's own project**; the original project then mounts read-only for it.
+
+Key files: `packages/core/src/types.ts` (`SiblingRef`, `ProjectConfig.siblings`), `packages/core/src/session-manager.ts` (`addSibling`/`resolveSiblingSource`), `packages/core/src/utils/siblings.ts` (`resolveSiblingAdjacency`), `packages/core/src/orchestrator-prompt.ts` (sibling prompt section), `packages/web/src/components/ProjectSiblingsEditor.tsx` (sidebar config UI).
+
 ## Working Principles
 
 These behavioral guidelines apply to every agent working on this codebase. They are not optional - they prevent the most common causes of PR rejection and rewrite.

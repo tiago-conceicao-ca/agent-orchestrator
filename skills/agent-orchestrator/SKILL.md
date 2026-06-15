@@ -133,6 +133,10 @@ If a tool call fails, show the error. Never claim you did something you didn't.
 | `ao_verify` | Mark issues as verified/failed, or list unverified |
 | `ao_doctor` | Health checks and diagnostics |
 
+## Sibling Repos
+
+A project can declare other registered projects as **siblings** (`project.siblings` in config). Each sibling auto-mounts **read-only** into every spawned session, reachable at `../{name}` next to the worker's checkout. Workers read siblings for cross-repo context but never edit them. To make a change land in a sibling repo, spawn the worker under **that sibling's own project** — the originating project then mounts read-only for it.
+
 ## Setup
 
 After installing the plugin, run `/ao setup` in any OpenClaw channel to auto-configure. Or manually:
