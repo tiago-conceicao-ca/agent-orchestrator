@@ -1,11 +1,14 @@
 import { describe, it, expect } from "vitest";
+import type { RunContext } from "../workflow/types";
 import { loadLensPrompt, makeLensGate } from "./lens-gate";
+
+const CTX: RunContext = { runId: "run-1", phase: "normalize-plan" };
 
 describe("lens gate", () => {
   it("returns a pass verdict from the agent's JSON output", async () => {
     const runner = async () => '{"type":"plan_review","lens":"tactical","issues":[],"verdict":"pass"}';
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "tactical");
+    const v = await gate.evaluate("plan.md", "tactical", CTX);
     expect(v.verdict).toBe("pass");
     expect(v.lens).toBe("tactical");
   });
@@ -13,26 +16,26 @@ describe("lens gate", () => {
     const runner = async () =>
       '{"verdict":"needs_fixes","issues":[{"severity":"high","title":"t","detail":"d"}]}';
     const gate = makeLensGate("architectural", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "architectural");
+    const v = await gate.evaluate("plan.md", "architectural", CTX);
     expect(v.verdict).toBe("needs_fixes");
     expect(v.issues[0].severity).toBe("high");
   });
   it("tolerates surrounding prose around the JSON blob", async () => {
     const runner = async () => 'Here is my review:\n{"verdict":"pass","issues":[]}\nDone.';
     const gate = makeLensGate("adversarial", "PROMPT", runner);
-    expect((await gate.evaluate("plan.md", "adversarial")).verdict).toBe("pass");
+    expect((await gate.evaluate("plan.md", "adversarial", CTX)).verdict).toBe("pass");
   });
   it("ignores a stray brace in prose before the verdict", async () => {
     const runner = async () =>
       "Note: handle {curly} braces carefully.\nReview:\n{\"verdict\":\"pass\",\"issues\":[]}";
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    expect((await gate.evaluate("plan.md", "tactical")).verdict).toBe("pass");
+    expect((await gate.evaluate("plan.md", "tactical", CTX)).verdict).toBe("pass");
   });
   it("returns the LAST JSON object when the agent echoes an earlier example", async () => {
     const runner = async () =>
       '{"verdict":"needs_fixes","issues":[{"severity":"high","title":"example","detail":"placeholder"}]}\n\n{"verdict":"pass","issues":[]}';
     const gate = makeLensGate("architectural", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "architectural");
+    const v = await gate.evaluate("plan.md", "architectural", CTX);
     expect(v.verdict).toBe("pass");
     expect(v.issues).toEqual([]);
   });
@@ -40,7 +43,7 @@ describe("lens gate", () => {
     const runner = async () =>
       '{"verdict":"needs_fixes","issues":[{"severity":"low","title":"t","detail":"use a } brace"}]}';
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "tactical");
+    const v = await gate.evaluate("plan.md", "tactical", CTX);
     expect(v.verdict).toBe("needs_fixes");
     expect(v.issues[0].detail).toBe("use a } brace");
   });
@@ -48,14 +51,14 @@ describe("lens gate", () => {
     const runner = async () =>
       '{"verdict":"pass","issues":[{"severity":"low","title":"t","detail":"an { brace"}]}';
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "tactical");
+    const v = await gate.evaluate("plan.md", "tactical", CTX);
     expect(v.verdict).toBe("pass");
     expect(v.issues[0].detail).toBe("an { brace");
   });
   it("ignores an unmatched trailing brace in prose after the verdict", async () => {
     const runner = async () => '{"verdict":"pass","issues":[]}\n(end of review) }';
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    expect((await gate.evaluate("plan.md", "tactical")).verdict).toBe("pass");
+    expect((await gate.evaluate("plan.md", "tactical", CTX)).verdict).toBe("pass");
   });
   it("handles an escaped quote inside a JSON string value", async () => {
     // The \" must NOT close the string, and the } inside it must be ignored —
@@ -63,9 +66,19 @@ describe("lens gate", () => {
     const runner = async () =>
       '{"verdict":"pass","issues":[{"severity":"low","title":"t","detail":"a \\" and a } inside"}]}';
     const gate = makeLensGate("tactical", "PROMPT", runner);
-    const v = await gate.evaluate("plan.md", "tactical");
+    const v = await gate.evaluate("plan.md", "tactical", CTX);
     expect(v.verdict).toBe("pass");
     expect(v.issues[0].detail).toBe('a " and a } inside');
+  });
+  it("forwards a lens-labelled run context to the runner", async () => {
+    let seen: RunContext | undefined;
+    const runner = async (_prompt: string, _artifactRef: string, ctx: RunContext) => {
+      seen = ctx;
+      return '{"verdict":"pass","issues":[]}';
+    };
+    const gate = makeLensGate("tactical", "PROMPT", runner);
+    await gate.evaluate("plan.md", "tactical", { runId: "run-9", phase: "normalize-plan" });
+    expect(seen).toEqual({ runId: "run-9", phase: "lens:tactical" });
   });
 });
 

@@ -3,6 +3,16 @@ import type { GateVerdict } from "../gates/types.js";
 
 export type RunStatus = "running" | "awaiting_approval" | "completed" | "failed";
 
+/**
+ * Position within a workflow run, threaded from `engine.advance` into the gate
+ * and plan-write seams so session-backed runners can tag the sessions they spawn
+ * (`sdlcRunId`/`sdlcPhase`). The headless impls ignore it.
+ */
+export interface RunContext {
+  runId: string;
+  phase: string;
+}
+
 export interface Phase {
   id: string;
   executor: string; // key into the executor registry

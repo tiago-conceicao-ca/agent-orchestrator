@@ -34,6 +34,7 @@ import {
   RunStore,
   smokeEvalArtifact,
   WorkflowEngine,
+  type RunContext,
   type WorkflowTask,
 } from "@aoagents/ao-sdlc";
 import { getSessionManager } from "../lib/create-session-manager.js";
@@ -52,9 +53,9 @@ export interface SdlcServiceDeps {
   baseDir: string;
   sessionManager: SdlcSessionManager;
   projectId: string;
-  runLensAgent: (prompt: string, artifactRef: string) => Promise<string>;
+  runLensAgent: (prompt: string, artifactRef: string, ctx: RunContext) => Promise<string>;
   runEvalCommand: (artifactRef: string) => Promise<string>;
-  runPlanWriteAgent: (input: string) => Promise<string>;
+  runPlanWriteAgent: (input: string, ctx: RunContext) => Promise<string>;
   /** Optional per-task generation instruction (defaults to /gerar-backend wording). */
   buildTaskPrompt?: (task: WorkflowTask) => string;
 }

@@ -1,11 +1,20 @@
 import { writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { PhaseExecutor, PhaseContext, PhaseResult } from "../workflow/types.js";
+import type {
+  PhaseExecutor,
+  PhaseContext,
+  PhaseResult,
+  RunContext,
+} from "../workflow/types.js";
 import { normalizePlan } from "../plan/normalizer.js";
 
-/** Turns loose input into a tm-style plan markdown (Task 15 supplies the agent-backed impl). */
-export type AdaptToPlanFn = (input: string) => Promise<string>;
+/**
+ * Turns loose input into a tm-style plan markdown. `ctx` carries the run id +
+ * phase so a session-backed adapter can tag the plan-write session it spawns;
+ * the headless adapter ignores it.
+ */
+export type AdaptToPlanFn = (input: string, ctx: RunContext) => Promise<string>;
 
 export interface NormalizePlanDeps {
   adaptToPlan: AdaptToPlanFn;
@@ -19,7 +28,9 @@ export function makeNormalizePlanExecutor(deps: NormalizePlanDeps): PhaseExecuto
   return {
     id: "normalize-plan",
     async run(ctx: PhaseContext): Promise<PhaseResult> {
-      const planMarkdown = hasTaskGraph(ctx.input) ? ctx.input : await deps.adaptToPlan(ctx.input);
+      const planMarkdown = hasTaskGraph(ctx.input)
+        ? ctx.input
+        : await deps.adaptToPlan(ctx.input, { runId: ctx.run.id, phase: "normalize-plan" });
       const epic = normalizePlan(planMarkdown, {
         id: ctx.run.epicId,
         title: ctx.run.epicId,

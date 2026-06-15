@@ -107,7 +107,10 @@ export class WorkflowEngine {
         for (const lens of phase.gates) {
           const gate = this.deps.gates[lens];
           if (!gate) throw new Error(`No gate registered for lens '${lens}'.`);
-          const verdict = await gate.evaluate(artifactRef, lens);
+          const verdict = await gate.evaluate(artifactRef, lens, {
+            runId: run.id,
+            phase: phase.id,
+          });
           run = await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
           if (verdict.verdict === "needs_fixes") {
             run = await this.deps.store.update(id, (r) => ({
