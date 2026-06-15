@@ -318,6 +318,26 @@ describe("ProjectSidebar", () => {
     expect(screen.queryByRole("link", { name: "Open feat/test" })).not.toBeInTheDocument();
   });
 
+  it("exposes project-scoped SDLC and Reviews nav links matching the mode-switch hrefs", () => {
+    render(
+      <ProjectSidebar
+        projects={projects}
+        sessions={[]}
+        activeProjectId="project-1"
+        activeSessionId={undefined}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open Project One reviews" })).toHaveAttribute(
+      "href",
+      "/review?project=project-1",
+    );
+    expect(screen.getByRole("link", { name: "Open Project One SDLC runs" })).toHaveAttribute(
+      "href",
+      "/sdlc?project=project-1",
+    );
+  });
+
   it("shows an SDLC indicator linking to the run view only for sdlc-tagged sessions", () => {
     render(
       <ProjectSidebar
@@ -347,7 +367,9 @@ describe("ProjectSidebar", () => {
       />,
     );
 
-    const sdlcLinks = screen.getAllByRole("link", { name: /SDLC run/i });
+    // The per-session indicator's label embeds the run id ("SDLC run <id>"),
+    // distinguishing it from the project-level "Open … SDLC runs" nav link.
+    const sdlcLinks = screen.getAllByRole("link", { name: /^SDLC run run-/i });
     expect(sdlcLinks).toHaveLength(1);
     expect(sdlcLinks[0]).toHaveAttribute("href", "/sdlc?project=project-1");
   });
