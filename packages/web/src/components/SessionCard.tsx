@@ -17,7 +17,7 @@ import { getSessionTitle } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
 import { DoneSessionCard } from "./SessionCard.parts";
 import { MountedSiblings } from "./SessionSiblings";
-import { projectSessionHashPath } from "@/lib/routes";
+import { projectSdlcPath, projectSessionHashPath } from "@/lib/routes";
 
 /**
  * Tracks which session IDs have already played their entrance animation.
@@ -84,6 +84,35 @@ function getRepoInitials(repo: string): string {
     .slice(0, 3);
 }
 
+/** Short, human-friendly task ref from an SDLC task id (e.g. "epic-1__repo" → "repo"). */
+function sdlcTaskRef(taskId: string | undefined): string | null {
+  if (!taskId) return null;
+  const segment = taskId.split("__").pop();
+  return segment || taskId;
+}
+
+/**
+ * Compact badge marking a session as an SDLC worker. Links to the run view so
+ * the plan → lens → CI loop is one click away. Rendered only when the session
+ * carries `sdlcRunId` metadata; ordinary worker cards are unaffected.
+ */
+function SdlcBadge({ session }: { session: DashboardSession }) {
+  const runId = session.metadata["sdlcRunId"];
+  if (!runId) return null;
+  const ref = sdlcTaskRef(session.metadata["sdlcTaskId"]);
+  return (
+    <a
+      href={projectSdlcPath(session.projectId)}
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex shrink-0 items-center gap-1 rounded bg-[var(--color-accent-subtle)] px-1.5 py-0.5 font-[var(--font-mono)] text-[9px] font-semibold uppercase leading-none tracking-[0.04em] text-[var(--color-accent)] no-underline"
+      title={`SDLC run ${runId}`}
+      aria-label={`SDLC run ${runId}`}
+    >
+      SDLC{ref ? <span className="font-normal normal-case opacity-80">{ref}</span> : null}
+    </a>
+  );
+}
+
 function SessionCardView({ session, onKill, onMerge, onRestore }: SessionCardProps) {
   const [killConfirming, setKillConfirming] = useState(false);
 
@@ -145,6 +174,7 @@ function SessionCardView({ session, onKill, onMerge, onRestore }: SessionCardPro
     <div className={cn("session-card border", !hasEntered && "kanban-card-enter")}>
       <div className="session-card__header">
         <StatusBadge session={session} />
+        <SdlcBadge session={session} />
         <div className="flex-1" />
         <span className="card__id">{session.id}</span>
         {isRestorable && (
