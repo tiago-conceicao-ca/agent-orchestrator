@@ -1,7 +1,6 @@
 import "server-only";
 
 import { execFile } from "node:child_process";
-import { dirname } from "node:path";
 import { promisify } from "node:util";
 import {
   getProjectDir,
@@ -17,9 +16,11 @@ import {
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
+  makeSessionLensRunner,
   RunStore,
   smokeEvalArtifact,
   WorkflowEngine,
+  type SdlcSessionSpawn,
 } from "@aoagents/ao-sdlc";
 import { getServices } from "./services";
 
@@ -111,6 +112,19 @@ export async function buildWebSdlcEngine(
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
 
+  // Adapter for the session-backed lens/plan runners: spawn tags SDLC metadata,
+  // kill tears the session down once its sentinel output has been read.
+  const sessionSpawn: SdlcSessionSpawn = {
+    spawn: async ({ prompt, metadata }) => {
+      const session = await sessionManager.spawn({ projectId: resolved, prompt });
+      updateMetadata(dataDir, session.id, metadata);
+      return { id: session.id, workspacePath: session.workspacePath ?? undefined };
+    },
+    kill: async (id) => {
+      await sessionManager.kill(id);
+    },
+  };
+
   const waitForDone = async (sessionId: string): Promise<"done" | "failed"> => {
     const deadline = Date.now() + TASK_POLL_TIMEOUT_MS;
     for (;;) {
@@ -138,17 +152,10 @@ export async function buildWebSdlcEngine(
       }),
     },
     gates: {
-      // Grant the lens agent read access to the artifact's directory (the plan is
-      // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
-      // interactive permission prompt — otherwise its Read tool is denied and it
-      // returns needs_fixes without ever evaluating the plan.
-      tactical: makeLensGate("tactical", loadLensPrompt("tactical"), (prompt, artifactRef) =>
-        runClaudeHeadless(prompt, [
-          "--add-dir",
-          dirname(artifactRef),
-          "--dangerously-skip-permissions",
-        ]),
-      ),
+      // Run the tactical lens as a real, interactive AO worker session (visible
+      // and attachable on the board) instead of a headless `claude -p`. The
+      // session writes its verdict JSON to a sentinel file the runner reads.
+      tactical: makeLensGate("tactical", loadLensPrompt("tactical"), makeSessionLensRunner(sessionSpawn)),
       "pattern-library": makePatternLibraryGate((artifactRef) => smokeEvalArtifact(artifactRef)),
     },
   });

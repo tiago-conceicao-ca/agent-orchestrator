@@ -13,7 +13,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { basename, dirname } from "node:path";
+import { basename } from "node:path";
 import chalk from "chalk";
 import type { Command } from "commander";
 import {
@@ -31,10 +31,12 @@ import {
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
+  makeSessionLensRunner,
   RunStore,
   smokeEvalArtifact,
   WorkflowEngine,
   type RunContext,
+  type SdlcSessionSpawn,
   type WorkflowTask,
 } from "@aoagents/ao-sdlc";
 import { getSessionManager } from "../lib/create-session-manager.js";
@@ -47,6 +49,7 @@ interface SdlcSessionManager {
     prompt: string;
   }): Promise<{ id: string; workspacePath?: string | null }>;
   get(id: string): Promise<Session | null>;
+  kill(id: string): Promise<unknown>;
 }
 
 export interface SdlcServiceDeps {
@@ -170,6 +173,28 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
   return { engine, store };
 }
 
+/**
+ * Adapt the real SessionManager into the {@link SdlcSessionSpawn} the
+ * session-backed runner needs: spawn tags SDLC metadata, kill tears the session
+ * down once its sentinel output has been read.
+ */
+function makeSdlcSessionSpawn(
+  sessionManager: SdlcSessionManager,
+  projectId: string,
+): SdlcSessionSpawn {
+  const dataDir = getProjectSessionsDir(projectId);
+  return {
+    spawn: async ({ prompt, metadata }) => {
+      const session = await sessionManager.spawn({ projectId, prompt });
+      updateMetadata(dataDir, session.id, metadata);
+      return { id: session.id, workspacePath: session.workspacePath ?? undefined };
+    },
+    kill: async (id) => {
+      await sessionManager.kill(id);
+    },
+  };
+}
+
 /** Run `claude` headless (print mode) and return its stdout. */
 async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Promise<string> {
   // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
@@ -223,27 +248,21 @@ async function buildLiveEngine(
   const config = loadConfig();
   const resolvedProjectId = resolveProjectId(config, projectId);
   const sessionManager = await getSessionManager(config);
+  const sessionSpawn = makeSdlcSessionSpawn(sessionManager, resolvedProjectId);
   return buildSdlcServices({
     baseDir: getProjectDir(resolvedProjectId),
     sessionManager,
     projectId: resolvedProjectId,
+    // Run each lens as a real, interactive AO worker session (visible/attachable
+    // on the board) instead of a headless `claude -p`. The session writes its
+    // verdict JSON to a sentinel file the runner reads on completion.
     // When --skip-lens is set, the lens runner returns a trivially-passing
-    // plan_review WITHOUT calling claude — for demo/testing a minimal plan that
-    // the tactical/architectural lens would otherwise reject by design. The
-    // pattern-library/eval gate on generate-backend is left untouched.
+    // plan_review WITHOUT spawning a session — for demo/testing a minimal plan
+    // that the tactical/architectural lens would otherwise reject by design.
     runLensAgent: skipLens
       ? async () =>
           JSON.stringify({ type: "plan_review", lens: "tactical", issues: [], verdict: "pass" })
-      : // Grant the lens agent read access to the artifact's directory (the plan is
-        // written to os.tmpdir(), outside the spawned agent's CWD) and skip the
-        // interactive permission prompt — otherwise its Read tool is denied and it
-        // returns needs_fixes without ever evaluating the plan.
-        (prompt, artifactRef) =>
-          runClaudeHeadless(prompt, [
-            "--add-dir",
-            dirname(artifactRef),
-            "--dangerously-skip-permissions",
-          ]),
+      : makeSessionLensRunner(sessionSpawn),
     runPlanWriteAgent: (input) => runClaudeHeadless(input),
     // Lenient smoke eval: pass only if the generated worktree path(s) contain
     // files. Swap in the real ContaAzul /avaliar-artefato here for a ca-* repo.

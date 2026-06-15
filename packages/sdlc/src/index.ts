@@ -34,3 +34,9 @@ export {
   type SdlcSessionSpawn,
   type RunSessionBackedAgentParams,
 } from "./runner/session-runner.js";
+export {
+  makeSessionLensRunner,
+  makeSessionPlanRunner,
+  LENS_SENTINEL,
+  PLAN_SENTINEL,
+} from "./runner/sdlc-agent-runners.js";
