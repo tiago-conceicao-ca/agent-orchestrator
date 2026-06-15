@@ -15,12 +15,8 @@ import { ThemeToggle } from "./ThemeToggle";
 import { AppMark } from "./AppMark";
 import { AddProjectModal } from "./AddProjectModal";
 import { ProjectSettingsModal } from "./ProjectSettingsModal";
-import {
-  SessionSiblings,
-  SiblingCatalogList,
-  MountedSiblings,
-  type SiblingCatalogEntry,
-} from "./SessionSiblings";
+import { MountedSiblings } from "./SessionSiblings";
+import { ProjectSiblingsEditor, type SiblingCatalogEntry } from "./ProjectSiblingsEditor";
 
 /** Minimal shape needed to render an orchestrator link in the sidebar. */
 export interface ProjectSidebarOrchestrator {
@@ -1054,8 +1050,14 @@ function ProjectSidebarInner({
               {/* Sessions */}
               {!isDegraded && isExpanded && (
                 <div className="project-sidebar__sessions">
-                  {/* Available-siblings catalog (#1095): the other registered projects. */}
-                  <SiblingCatalogList catalog={projectSiblingCatalog} />
+                  {/* Project siblings editor (#1095): configured siblings + picker
+                      over the other registered projects. Edits apply to new
+                      sessions only. */}
+                  <ProjectSiblingsEditor
+                    projectId={project.id}
+                    siblings={project.siblings ?? []}
+                    catalog={projectSiblingCatalog}
+                  />
                   {sessions === null ? (
                     <div className="space-y-2 px-3 py-2" aria-label="Loading sessions">
                       {Array.from({ length: 3 }, (_, index) => (
@@ -1118,20 +1120,12 @@ function ProjectSidebarInner({
                               onStartRename={startRename}
                             />
                           )}
-                          {/* Siblings (#1095): the active session gets the interactive
-                              picker + unmount; others show a read-only mounted list. */}
-                          {isSessionActive ? (
-                            <SessionSiblings
-                              sessionId={session.id}
-                              siblings={sessionSiblings}
-                              catalog={projectSiblingCatalog}
-                            />
-                          ) : (
-                            <MountedSiblings
-                              siblings={sessionSiblings}
-                              className="ml-4 mt-0.5 border-l border-[var(--color-border-subtle)] pl-2"
-                            />
-                          )}
+                          {/* Siblings (#1095): read-only — siblings are configured per
+                              project and mounted at spawn; sessions only show theirs. */}
+                          <MountedSiblings
+                            siblings={sessionSiblings}
+                            className="ml-4 mt-0.5 border-l border-[var(--color-border-subtle)] pl-2"
+                          />
                         </div>
                       );
                     })

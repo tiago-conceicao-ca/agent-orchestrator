@@ -10,6 +10,8 @@ export interface ProjectInfo {
   name: string;
   sessionPrefix?: string;
   resolveError?: string;
+  /** Project-level configured sibling repos, resolved to registered ids and display names. */
+  siblings?: { id: string; name: string }[];
 }
 
 function loadProjectDiscoveryConfig() {
@@ -143,6 +145,23 @@ export const getPrimaryProjectId = cache((): string => {
   return "ao";
 });
 
+// Resolves configured sibling entries (project id or "owner/name" repo —
+// mirroring resolveSiblingSource in core) to registered ids and display names.
+// Entries that no longer resolve are surfaced verbatim so the UI can remove them.
+function resolveSiblingInfos(
+  entries: string[],
+  projects: ReturnType<typeof loadProjectDiscoveryConfig>["projects"],
+): { id: string; name: string }[] {
+  return entries.map((entry) => {
+    for (const [projectId, project] of Object.entries(projects)) {
+      if (projectId === entry || project.repo === entry) {
+        return { id: projectId, name: project.name ?? projectId };
+      }
+    }
+    return { id: entry, name: entry };
+  });
+}
+
 export const getAllProjects = cache((): ProjectInfo[] => {
   try {
     const config = loadProjectDiscoveryConfig();
@@ -151,6 +170,9 @@ export const getAllProjects = cache((): ProjectInfo[] => {
         id,
         name: project.name ?? id,
         sessionPrefix: project.sessionPrefix ?? id,
+        ...(project.siblings && project.siblings.length > 0
+          ? { siblings: resolveSiblingInfos(project.siblings, config.projects) }
+          : {}),
       })),
       ...Object.entries(config.degradedProjects).map(([id, project]) => ({
         id,

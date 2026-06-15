@@ -58,6 +58,40 @@ describe("project-name fallback discovery", () => {
     expect(mockLoadConfig).toHaveBeenNthCalledWith(2);
   });
 
+  it("getAllProjects resolves configured siblings to ids and display names", async () => {
+    const config = {
+      configPath: "/tmp/global-config.yaml",
+      projects: {
+        app: {
+          name: "App",
+          path: "/repos/app",
+          sessionPrefix: "app",
+          siblings: ["lib", "acme/shared", "gone"],
+        },
+        lib: { name: "Lib", path: "/repos/lib", sessionPrefix: "lib" },
+        shared: {
+          name: "Shared",
+          path: "/repos/shared",
+          sessionPrefix: "sh",
+          repo: "acme/shared",
+        },
+      },
+      degradedProjects: {},
+    };
+
+    mockLoadConfig.mockReturnValue(config);
+
+    const { getAllProjects } = await import("../project-name");
+    const projects = getAllProjects();
+
+    expect(projects.find((p) => p.id === "app")?.siblings).toEqual([
+      { id: "lib", name: "Lib" },
+      { id: "shared", name: "Shared" },
+      { id: "gone", name: "gone" },
+    ]);
+    expect(projects.find((p) => p.id === "lib")?.siblings).toBeUndefined();
+  });
+
   it("prefers the current repo project over the first configured project", async () => {
     const config = {
       configPath: "/tmp/global-config.yaml",

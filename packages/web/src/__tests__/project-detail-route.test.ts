@@ -177,6 +177,125 @@ describe("/api/projects/[id]", () => {
     });
   });
 
+  it("PATCH persists siblings to the local YAML with replace semantics", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    const libDir = path.join(tempRoot, "lib");
+    mkdirSync(repoDir, { recursive: true });
+    mkdirSync(libDir, { recursive: true });
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+    const libId = registerProjectInGlobalConfig("lib", "Lib", libDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(makeRequest("PATCH", { siblings: [libId] }, effectiveId), {
+      params: Promise.resolve({ id: effectiveId }),
+    });
+
+    expect(response.status).toBe(200);
+    const localYamlPath = path.join(repoDir, "agent-orchestrator.yaml");
+    expect(readFileSync(localYamlPath, "utf-8")).toContain(`- ${libId}`);
+
+    const clearResponse = await PATCH(makeRequest("PATCH", { siblings: [] }, effectiveId), {
+      params: Promise.resolve({ id: effectiveId }),
+    });
+
+    expect(clearResponse.status).toBe(200);
+    expect(readFileSync(localYamlPath, "utf-8")).not.toContain("siblings");
+  });
+
+  it("PATCH accepts sibling entries given as owner/name repo", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    const libDir = path.join(tempRoot, "lib");
+    mkdirSync(repoDir, { recursive: true });
+    mkdirSync(path.join(libDir, ".git"), { recursive: true });
+    writeFileSync(
+      path.join(libDir, ".git", "config"),
+      '[remote "origin"]\n  url = git@github.com:acme/lib.git\n',
+    );
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+    registerProjectInGlobalConfig("lib", "Lib", libDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(makeRequest("PATCH", { siblings: ["acme/lib"] }, effectiveId), {
+      params: Promise.resolve({ id: effectiveId }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8")).toContain(
+      "- acme/lib",
+    );
+  });
+
+  it("PATCH rejects an unknown sibling repo with 400 and writes nothing", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    mkdirSync(repoDir, { recursive: true });
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(
+      makeRequest("PATCH", { siblings: ["acme/missing"] }, effectiveId),
+      { params: Promise.resolve({ id: effectiveId }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: expect.stringContaining('Unknown sibling repo "acme/missing"'),
+    });
+    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+  });
+
+  it("PATCH rejects a self-referencing sibling with 400", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    mkdirSync(repoDir, { recursive: true });
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(makeRequest("PATCH", { siblings: [effectiveId] }, effectiveId), {
+      params: Promise.resolve({ id: effectiveId }),
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: expect.stringContaining("itself"),
+    });
+    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+  });
+
+  it("PATCH rejects duplicate sibling entries with 400", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    const libDir = path.join(tempRoot, "lib");
+    mkdirSync(repoDir, { recursive: true });
+    mkdirSync(libDir, { recursive: true });
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+    const libId = registerProjectInGlobalConfig("lib", "Lib", libDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(
+      makeRequest("PATCH", { siblings: [libId, libId] }, effectiveId),
+      { params: Promise.resolve({ id: effectiveId }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: expect.stringContaining("Duplicate sibling"),
+    });
+  });
+
+  it("PATCH rejects a non-array siblings payload with 400", async () => {
+    const repoDir = path.join(tempRoot, "demo");
+    mkdirSync(repoDir, { recursive: true });
+    const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
+
+    const { PATCH } = await import("@/app/api/projects/[id]/route");
+    const response = await PATCH(makeRequest("PATCH", { siblings: "lib" }, effectiveId), {
+      params: Promise.resolve({ id: effectiveId }),
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: "siblings must be an array of strings",
+    });
+  });
+
   it("PATCH rejects identity field updates with 400", async () => {
     const repoDir = path.join(tempRoot, "demo");
     mkdirSync(repoDir, { recursive: true });

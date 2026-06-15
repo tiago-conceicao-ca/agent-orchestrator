@@ -24,12 +24,34 @@ import { stopStaleWindowsPtyHosts } from "@/lib/windows-pty-cleanup";
 export const dynamic = "force-dynamic";
 
 const IDENTITY_FIELDS = new Set(["projectId", "path", "repo", "defaultBranch"]);
-const EDITABLE_CONFIG_FIELDS = new Set(["agent", "runtime", "tracker", "scm", "reactions"]);
+const EDITABLE_CONFIG_FIELDS = new Set([
+  "agent",
+  "runtime",
+  "tracker",
+  "scm",
+  "reactions",
+  "siblings",
+]);
 
 function sanitizeString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+// Mirrors resolveSiblingSource in core's session-manager (match by project id
+// OR "owner/name" repo) so web validation and spawn-time resolution can never
+// disagree on which entries are mountable.
+function resolveSiblingProjectId(
+  entry: string,
+  projects: Record<string, { repo?: string }>,
+): string | null {
+  for (const [projectId, project] of Object.entries(projects)) {
+    if (projectId === entry || project.repo === entry) {
+      return projectId;
+    }
+  }
+  return null;
 }
 
 function revalidateProjectPaths(projectId: string): void {
@@ -245,6 +267,43 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
             } as LocalProjectConfig["scm"])
           : undefined;
       nextConfig.scm = nextScm;
+    }
+    if (hasOwn("siblings")) {
+      const rawSiblings = body["siblings"];
+      if (!Array.isArray(rawSiblings) || rawSiblings.some((entry) => typeof entry !== "string")) {
+        return NextResponse.json(
+          { error: "siblings must be an array of strings" },
+          { status: 400 },
+        );
+      }
+      const entries = rawSiblings as string[];
+      const seen = new Set<string>();
+      for (const entry of entries) {
+        const resolvedId = resolveSiblingProjectId(entry, state.config.projects);
+        if (!resolvedId) {
+          return NextResponse.json(
+            {
+              error: `Unknown sibling repo "${entry}": no registered project matches that id or repo`,
+            },
+            { status: 400 },
+          );
+        }
+        if (resolvedId === id) {
+          return NextResponse.json(
+            { error: `Sibling "${entry}" refers to the project itself` },
+            { status: 400 },
+          );
+        }
+        if (seen.has(resolvedId)) {
+          return NextResponse.json(
+            { error: `Duplicate sibling entry "${entry}"` },
+            { status: 400 },
+          );
+        }
+        seen.add(resolvedId);
+      }
+      // Replace semantics: the payload array is the full new list.
+      nextConfig.siblings = entries.length > 0 ? entries : undefined;
     }
     if (hasOwn("reactions")) {
       nextConfig.reactions =
