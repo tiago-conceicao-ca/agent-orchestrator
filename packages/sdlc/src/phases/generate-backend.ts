@@ -1,4 +1,4 @@
-import type { PhaseExecutor, PhaseContext, PhaseResult } from "../workflow/types.js";
+import type { PhaseExecutor, PhaseContext, PhaseResult, PrMode } from "../workflow/types.js";
 import type { Epic, WorkflowTask } from "../plan/types.js";
 import { taskDoneSentinelInstruction } from "../runner/task-sentinel.js";
 
@@ -58,6 +58,28 @@ function topoOrder(epic: Epic): WorkflowTask[] {
 /** Canonical /gerar-backend wording used as the default generation instruction. */
 export const GERAR_BACKEND_INSTRUCTION = "Run the /gerar-backend skill to implement this task.";
 
+/** Shared epic branch name workers push to in `shared` PR mode. */
+export function sharedEpicBranch(epicId: string): string {
+  return `sdlc/${epicId}`;
+}
+
+/**
+ * The per-task completion + sentinel directive, selected by PR mode.
+ * - per-task: open your own PR, then write the sentinel (with PR fields).
+ * - shared: push to the shared epic branch (no own PR), then write the sentinel.
+ */
+export function taskCompletionDirective(prMode: PrMode, epicBranch?: string): string {
+  if (prMode === "shared") {
+    const branch = epicBranch ? ` \`${epicBranch}\`` : "";
+    return [
+      `When done, push your commits to the shared epic branch${branch}. Do NOT open your ` +
+        `own PR — every task in this epic lands in ONE shared PR off that branch.`,
+      taskDoneSentinelInstruction({ withPr: false }),
+    ].join("\n\n");
+  }
+  return [`When done, open a PR.`, taskDoneSentinelInstruction({ withPr: true })].join("\n\n");
+}
+
 /**
  * Pure render of the per-task agent prompt. This is the single source of truth
  * for what the generate-backend executor dispatches to a spawned session, reused
@@ -69,6 +91,7 @@ export const GERAR_BACKEND_INSTRUCTION = "Run the /gerar-backend skill to implem
 export function previewTaskPrompt(
   task: WorkflowTask,
   generationInstruction: string = GERAR_BACKEND_INSTRUCTION,
+  opts: { prMode?: PrMode; epicBranch?: string } = {},
 ): string {
   const ac = task.acceptanceCriteria.map((c) => `- ${c}`).join("\n");
   return [
@@ -76,8 +99,7 @@ export function previewTaskPrompt(
     `Task: ${task.title}`,
     `Summary: ${task.summary}`,
     `Acceptance criteria:\n${ac}`,
-    `When done, open a PR.`,
-    taskDoneSentinelInstruction({ withPr: true }),
+    taskCompletionDirective(opts.prMode ?? "per-task", opts.epicBranch),
   ].join("\n\n");
 }
 
@@ -86,7 +108,13 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
     id: "generate-backend",
     async run(ctx: PhaseContext): Promise<PhaseResult> {
       if (!ctx.epic) throw new Error("generate-backend requires an epic from the prior phase.");
-      const promptFor = deps.buildTaskPrompt ?? previewTaskPrompt;
+      // PR mode drives the worker's completion expectation: per-task workers open
+      // their own PR; shared workers push one epic branch and complete via the
+      // sentinel. A custom buildTaskPrompt (e.g. the smoke) overrides verbatim.
+      const prMode: PrMode = ctx.run.prMode ?? "per-task";
+      const epicBranch = prMode === "shared" ? sharedEpicBranch(ctx.epic.id) : undefined;
+      const promptFor =
+        deps.buildTaskPrompt ?? ((task) => previewTaskPrompt(task, undefined, { prMode, epicBranch }));
       const order = topoOrder(ctx.epic);
       const workspacePaths: string[] = [];
       for (const task of order) {

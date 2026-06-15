@@ -76,6 +76,18 @@ describe("WorkflowEngine", () => {
     expect(s?.status).toBe("completed");
   });
 
+  it("defaults prMode to per-task and persists an explicit shared prMode", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const eng = makeEngine(dir, def, []);
+    const a = await eng.start("w", "epic-1", "input");
+    expect((await eng.load(a.id))?.prMode).toBe("per-task");
+    const b = await eng.start("w", "epic-2", "input", { prMode: "shared" });
+    expect((await eng.load(b.id))?.prMode).toBe("shared");
+  });
+
   it("marks the run failed when a gate returns needs_fixes", async () => {
     const def: WorkflowDefinition = {
       name: "w",

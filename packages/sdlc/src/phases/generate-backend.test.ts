@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { makeGenerateBackendExecutor, type SpawnFn } from "./generate-backend";
+import {
+  makeGenerateBackendExecutor,
+  sharedEpicBranch,
+  type SpawnFn,
+} from "./generate-backend";
 import type { Epic } from "../plan/types";
-import type { PhaseContext } from "../workflow/types";
+import type { PhaseContext, PrMode } from "../workflow/types";
 
 const epic: Epic = {
   id: "epic-1",
@@ -14,7 +18,7 @@ const epic: Epic = {
   dependencies: [{ taskId: "t-svc", dependsOnTaskId: "t-repo", type: "blocks" }],
 };
 
-function ctx(): { ctx: PhaseContext; statuses: Record<string, string> } {
+function ctx(prMode?: PrMode): { ctx: PhaseContext; statuses: Record<string, string> } {
   const statuses: Record<string, string> = {};
   return {
     statuses,
@@ -30,6 +34,7 @@ function ctx(): { ctx: PhaseContext; statuses: Record<string, string> } {
         verdicts: [],
         pendingApproval: null,
         createdAt: "2026-06-08T00:00:00Z",
+        prMode,
       },
       epic,
       input: "",
@@ -81,6 +86,51 @@ describe("generate-backend executor", () => {
     await exec.run(c);
     expect(prompts[0]).toBe("NODE: implement Repo as plain Node.js");
     expect(prompts.join("\n")).not.toContain("gerar-backend");
+  });
+
+  it("per-task mode (default): tells each worker to open its own PR + write the sentinel", async () => {
+    const prompts: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      prompts.push(cfg.prompt);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c } = ctx("per-task");
+    await exec.run(c);
+    expect(prompts[0]).toContain("When done, open a PR.");
+    expect(prompts[0]).toContain("sdlc-task-done.json");
+    expect(prompts[0]).not.toContain("shared epic branch");
+  });
+
+  it("shared mode: tells workers to push the shared epic branch and NOT open a PR", async () => {
+    const prompts: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      prompts.push(cfg.prompt);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c } = ctx("shared");
+    await exec.run(c);
+    expect(prompts[0]).toContain(sharedEpicBranch("epic-1"));
+    expect(prompts[0]).toContain("Do NOT open your");
+    expect(prompts[0]).toContain("sdlc-task-done.json");
+  });
+
+  it("shared mode completes a non-PR worker via the sentinel (fake session manager)", async () => {
+    // The completion seam never sees a PR; waitForDone returns done only because
+    // the worker wrote the sentinel. This is the shared-PR stall fix in miniature.
+    const seen: string[] = [];
+    const waitForDone = async (sessionId: string, workspacePath?: string) => {
+      seen.push(`${sessionId}:${workspacePath ?? "none"}`);
+      return "done" as const;
+    };
+    const spawn: SpawnFn = async (cfg) => ({ id: `s-${cfg.sdlcTaskId}`, workspacePath: `/wt/${cfg.sdlcTaskId}` });
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone });
+    const { ctx: c, statuses } = ctx("shared");
+    await exec.run(c);
+    expect(statuses["t-repo"]).toBe("done");
+    expect(statuses["t-svc"]).toBe("done");
+    expect(seen[0]).toBe("s-t-repo:/wt/t-repo"); // workspacePath threaded for the sentinel
   });
 
   it("returns the spawned worktree path(s) as artifactRef when provided", async () => {

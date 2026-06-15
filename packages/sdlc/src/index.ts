@@ -18,6 +18,8 @@ export { makeNormalizePlanExecutor, type AdaptToPlanFn } from "./phases/normaliz
 export {
   makeGenerateBackendExecutor,
   previewTaskPrompt,
+  taskCompletionDirective,
+  sharedEpicBranch,
   GERAR_BACKEND_INSTRUCTION,
   type SpawnFn,
   type SpawnConfig,

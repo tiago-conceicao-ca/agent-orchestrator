@@ -4,6 +4,15 @@ import type { GateVerdict } from "../gates/types.js";
 export type RunStatus = "running" | "awaiting_approval" | "completed" | "failed";
 
 /**
+ * How worker tasks land their work.
+ * - `per-task` (default): each worker opens its OWN PR — the engine's native
+ *   model; completion via the PR signal or the sentinel.
+ * - `shared`: N tasks push to ONE shared epic branch and complete via the
+ *   sentinel only, never requiring per-session PR ownership.
+ */
+export type PrMode = "per-task" | "shared";
+
+/**
  * Position within a workflow run, threaded from `engine.advance` into the gate
  * and plan-write seams so session-backed runners can tag the sessions they spawn
  * (`sdlcRunId`/`sdlcPhase`). The headless impls ignore it.
@@ -56,6 +65,8 @@ export interface WorkflowRun {
   verdicts: GateVerdict[];
   pendingApproval: { phaseId: string; since: string } | null;
   createdAt: string;
+  /** PR landing mode for this run's worker tasks. Defaults to `per-task`. */
+  prMode?: PrMode;
   /**
    * The epic produced by `normalize-plan`, persisted so later phases (and a
    * resume after a human gate) can recover it — `advance()`'s local epic does

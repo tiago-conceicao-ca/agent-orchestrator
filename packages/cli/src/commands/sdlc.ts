@@ -202,6 +202,15 @@ function makeSdlcSessionSpawn(
   };
 }
 
+/** Validate a --pr-mode flag value. */
+function parsePrMode(value: string | undefined): "per-task" | "shared" | undefined {
+  if (value === undefined) return undefined;
+  if (value !== "per-task" && value !== "shared") {
+    throw new Error(`Invalid --pr-mode '${value}' (expected 'per-task' or 'shared').`);
+  }
+  return value;
+}
+
 function slug(s: string): string {
   return s
     .toLowerCase()
@@ -299,12 +308,22 @@ export function registerSdlc(program: Command): void {
       "--skip-lens",
       "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
     )
+    .option(
+      "--pr-mode <mode>",
+      "PR landing mode: 'per-task' (each worker opens its own PR, default) or 'shared' (N tasks land in one PR via the sentinel)",
+    )
     .action(
       async (
         planFileOrText: string,
-        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+        opts: {
+          project?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+          prMode?: string;
+        },
       ) => {
         try {
+          const prMode = parsePrMode(opts.prMode);
           const input = existsSync(planFileOrText)
             ? readFileSync(planFileOrText, "utf-8")
             : planFileOrText;
@@ -319,7 +338,7 @@ export function registerSdlc(program: Command): void {
             opts.generationInstruction,
             opts.skipLens,
           );
-          const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input);
+          const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input, { prMode });
           console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
           printRun(run);
           if (run.status === "awaiting_approval") {
@@ -344,13 +363,23 @@ export function registerSdlc(program: Command): void {
       "--skip-lens",
       "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
     )
+    .option(
+      "--pr-mode <mode>",
+      "override the run's PR landing mode ('per-task' | 'shared') before resuming the generate-backend phase",
+    )
     .action(
       async (
         runId: string,
-        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+        opts: {
+          project?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+          prMode?: string;
+        },
       ) => {
         try {
-          const { engine } = await buildLiveEngine(
+          const prMode = parsePrMode(opts.prMode);
+          const { engine, store } = await buildLiveEngine(
             opts.project,
             opts.generationInstruction,
             opts.skipLens,
@@ -359,6 +388,9 @@ export function registerSdlc(program: Command): void {
           if (!current) throw new Error(`Run not found: ${runId}`);
           if (current.status !== "awaiting_approval")
             throw new Error(`Run '${runId}' is '${current.status}', not awaiting approval.`);
+          // The generate-backend executor reads prMode from the persisted record;
+          // a flag here overrides what `start` set.
+          if (prMode) await store.update(runId, (r) => ({ ...r, prMode }));
           const run = await engine.resume(runId);
           console.log(chalk.green(`Approved run ${chalk.bold(runId)}.`));
           printRun(run);

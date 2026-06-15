@@ -38,6 +38,14 @@ describe("previewTaskPrompt", () => {
     expect(prompt).not.toContain("/gerar-backend");
   });
 
+  it("renders the shared-branch directive (no own PR) when prMode is shared", () => {
+    const prompt = previewTaskPrompt(task, undefined, { prMode: "shared", epicBranch: "sdlc/epic-1" });
+    expect(prompt).toContain("sdlc/epic-1");
+    expect(prompt).toContain("Do NOT open your");
+    expect(prompt).not.toContain("When done, open a PR.");
+    expect(prompt).toContain("sdlc-task-done.json");
+  });
+
   it("is the same prompt the generate-backend executor dispatches (single source of truth)", () => {
     // The executor's default promptFor is previewTaskPrompt, so a no-arg render
     // equals what a spawned session receives for this task.

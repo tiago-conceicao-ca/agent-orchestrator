@@ -1,5 +1,11 @@
 import type { RunStore } from "./run-store.js";
-import type { WorkflowDefinition, WorkflowRun, PhaseExecutor, PhaseContext } from "./types.js";
+import type {
+  WorkflowDefinition,
+  WorkflowRun,
+  PhaseExecutor,
+  PhaseContext,
+  PrMode,
+} from "./types.js";
 import type { Gate } from "../gates/types.js";
 import type { Epic, TaskStatus } from "../plan/types.js";
 
@@ -17,7 +23,12 @@ export class WorkflowEngine {
     return this.deps.store.load(id);
   }
 
-  async start(workflow: string, epicId: string, input: string): Promise<WorkflowRun> {
+  async start(
+    workflow: string,
+    epicId: string,
+    input: string,
+    opts: { prMode?: PrMode } = {},
+  ): Promise<WorkflowRun> {
     const def = this.deps.definitions[workflow];
     if (!def) throw new Error(`Unknown workflow '${workflow}'.`);
     // Unique per start so re-running the same plan never overwrites a prior run.
@@ -33,6 +44,7 @@ export class WorkflowEngine {
       verdicts: [],
       pendingApproval: null,
       createdAt: new Date().toISOString(),
+      prMode: opts.prMode ?? "per-task",
     };
     await this.deps.store.save(run);
     return this.advance(run.id, input);
