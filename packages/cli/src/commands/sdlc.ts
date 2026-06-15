@@ -32,6 +32,7 @@ import {
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
   makeSessionLensRunner,
+  makeSessionPlanRunner,
   RunStore,
   smokeEvalArtifact,
   WorkflowEngine,
@@ -40,7 +41,6 @@ import {
   type WorkflowTask,
 } from "@aoagents/ao-sdlc";
 import { getSessionManager } from "../lib/create-session-manager.js";
-import { exec } from "../lib/shell.js";
 
 /** Minimal SessionManager surface the engine wiring needs (real or fake). */
 interface SdlcSessionManager {
@@ -195,18 +195,6 @@ function makeSdlcSessionSpawn(
   };
 }
 
-/** Run `claude` headless (print mode) and return its stdout. */
-async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Promise<string> {
-  // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
-  // prompt) would otherwise block gate.evaluate → engine.advance forever. On
-  // timeout exec kills the child and rejects; the rejection propagates to the
-  // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
-  const { stdout } = await exec("claude", ["-p", prompt, ...extraArgs], {
-    timeout: 10 * 60 * 1_000,
-  });
-  return stdout;
-}
-
 function slug(s: string): string {
   return s
     .toLowerCase()
@@ -263,7 +251,11 @@ async function buildLiveEngine(
       ? async () =>
           JSON.stringify({ type: "plan_review", lens: "tactical", issues: [], verdict: "pass" })
       : makeSessionLensRunner(sessionSpawn),
-    runPlanWriteAgent: (input) => runClaudeHeadless(input),
+    // Draft the tm-style plan in a real worker session too; the agent writes the
+    // plan markdown to a sentinel file the runner reads. The normalize-plan
+    // hasTaskGraph short-circuit means no session is spawned when the input is
+    // already a structured plan.
+    runPlanWriteAgent: makeSessionPlanRunner(sessionSpawn),
     // Lenient smoke eval: pass only if the generated worktree path(s) contain
     // files. Swap in the real ContaAzul /avaliar-artefato here for a ca-* repo.
     runEvalCommand: (artifactRef) => smokeEvalArtifact(artifactRef),

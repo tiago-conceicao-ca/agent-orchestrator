@@ -1,7 +1,5 @@
 import "server-only";
 
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
 import {
   getProjectDir,
   getProjectSessionsDir,
@@ -17,6 +15,7 @@ import {
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
   makeSessionLensRunner,
+  makeSessionPlanRunner,
   RunStore,
   smokeEvalArtifact,
   WorkflowEngine,
@@ -29,23 +28,8 @@ import { getServices } from "./services";
 // engine) lives in @aoagents/ao-sdlc; only the service-access + agent runners are
 // app-specific. A future refactor could hoist this factory into @aoagents/ao-sdlc.
 
-const execFileAsync = promisify(execFile);
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
-const CLAUDE_HEADLESS_TIMEOUT_MS = 10 * 60 * 1_000; // 10min — bound a stalled `claude -p`
-
-async function runClaudeHeadless(prompt: string, extraArgs: string[] = []): Promise<string> {
-  // Time-box the call: a stalled `claude -p` (API hang, rate-limit backoff, auth
-  // prompt) would otherwise block gate.evaluate → engine.advance forever. On
-  // timeout execFile kills the child and rejects; the rejection propagates to the
-  // engine's gate-loop try/catch so the run fails cleanly instead of hanging.
-  const { stdout } = await execFileAsync("claude", ["-p", prompt, ...extraArgs], {
-    maxBuffer: 10 * 1024 * 1024,
-    timeout: CLAUDE_HEADLESS_TIMEOUT_MS,
-    killSignal: "SIGKILL",
-  });
-  return stdout;
-}
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -143,7 +127,10 @@ export async function buildWebSdlcEngine(
     definitions: { [CA_PLAN_TO_BACKEND.name]: CA_PLAN_TO_BACKEND },
     executors: {
       "normalize-plan": makeNormalizePlanExecutor({
-        adaptToPlan: makeInputAdapter((input) => runClaudeHeadless(input)),
+        // Draft the tm-style plan in a real worker session; the agent writes the
+        // plan markdown to a sentinel file the runner reads. No session is
+        // spawned when the input is already a structured Task Graph.
+        adaptToPlan: makeInputAdapter(makeSessionPlanRunner(sessionSpawn)),
       }),
       "generate-backend": makeGenerateBackendExecutor({
         spawn,

@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { makeLensGate } from "../gates/lens-gate.js";
 import { makeInputAdapter } from "../phases/input-adapter.js";
+import { makeNormalizePlanExecutor } from "../phases/normalize-plan.js";
+import type { PhaseContext } from "../workflow/types.js";
 import {
   makeSessionLensRunner,
   makeSessionPlanRunner,
@@ -33,6 +35,9 @@ function fakeSpawn(workspaceDir: string, sentinel: string, output: string) {
 }
 
 const VALID_PLAN = `# X Implementation Plan
+## Task: Repo
+### Acceptance Criteria
+- [ ] x
 ## Task Graph
 \`\`\`yaml
 tasks:
@@ -41,6 +46,7 @@ tasks:
     tdd: true
     depends_on: []
     summary: "s"
+    acceptance_criteria: ["x"]
 \`\`\`
 `;
 
@@ -80,11 +86,33 @@ describe("session-backed plan runner", () => {
   });
   afterEach(() => rmSync(dir, { recursive: true, force: true }));
 
-  it("returns sentinel plan markdown that normalizes, tagging the session as plan", async () => {
+  it("feeds a sentinel plan through normalize-plan to produce the epic, tagging as plan", async () => {
     const { sm, killed, meta, prompts } = fakeSpawn(dir, PLAN_SENTINEL, VALID_PLAN);
-    const adapt = makeInputAdapter(makeSessionPlanRunner(sm, 1_000));
-    const out = await adapt("loose idea", { runId: "run-2", phase: "normalize-plan" });
-    expect(out).toContain("## Task Graph");
+    const exec = makeNormalizePlanExecutor({ adaptToPlan: makeInputAdapter(makeSessionPlanRunner(sm, 1_000)) });
+    const statuses: Record<string, string> = {};
+    const ctx: PhaseContext = {
+      run: {
+        id: "run-2",
+        workflow: "w",
+        epicId: "epic-1",
+        status: "running",
+        currentPhaseIndex: 0,
+        phaseStates: {},
+        taskStatus: {},
+        verdicts: [],
+        pendingApproval: null,
+        createdAt: "2026-06-15T00:00:00Z",
+      },
+      epic: null,
+      input: "a loose idea, please plan it", // not a Task Graph → adapter runs
+      log: () => {},
+      setTaskStatus: async (id, s) => {
+        statuses[id] = s;
+      },
+    };
+    const result = await exec.run(ctx);
+    expect(result.epic?.tasks[0].title).toBe("Repo");
+    expect(statuses["epic-1__repo"]).toBe("backlog");
     expect(meta[0]).toEqual({
       sdlcRunId: "run-2",
       sdlcPhase: "normalize-plan",
