@@ -4,32 +4,18 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MOBILE_BREAKPOINT, useMediaQuery } from "@/hooks/useMediaQuery";
 import type { ProjectInfo } from "@/lib/project-name";
-import {
-  COLUMNS,
-  filterRunsByProject,
-  type BoardColumn,
-  type KanbanCard,
-  type RunView,
-} from "@/lib/sdlc-board";
+import { COLUMNS, filterRunsByProject, type RunView } from "@/lib/sdlc-board";
 import { projectDashboardPath, projectReviewPath, projectSdlcPath } from "@/lib/routes";
-import type { DashboardOrchestratorLink, DashboardSession } from "@/lib/types";
+import type { DashboardOrchestratorLink, DashboardPR, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
-import { SdlcStatusBadge, SdlcTaskDetail } from "./SdlcTaskDetail";
+import { SdlcRunSection } from "./SdlcRunSection";
+import { SdlcTaskDetail } from "./SdlcTaskDetail";
 import { SidebarContext } from "./workspace/SidebarContext";
 
 // Independent poller for SDLC runs. The session SSE (useSessionEvents, 5s) is
 // untouched (C-14); this view keeps the standalone page's own 3s poll against
 // the read-only /api/sdlc/runs endpoint.
 const POLL_INTERVAL_MS = 3_000;
-
-const COLUMN_LABEL: Record<BoardColumn, string> = {
-  backlog: "Backlog",
-  ready: "Ready",
-  in_progress: "In Progress",
-  in_review: "In Review",
-  done: "Done",
-  blocked: "Blocked",
-};
 
 interface SdlcDashboardProps {
   sidebarSessions?: DashboardSession[];
@@ -42,10 +28,6 @@ interface SdlcDashboardProps {
 
 const EMPTY_SESSIONS: DashboardSession[] = [];
 const EMPTY_ORCHESTRATORS: DashboardOrchestratorLink[] = [];
-
-function formatStatus(value: string): string {
-  return value.replaceAll("_", " ");
-}
 
 export function SdlcDashboard({
   sidebarSessions = EMPTY_SESSIONS,
@@ -110,13 +92,27 @@ export function SdlcDashboard({
 
   const visibleRuns = useMemo(() => filterRunsByProject(runs, projectId), [runs, projectId]);
 
+  // Index the (enriched) sidebar sessions so the task detail can show a linked
+  // worker's live PR/CI — including terminal/killed workers, which listCached
+  // still returns. The 3s SDLC poll is unaffected (C-14); this reads the
+  // server-rendered sessions prop.
+  const sessionsById = useMemo(
+    () => new Map(sidebarSessions.map((s) => [s.id, s])),
+    [sidebarSessions],
+  );
+
   const selectedTask = useMemo(() => {
     if (!selected) return null;
     const run = visibleRuns.find((r) => r.id === selected.runId);
     if (!run) return null;
     const task = run.tasks.find((t) => t.id === selected.taskId);
-    return task ? { runId: run.id, task } : null;
-  }, [selected, visibleRuns]);
+    if (!task) return null;
+    const linkedId = task.linkedSession?.sessionId;
+    const linkedPR: DashboardPR | null = linkedId
+      ? (sessionsById.get(linkedId)?.pr ?? null)
+      : null;
+    return { runId: run.id, task, linkedPR };
+  }, [selected, visibleRuns, sessionsById]);
 
   const allProjectsView = !projectId;
   const awaitingCount = visibleRuns.filter((run) => run.status === "awaiting_approval").length;
@@ -280,6 +276,7 @@ export function SdlcDashboard({
           <SdlcTaskDetail
             task={selectedTask.task}
             runId={selectedTask.runId}
+            linkedSessionPR={selectedTask.linkedPR}
             onClose={() => setSelected(null)}
           />
         ) : null}
@@ -294,95 +291,6 @@ function SdlcMetric({ label, value, meta }: { label: string; value: number; meta
       <span className="dashboard-stat-card__value">{value}</span>
       <span className="dashboard-stat-card__label">{label}</span>
       <span className="dashboard-stat-card__meta">{meta}</span>
-    </div>
-  );
-}
-
-function SdlcRunSection({
-  run,
-  allProjectsView,
-  isApproving,
-  onApprove,
-  onSelectTask,
-}: {
-  run: RunView;
-  allProjectsView: boolean;
-  isApproving: boolean;
-  onApprove: (run: RunView) => void;
-  onSelectTask: (taskId: string) => void;
-}) {
-  const awaitingApproval = run.status === "awaiting_approval";
-  return (
-    <section className="sdlc-run" data-run-status={run.status}>
-      <header className="sdlc-run__header">
-        <span className="sdlc-run__id">{run.id}</span>
-        <span className="sdlc-run__status">{formatStatus(run.status)}</span>
-        {allProjectsView ? <span className="sdlc-run__project">{run.projectId}</span> : null}
-        {awaitingApproval ? (
-          <button
-            type="button"
-            className="dashboard-app-btn dashboard-app-btn--primary ml-auto"
-            disabled={isApproving}
-            onClick={() => onApprove(run)}
-          >
-            {isApproving ? "Approving" : "Approve"}
-          </button>
-        ) : null}
-      </header>
-      <div className="kanban-board-wrap">
-        <div className="sdlc-kanban-board">
-          {COLUMNS.map((column) => (
-            <SdlcColumn
-              key={column}
-              column={column}
-              cards={run.board[column]}
-              onSelectTask={onSelectTask}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SdlcColumn({
-  column,
-  cards,
-  onSelectTask,
-}: {
-  column: BoardColumn;
-  cards: KanbanCard[];
-  onSelectTask: (taskId: string) => void;
-}) {
-  return (
-    <div className="kanban-column sdlc-kanban-column" data-sdlc-column={column}>
-      <div className="kanban-column__header">
-        <div className="kanban-column__title-row">
-          <span className="kanban-column__title">{COLUMN_LABEL[column]}</span>
-          <span className="kanban-column__count">{cards.length}</span>
-        </div>
-      </div>
-      <div className="kanban-column-body">
-        {cards.length > 0 ? (
-          <div className="kanban-column__stack">
-            {cards.map((card) => (
-              <button
-                key={card.taskId}
-                type="button"
-                className="sdlc-card"
-                onClick={() => onSelectTask(card.taskId)}
-                aria-label={`Open task T${card.number}: ${card.title}`}
-              >
-                <span className="sdlc-card__head">
-                  <span className="sdlc-card__num">T{card.number}</span>
-                  <SdlcStatusBadge status={card.status} />
-                </span>
-                <span className="sdlc-card__title">{card.title}</span>
-              </button>
-            ))}
-          </div>
-        ) : null}
-      </div>
     </div>
   );
 }

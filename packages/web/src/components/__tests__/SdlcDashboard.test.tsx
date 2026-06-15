@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SdlcDashboard } from "../SdlcDashboard";
 import type { RunView, SdlcTaskDetail } from "@/lib/sdlc-board";
+import { makePR, makeSession } from "@/__tests__/helpers";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -144,6 +145,86 @@ describe("SdlcDashboard", () => {
         }),
       ),
     );
+  });
+
+  it("renders phase progress and the lens-verdict history with reasoning on expand", async () => {
+    mockRunsFetch([
+      makeRun({
+        phaseStates: [
+          { id: "normalize-plan", state: "passed" },
+          { id: "generate-backend", state: "running" },
+        ],
+        verdicts: [
+          {
+            lens: "tactical",
+            verdict: "needs_fixes",
+            issues: [{ severity: "high", title: "Missing tests", detail: "Add unit tests." }],
+            rawOutput: "Detailed lens reasoning here.",
+          },
+        ],
+      }),
+    ]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    await waitFor(() => expect(screen.getByText("Normalize plan")).toBeInTheDocument());
+    expect(screen.getByText("Generate backend")).toBeInTheDocument();
+    // Verdict + its issue render eagerly; reasoning is collapsed until expanded.
+    expect(screen.getByText("tactical")).toBeInTheDocument();
+    expect(screen.getByText("Missing tests")).toBeInTheDocument();
+    expect(screen.getByText("Add unit tests.")).toBeInTheDocument();
+    expect(screen.queryByText("Detailed lens reasoning here.")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /View lens reasoning/ }));
+    expect(screen.getByText("Detailed lens reasoning here.")).toBeInTheDocument();
+  });
+
+  it("surfaces the captured plan artifact behind a toggle", async () => {
+    mockRunsFetch([makeRun({ planArtifact: "# Normalized Plan\n## Task Graph" })]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    const toggle = await screen.findByRole("button", { name: /View normalized plan/ });
+    expect(screen.queryByText(/# Normalized Plan/)).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(screen.getByText(/# Normalized Plan/)).toBeInTheDocument();
+  });
+
+  it("shows the linked worker's PR/CI status in the task detail (incl. terminal)", async () => {
+    mockRunsFetch([
+      makeRun({
+        tasks: [
+          makeTask({
+            linkedSession: {
+              sessionId: "ao-9",
+              projectId: "my-app",
+              projectSessionPath: "/projects/my-app/sessions/ao-9",
+            },
+          }),
+        ],
+      }),
+    ]);
+    render(
+      <SdlcDashboard
+        projectId="my-app"
+        projectName="My App"
+        projects={PROJECTS}
+        sidebarSessions={[
+          makeSession({
+            id: "ao-9",
+            projectId: "my-app",
+            status: "killed",
+            activity: "exited",
+            pr: makePR({ number: 42, ciStatus: "failing", state: "open", enriched: true }),
+          }),
+        ]}
+      />,
+    );
+
+    const card = await screen.findByRole("button", { name: "Open task T1: Repo layer" });
+    fireEvent.click(card);
+
+    const prLink = await screen.findByRole("link", { name: /PR #42/ });
+    expect(prLink).toHaveAttribute("href", "https://github.com/acme/app/pull/100");
+    expect(screen.getByText(/CI failing/)).toBeInTheDocument();
   });
 
   it("scopes runs to the active project", async () => {

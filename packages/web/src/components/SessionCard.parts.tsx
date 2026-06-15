@@ -7,6 +7,7 @@ import {
   isPRUnenriched,
   getSessionTruthLabel,
   isDashboardSessionRestorable,
+  CI_STATUS,
 } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { getSessionTitle } from "@/lib/format";
@@ -333,4 +334,54 @@ export function DoneSessionCard({ session, onRestore }: DoneSessionCardProps) {
       )}
     </div>
   );
+}
+
+export type FooterTone = "fail" | "amber" | "green" | undefined;
+
+/**
+ * Terse PR/CI detail for the card's thin info footer (mockup: `PR #N · CI …`).
+ * No cost is shown (the dashboard session carries none).
+ */
+export function getFooterDetail(
+  session: DashboardSession,
+  isReadyToMerge: boolean,
+  rateLimited: boolean,
+  prUnenriched: boolean,
+): { text: string; tone: FooterTone } | null {
+  const pr = session.pr;
+  if (!pr) {
+    if (session.lifecycle?.sessionState === "detecting") {
+      return { text: "detecting…", tone: undefined };
+    }
+    return { text: "no PR yet", tone: undefined };
+  }
+  if (rateLimited) return { text: "PR data rate limited", tone: undefined };
+  if (prUnenriched) return { text: "loading…", tone: undefined };
+
+  if (
+    pr.ciStatus === CI_STATUS.FAILING ||
+    session.lifecycle?.prReason === "ci_failing" ||
+    session.status === "ci_failed"
+  ) {
+    const failed = pr.ciChecks.filter((c) => c.status === "failed").length;
+    return {
+      text: failed > 0 ? `${failed} check${failed === 1 ? "" : "s"} failed` : "CI failed",
+      tone: "fail",
+    };
+  }
+  if (pr.reviewDecision === "changes_requested") {
+    return { text: "changes requested", tone: "amber" };
+  }
+  if (pr.unresolvedThreads > 0) {
+    return {
+      text: `${pr.unresolvedThreads} comment${pr.unresolvedThreads === 1 ? "" : "s"}`,
+      tone: "amber",
+    };
+  }
+  if (isReadyToMerge && pr.reviewDecision === "approved") {
+    return { text: "approved", tone: "green" };
+  }
+  if (pr.ciStatus === CI_STATUS.PASSING) return { text: "CI passed", tone: "green" };
+  if (pr.ciStatus === CI_STATUS.PENDING) return { text: "CI running", tone: undefined };
+  return { text: "review pending", tone: undefined };
 }

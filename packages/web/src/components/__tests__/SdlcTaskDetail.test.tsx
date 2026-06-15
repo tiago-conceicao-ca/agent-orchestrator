@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SdlcTaskDetail } from "../SdlcTaskDetail";
 import type { SdlcTaskDetail as SdlcTask } from "@/lib/sdlc-board";
+import { makePR } from "@/__tests__/helpers";
 
 function makeTask(overrides: Partial<SdlcTask> = {}): SdlcTask {
   return {
@@ -73,6 +74,44 @@ describe("SdlcTaskDetail", () => {
     );
     const link = screen.getByRole("link", { name: "sci-1" });
     expect(link).toHaveAttribute("href", "/projects/supply-chain/sessions/sci-1");
+  });
+
+  it("renders the linked session's PR/CI status when provided", () => {
+    render(
+      <SdlcTaskDetail
+        task={makeTask({
+          linkedSession: {
+            sessionId: "sci-1",
+            projectId: "supply-chain",
+            projectSessionPath: "/projects/supply-chain/sessions/sci-1",
+          },
+        })}
+        runId="run-1"
+        linkedSessionPR={makePR({ number: 77, ciStatus: "failing", state: "open", enriched: true })}
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("link", { name: /sci-1/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /PR #77/ })).toBeInTheDocument();
+    expect(screen.getByText(/CI failing/)).toBeInTheDocument();
+  });
+
+  it("omits the PR/CI line when no linked PR is supplied", () => {
+    render(
+      <SdlcTaskDetail
+        task={makeTask({
+          linkedSession: {
+            sessionId: "sci-1",
+            projectId: "supply-chain",
+            projectSessionPath: "/projects/supply-chain/sessions/sci-1",
+          },
+        })}
+        runId="run-1"
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("link", { name: /sci-1/ })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /PR #/ })).not.toBeInTheDocument();
   });
 
   it("keeps the agent prompt collapsed until 'View Agent Prompt' is clicked", () => {
