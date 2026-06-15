@@ -318,6 +318,40 @@ describe("ProjectSidebar", () => {
     expect(screen.queryByRole("link", { name: "Open feat/test" })).not.toBeInTheDocument();
   });
 
+  it("shows an SDLC indicator linking to the run view only for sdlc-tagged sessions", () => {
+    render(
+      <ProjectSidebar
+        projects={projects}
+        sessions={[
+          makeSession({
+            id: "sdlc-worker",
+            projectId: "project-1",
+            summary: "SDLC backend task",
+            branch: null,
+            status: "working",
+            activity: "active",
+            metadata: { sdlcRunId: "run-epic-1-abc", sdlcTaskId: "epic-1__repo" },
+          }),
+          makeSession({
+            id: "plain-worker",
+            projectId: "project-1",
+            summary: "Ordinary task",
+            branch: null,
+            status: "working",
+            activity: "active",
+            metadata: {},
+          }),
+        ]}
+        activeProjectId="project-1"
+        activeSessionId={undefined}
+      />,
+    );
+
+    const sdlcLinks = screen.getAllByRole("link", { name: /SDLC run/i });
+    expect(sdlcLinks).toHaveLength(1);
+    expect(sdlcLinks[0]).toHaveAttribute("href", "/sdlc?project=project-1");
+  });
+
   it("keeps killed sessions visible when they still need attention", () => {
     const lastActivityAt = new Date().toISOString();
 

@@ -10,7 +10,7 @@ import { isOrchestratorSession } from "@aoagents/ao-core/types";
 import { getSessionTitle, humanizeBranch } from "@/lib/format";
 import { usePopoverClamp } from "@/hooks/usePopoverClamp";
 import { useResizable } from "@/hooks/useResizable";
-import { projectDashboardPath, projectSessionPath } from "@/lib/routes";
+import { projectDashboardPath, projectSdlcPath, projectSessionPath } from "@/lib/routes";
 import { ThemeToggle } from "./ThemeToggle";
 import { AppMark } from "./AppMark";
 import { AddProjectModal } from "./AddProjectModal";
@@ -187,6 +187,7 @@ const SessionRow = memo(function SessionRow({
       ? effectiveDisplayName
       : (session.branch ?? getSessionTitle(session));
   const sessionHref = projectSessionPath(session.projectId, session.id);
+  const sdlcRunId = session.metadata["sdlcRunId"];
 
   return (
     <div
@@ -223,6 +224,17 @@ const SessionRow = memo(function SessionRow({
           ) : null}
         </div>
       </a>
+      {sdlcRunId ? (
+        <a
+          href={projectSdlcPath(session.projectId)}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0 rounded bg-[var(--color-accent-subtle)] px-1 py-0.5 font-[var(--font-mono)] text-[8px] font-semibold uppercase leading-none tracking-[0.04em] text-[var(--color-accent)] no-underline"
+          title={`SDLC run ${sdlcRunId}`}
+          aria-label={`SDLC run ${sdlcRunId}`}
+        >
+          SDLC
+        </a>
+      ) : null}
       <button
         type="button"
         onClick={(e) => {
