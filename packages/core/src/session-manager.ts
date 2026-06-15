@@ -98,6 +98,7 @@ import { sessionFromMetadata } from "./utils/session-from-metadata.js";
 import { dedupePrUrls } from "./utils/pr.js";
 import {
   parseSiblings,
+  resolveSiblingAdjacency,
   serializeSiblings,
   siblingName,
   siblingNameFromPath,
@@ -1435,6 +1436,11 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         issueId: spawnConfig.issueId,
         issueContext,
         userPrompt: spawnConfig.prompt,
+        siblingAdjacency: resolveSiblingAdjacency(
+          config.projects,
+          project.siblings,
+          spawnConfig.projectId,
+        ),
         ...(orchestratorExists && { orchestratorSessionId }),
       });
 

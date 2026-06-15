@@ -13,6 +13,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ProjectConfig, SessionId } from "./types.js";
+import type { SiblingAdjacency } from "./utils/siblings.js";
 
 // =============================================================================
 // LAYER 1: BASE AGENT PROMPT
@@ -102,6 +103,15 @@ export interface PromptBuildConfig {
    * orchestrator session actually exists for the project.
    */
   orchestratorSessionId?: SessionId;
+
+  /**
+   * Pre-resolved sibling adjacency for this project, produced by the caller via
+   * `resolveSiblingAdjacency(config.projects, project.siblings, projectId)`.
+   * When non-empty, `buildConfigLayer` renders a Sibling Repos section listing
+   * the read-only `../{name}` mounts. `buildConfigLayer` renders only what it's
+   * given here — it does NOT resolve the projects catalog itself.
+   */
+  siblingAdjacency?: SiblingAdjacency[];
 }
 
 // =============================================================================
@@ -109,7 +119,7 @@ export interface PromptBuildConfig {
 // =============================================================================
 
 function buildConfigLayer(config: PromptBuildConfig): string {
-  const { project, projectId, issueId, issueContext } = config;
+  const { project, projectId, issueId, issueContext, siblingAdjacency } = config;
   const lines: string[] = [];
 
   lines.push("## Project Context");
@@ -150,6 +160,21 @@ function buildConfigLayer(config: PromptBuildConfig): string {
       lines.push("The orchestrator will automatically handle these events:");
       lines.push(...reactionHints);
     }
+  }
+
+  // Sibling repos: rendered only when the caller pre-resolved a non-empty list.
+  // The writable repo is THIS project's checkout; siblings are read-only mounts.
+  if (siblingAdjacency && siblingAdjacency.length > 0) {
+    lines.push(`\n## Sibling Repos`);
+    lines.push(
+      `Your writable checkout is ${project.name ?? projectId}. These sibling repos are mounted **read-only** as symlinks at \`../{name}\` next to it — read them for context, but never edit them:`,
+    );
+    for (const sibling of siblingAdjacency) {
+      lines.push(`- ${sibling.displayName} → \`../${sibling.name}\``);
+    }
+    lines.push(
+      "To change a sibling, the orchestrator must spawn a separate worker under that sibling's own project.",
+    );
   }
 
   return lines.join("\n");
