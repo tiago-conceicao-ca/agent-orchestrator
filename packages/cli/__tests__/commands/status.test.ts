@@ -225,7 +225,9 @@ let sessionsDir: string;
 let originalHome: string | undefined;
 
 import { Command } from "commander";
-import { registerStatus } from "../../src/commands/status.js";
+import { registerStatus, formatConfiguredSiblings } from "../../src/commands/status.js";
+
+type ProjectConfig = AoCore.ProjectConfig;
 
 let program: Command;
 let consoleSpy: ReturnType<typeof vi.spyOn>;
@@ -1402,5 +1404,39 @@ describe("status command", () => {
     const parsed = JSON.parse(jsonCalls);
     expect(parsed.data.map((e: { name: string }) => e.name)).toEqual(["app-1"]);
     expect(parsed.meta.hiddenTerminatedCount).toBe(3);
+  });
+});
+
+describe("formatConfiguredSiblings", () => {
+  function makeProject(overrides: Partial<ProjectConfig> & { path: string }): ProjectConfig {
+    return {
+      name: "Project",
+      repo: "org/repo",
+      defaultBranch: "main",
+      sessionPrefix: "p",
+      scm: { plugin: "github" },
+      ...overrides,
+    } as ProjectConfig;
+  }
+
+  it("renders the resolved sibling names when configured", () => {
+    const projects: Record<string, ProjectConfig> = {
+      "my-app": makeProject({ name: "My App", repo: "org/my-app", path: "/repos/my-app", siblings: ["docs"] }),
+      docs: makeProject({ name: "Docs", repo: "org/docs", path: "/repos/docs-site" }),
+    };
+
+    const line = formatConfiguredSiblings(projects, projects["my-app"]!, "my-app");
+
+    expect(line).not.toBeNull();
+    // displayName + basename-derived ../{name} adjacency
+    expect(line).toContain("Docs → ../docs-site");
+  });
+
+  it("returns null when the project has no siblings", () => {
+    const projects: Record<string, ProjectConfig> = {
+      "my-app": makeProject({ name: "My App", repo: "org/my-app", path: "/repos/my-app" }),
+    };
+
+    expect(formatConfiguredSiblings(projects, projects["my-app"]!, "my-app")).toBeNull();
   });
 });
