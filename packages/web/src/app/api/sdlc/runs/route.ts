@@ -1,6 +1,14 @@
 import { getProjectDir } from "@aoagents/ao-core";
 import { RunStore } from "@aoagents/ao-sdlc";
-import { assignTaskNumbers, titlesFromRun, toKanban, type RunView } from "@/lib/sdlc-board";
+import {
+  assignTaskNumbers,
+  planArtifactFromRun,
+  titlesFromRun,
+  toKanban,
+  toPhaseStates,
+  toVerdictViews,
+  type RunView,
+} from "@/lib/sdlc-board";
 import { enrichRunTasks, linkedSessionsByTaskId } from "@/lib/sdlc-tasks";
 
 // NOTE: Next.js 15 route modules may only export valid route fields (GET, dynamic, …).
@@ -27,6 +35,9 @@ export async function GET() {
           createdAt: run.createdAt,
           board: toKanban(run, titlesFromRun(run), assignTaskNumbers(run)),
           tasks: enrichRunTasks(run, linked),
+          phaseStates: toPhaseStates(run),
+          verdicts: toVerdictViews(run),
+          planArtifact: planArtifactFromRun(run),
         });
       }
     }

@@ -50,6 +50,9 @@ function makeRun(overrides: Partial<RunView> = {}): RunView {
       blocked: [],
     },
     tasks: [makeTask()],
+    phaseStates: [],
+    verdicts: [],
+    planArtifact: null,
     ...overrides,
   };
 }

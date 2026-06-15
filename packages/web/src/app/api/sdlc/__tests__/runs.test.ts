@@ -3,8 +3,11 @@ import {
   assignTaskNumbers,
   dependsOnTitles,
   filterRunsByProject,
+  planArtifactFromRun,
   titlesFromRun,
   toKanban,
+  toPhaseStates,
+  toVerdictViews,
   type RunView,
 } from "@/lib/sdlc-board";
 import type { WorkflowRun } from "@aoagents/ao-sdlc";
@@ -19,6 +22,9 @@ function makeRunView(id: string, projectId: string): RunView {
     createdAt: "2026-06-09T00:00:00Z",
     board: { backlog: [], ready: [], in_progress: [], in_review: [], done: [], blocked: [] },
     tasks: [],
+    phaseStates: [],
+    verdicts: [],
+    planArtifact: null,
   };
 }
 
@@ -140,6 +146,72 @@ describe("assignTaskNumbers", () => {
   it("falls back to taskStatus insertion order when there is no epic yet", () => {
     const run = { id: "r", taskStatus: { x: "backlog", y: "backlog" } } as unknown as WorkflowRun;
     expect(assignTaskNumbers(run)).toEqual({ x: 1, y: 2 });
+  });
+});
+
+describe("toPhaseStates", () => {
+  it("maps the phaseStates record to an ordered id/state view", () => {
+    const run = {
+      id: "r",
+      taskStatus: {},
+      phaseStates: { "normalize-plan": "passed", "generate-backend": "running" },
+    } as unknown as WorkflowRun;
+    expect(toPhaseStates(run)).toEqual([
+      { id: "normalize-plan", state: "passed" },
+      { id: "generate-backend", state: "running" },
+    ]);
+  });
+
+  it("returns an empty list when no phases have run yet", () => {
+    const run = { id: "r", taskStatus: {}, phaseStates: {} } as unknown as WorkflowRun;
+    expect(toPhaseStates(run)).toEqual([]);
+  });
+});
+
+describe("toVerdictViews", () => {
+  it("maps verdicts to the slim view with issues and captured output", () => {
+    const run = {
+      id: "r",
+      taskStatus: {},
+      verdicts: [
+        {
+          type: "gate",
+          lens: "tactical",
+          verdict: "needs_fixes",
+          issues: [{ severity: "high", title: "Missing tests", detail: "Add unit tests." }],
+          rawOutput: "Reasoning...\n{\"verdict\":\"needs_fixes\"}",
+        },
+        { type: "gate", lens: "architectural", verdict: "pass", issues: [] },
+      ],
+    } as unknown as WorkflowRun;
+    const views = toVerdictViews(run);
+    expect(views).toHaveLength(2);
+    expect(views[0]).toEqual({
+      lens: "tactical",
+      verdict: "needs_fixes",
+      issues: [{ severity: "high", title: "Missing tests", detail: "Add unit tests." }],
+      rawOutput: "Reasoning...\n{\"verdict\":\"needs_fixes\"}",
+    });
+    // A verdict without captured output maps rawOutput to null.
+    expect(views[1].rawOutput).toBeNull();
+    expect(views[1].issues).toEqual([]);
+  });
+
+  it("returns an empty list when there are no verdicts", () => {
+    const run = { id: "r", taskStatus: {}, verdicts: [] } as unknown as WorkflowRun;
+    expect(toVerdictViews(run)).toEqual([]);
+  });
+});
+
+describe("planArtifactFromRun", () => {
+  it("returns the persisted plan markdown", () => {
+    const run = { id: "r", taskStatus: {}, planMarkdown: "# Plan" } as unknown as WorkflowRun;
+    expect(planArtifactFromRun(run)).toBe("# Plan");
+  });
+
+  it("returns null when no plan artifact is persisted", () => {
+    const run = { id: "r", taskStatus: {} } as unknown as WorkflowRun;
+    expect(planArtifactFromRun(run)).toBeNull();
   });
 });
 
