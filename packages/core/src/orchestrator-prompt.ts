@@ -7,6 +7,7 @@
 
 import orchestratorTemplate from "./prompts/orchestrator.md";
 import type { OrchestratorConfig, ProjectConfig } from "./types.js";
+import { resolveSiblingAdjacency } from "./utils/siblings.js";
 
 export interface OrchestratorPromptConfig {
   config: OrchestratorConfig;
@@ -24,6 +25,7 @@ interface OrchestratorPromptRenderData {
   dashboardPort: string;
   automatedReactionsSection: string;
   projectSpecificRulesSection: string;
+  siblingsSection: string;
   repoConfiguredSection: string;
   repoNotConfiguredSection: string;
 }
@@ -56,6 +58,47 @@ function buildAutomatedReactionsSection(project: ProjectConfig): string {
   }
 
   return reactionLines.join("\n");
+}
+
+function buildSiblingsSection(
+  config: OrchestratorConfig,
+  projectId: string,
+  project: ProjectConfig,
+): string {
+  const markdownBold = String.fromCharCode(42).repeat(2);
+  const bold = (text: string): string => `${markdownBold}${text}${markdownBold}`;
+
+  const configured = resolveSiblingAdjacency(config.projects, project.siblings, projectId);
+  const catalog = Object.entries(config.projects)
+    .filter(([id]) => id !== projectId)
+    .map(([, proj]) => proj.name);
+
+  const lines: string[] = [];
+
+  if (configured.length > 0) {
+    lines.push(
+      `${bold("Configured siblings")} (auto-mounted read-only into every ${project.name} session at \`../{name}\`):`,
+    );
+    for (const sibling of configured) {
+      lines.push(`- ${sibling.displayName} → \`../${sibling.name}\``);
+    }
+  }
+
+  if (catalog.length > 0) {
+    if (lines.length > 0) lines.push("");
+    lines.push(
+      `${bold("Available projects")} — to *write* into one of these, spawn a worker under that project (not this one):`,
+    );
+    for (const name of catalog) {
+      lines.push(`- ${name}`);
+    }
+  }
+
+  if (lines.length === 0) {
+    return "No sibling repos are configured, and no other projects are registered.";
+  }
+
+  return lines.join("\n");
 }
 
 function buildProjectSpecificRulesSection(project: ProjectConfig): string {
@@ -155,6 +198,7 @@ function createRenderData(opts: OrchestratorPromptConfig): OrchestratorPromptRen
     dashboardPort: String(config.port ?? 3000),
     automatedReactionsSection: buildAutomatedReactionsSection(project),
     projectSpecificRulesSection: buildProjectSpecificRulesSection(project),
+    siblingsSection: buildSiblingsSection(config, projectId, project),
     repoConfiguredSection: hasRepo ? "true" : "",
     repoNotConfiguredSection: hasRepo ? "" : "true",
   };

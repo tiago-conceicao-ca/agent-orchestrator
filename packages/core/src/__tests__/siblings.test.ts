@@ -6,9 +6,10 @@ import {
   assembledViewDir,
   assembledPrimaryViewPath,
   siblingNameFromPath,
+  resolveSiblingAdjacency,
   SIBLING_ASSEMBLED_SUFFIX,
 } from "../utils/siblings.js";
-import type { SiblingRef } from "../types.js";
+import type { ProjectConfig, SiblingRef } from "../types.js";
 
 describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
   const sample: SiblingRef[] = [
@@ -104,5 +105,63 @@ describe("assembled adjacency view paths (#1095 Decision 3)", () => {
   it("siblingNameFromPath returns null when the segment does not match the session prefix", () => {
     expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-11__sib__svc-infra"))).toBeNull();
     expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-10"))).toBeNull();
+  });
+});
+
+describe("resolveSiblingAdjacency (shared resolver for all sibling renderers)", () => {
+  function project(overrides: Partial<ProjectConfig> & Pick<ProjectConfig, "path">): ProjectConfig {
+    return {
+      name: "Project",
+      defaultBranch: "main",
+      sessionPrefix: "p",
+      ...overrides,
+    };
+  }
+
+  const projects: Record<string, ProjectConfig> = {
+    svc: project({ name: "Service", repo: "org/svc", path: "/home/u/code/svc" }),
+    front: project({ name: "Front End", repo: "org/ca-starters-front", path: "/home/u/code/ca-starters-front" }),
+    infra: project({ name: "Infra", repo: "org/svc-infra", path: "/home/u/code/svc-infra/" }),
+  };
+
+  it("resolves entries by project id", () => {
+    expect(resolveSiblingAdjacency(projects, ["front"], "svc")).toEqual([
+      { repo: "front", name: "ca-starters-front", displayName: "Front End" },
+    ]);
+  });
+
+  it("resolves entries by owner/name repo", () => {
+    expect(resolveSiblingAdjacency(projects, ["org/svc-infra"], "svc")).toEqual([
+      { repo: "infra", name: "svc-infra", displayName: "Infra" },
+    ]);
+  });
+
+  it("derives the ../{name} adjacency from the resolved project's path basename, not the raw entry", () => {
+    // "org/ca-starters-front" is the repo string; the adjacency name is the path basename.
+    const [resolved] = resolveSiblingAdjacency(projects, ["org/ca-starters-front"], "svc");
+    expect(resolved?.name).toBe("ca-starters-front");
+  });
+
+  it("skips the self-reference", () => {
+    expect(resolveSiblingAdjacency(projects, ["svc", "front"], "svc")).toEqual([
+      { repo: "front", name: "ca-starters-front", displayName: "Front End" },
+    ]);
+  });
+
+  it("skips unknown / unresolvable entries", () => {
+    expect(resolveSiblingAdjacency(projects, ["does-not-exist", "front"], "svc")).toEqual([
+      { repo: "front", name: "ca-starters-front", displayName: "Front End" },
+    ]);
+  });
+
+  it("de-duplicates entries that resolve to the same project", () => {
+    expect(resolveSiblingAdjacency(projects, ["front", "org/ca-starters-front"], "svc")).toEqual([
+      { repo: "front", name: "ca-starters-front", displayName: "Front End" },
+    ]);
+  });
+
+  it("returns [] for an empty or undefined entry list", () => {
+    expect(resolveSiblingAdjacency(projects, [], "svc")).toEqual([]);
+    expect(resolveSiblingAdjacency(projects, undefined, "svc")).toEqual([]);
   });
 });

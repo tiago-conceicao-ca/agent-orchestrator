@@ -233,6 +233,73 @@ describe("generateOrchestratorPrompt", () => {
     expect(promptWithoutOptionalSections).not.toContain("## Project-Specific Rules");
   });
 
+  it("explains the sibling model and the write-into-a-sibling rule", async () => {
+    const generateOrchestratorPrompt = await loadGenerateOrchestratorPrompt();
+    const prompt = generateOrchestratorPrompt({
+      config,
+      projectId: "my-app",
+      project: config.projects["my-app"]!,
+    });
+
+    expect(prompt).toContain("## Sibling Repos");
+    expect(prompt).toContain("read-only");
+    expect(prompt).toContain("`../{name}`");
+    expect(prompt).toContain("spawn the worker under that sibling's own project");
+  });
+
+  it("renders configured siblings with basename-derived ../{name} plus the available catalog", async () => {
+    const generateOrchestratorPrompt = await loadGenerateOrchestratorPrompt();
+    const multiProjectConfig: OrchestratorConfig = {
+      ...config,
+      projects: {
+        "my-app": {
+          ...config.projects["my-app"]!,
+          siblings: ["org/shared-libs"],
+        },
+        "shared": {
+          name: "Shared Libs",
+          repo: "org/shared-libs",
+          path: "/tmp/shared-libs",
+          defaultBranch: "main",
+          sessionPrefix: "lib",
+        },
+        "infra": {
+          name: "Infra",
+          repo: "org/infra",
+          path: "/tmp/infra",
+          defaultBranch: "main",
+          sessionPrefix: "inf",
+        },
+      },
+    };
+
+    const prompt = generateOrchestratorPrompt({
+      config: multiProjectConfig,
+      projectId: "my-app",
+      project: multiProjectConfig.projects["my-app"]!,
+    });
+
+    // Configured sibling resolves "org/shared-libs" → path basename "shared-libs".
+    expect(prompt).toContain("Shared Libs → `../shared-libs`");
+    // Available catalog lists the other projects by display name.
+    expect(prompt).toContain("Shared Libs");
+    expect(prompt).toContain("Infra");
+    expect(prompt).not.toContain("{{siblingsSection}}");
+  });
+
+  it("degrades gracefully when no siblings and no other projects exist", async () => {
+    const generateOrchestratorPrompt = await loadGenerateOrchestratorPrompt();
+    const prompt = generateOrchestratorPrompt({
+      config,
+      projectId: "my-app",
+      project: config.projects["my-app"]!,
+    });
+
+    expect(prompt).toContain("## Sibling Repos");
+    expect(prompt).toContain("No sibling repos are configured");
+    expect(prompt).not.toContain("{{siblingsSection}}");
+  });
+
   it("preserves intentional blank lines inside project-specific rules", async () => {
     const generateOrchestratorPrompt = await loadGenerateOrchestratorPrompt();
     const projectWithSpacedRules: ProjectConfig = {

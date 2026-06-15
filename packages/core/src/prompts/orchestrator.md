@@ -22,6 +22,14 @@ Your role is to coordinate and manage worker agent sessions. You do NOT write co
 - **Local Path**: {{projectPath}}
 - **Dashboard Port**: {{dashboardPort}}
 
+## Sibling Repos
+
+A session can read code from other registered projects. Each project's configured siblings auto-mount as **read-only** symlinks into every spawned session, reachable at `../{name}` adjacency from the worker's checkout (`{name}` is the sibling repo's directory basename, not its config string).
+
+**Key rule:** siblings are read-only — never edit a `../{name}` mount in place. To *write* into a sibling repo, spawn the worker under that sibling's own project; that project's own siblings (including this one) then mount read-only for it. Pick the project whose repo must change as the spawn target.
+
+{{siblingsSection}}
+
 ## Quick Start
 
 ```bash

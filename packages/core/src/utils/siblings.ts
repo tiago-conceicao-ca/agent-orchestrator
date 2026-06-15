@@ -1,6 +1,6 @@
 import { lstatSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
-import type { SiblingRef, SiblingMode } from "../types.js";
+import type { ProjectConfig, SiblingRef, SiblingMode } from "../types.js";
 import { isWindows } from "../platform.js";
 import { safeJsonParse } from "./validation.js";
 
@@ -65,6 +65,60 @@ export function serializeSiblings(siblings: SiblingRef[]): string {
 /** The sibling's short name — the basename of its source repo path (used for adjacency + paths). */
 export function siblingName(sourceRepoPath: string): string {
   return basename(sourceRepoPath.replace(/[/\\]+$/, ""));
+}
+
+/** A configured sibling resolved against the projects catalog, for rendering. */
+export interface SiblingAdjacency {
+  /** The resolved project's registered id (mirrors SiblingRef.repo). */
+  repo: string;
+  /** The `../{name}` adjacency — basename of the resolved project's on-disk path. */
+  name: string;
+  /** The resolved project's display name. */
+  displayName: string;
+}
+
+/**
+ * Resolve a project's configured `siblings` entries to their adjacency view, so
+ * every renderer (orchestrator prompt, worker prompt, `ao status`) agrees on the
+ * names. Each entry is a registered project id or "owner/name" repo, matched the
+ * same way as resolveSiblingSource in session-manager (`id === entry ||
+ * project.repo === entry`). Self-references, unresolvable entries, and duplicates
+ * are skipped.
+ *
+ * Critical: the `../{name}` adjacency is `siblingName(resolvedProject.path)` (the
+ * path basename), NOT the raw config string — so resolution against the catalog
+ * is required to render a correct name.
+ */
+export function resolveSiblingAdjacency(
+  projects: Record<string, ProjectConfig>,
+  entries: string[] | undefined,
+  selfProjectId: string,
+): SiblingAdjacency[] {
+  if (!entries?.length) return [];
+
+  const resolved: SiblingAdjacency[] = [];
+  const seen = new Set<string>();
+
+  for (const entry of entries) {
+    let match: { repoId: string; project: ProjectConfig } | null = null;
+    for (const [id, proj] of Object.entries(projects)) {
+      if (id === entry || proj.repo === entry) {
+        match = { repoId: id, project: proj };
+        break;
+      }
+    }
+
+    if (!match || match.repoId === selfProjectId || seen.has(match.repoId)) continue;
+    seen.add(match.repoId);
+
+    resolved.push({
+      repo: match.repoId,
+      name: siblingName(match.project.path),
+      displayName: match.project.name,
+    });
+  }
+
+  return resolved;
 }
 
 /**
