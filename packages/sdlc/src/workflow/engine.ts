@@ -7,7 +7,7 @@ import type {
   PrMode,
 } from "./types.js";
 import type { Gate } from "../gates/types.js";
-import type { Epic, TaskStatus } from "../plan/types.js";
+import type { Epic } from "../plan/types.js";
 
 export interface EngineDeps {
   store: RunStore;
@@ -81,18 +81,7 @@ export class WorkflowEngine {
       const executor = this.deps.executors[phase.executor];
       if (!executor) throw new Error(`No executor registered for '${phase.executor}'.`);
 
-      const ctx: PhaseContext = {
-        run,
-        epic,
-        input,
-        log: (m) => console.error(`[${run.id}/${phase.id}] ${m}`),
-        setTaskStatus: async (taskId: string, status: TaskStatus) => {
-          await this.deps.store.update(id, (r) => ({
-            ...r,
-            taskStatus: { ...r.taskStatus, [taskId]: status },
-          }));
-        },
-      };
+      const ctx = this.makeContext(id, run, epic, input, phase.id);
 
       let artifactRef: string;
       try {
@@ -142,7 +131,7 @@ export class WorkflowEngine {
         throw e;
       }
 
-      run = await this.deps.store.update(id, (r) => ({
+      await this.deps.store.update(id, (r) => ({
         ...r,
         phaseStates: { ...r.phaseStates, [phase.id]: "passed" },
       }));
@@ -162,6 +151,37 @@ export class WorkflowEngine {
     }
 
     return this.deps.store.update(id, (r) => ({ ...r, status: "completed" }));
+  }
+
+  /** Build the persisted PhaseContext for a phase/single-task run. */
+  private makeContext(
+    id: string,
+    run: WorkflowRun,
+    epic: Epic | null,
+    input: string,
+    phaseId: string,
+  ): PhaseContext {
+    return {
+      run,
+      epic,
+      input,
+      log: (m) => console.error(`[${run.id}/${phaseId}] ${m}`),
+      setTaskStatus: async (taskId, status) => {
+        await this.deps.store.update(id, (r) => ({
+          ...r,
+          taskStatus: { ...r.taskStatus, [taskId]: status },
+        }));
+      },
+      setTaskProgress: async (taskId, progress) => {
+        await this.deps.store.update(id, (r) => ({
+          ...r,
+          taskProgress: {
+            ...r.taskProgress,
+            [taskId]: { ...progress, updatedAt: new Date().toISOString() },
+          },
+        }));
+      },
+    };
   }
 
   private async require(id: string): Promise<WorkflowRun> {

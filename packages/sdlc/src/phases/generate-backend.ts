@@ -1,6 +1,7 @@
 import type { PhaseExecutor, PhaseContext, PhaseResult, PrMode } from "../workflow/types.js";
 import type { Epic, WorkflowTask } from "../plan/types.js";
 import { taskDoneSentinelInstruction } from "../runner/task-sentinel.js";
+import type { TaskOutcome } from "../runner/wait-for-done.js";
 
 export interface SpawnConfig {
   projectId: string;
@@ -10,14 +11,18 @@ export interface SpawnConfig {
 }
 export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
 /**
- * Polls AO until the spawned session completes; returns "done" | "failed".
- * `workspacePath` is where the worker's completion sentinel
+ * Polls AO until the spawned session completes; returns "done" | "failed" |
+ * "stalled". `workspacePath` is where the worker's completion sentinel
  * (`.ao/sdlc-task-done.json`) is read from — the primary, PR-independent signal.
+ * "stalled" lets the executor auto-retry before failing the run.
  */
 export type WaitForDoneFn = (
   sessionId: string,
   workspacePath?: string,
-) => Promise<"done" | "failed">;
+) => Promise<TaskOutcome>;
+
+/** Worker spawns per task before giving up: the initial attempt + one auto-retry. */
+export const TASK_MAX_ATTEMPTS = 2;
 
 export interface GenerateBackendDeps {
   spawn: SpawnFn; // wraps SessionManager.spawn (Task 16 wires the real one)
@@ -103,6 +108,57 @@ export function previewTaskPrompt(
   ].join("\n\n");
 }
 
+/** Resolve the per-task prompt builder from PR mode (+ optional custom override). */
+function makePromptFor(deps: GenerateBackendDeps, epic: Epic, prMode: PrMode) {
+  const epicBranch = prMode === "shared" ? sharedEpicBranch(epic.id) : undefined;
+  return (
+    deps.buildTaskPrompt ?? ((task: WorkflowTask) => previewTaskPrompt(task, undefined, { prMode, epicBranch }))
+  );
+}
+
+/**
+ * Spawn one task's worker and wait for completion, auto-retrying ONCE on a stall.
+ * Records per-task attempt/stall progress; throws (task → blocked) on failure or
+ * a stall that survives the retry. Returns the worker's workspace path, if any.
+ */
+async function runTaskWithRetry(
+  deps: GenerateBackendDeps,
+  ctx: PhaseContext,
+  task: WorkflowTask,
+  promptFor: (task: WorkflowTask) => string,
+): Promise<{ workspacePath?: string }> {
+  let lastWorkspace: string | undefined;
+  for (let attempt = 1; attempt <= TASK_MAX_ATTEMPTS; attempt++) {
+    await ctx.setTaskStatus(task.id, "in_progress");
+    const { id: sessionId, workspacePath } = await deps.spawn({
+      projectId: deps.projectId,
+      prompt: promptFor(task),
+      sdlcTaskId: task.id,
+      metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
+    });
+    lastWorkspace = workspacePath;
+    const outcome: TaskOutcome = await deps.waitForDone(sessionId, workspacePath);
+
+    if (outcome === "done") {
+      await ctx.setTaskProgress(task.id, { attempts: attempt, stalled: false });
+      await ctx.setTaskStatus(task.id, "done");
+      return { workspacePath };
+    }
+
+    const canRetry = outcome === "stalled" && attempt < TASK_MAX_ATTEMPTS;
+    await ctx.setTaskProgress(task.id, { attempts: attempt, stalled: outcome === "stalled" });
+    if (canRetry) {
+      ctx.log(`Task '${task.title}' stalled (attempt ${attempt}); auto-retrying.`);
+      continue;
+    }
+    await ctx.setTaskStatus(task.id, "blocked");
+    const why = outcome === "stalled" ? "stalled after auto-retry" : "failed";
+    throw new Error(`Task '${task.title}' ${why} during backend generation.`);
+  }
+  // Unreachable: the loop always returns or throws.
+  return { workspacePath: lastWorkspace };
+}
+
 export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExecutor {
   return {
     id: "generate-backend",
@@ -112,30 +168,26 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
       // their own PR; shared workers push one epic branch and complete via the
       // sentinel. A custom buildTaskPrompt (e.g. the smoke) overrides verbatim.
       const prMode: PrMode = ctx.run.prMode ?? "per-task";
-      const epicBranch = prMode === "shared" ? sharedEpicBranch(ctx.epic.id) : undefined;
-      const promptFor =
-        deps.buildTaskPrompt ?? ((task) => previewTaskPrompt(task, undefined, { prMode, epicBranch }));
+      const promptFor = makePromptFor(deps, ctx.epic, prMode);
       const order = topoOrder(ctx.epic);
       const workspacePaths: string[] = [];
       for (const task of order) {
-        await ctx.setTaskStatus(task.id, "in_progress");
-        const { id: sessionId, workspacePath } = await deps.spawn({
-          projectId: deps.projectId,
-          prompt: promptFor(task),
-          sdlcTaskId: task.id,
-          metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
-        });
+        // Resume: skip tasks a prior run already completed.
+        if (ctx.run.taskStatus[task.id] === "done") continue;
+        const { workspacePath } = await runTaskWithRetry(deps, ctx, task, promptFor);
         if (workspacePath) workspacePaths.push(workspacePath);
-        const outcome = await deps.waitForDone(sessionId, workspacePath);
-        if (outcome === "failed") {
-          await ctx.setTaskStatus(task.id, "blocked");
-          throw new Error(`Task '${task.title}' failed during backend generation.`);
-        }
-        await ctx.setTaskStatus(task.id, "done");
       }
       // Real artifact for the eval gate: the spawned task worktree path(s), one
       // per line. Falls back to an epic ref when no workspace path is available.
       return { artifactRef: workspacePaths.length ? workspacePaths.join("\n") : `epic:${ctx.epic.id}` };
+    },
+    async runTask(ctx: PhaseContext, taskId: string): Promise<void> {
+      if (!ctx.epic) throw new Error("generate-backend runTask requires an epic.");
+      const task = ctx.epic.tasks.find((t) => t.id === taskId);
+      if (!task) throw new Error(`Task '${taskId}' not found in epic '${ctx.epic.id}'.`);
+      const prMode: PrMode = ctx.run.prMode ?? "per-task";
+      const promptFor = makePromptFor(deps, ctx.epic, prMode);
+      await runTaskWithRetry(deps, ctx, task, promptFor);
     },
   };
 }

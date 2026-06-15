@@ -34,6 +34,17 @@ export interface WorkflowDefinition {
   phases: Phase[];
 }
 
+/**
+ * Per-task progress, tracked so a stalled worker is visible (not silently
+ * polling) and auto-retries are recorded. `attempts` counts worker spawns for
+ * the task (1 + auto-retries); `stalled` is true while a stall is unresolved.
+ */
+export interface TaskProgress {
+  attempts: number;
+  stalled: boolean;
+  updatedAt: string;
+}
+
 /** Context handed to a PhaseExecutor; carries the evolving epic + a logger. */
 export interface PhaseContext {
   run: WorkflowRun;
@@ -42,6 +53,8 @@ export interface PhaseContext {
   log: (msg: string) => void;
   /** persisted hook so executors can update task status mid-phase (kanban). */
   setTaskStatus: (taskId: string, status: TaskStatus) => Promise<void>;
+  /** persisted hook for per-task attempt/stall progress (`updatedAt` is stamped by the engine). */
+  setTaskProgress: (taskId: string, progress: Omit<TaskProgress, "updatedAt">) => Promise<void>;
 }
 
 export interface PhaseResult {
@@ -52,6 +65,11 @@ export interface PhaseResult {
 export interface PhaseExecutor {
   readonly id: string;
   run(ctx: PhaseContext): Promise<PhaseResult>;
+  /**
+   * Optional: re-run a SINGLE task (for `ao sdlc retry`), reusing the persisted
+   * epic. Implemented by executors whose work is per-task (generate-backend).
+   */
+  runTask?(ctx: PhaseContext, taskId: string): Promise<void>;
 }
 
 export interface WorkflowRun {
@@ -67,6 +85,8 @@ export interface WorkflowRun {
   createdAt: string;
   /** PR landing mode for this run's worker tasks. Defaults to `per-task`. */
   prMode?: PrMode;
+  /** Per-task attempt/stall progress, keyed by task id. */
+  taskProgress?: Record<string, TaskProgress>;
   /**
    * The epic produced by `normalize-plan`, persisted so later phases (and a
    * resume after a human gate) can recover it — `advance()`'s local epic does

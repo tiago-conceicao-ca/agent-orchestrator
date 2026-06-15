@@ -21,6 +21,7 @@ export {
   taskCompletionDirective,
   sharedEpicBranch,
   GERAR_BACKEND_INSTRUCTION,
+  TASK_MAX_ATTEMPTS,
   type SpawnFn,
   type SpawnConfig,
   type WaitForDoneFn,

@@ -66,6 +66,10 @@ export interface SdlcServiceDeps {
 
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
+// A task with no completion signal past this threshold is "stalled" → one
+// auto-retry (configurable via AO_SDLC_STALL_THRESHOLD_MS).
+const TASK_STALL_THRESHOLD_MS =
+  Number(process.env.AO_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -130,11 +134,8 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
   // waitForDone: the worker's `.ao/sdlc-task-done.json` sentinel is the primary,
   // PR-independent completion signal; classifyTerminal (PR/lifecycle) remains the
   // fallback when no sentinel is written. 2h hard cap retained.
-  const waitForDone = async (
-    sessionId: string,
-    workspacePath?: string,
-  ): Promise<"done" | "failed"> => {
-    const outcome = await waitForTaskCompletion({
+  const waitForDone = (sessionId: string, workspacePath?: string) =>
+    waitForTaskCompletion({
       sessionId,
       workspacePath,
       classifySession: async (id) => {
@@ -142,10 +143,9 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
         return session ? classifyTerminal(session) : null;
       },
       timeoutMs: TASK_POLL_TIMEOUT_MS,
+      stallThresholdMs: TASK_STALL_THRESHOLD_MS,
       pollIntervalMs: TASK_POLL_INTERVAL_MS,
     });
-    return outcome === "stalled" ? "failed" : outcome;
-  };
 
   const executors = {
     "normalize-plan": makeNormalizePlanExecutor({
@@ -281,15 +281,30 @@ async function buildLiveEngine(
   });
 }
 
-function printRun(run: { id: string; status: string; taskStatus: Record<string, string> }): void {
-  console.log(chalk.bold(`run ${run.id}`) + chalk.dim(` — ${run.status}`));
+interface PrintableRun {
+  id: string;
+  status: string;
+  taskStatus: Record<string, string>;
+  prMode?: string;
+  taskProgress?: Record<string, { attempts: number; stalled: boolean }>;
+}
+
+function printRun(run: PrintableRun): void {
+  const mode = run.prMode ? chalk.dim(` [${run.prMode}]`) : "";
+  console.log(chalk.bold(`run ${run.id}`) + chalk.dim(` — ${run.status}`) + mode);
   const entries = Object.entries(run.taskStatus);
   if (entries.length === 0) {
     console.log(chalk.dim("  (no tasks yet)"));
     return;
   }
   for (const [taskId, status] of entries) {
-    console.log(`  ${chalk.cyan(status.padEnd(12))} ${taskId}`);
+    const p = run.taskProgress?.[taskId];
+    // Surface stalls and auto-retries so a stuck task is visible, not silent.
+    const notes: string[] = [];
+    if (p?.stalled) notes.push(chalk.yellow("stalled"));
+    if (p && p.attempts > 1) notes.push(chalk.magenta(`retried x${p.attempts - 1}`));
+    const suffix = notes.length ? chalk.dim(`  (${notes.join(", ")})`) : "";
+    console.log(`  ${chalk.cyan(status.padEnd(12))} ${taskId}${suffix}`);
   }
 }
 

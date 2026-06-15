@@ -18,10 +18,19 @@ const epic: Epic = {
   dependencies: [{ taskId: "t-svc", dependsOnTaskId: "t-repo", type: "blocks" }],
 };
 
-function ctx(prMode?: PrMode): { ctx: PhaseContext; statuses: Record<string, string> } {
-  const statuses: Record<string, string> = {};
+function ctx(
+  prMode?: PrMode,
+  taskStatus: Record<string, string> = {},
+): {
+  ctx: PhaseContext;
+  statuses: Record<string, string>;
+  progress: Record<string, { attempts: number; stalled: boolean }>;
+} {
+  const statuses: Record<string, string> = { ...taskStatus };
+  const progress: Record<string, { attempts: number; stalled: boolean }> = {};
   return {
     statuses,
+    progress,
     ctx: {
       run: {
         id: "run-1",
@@ -30,7 +39,7 @@ function ctx(prMode?: PrMode): { ctx: PhaseContext; statuses: Record<string, str
         status: "running",
         currentPhaseIndex: 1,
         phaseStates: {},
-        taskStatus: {},
+        taskStatus,
         verdicts: [],
         pendingApproval: null,
         createdAt: "2026-06-08T00:00:00Z",
@@ -41,6 +50,9 @@ function ctx(prMode?: PrMode): { ctx: PhaseContext; statuses: Record<string, str
       log: () => {},
       setTaskStatus: async (id, s) => {
         statuses[id] = s;
+      },
+      setTaskProgress: async (id, p) => {
+        progress[id] = p;
       },
     },
   };
@@ -140,5 +152,85 @@ describe("generate-backend executor", () => {
     const result = await exec.run(c);
     expect(result.artifactRef).toContain("/wt/t-repo");
     expect(result.artifactRef).toContain("/wt/t-svc");
+  });
+
+  it("auto-retries a stalled task once, then succeeds (records attempts)", async () => {
+    const spawns: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      spawns.push(cfg.sdlcTaskId);
+      return { id: `s-${spawns.length}` };
+    };
+    // t-repo stalls on its first wait, succeeds on the retry; t-svc is fine.
+    const outcomes = new Map<string, ("stalled" | "done")[]>([
+      ["s-1", ["stalled"]],
+      ["s-2", ["done"]], // t-repo retry
+      ["s-3", ["done"]], // t-svc
+    ]);
+    const waitForDone = async (sessionId: string) => outcomes.get(sessionId)!.shift()!;
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone });
+    const { ctx: c, statuses, progress } = ctx();
+    await exec.run(c);
+    expect(spawns).toEqual(["t-repo", "t-repo", "t-svc"]); // one auto-retry of t-repo
+    expect(statuses["t-repo"]).toBe("done");
+    expect(progress["t-repo"]).toEqual({ attempts: 2, stalled: false });
+  });
+
+  it("fails the run when a task stalls again after its single auto-retry", async () => {
+    const spawns: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      spawns.push(cfg.sdlcTaskId);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({
+      spawn,
+      projectId: "b",
+      waitForDone: async () => "stalled",
+    });
+    const { ctx: c, statuses, progress } = ctx();
+    await expect(exec.run(c)).rejects.toThrow(/stalled after auto-retry/i);
+    expect(spawns).toEqual(["t-repo", "t-repo"]); // initial + one retry, then give up
+    expect(statuses["t-repo"]).toBe("blocked");
+    expect(progress["t-repo"]).toEqual({ attempts: 2, stalled: true });
+  });
+
+  it("does NOT retry a hard failure (preserves existing fail-fast behavior)", async () => {
+    const spawns: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      spawns.push(cfg.sdlcTaskId);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({
+      spawn,
+      projectId: "b",
+      waitForDone: async () => "failed",
+    });
+    const { ctx: c } = ctx();
+    await expect(exec.run(c)).rejects.toThrow(/failed during backend generation/i);
+    expect(spawns).toEqual(["t-repo"]); // no retry on hard failure
+  });
+
+  it("skips tasks already marked done (resume)", async () => {
+    const spawns: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      spawns.push(cfg.sdlcTaskId);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c } = ctx(undefined, { "t-repo": "done" });
+    await exec.run(c);
+    expect(spawns).toEqual(["t-svc"]); // t-repo skipped
+  });
+
+  it("runTask re-runs a single task (retry) reusing the epic", async () => {
+    const spawns: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      spawns.push(cfg.sdlcTaskId);
+      return { id: "s" };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c, statuses } = ctx();
+    await exec.runTask!(c, "t-svc");
+    expect(spawns).toEqual(["t-svc"]); // only the requested task
+    expect(statuses["t-svc"]).toBe("done");
   });
 });

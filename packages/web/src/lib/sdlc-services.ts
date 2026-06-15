@@ -31,6 +31,10 @@ import { getServices } from "./services";
 
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
+// A task with no completion signal past this threshold is "stalled" → one
+// auto-retry (configurable via AO_SDLC_STALL_THRESHOLD_MS).
+const TASK_STALL_THRESHOLD_MS =
+  Number(process.env.AO_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -112,11 +116,8 @@ export async function buildWebSdlcEngine(
 
   // The worker's `.ao/sdlc-task-done.json` sentinel is the primary, PR-independent
   // completion signal; classifyTerminal (PR/lifecycle) remains the fallback.
-  const waitForDone = async (
-    sessionId: string,
-    workspacePath?: string,
-  ): Promise<"done" | "failed"> => {
-    const outcome = await waitForTaskCompletion({
+  const waitForDone = (sessionId: string, workspacePath?: string) =>
+    waitForTaskCompletion({
       sessionId,
       workspacePath,
       classifySession: async (id) => {
@@ -124,10 +125,9 @@ export async function buildWebSdlcEngine(
         return session ? classifyTerminal(session) : null;
       },
       timeoutMs: TASK_POLL_TIMEOUT_MS,
+      stallThresholdMs: TASK_STALL_THRESHOLD_MS,
       pollIntervalMs: TASK_POLL_INTERVAL_MS,
     });
-    return outcome === "stalled" ? "failed" : outcome;
-  };
 
   const engine = new WorkflowEngine({
     store,
