@@ -27,3 +27,16 @@ export { makeInputAdapter, type PlanWriteRunner } from "./phases/input-adapter.j
 
 // V1 workflow definition
 export { CA_PLAN_TO_BACKEND } from "./workflows/ca-plan-to-backend.js";
+
+// Session-backed agent runner (sentinel-file output contract)
+export {
+  runSessionBackedAgent,
+  type SdlcSessionSpawn,
+  type RunSessionBackedAgentParams,
+} from "./runner/session-runner.js";
+export {
+  makeSessionLensRunner,
+  makeSessionPlanRunner,
+  LENS_SENTINEL,
+  PLAN_SENTINEL,
+} from "./runner/sdlc-agent-runners.js";

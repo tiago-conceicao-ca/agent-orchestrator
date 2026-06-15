@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { RunContext } from "../workflow/types.js";
 import { type Gate, parseLensVerdict } from "./types.js";
 
-/** A function that runs an agent with a prompt over an artifact and returns its raw text. */
-export type AgentRunner = (prompt: string, artifactRef: string) => Promise<string>;
+/**
+ * A function that runs an agent with a prompt over an artifact and returns its
+ * raw text. `ctx.phase` is the session label (`lens:<name>`) for a
+ * session-backed runner; the headless impl ignores it.
+ */
+export type AgentRunner = (prompt: string, artifactRef: string, ctx: RunContext) => Promise<string>;
 
 export type LensName = "tactical" | "architectural" | "adversarial";
 
@@ -61,9 +66,10 @@ function extractJsonBlob(text: string): string {
 export function makeLensGate(name: string, promptTemplate: string, runner: AgentRunner): Gate {
   return {
     name,
-    async evaluate(artifactRef: string, lens: string) {
+    async evaluate(artifactRef: string, lens: string, ctx: RunContext) {
       const prompt = promptTemplate.replace("{artifact}", artifactRef);
-      const raw = await runner(prompt, artifactRef);
+      // Label the spawned session by lens (`lens:tactical`); keep the run id.
+      const raw = await runner(prompt, artifactRef, { runId: ctx.runId, phase: `lens:${lens}` });
       return parseLensVerdict(extractJsonBlob(raw), lens);
     },
   };

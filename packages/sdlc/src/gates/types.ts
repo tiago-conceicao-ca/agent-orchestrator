@@ -1,3 +1,5 @@
+import type { RunContext } from "../workflow/types.js";
+
 export type Severity = "high" | "medium" | "low";
 
 export interface LensIssue {
@@ -15,8 +17,12 @@ export interface GateVerdict {
 
 export interface Gate {
   readonly name: string;
-  /** @param artifactRef path/handle to the phase output; @param lens the lens key. */
-  evaluate(artifactRef: string, lens: string): Promise<GateVerdict>;
+  /**
+   * @param artifactRef path/handle to the phase output;
+   * @param lens the lens key;
+   * @param ctx the run position, so a session-backed runner can tag its session.
+   */
+  evaluate(artifactRef: string, lens: string, ctx: RunContext): Promise<GateVerdict>;
 }
 
 /** Parse a tm-style lens JSON blob emitted by an agent into a GateVerdict. */
