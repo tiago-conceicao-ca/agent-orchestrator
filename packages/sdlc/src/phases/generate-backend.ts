@@ -1,5 +1,6 @@
 import type { PhaseExecutor, PhaseContext, PhaseResult } from "../workflow/types.js";
 import type { Epic, WorkflowTask } from "../plan/types.js";
+import { taskDoneSentinelInstruction } from "../runner/task-sentinel.js";
 
 export interface SpawnConfig {
   projectId: string;
@@ -8,8 +9,15 @@ export interface SpawnConfig {
   metadata: Record<string, string>;
 }
 export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
-/** Polls AO until the spawned session reaches a terminal state; returns "done" | "failed". */
-export type WaitForDoneFn = (sessionId: string) => Promise<"done" | "failed">;
+/**
+ * Polls AO until the spawned session completes; returns "done" | "failed".
+ * `workspacePath` is where the worker's completion sentinel
+ * (`.ao/sdlc-task-done.json`) is read from — the primary, PR-independent signal.
+ */
+export type WaitForDoneFn = (
+  sessionId: string,
+  workspacePath?: string,
+) => Promise<"done" | "failed">;
 
 export interface GenerateBackendDeps {
   spawn: SpawnFn; // wraps SessionManager.spawn (Task 16 wires the real one)
@@ -69,6 +77,7 @@ export function previewTaskPrompt(
     `Summary: ${task.summary}`,
     `Acceptance criteria:\n${ac}`,
     `When done, open a PR.`,
+    taskDoneSentinelInstruction({ withPr: true }),
   ].join("\n\n");
 }
 
@@ -89,7 +98,7 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
           metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
         });
         if (workspacePath) workspacePaths.push(workspacePath);
-        const outcome = await deps.waitForDone(sessionId);
+        const outcome = await deps.waitForDone(sessionId, workspacePath);
         if (outcome === "failed") {
           await ctx.setTaskStatus(task.id, "blocked");
           throw new Error(`Task '${task.title}' failed during backend generation.`);

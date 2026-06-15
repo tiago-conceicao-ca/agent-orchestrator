@@ -35,6 +35,7 @@ import {
   makeSessionPlanRunner,
   RunStore,
   smokeEvalArtifact,
+  waitForTaskCompletion,
   WorkflowEngine,
   type RunContext,
   type SdlcSessionSpawn,
@@ -126,18 +127,24 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
 
-  // waitForDone: poll SessionManager.get(id) until a terminal lifecycle state.
-  const waitForDone = async (sessionId: string): Promise<"done" | "failed"> => {
-    const deadline = Date.now() + TASK_POLL_TIMEOUT_MS;
-    for (;;) {
-      const session = await deps.sessionManager.get(sessionId);
-      if (session) {
-        const outcome = classifyTerminal(session);
-        if (outcome) return outcome;
-      }
-      if (Date.now() > deadline) return "failed";
-      await new Promise((resolve) => setTimeout(resolve, TASK_POLL_INTERVAL_MS));
-    }
+  // waitForDone: the worker's `.ao/sdlc-task-done.json` sentinel is the primary,
+  // PR-independent completion signal; classifyTerminal (PR/lifecycle) remains the
+  // fallback when no sentinel is written. 2h hard cap retained.
+  const waitForDone = async (
+    sessionId: string,
+    workspacePath?: string,
+  ): Promise<"done" | "failed"> => {
+    const outcome = await waitForTaskCompletion({
+      sessionId,
+      workspacePath,
+      classifySession: async (id) => {
+        const session = await deps.sessionManager.get(id);
+        return session ? classifyTerminal(session) : null;
+      },
+      timeoutMs: TASK_POLL_TIMEOUT_MS,
+      pollIntervalMs: TASK_POLL_INTERVAL_MS,
+    });
+    return outcome === "stalled" ? "failed" : outcome;
   };
 
   const executors = {

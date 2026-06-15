@@ -40,3 +40,17 @@ export {
   LENS_SENTINEL,
   PLAN_SENTINEL,
 } from "./runner/sdlc-agent-runners.js";
+
+// Worker-task completion sentinel (PR-independent "task done" signal)
+export {
+  TASK_DONE_SENTINEL,
+  readTaskSentinel,
+  classifyTaskSentinel,
+  taskDoneSentinelInstruction,
+  type TaskDoneSentinel,
+} from "./runner/task-sentinel.js";
+export {
+  waitForTaskCompletion,
+  type TaskOutcome,
+  type WaitForTaskParams,
+} from "./runner/wait-for-done.js";

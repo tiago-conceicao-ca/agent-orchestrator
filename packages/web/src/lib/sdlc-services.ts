@@ -18,6 +18,7 @@ import {
   makeSessionPlanRunner,
   RunStore,
   smokeEvalArtifact,
+  waitForTaskCompletion,
   WorkflowEngine,
   type SdlcSessionSpawn,
 } from "@aoagents/ao-sdlc";
@@ -109,17 +110,23 @@ export async function buildWebSdlcEngine(
     },
   };
 
-  const waitForDone = async (sessionId: string): Promise<"done" | "failed"> => {
-    const deadline = Date.now() + TASK_POLL_TIMEOUT_MS;
-    for (;;) {
-      const session = await sessionManager.get(sessionId);
-      if (session) {
-        const outcome = classifyTerminal(session);
-        if (outcome) return outcome;
-      }
-      if (Date.now() > deadline) return "failed";
-      await new Promise((resolve) => setTimeout(resolve, TASK_POLL_INTERVAL_MS));
-    }
+  // The worker's `.ao/sdlc-task-done.json` sentinel is the primary, PR-independent
+  // completion signal; classifyTerminal (PR/lifecycle) remains the fallback.
+  const waitForDone = async (
+    sessionId: string,
+    workspacePath?: string,
+  ): Promise<"done" | "failed"> => {
+    const outcome = await waitForTaskCompletion({
+      sessionId,
+      workspacePath,
+      classifySession: async (id) => {
+        const session = await sessionManager.get(id);
+        return session ? classifyTerminal(session) : null;
+      },
+      timeoutMs: TASK_POLL_TIMEOUT_MS,
+      pollIntervalMs: TASK_POLL_INTERVAL_MS,
+    });
+    return outcome === "stalled" ? "failed" : outcome;
   };
 
   const engine = new WorkflowEngine({

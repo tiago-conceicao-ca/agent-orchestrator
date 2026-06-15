@@ -19,7 +19,7 @@ describe("previewTaskPrompt", () => {
     expect(GERAR_BACKEND_INSTRUCTION).toContain("/gerar-backend");
   });
 
-  it("renders title, summary, acceptance criteria (bulleted), and the PR footer", () => {
+  it("renders title, summary, acceptance criteria (bulleted), the PR footer, and the sentinel directive", () => {
     const prompt = previewTaskPrompt(task);
     expect(prompt).toContain("Task: Migration V21");
     expect(prompt).toContain(
@@ -27,7 +27,9 @@ describe("previewTaskPrompt", () => {
     );
     expect(prompt).toContain("- adds two nullable columns");
     expect(prompt).toContain("- ProductKitRestApiIntegrationTest");
-    expect(prompt.trimEnd().endsWith("When done, open a PR.")).toBe(true);
+    expect(prompt).toContain("When done, open a PR.");
+    // The completion sentinel directive is the worker's final-action contract.
+    expect(prompt).toContain("sdlc-task-done.json");
   });
 
   it("uses an injected generation instruction verbatim and drops the default", () => {
