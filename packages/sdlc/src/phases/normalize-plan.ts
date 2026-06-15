@@ -40,7 +40,9 @@ export function makeNormalizePlanExecutor(deps: NormalizePlanDeps): PhaseExecuto
       // Write the normalized plan to a real file so the lens agent can Read it.
       const artifactRef = join(tmpdir(), `ao-sdlc-${ctx.run.id}-plan.md`);
       writeFileSync(artifactRef, planMarkdown, "utf-8");
-      return { epic, artifactRef };
+      // Return the plan markdown so the engine persists it durably on the run
+      // (the tmpdir file above is ephemeral — only the lens agent reads it).
+      return { epic, artifactRef, planMarkdown };
     },
   };
 }

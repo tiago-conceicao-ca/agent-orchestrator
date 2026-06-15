@@ -59,6 +59,8 @@ describe("normalize-plan executor", () => {
     expect(result.artifactRef.endsWith(".md")).toBe(true);
     expect(existsSync(result.artifactRef)).toBe(true);
     expect(readFileSync(result.artifactRef, "utf-8")).toContain("## Task Graph");
+    // The plan markdown is also returned for durable persistence on the run.
+    expect(result.planMarkdown).toContain("## Task Graph");
   });
   it("calls the adapter when input has no Task Graph", async () => {
     let called = false;

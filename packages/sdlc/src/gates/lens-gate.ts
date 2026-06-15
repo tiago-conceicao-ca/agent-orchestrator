@@ -70,7 +70,11 @@ export function makeLensGate(name: string, promptTemplate: string, runner: Agent
       const prompt = promptTemplate.replace("{artifact}", artifactRef);
       // Label the spawned session by lens (`lens:tactical`); keep the run id.
       const raw = await runner(prompt, artifactRef, { runId: ctx.runId, phase: `lens:${lens}` });
-      return parseLensVerdict(extractJsonBlob(raw), lens);
+      const verdict = parseLensVerdict(extractJsonBlob(raw), lens);
+      // Capture the agent's full output (reasoning + verdict) so the run view can
+      // surface it. Persisted by the engine via run.verdicts.
+      const trimmed = raw.trim();
+      return trimmed ? { ...verdict, rawOutput: trimmed } : verdict;
     },
   };
 }

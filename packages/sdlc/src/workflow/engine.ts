@@ -90,6 +90,12 @@ export class WorkflowEngine {
           // Persist so the epic survives a human-gate pause/resume.
           run = await this.deps.store.update(id, (r) => ({ ...r, epic: result.epic }));
         }
+        if (result.planMarkdown !== undefined) {
+          // Persist the normalized plan durably (the artifactRef tmpdir file is
+          // ephemeral) so the run view can surface the reviewed plan artifact.
+          const planMarkdown = result.planMarkdown;
+          run = await this.deps.store.update(id, (r) => ({ ...r, planMarkdown }));
+        }
         artifactRef = result.artifactRef;
       } catch (e) {
         await this.deps.store.update(id, (r) => ({
