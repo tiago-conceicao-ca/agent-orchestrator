@@ -35,6 +35,10 @@ export interface SdlcTaskDetail {
   updatedAt: string;
   prompt: string; // the exact agent prompt (previewTaskPrompt output)
   linkedSession: LinkedSession | null; // null = not dispatched
+  /** Worker spawns for this task (1 + auto-retries); 0 when never dispatched. */
+  attempts: number;
+  /** True while this task's worker is stalled (no completion signal). */
+  stalled: boolean;
 }
 
 export type BoardColumn = "backlog" | "ready" | "in_progress" | "in_review" | "done" | "blocked";
@@ -88,6 +92,10 @@ export interface RunView {
   verdicts: VerdictView[];
   /** The normalized plan markdown the lens agents reviewed; null when not persisted. */
   planArtifact: string | null;
+  /** Last surfaced engine/gate failure (fail paths, abandon, reconcile); null when none. */
+  lastError: { phase: string; message: string } | null;
+  /** PR landing mode for this run's worker tasks (defaults to per-task). */
+  prMode: string;
 }
 
 /** Map a run's phaseStates record to an ordered, serializable view. */
@@ -112,6 +120,11 @@ export function toVerdictViews(run: WorkflowRun): VerdictView[] {
 /** The normalized plan markdown persisted on the run (null when absent). */
 export function planArtifactFromRun(run: WorkflowRun): string | null {
   return run.planMarkdown ?? null;
+}
+
+/** The last surfaced engine/gate failure on the run (null when none). */
+export function lastErrorFromRun(run: WorkflowRun): { phase: string; message: string } | null {
+  return run.lastError ?? null;
 }
 
 function emptyBoard(): Board {

@@ -30,6 +30,8 @@ function makeTask(overrides: Partial<SdlcTaskDetail> = {}): SdlcTaskDetail {
     updatedAt: "2026-06-08T00:00:00Z",
     prompt: "Run the /gerar-backend skill to implement this task.\n\nTask: Repo layer",
     linkedSession: null,
+    attempts: 0,
+    stalled: false,
     ...overrides,
   };
 }
@@ -54,6 +56,8 @@ function makeRun(overrides: Partial<RunView> = {}): RunView {
     phaseStates: [],
     verdicts: [],
     planArtifact: null,
+    lastError: null,
+    prMode: "per-task",
     ...overrides,
   };
 }

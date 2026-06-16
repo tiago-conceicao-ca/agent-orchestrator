@@ -3,6 +3,7 @@ import {
   assignTaskNumbers,
   dependsOnTitles,
   filterRunsByProject,
+  lastErrorFromRun,
   planArtifactFromRun,
   titlesFromRun,
   toKanban,
@@ -25,6 +26,8 @@ function makeRunView(id: string, projectId: string): RunView {
     phaseStates: [],
     verdicts: [],
     planArtifact: null,
+    lastError: null,
+    prMode: "per-task",
   };
 }
 
@@ -212,6 +215,25 @@ describe("planArtifactFromRun", () => {
   it("returns null when no plan artifact is persisted", () => {
     const run = { id: "r", taskStatus: {} } as unknown as WorkflowRun;
     expect(planArtifactFromRun(run)).toBeNull();
+  });
+});
+
+describe("lastErrorFromRun", () => {
+  it("returns the persisted lastError when present", () => {
+    const run = {
+      id: "r",
+      taskStatus: {},
+      lastError: { phase: "normalize-plan", message: "Lens 'tactical' rejected: Missing tests" },
+    } as unknown as WorkflowRun;
+    expect(lastErrorFromRun(run)).toEqual({
+      phase: "normalize-plan",
+      message: "Lens 'tactical' rejected: Missing tests",
+    });
+  });
+
+  it("returns null when no error is recorded", () => {
+    const run = { id: "r", taskStatus: {} } as unknown as WorkflowRun;
+    expect(lastErrorFromRun(run)).toBeNull();
   });
 });
 

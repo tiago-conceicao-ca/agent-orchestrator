@@ -48,6 +48,7 @@ export function enrichRunTasks(
   const numbers = assignTaskNumbers(run);
   return (run.epic?.tasks ?? []).map((task) => {
     const info = linked.get(task.id) ?? null;
+    const progress = run.taskProgress?.[task.id];
     return {
       number: numbers[task.id] ?? 0,
       id: task.id,
@@ -68,6 +69,8 @@ export function enrichRunTasks(
       updatedAt: run.createdAt,
       prompt: previewTaskPrompt(task),
       linkedSession: info?.link ?? null,
+      attempts: progress?.attempts ?? 0,
+      stalled: progress?.stalled ?? false,
     };
   });
 }
