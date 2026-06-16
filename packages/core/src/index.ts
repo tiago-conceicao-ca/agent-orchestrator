@@ -225,6 +225,7 @@ export {
   getOrchestratorSessionId,
   normalizeOrchestratorSessionStrategy,
 } from "./orchestrator-session-strategy.js";
+export { notifyOrchestrator, type OrchestratorNotifier } from "./notify-orchestrator.js";
 export { resolveSpawnTarget } from "./spawn-target.js";
 export type { SpawnTarget } from "./spawn-target.js";
 

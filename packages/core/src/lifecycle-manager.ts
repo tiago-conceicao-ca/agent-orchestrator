@@ -52,6 +52,7 @@ import {
   deriveLegacyStatus,
 } from "./lifecycle-state.js";
 import { updateMetadata } from "./metadata.js";
+import { notifyOrchestrator } from "./notify-orchestrator.js";
 import { getProjectSessionsDir } from "./paths.js";
 import { applyDecisionToLifecycle as commitLifecycleDecisionInPlace } from "./lifecycle-transition.js";
 import {
@@ -249,6 +250,22 @@ function createEvent(
     data: opts.data ?? {},
   };
 }
+
+/**
+ * Worker→orchestrator notify set: attention-worthy or terminal transitions the
+ * orchestrator should hear about without polling — PR opened, terminal landing
+ * (done/mergeable/merged), CI failing, stuck, and needs-input. Routine
+ * `working`/`review_pending`/etc. transitions are intentionally excluded.
+ */
+const ORCHESTRATOR_NOTIFY_STATUSES = new Set<SessionStatus>([
+  "pr_open",
+  "ci_failed",
+  "stuck",
+  "needs_input",
+  "mergeable",
+  "merged",
+  "done",
+]);
 
 /** Determine which event type corresponds to a status transition. */
 function statusToEventType(_from: SessionStatus | undefined, to: SessionStatus): EventType | null {
@@ -2910,6 +2927,36 @@ export function createLifecycleManager(deps: LifecycleManagerDeps): LifecycleMan
             }),
           });
           await notifyHuman(event, priority);
+        }
+      }
+
+      // Notify the orchestrator on attention/terminal WORKER transitions so it
+      // no longer has to poll. This is purely additive — it runs AFTER all
+      // existing reaction dispatch and human notification, mutates no session
+      // state, and is deduped by the enclosing `newStatus !== oldStatus` guard
+      // (states/metadata already advanced above, so each transition notifies at
+      // most once). The orchestrator's own sessions are excluded (worker-only,
+      // no self-notify / loop). Best-effort: notifyOrchestrator never throws and
+      // no-ops when no orchestrator session exists for the project.
+      if (ORCHESTRATOR_NOTIFY_STATUSES.has(newStatus)) {
+        const notifyProject = config.projects[session.projectId];
+        if (notifyProject) {
+          const allSessionPrefixes = Object.values(config.projects).map((p) => p.sessionPrefix);
+          const role = resolveSessionRole(
+            session.id,
+            session.metadata,
+            notifyProject.sessionPrefix,
+            allSessionPrefixes,
+          );
+          if (role === "worker") {
+            const prRef = session.pr ? `PR #${session.pr.number}` : (session.branch ?? "no PR");
+            await notifyOrchestrator(
+              sessionManager,
+              notifyProject,
+              getProjectSessionsDir(session.projectId),
+              `[${session.id}] ${eventType ?? newStatus} — ${prRef}`,
+            );
+          }
         }
       }
     } else {

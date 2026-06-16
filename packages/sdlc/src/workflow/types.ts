@@ -22,6 +22,21 @@ export interface RunContext {
   phase: string;
 }
 
+/**
+ * An attention-worthy RUN-level transition the engine emits via the optional
+ * `EngineDeps.onRunEvent` seam. The engine stays pure: it only describes what
+ * happened (kind + runId + phase/detail) — the wiring decides whether to notify
+ * the orchestrator, record activity, or route to human notifiers. `projectId` is
+ * left to the wiring (the engine does not know it).
+ */
+export interface SdlcRunEvent {
+  kind: "awaiting_approval" | "needs_fixes" | "completed" | "failed" | "stalled";
+  runId: string;
+  projectId?: string;
+  phase?: string;
+  detail?: string;
+}
+
 export interface Phase {
   id: string;
   executor: string; // key into the executor registry

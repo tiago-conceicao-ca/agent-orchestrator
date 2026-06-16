@@ -57,3 +57,10 @@ export {
   type TaskOutcome,
   type WaitForTaskParams,
 } from "./runner/wait-for-done.js";
+
+// Run-event wiring: turns the engine's pure onRunEvent seam into orchestrator
+// notifications, activity events, and human notifier routing.
+export {
+  makeSdlcRunEventHandler,
+  type SdlcRunEventNotifierDeps,
+} from "./runner/run-event-notifier.js";

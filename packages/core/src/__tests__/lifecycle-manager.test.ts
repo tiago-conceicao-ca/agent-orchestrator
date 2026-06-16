@@ -4743,3 +4743,87 @@ describe("multi-PR state machine aggregation", () => {
     }
   });
 });
+
+describe("orchestrator notification on worker transitions", () => {
+  const orchestratorId = "app-orchestrator";
+
+  /** Write orchestrator session metadata so notifyOrchestrator finds it on disk. */
+  function withOrchestrator() {
+    writeMetadata(env.sessionsDir, orchestratorId, {
+      worktree: "/tmp",
+      branch: "main",
+      status: "working",
+      project: "my-app",
+      agent: "mock-agent",
+      role: "orchestrator",
+    } as unknown as SessionMetadata);
+  }
+
+  it("notifies the orchestrator once when a worker transitions to a curated state", async () => {
+    withOrchestrator();
+    vi.mocked(plugins.agent.getActivityState).mockResolvedValue({ state: "waiting_input" });
+    const lm = setupCheck("app-1", { session: makeSession({ status: "working" }) });
+
+    await lm.check("app-1");
+
+    expect(lm.getStates().get("app-1")).toBe("needs_input");
+    const orchestratorCalls = vi
+      .mocked(mockSessionManager.send)
+      .mock.calls.filter(([to]) => to === orchestratorId);
+    expect(orchestratorCalls).toHaveLength(1);
+    expect(orchestratorCalls[0][1]).toContain("[app-1]");
+    expect(orchestratorCalls[0][1]).toContain("needs_input");
+  });
+
+  it("notifies for a stuck worker transition too (not a one-off)", async () => {
+    withOrchestrator();
+    config.reactions = { "agent-stuck": { auto: true, action: "notify", threshold: "1m" } };
+    vi.mocked(plugins.agent.getActivityState).mockResolvedValue({
+      state: "idle",
+      timestamp: new Date(Date.now() - 120_000),
+    });
+    const lm = setupCheck("app-1", {
+      session: makeSession({ status: "working", metadata: { agent: "mock-agent" } }),
+      metaOverrides: { agent: "mock-agent" },
+    });
+
+    await lm.check("app-1");
+
+    expect(lm.getStates().get("app-1")).toBe("stuck");
+    expect(
+      vi.mocked(mockSessionManager.send).mock.calls.filter(([to]) => to === orchestratorId),
+    ).toHaveLength(1);
+  });
+
+  it("does not notify when no orchestrator session exists", async () => {
+    vi.mocked(plugins.agent.getActivityState).mockResolvedValue({ state: "waiting_input" });
+    const lm = setupCheck("app-1", { session: makeSession({ status: "working" }) });
+
+    await lm.check("app-1");
+
+    expect(lm.getStates().get("app-1")).toBe("needs_input");
+    expect(
+      vi.mocked(mockSessionManager.send).mock.calls.filter(([to]) => to === orchestratorId),
+    ).toHaveLength(0);
+  });
+
+  it("does not notify on the orchestrator's own transition (no self/loop)", async () => {
+    withOrchestrator();
+    vi.mocked(plugins.agent.getActivityState).mockResolvedValue({ state: "waiting_input" });
+    const lm = setupCheck(orchestratorId, {
+      session: makeSession({
+        id: orchestratorId,
+        status: "working",
+        metadata: { agent: "mock-agent", role: "orchestrator" },
+      }),
+      metaOverrides: { role: "orchestrator" },
+    });
+
+    await lm.check(orchestratorId);
+
+    expect(lm.getStates().get(orchestratorId)).toBe("needs_input");
+    expect(
+      vi.mocked(mockSessionManager.send).mock.calls.filter(([to]) => to === orchestratorId),
+    ).toHaveLength(0);
+  });
+});
