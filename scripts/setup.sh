@@ -155,14 +155,14 @@ else
 fi
 cd "$REPO_ROOT"
 
-# ─── Verify ao is in PATH ────────────────────────────────────────────────────
+# ─── Verify cahi is in PATH ──────────────────────────────────────────────────
 
 echo ""
-if command -v ao &> /dev/null; then
-  echo "[ok] 'ao' command is available in PATH"
+if command -v cahi &> /dev/null; then
+  echo "[ok] 'cahi' command is available in PATH"
 else
   NPM_BIN="$(npm bin -g 2>/dev/null || npm config get prefix)/bin"
-  echo "WARNING: 'ao' is not in your PATH."
+  echo "WARNING: 'cahi' is not in your PATH."
   echo "  Add this to your shell profile (~/.zshrc or ~/.bashrc):"
   echo ""
   echo "    export PATH=\"$NPM_BIN:\$PATH\""
@@ -180,9 +180,9 @@ echo ""
 echo "  Navigate to your project directory and start:"
 echo ""
 echo "    cd ~/your-project"
-echo "    ao start            # auto-detects, creates config, launches dashboard"
+echo "    cahi start          # auto-detects, creates config, launches dashboard"
 echo ""
 echo "  Want to add more projects later?"
 echo ""
-echo "    ao start ~/path/to/another-repo"
+echo "    cahi start ~/path/to/another-repo"
 echo ""

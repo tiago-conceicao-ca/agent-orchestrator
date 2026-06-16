@@ -55,7 +55,7 @@ jobs:
       # Pre-publish guard: catches the case where a publishable package has a
       # workspace:* runtime dep on a `private: true` package — pnpm would
       # rewrite the dep on publish to a version that doesn't exist on npm,
-      # breaking `npm install -g @aoagents/ao`. Still runs here so the
+      # breaking `npm install -g @contaazul/cahi`. Still runs here so the
       # public repo blocks a malformed version bump before it reaches npm.
       - run: node scripts/check-publishable-deps.mjs
 
@@ -85,7 +85,7 @@ jobs:
       # version-bump commit by comparing the umbrella package's
       # version against its value in the parent commit — a Version
       # Packages merge changes that version, a regular commit does not.
-      # The umbrella `@aoagents/ao` is the canonical version source for
+      # The umbrella `@contaazul/cahi` is the canonical version source for
       # the `vX.Y.Z` tag scheme and is part of the linked group, so
       # any release that bumps the cohort will bump this file.
       - name: Determine release state

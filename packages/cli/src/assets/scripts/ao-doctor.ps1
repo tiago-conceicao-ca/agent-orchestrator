@@ -175,28 +175,28 @@ function Check-Pnpm {
 }
 
 function Check-Launcher {
-    $resolved = Get-Command 'ao' -ErrorAction SilentlyContinue
+    $resolved = Get-Command 'cahi' -ErrorAction SilentlyContinue
     if ($resolved) {
-        Write-Pass "ao launcher resolves to $($resolved.Source)"
+        Write-Pass "cahi launcher resolves to $($resolved.Source)"
         return
     }
-    if ($ScriptLayout -eq 'source-checkout' -and $Fix -and (Get-Command npm -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $RepoRoot 'packages/ao'))) {
-        Push-Location (Join-Path $RepoRoot 'packages/ao')
+    if ($ScriptLayout -eq 'source-checkout' -and $Fix -and (Get-Command npm -ErrorAction SilentlyContinue) -and (Test-Path (Join-Path $RepoRoot 'packages/cahi'))) {
+        Push-Location (Join-Path $RepoRoot 'packages/cahi')
         try {
             $null = & npm link --force 2>&1
-            if ($LASTEXITCODE -eq 0 -and (Get-Command 'ao' -ErrorAction SilentlyContinue)) {
-                Write-Fixed "ao launcher refreshed with npm link --force"
+            if ($LASTEXITCODE -eq 0 -and (Get-Command 'cahi' -ErrorAction SilentlyContinue)) {
+                Write-Fixed "cahi launcher refreshed with npm link --force"
                 return
             }
         } finally { Pop-Location }
-        Write-Warn2 "ao launcher refresh failed. Fix: cd $RepoRoot\packages\ao; npm link --force"
+        Write-Warn2 "cahi launcher refresh failed. Fix: cd $RepoRoot\packages\cahi; npm link --force"
         return
     }
     if ($ScriptLayout -eq 'package-install') {
-        Write-Warn2 "ao launcher is not in PATH. Fix: reinstall with npm install -g @aoagents/ao@latest"
+        Write-Warn2 "cahi launcher is not in PATH. Fix: reinstall with npm install -g @contaazul/cahi@latest"
         return
     }
-    Write-Warn2 "ao launcher is not in PATH. Fix: cd $RepoRoot; pwsh scripts/setup.ps1 (or run npm link --force in packages/ao)"
+    Write-Warn2 "cahi launcher is not in PATH. Fix: cd $RepoRoot; pwsh scripts/setup.ps1 (or run npm link --force in packages/cahi)"
 }
 
 function Check-Tmux {
@@ -232,7 +232,7 @@ function Check-InstallLayout {
         )
         foreach ($c in $checks) {
             $full = Join-Path $RepoRoot $c.Path
-            if (Test-Path $full) { Write-Pass $c.Label } else { Write-Fail "$($c.Label) (missing $full). Fix: reinstall @aoagents/ao" }
+            if (Test-Path $full) { Write-Pass $c.Label } else { Write-Fail "$($c.Label) (missing $full). Fix: reinstall @contaazul/cahi" }
         }
         return
     }
@@ -244,12 +244,12 @@ function Check-InstallLayout {
     if (Test-Path (Join-Path $RepoRoot 'packages/core/dist/index.js')) {
         Write-Pass "core package is built"
     } else {
-        Write-Fail "core package is not built. Fix: run pnpm --filter @aoagents/ao-core build"
+        Write-Fail "core package is not built. Fix: run pnpm --filter @contaazul/cahi-core build"
     }
     if (Test-Path (Join-Path $RepoRoot 'packages/cli/dist/index.js')) {
         Write-Pass "CLI package is built"
     } else {
-        Write-Fail "CLI package is not built. Fix: run pnpm --filter @aoagents/ao-cli build"
+        Write-Fail "CLI package is not built. Fix: run pnpm --filter @contaazul/cahi-cli build"
     }
 }
 
@@ -257,18 +257,18 @@ function Check-RuntimeSanity {
     if ($ScriptLayout -eq 'package-install') {
         $entry = Join-Path $RepoRoot 'dist/index.js'
         if (-not (Test-Path $entry)) {
-            Write-Fail "packaged CLI entrypoint is missing. Fix: reinstall @aoagents/ao"
+            Write-Fail "packaged CLI entrypoint is missing. Fix: reinstall @contaazul/cahi"
             return
         }
         & node $entry --version *> $null
         if ($LASTEXITCODE -eq 0) {
             Write-Pass "packaged CLI runtime sanity check passed (ao --version)"
         } else {
-            Write-Fail "packaged CLI runtime sanity check failed. Fix: reinstall @aoagents/ao"
+            Write-Fail "packaged CLI runtime sanity check failed. Fix: reinstall @contaazul/cahi"
         }
         return
     }
-    $entry = Join-Path $RepoRoot 'packages/ao/bin/ao.js'
+    $entry = Join-Path $RepoRoot 'packages/cahi/bin/cahi.js'
     if (-not (Test-Path $entry)) {
         Write-Fail "launcher entrypoint is missing. Fix: reinstall from a clean checkout"
         return

@@ -1,5 +1,5 @@
 #!/bin/bash
-# try-pr.sh — switch the global 'ao' command to a PR worktree for manual testing
+# try-pr.sh — switch the global 'cahi' command to a PR worktree for manual testing
 #
 # Usage:
 #   bash scripts/try-pr.sh <session-id>            # CLI/core/plugins only (~15s)
@@ -19,7 +19,7 @@ if [ "$1" = "--restore" ]; then
     echo -e "${RED}Nothing to restore — no active try-pr session found.${RESET}"
     exit 1
   fi
-  AO_SHIM=$(which ao)
+  AO_SHIM=$(which cahi)
   # Restore original shim
   if [ -f "$RESTORE_FILE.shim" ]; then
     cp "$RESTORE_FILE.shim" "$AO_SHIM"
@@ -27,7 +27,7 @@ if [ "$1" = "--restore" ]; then
     rm "$RESTORE_FILE.shim"
   fi
   rm "$RESTORE_FILE"
-  echo -e "${GREEN}✔ Done. ao now points to main.${RESET}"
+  echo -e "${GREEN}✔ Done. cahi now points to main.${RESET}"
   exit 0
 fi
 
@@ -66,12 +66,12 @@ if [ "$WITH_WEB" = true ]; then
   pnpm --filter @contaazul/cahi-web build
 fi
 
-# ── link ao ───────────────────────────────────────────────────────────────────
+# ── link cahi ─────────────────────────────────────────────────────────────────
 # Directly update the pnpm shim to point at the worktree's dist/index.js
-AO_SHIM=$(which ao)
+AO_SHIM=$(which cahi)
 AO_TARGET="$WORKTREE/packages/cli/dist/index.js"
 
-echo -e "\n${BOLD}Linking ao${RESET} → $AO_TARGET\n"
+echo -e "\n${BOLD}Linking cahi${RESET} → $AO_TARGET\n"
 
 # Save the original shim so we can restore it
 cp "$AO_SHIM" "$RESTORE_FILE.shim"
@@ -84,14 +84,14 @@ exec node "$AO_TARGET" "\$@"
 EOF
 chmod +x "$AO_SHIM"
 
-echo -e "${GREEN}✔ ao now points to: ${BOLD}$SESSION${RESET}${GREEN} ($BRANCH)${RESET}"
+echo -e "${GREEN}✔ cahi now points to: ${BOLD}$SESSION${RESET}${GREEN} ($BRANCH)${RESET}"
 echo ""
 echo -e "  Test your changes, then restore with:"
 echo -e "  ${CYAN}bash scripts/try-pr.sh --restore${RESET}"
 
 # ── start dashboard if --with-web ──────────────────────────────────────────────
 if [ "$WITH_WEB" = true ]; then
-  # Find a free port starting from 3001 (3000 may be used by the main ao start)
+  # Find a free port starting from 3001 (3000 may be used by the main cahi start)
   PORT=3001
   while lsof -ti ":$PORT" &>/dev/null; do
     PORT=$((PORT + 1))

@@ -44,7 +44,7 @@ if ($SkipSmoke -and $SmokeOnly) {
 $TargetBranch = if ($env:AO_UPDATE_BRANCH) { $env:AO_UPDATE_BRANCH } else { 'main' }
 
 function Test-AoRepoRoot([string]$path) {
-    return (Test-Path (Join-Path $path 'packages/ao/bin/ao.js')) -and
+    return (Test-Path (Join-Path $path 'packages/cahi/bin/cahi.js')) -and
            (Test-Path (Join-Path $path 'packages/cli'))
 }
 
@@ -139,7 +139,7 @@ function Sync-OriginWithUpstream {
 function Run-SmokeTests {
     Write-Host ""
     Write-Host "Running smoke tests..."
-    $aoBin = Join-Path $RepoRoot 'packages/ao/bin/ao.js'
+    $aoBin = Join-Path $RepoRoot 'packages/cahi/bin/cahi.js'
     Run-Cmd node $aoBin --version
     Run-Cmd node $aoBin doctor --help
     Run-Cmd node $aoBin update --help
@@ -202,11 +202,11 @@ if (-not $SmokeOnly) {
 
         Write-Host ""
         Write-Host "Refreshing ao launcher..."
-        Push-Location (Join-Path $RepoRoot 'packages/ao')
+        Push-Location (Join-Path $RepoRoot 'packages/cahi')
         try {
             & npm link --force
             if ($LASTEXITCODE -ne 0) {
-                Write-Error "npm link --force failed. On Windows, retry from an elevated terminal: cd $RepoRoot\packages\ao; npm link --force"
+                Write-Error "npm link --force failed. On Windows, retry from an elevated terminal: cd $RepoRoot\packages\cahi; npm link --force"
                 exit 1
             }
         } finally { Pop-Location }

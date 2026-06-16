@@ -21,7 +21,7 @@ VM_USER="azureuser"
 VM_KEY="$HOME/.ssh/qakeypair.pem"
 VM_REPO_PATH="/srv/ao-preview/manual-qa/$REPO_NAME"
 VM_AO_PATH="/srv/ao-preview/manual-qa/agent-orchestrator"
-AO_BIN="$VM_AO_PATH/packages/ao/node_modules/.bin/ao"
+AO_BIN="$VM_AO_PATH/packages/cahi/node_modules/.bin/cahi"
 
 # ── 1. Create GitHub repo (idempotent) ───────────────────────────────────────
 

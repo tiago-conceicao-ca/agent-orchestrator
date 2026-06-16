@@ -117,7 +117,7 @@ echo "==> Building..."
 pnpm build
 
 echo "==> Restarting AO in tmux session '$TMUX_SESSION'..."
-AO_BIN="$REPO_PATH/packages/ao/node_modules/.bin/ao"
+AO_BIN="$REPO_PATH/packages/cahi/node_modules/.bin/cahi"
 tmux send-keys -t "$TMUX_SESSION:0" "" Enter
 tmux send-keys -t "$TMUX_SESSION:0" "cd $REPO_PATH && $AO_BIN start" Enter
 
