@@ -59,6 +59,15 @@ describe("normalizePlan", () => {
     const repo = epic.tasks.find((t) => t.title === "Repo layer")!;
     expect(repo.model).toBe("opus"); // explicit beats the LOW default (haiku)
   });
+  it("expands each task into graduated lens passes and wires cross-task deps to terminal passes", () => {
+    const epic = normalizePlan(PLAN, { id: "epic-1", title: "X", description: "" });
+    const repo = epic.tasks.find((t) => t.title === "Repo layer")!; // LOW → 3 passes
+    const svc = epic.tasks.find((t) => t.title === "Service layer")!; // MEDIUM → 4 passes
+    expect(repo.passes!.map((p) => p.role)).toEqual(["initial", "correctness", "edge_cases"]);
+    expect(svc.passes!).toHaveLength(4);
+    // Service's initial pass waits for Repo's TERMINAL pass (edge_cases), not its initial.
+    expect(svc.passes![0].waitsFor).toEqual([`${repo.id}__edge_cases`]);
+  });
   it("throws with aggregated messages on an invalid plan", () => {
     const bad = PLAN.replace('depends_on: ["Repo layer"]', 'depends_on: ["Ghost"]');
     expect(() => normalizePlan(bad, { id: "e", title: "X", description: "" })).toThrow(

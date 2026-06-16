@@ -12,6 +12,7 @@ export {
   type PassRole,
   type PassDef,
 } from "./passes/passes-config.js";
+export { expandTaskPasses, passId } from "./passes/expand.js";
 
 // Gates
 export * from "./gates/types.js";
