@@ -4,6 +4,7 @@ import {
   availableRunActions,
   dependsOnTitles,
   filterRunsByProject,
+  isAbandoned,
   lastErrorFromRun,
   planArtifactFromRun,
   taskTotals,
@@ -35,6 +36,36 @@ function makeRunView(id: string, projectId: string): RunView {
     prMode: "per-task",
   };
 }
+
+describe("isAbandoned", () => {
+  function runWith(status: string, message?: string): RunView {
+    const run = makeRunView("run-x", "alpha");
+    return { ...run, status, lastError: message ? { phase: "abandon", message } : null };
+  }
+
+  it("recognizes a run with the abandoned status", () => {
+    expect(isAbandoned(runWith("abandoned"))).toBe(true);
+  });
+
+  it("recognizes a legacy run abandoned under the old code (failed + 'Run abandoned.')", () => {
+    expect(isAbandoned(runWith("failed", "Run abandoned."))).toBe(true);
+  });
+
+  it("recognizes a reconciled run (failed + dead-engine message)", () => {
+    expect(isAbandoned(runWith("failed", "Engine process 12345 is no longer alive."))).toBe(true);
+  });
+
+  it("does not treat a genuine non-abandon failure as abandoned", () => {
+    expect(isAbandoned(runWith("failed", "Lens gate rejected the plan."))).toBe(false);
+    expect(isAbandoned(runWith("failed"))).toBe(false);
+  });
+
+  it("does not treat running/awaiting/completed runs as abandoned", () => {
+    expect(isAbandoned(runWith("running"))).toBe(false);
+    expect(isAbandoned(runWith("awaiting_approval"))).toBe(false);
+    expect(isAbandoned(runWith("completed"))).toBe(false);
+  });
+});
 
 describe("filterRunsByProject", () => {
   const runs = [makeRunView("run-a", "alpha"), makeRunView("run-b", "beta")];
@@ -230,11 +261,14 @@ describe("availableRunActions", () => {
   it("offers abandon while running", () => {
     expect(availableRunActions("running")).toEqual(["abandon"]);
   });
-  it("offers resume for a failed run", () => {
-    expect(availableRunActions("failed")).toEqual(["resume"]);
+  it("offers resume + abandon for a failed run", () => {
+    expect(availableRunActions("failed")).toEqual(["resume", "abandon"]);
   });
-  it("offers no run-level actions for a completed run", () => {
-    expect(availableRunActions("completed")).toEqual([]);
+  it("offers abandon for a completed run (to dismiss it)", () => {
+    expect(availableRunActions("completed")).toEqual(["abandon"]);
+  });
+  it("offers no run-level actions for an already-abandoned run", () => {
+    expect(availableRunActions("abandoned")).toEqual([]);
   });
 });
 

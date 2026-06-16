@@ -236,6 +236,29 @@ describe("SdlcDashboard", () => {
     expect(screen.queryByText("run-abandoned")).not.toBeInTheDocument();
   });
 
+  it("hides legacy abandoned runs (failed + abandon lastError) but keeps genuine failures", async () => {
+    mockRunsFetch([
+      makeRun({ id: "run-1", status: "running", pendingApproval: null }),
+      makeRun({
+        id: "run-legacy-abandoned",
+        status: "failed",
+        pendingApproval: null,
+        lastError: { phase: "abandon", message: "Run abandoned." },
+      }),
+      makeRun({
+        id: "run-real-failure",
+        status: "failed",
+        pendingApproval: null,
+        lastError: { phase: "normalize-plan", message: "Lens gate rejected the plan." },
+      }),
+    ]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    expect(screen.queryByText("run-legacy-abandoned")).not.toBeInTheDocument();
+    expect(screen.getByText("run-real-failure")).toBeInTheDocument();
+  });
+
   it("scopes runs to the active project", async () => {
     mockRunsFetch([
       makeRun({ id: "run-1", projectId: "my-app" }),

@@ -19,18 +19,23 @@ function notFound(runId: string): RunActionResult {
   return { ok: false, status: 404, message: `Run '${runId}' not found.` };
 }
 
-/** Mark an in-progress run terminal. Invalid once the run is already terminal. */
+/**
+ * Mark a run abandoned. Valid for any run that isn't already abandoned —
+ * abandoning a terminal failed/completed run dismisses it from the list (the
+ * engine sets `abandoned` from any state). Only an already-abandoned run is a
+ * no-op (409).
+ */
 export async function handleAbandon(
   engine: WorkflowEngine,
   runId: string,
 ): Promise<RunActionResult> {
   const run = await engine.load(runId);
   if (!run) return notFound(runId);
-  if (run.status === "completed" || run.status === "failed" || run.status === "abandoned")
+  if (run.status === "abandoned")
     return {
       ok: false,
       status: 409,
-      message: `Run is '${run.status}'; only an in-progress run can be abandoned.`,
+      message: "Run is already abandoned.",
     };
   const updated = await engine.abandon(runId);
   return { ok: true, status: 200, message: "Run abandoned.", run: updated };
