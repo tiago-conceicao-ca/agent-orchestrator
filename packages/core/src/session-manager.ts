@@ -1375,12 +1375,19 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
               .slice(0, 60)
               .replace(/^-+|-+$/g, "");
         branch = `feat/${slug || sessionId}`;
+      } else if (spawnConfig.worktreeKey) {
+        // SDLC shared worktree: all of a logical task's passes share ONE branch
+        // (keyed by the task) so later passes attach to the same checkout.
+        branch = `sdlc/${spawnConfig.worktreeKey}`;
       } else {
         branch = `session/${sessionId}`;
       }
 
       // Create workspace (if workspace plugin is available)
       let workspacePath = project.path;
+      // SDLC-only: a session that ATTACHED to a shared worktree does not own it;
+      // its kill must not destroy the checkout a sibling pass is still using.
+      let workspaceReused = false;
       if (plugins.workspace) {
         const wsInfo = await plugins.workspace.create({
           projectId: spawnConfig.projectId,
@@ -1388,16 +1395,24 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
           sessionId,
           branch,
           worktreeDir: getProjectWorktreesDir(spawnConfig.projectId),
+          worktreeKey: spawnConfig.worktreeKey,
         });
         workspacePath = wsInfo.path;
-        // Only register destroy when the path is inside a managed root —
-        // matches the prior shouldDestroyWorkspacePath gate so we never
-        // destroy a user-owned project directory.
-        if (shouldDestroyWorkspacePath(project, spawnConfig.projectId, workspacePath)) {
+        workspaceReused = wsInfo.reused === true;
+        // Only register destroy when the path is inside a managed root AND this
+        // session actually created it (not an attach to a shared worktree) —
+        // matches the prior shouldDestroyWorkspacePath gate so we never destroy a
+        // user-owned project directory or a worktree a sibling pass owns.
+        if (
+          !workspaceReused &&
+          shouldDestroyWorkspacePath(project, spawnConfig.projectId, workspacePath)
+        ) {
           const ws = plugins.workspace;
           cleanupStack.push(() => ws.destroy(workspacePath));
         }
-        if (plugins.workspace.postCreate) {
+        // postCreate (symlinks/installs) ran when the worktree was first created;
+        // an attaching pass reuses it as-is and must not re-run those hooks.
+        if (plugins.workspace.postCreate && !workspaceReused) {
           await plugins.workspace.postCreate(wsInfo, project);
         }
       }
@@ -1582,6 +1597,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       writeMetadata(sessionsDir, sessionId, {
         worktree: workspacePath,
         branch,
+        ...(workspaceReused ? { worktreeShared: "true" } : {}),
         status: deriveLegacyStatus(lifecycle),
         ...buildLifecycleMetadataPatch(lifecycle),
         // Override stringified lifecycle/runtimeHandle from the patch
@@ -1645,7 +1661,9 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       // what lets a globally-registered sibling resolve even when AO was started
       // from a single-project local config.
       const siblingCatalog = loadGlobalProjectCatalog();
-      const configuredSiblings = (project.siblings ?? []).filter((entry) => {
+      // An attaching SDLC pass reuses the worktree (+ adjacency) the owning pass
+      // already assembled — don't re-mount siblings into a shared checkout.
+      const configuredSiblings = (workspaceReused ? [] : (project.siblings ?? [])).filter((entry) => {
         const source = resolveSiblingSource(entry, siblingCatalog);
         if (!source) {
           // SKIP + WARN + SURFACE: a genuinely unresolvable configured sibling
@@ -2656,7 +2674,11 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     }
 
     const worktree = raw["worktree"];
-    if (worktree && shouldDestroyWorkspacePath(project, projectId, worktree)) {
+    // A session that attached to a shared SDLC worktree does not own it — never
+    // destroy the checkout a sibling pass still needs (the owning session's kill
+    // / cleanup is the only one that tears the shared worktree down).
+    const sharedWorktree = raw["worktreeShared"] === "true";
+    if (worktree && !sharedWorktree && shouldDestroyWorkspacePath(project, projectId, worktree)) {
       const workspacePlugin = project
         ? resolvePlugins(project).workspace
         : registry.get<Workspace>("workspace", config.defaults.workspace);

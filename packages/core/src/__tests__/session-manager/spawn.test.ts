@@ -82,6 +82,46 @@ describe("spawn", () => {
     expect(mockRuntime.create).toHaveBeenCalled();
   });
 
+  it("regression: a normal (non-SDLC) spawn does not request a shared worktree", async () => {
+    const sm = createSessionManager({ config, registry: mockRegistry });
+
+    await sm.spawn({ projectId: "my-app" });
+
+    // worktreeKey is undefined → the default one-worktree-per-session path.
+    expect(mockWorkspace.create).toHaveBeenCalledWith(
+      expect.objectContaining({ worktreeKey: undefined, branch: "session/app-1" }),
+    );
+    // No shared-worktree flag leaks into a normal spawn's metadata.
+    const raw = readMetadataRaw(sessionsDir, "app-1");
+    expect(raw?.["worktreeShared"]).toBeUndefined();
+  });
+
+  it("SDLC spawn forwards worktreeKey and keys the branch by the logical task", async () => {
+    const sm = createSessionManager({ config, registry: mockRegistry });
+
+    await sm.spawn({ projectId: "my-app", worktreeKey: "epic1__task" });
+
+    expect(mockWorkspace.create).toHaveBeenCalledWith(
+      expect.objectContaining({ worktreeKey: "epic1__task", branch: "sdlc/epic1__task" }),
+    );
+  });
+
+  it("marks an ATTACHED (reused) shared worktree so kill won't destroy it", async () => {
+    (mockWorkspace.create as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      path: "/tmp/ws-shared",
+      branch: "sdlc/epic1__task",
+      sessionId: "app-1",
+      projectId: "my-app",
+      reused: true,
+    });
+    const sm = createSessionManager({ config, registry: mockRegistry });
+
+    await sm.spawn({ projectId: "my-app", worktreeKey: "epic1__task" });
+
+    const raw = readMetadataRaw(sessionsDir, "app-1");
+    expect(raw?.["worktreeShared"]).toBe("true");
+  });
+
   it("forwards AO_AGENT_GH_TRACE into spawned agent runtime env when configured", async () => {
     const previousTrace = process.env["AO_AGENT_GH_TRACE"];
     process.env["AO_AGENT_GH_TRACE"] = "/tmp/agent-gh-trace-test.jsonl";

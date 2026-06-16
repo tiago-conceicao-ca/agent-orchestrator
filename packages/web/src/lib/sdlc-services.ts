@@ -36,6 +36,8 @@ const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
 // auto-retry (configurable via AO_SDLC_STALL_THRESHOLD_MS).
 const TASK_STALL_THRESHOLD_MS =
   Number(process.env.AO_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
+// Dependency-parallel slot cap for the generate-backend scheduler.
+const SDLC_MAX_CONCURRENT = Number(process.env.AO_SDLC_MAX_CONCURRENT) || 3;
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -97,11 +99,13 @@ export async function buildWebSdlcEngine(
     sdlcTaskId: string;
     metadata: Record<string, string>;
     model?: string;
+    worktreeKey?: string;
   }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await sessionManager.spawn({
       projectId: cfg.projectId,
       prompt: cfg.prompt,
       model: cfg.model,
+      worktreeKey: cfg.worktreeKey,
     });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
@@ -162,6 +166,7 @@ export async function buildWebSdlcEngine(
         spawn,
         waitForDone,
         projectId: resolved,
+        maxConcurrent: SDLC_MAX_CONCURRENT,
       }),
     },
     gates: {

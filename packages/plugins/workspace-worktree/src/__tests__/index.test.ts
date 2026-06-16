@@ -711,6 +711,80 @@ describe("workspace.create()", () => {
   });
 });
 
+describe("workspace.create() — SDLC shared worktree (worktreeKey)", () => {
+  it("regression: a normal spawn (no worktreeKey) keys the worktree by sessionId and never reuses", async () => {
+    const ws = create();
+
+    mockOriginRemote();
+    mockGitSuccess(""); // git rev-parse --verify --quiet origin/main
+    mockGitSuccess(""); // worktree add
+
+    const info = await ws.create(makeCreateConfig({ sessionId: "session-9" }));
+
+    // Default path is unchanged: dir keyed by sessionId, reused stays unset, and
+    // a fresh `worktree add` runs (no attach short-circuit).
+    expect(info.path).toBe("/mock-home/.worktrees/myproject/session-9");
+    expect(info.reused).toBeUndefined();
+    const calls = mockExecFileAsync.mock.calls.map((c) => c[1] as string[]);
+    expect(calls.some((args) => args[0] === "worktree" && args[1] === "add")).toBe(true);
+  });
+
+  it("attaches (reused:true) to an existing registered worktree keyed by worktreeKey", async () => {
+    const ws = create();
+    mockExistsSync.mockReturnValue(true);
+    // isRegisteredWorktree → git worktree list --porcelain lists the shared path.
+    mockGitSuccess(
+      "worktree /mock-home/.worktrees/myproject/epic1__task\nbranch refs/heads/sdlc/epic1__task",
+    );
+
+    const info = await ws.create(
+      makeCreateConfig({
+        worktreeKey: "epic1__task",
+        branch: "sdlc/epic1__task",
+        sessionId: "ao-5",
+      }),
+    );
+
+    expect(info.reused).toBe(true);
+    // Path is keyed by the logical task, NOT the per-pass sessionId.
+    expect(info.path).toBe("/mock-home/.worktrees/myproject/epic1__task");
+    expect(info.sessionId).toBe("ao-5");
+    expect(info.branch).toBe("sdlc/epic1__task");
+    // Attach short-circuits: no `worktree add`, no stale-path teardown.
+    const calls = mockExecFileAsync.mock.calls.map((c) => c[1] as string[]);
+    expect(calls.some((args) => args[0] === "worktree" && args[1] === "add")).toBe(false);
+  });
+
+  it("creates a fresh worktree (no reuse) when the keyed worktree does not yet exist", async () => {
+    const ws = create();
+    // First pass: the keyed worktree does not exist yet on disk.
+    mockExistsSync.mockReturnValue(false);
+    mockOriginRemote();
+    mockGitSuccess(""); // rev-parse origin/main
+    mockGitSuccess(""); // worktree add -b
+
+    const info = await ws.create(
+      makeCreateConfig({
+        worktreeKey: "epic1__task",
+        branch: "sdlc/epic1__task",
+        sessionId: "ao-4",
+      }),
+    );
+
+    expect(info.reused).toBeUndefined();
+    expect(info.path).toBe("/mock-home/.worktrees/myproject/epic1__task");
+    const calls = mockExecFileAsync.mock.calls.map((c) => c[1] as string[]);
+    expect(calls.some((args) => args[0] === "worktree" && args[1] === "add")).toBe(true);
+  });
+
+  it("rejects a worktreeKey with unsafe path characters", async () => {
+    const ws = create();
+    await expect(
+      ws.create(makeCreateConfig({ worktreeKey: "../escape" })),
+    ).rejects.toThrow(/worktreeKey/);
+  });
+});
+
 describe("workspace.restore()", () => {
   it("prefers origin branch refs when origin exists", async () => {
     const ws = create();

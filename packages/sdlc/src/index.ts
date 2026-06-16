@@ -37,12 +37,16 @@ export {
   makeGenerateBackendExecutor,
   previewTaskPrompt,
   taskCompletionDirective,
+  reviewPassCompletionDirective,
+  buildPassPrompt,
   sharedEpicBranch,
   GERAR_BACKEND_INSTRUCTION,
   TASK_MAX_ATTEMPTS,
+  DEFAULT_MAX_CONCURRENT,
   type SpawnFn,
   type SpawnConfig,
   type WaitForDoneFn,
+  type GenerateBackendDeps,
 } from "./phases/generate-backend.js";
 export { makeInputAdapter, type PlanWriteRunner } from "./phases/input-adapter.js";
 

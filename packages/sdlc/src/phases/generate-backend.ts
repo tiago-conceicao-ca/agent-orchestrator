@@ -1,6 +1,7 @@
 import type { PhaseExecutor, PhaseContext, PhaseResult, PrMode } from "../workflow/types.js";
-import type { Epic, WorkflowTask } from "../plan/types.js";
+import type { Epic, TaskPass, WorkflowTask } from "../plan/types.js";
 import { taskDoneSentinelInstruction } from "../runner/task-sentinel.js";
+import { loadPromptTemplate } from "../gates/lens-gate.js";
 import type { TaskOutcome } from "../runner/wait-for-done.js";
 
 export interface SpawnConfig {
@@ -10,6 +11,12 @@ export interface SpawnConfig {
   metadata: Record<string, string>;
   /** Per-task model alias (`claude --model`); undefined falls back to the project model. */
   model?: string;
+  /**
+   * SDLC-only: share ONE worktree across a logical task's sequential lens passes.
+   * The first pass creates the worktree; later passes attach to it. Undefined =
+   * the legacy one-worktree-per-session path (a task without expanded passes).
+   */
+  worktreeKey?: string;
 }
 export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
 /**
@@ -23,8 +30,11 @@ export type WaitForDoneFn = (
   workspacePath?: string,
 ) => Promise<TaskOutcome>;
 
-/** Worker spawns per task before giving up: the initial attempt + one auto-retry. */
+/** Worker spawns per task/pass before giving up: the initial attempt + one auto-retry. */
 export const TASK_MAX_ATTEMPTS = 2;
+
+/** Default dependency-parallel slot cap (logical tasks run concurrently up to this). */
+export const DEFAULT_MAX_CONCURRENT = 3;
 
 export interface GenerateBackendDeps {
   spawn: SpawnFn; // wraps SessionManager.spawn (Task 16 wires the real one)
@@ -36,9 +46,15 @@ export interface GenerateBackendDeps {
    * instruction so it needn't satisfy that skill's workspace prerequisites.
    */
   buildTaskPrompt?: (task: WorkflowTask) => string;
+  /**
+   * Dependency-parallel slot cap. Dependency-ready logical tasks run
+   * concurrently up to this many at a time; completing a task unblocks its
+   * dependents. Defaults to {@link DEFAULT_MAX_CONCURRENT}.
+   */
+  maxConcurrent?: number;
 }
 
-/** Kahn topological order over the epic's blocking edges. */
+/** Kahn topological order over the epic's blocking edges (also rejects cycles). */
 function topoOrder(epic: Epic): WorkflowTask[] {
   const byId = new Map(epic.tasks.map((t) => [t.id, t]));
   const inDeg = new Map(epic.tasks.map((t) => [t.id, 0]));
@@ -88,6 +104,20 @@ export function taskCompletionDirective(prMode: PrMode, epicBranch?: string): st
 }
 
 /**
+ * Completion directive for a REVIEW pass (correctness/edge_cases/…). The initial
+ * pass already opened the PR (or pushed the shared branch); a review pass commits
+ * its fixes onto the SAME branch in the shared worktree and signals via the
+ * sentinel — it never opens a second PR.
+ */
+export function reviewPassCompletionDirective(): string {
+  return [
+    `When done, commit your fixes and push them to the CURRENT branch (the implementation ` +
+      `pass already opened the PR / pushed the branch — do NOT open another).`,
+    taskDoneSentinelInstruction({ withPr: false }),
+  ].join("\n\n");
+}
+
+/**
  * Pure render of the per-task agent prompt. This is the single source of truth
  * for what the generate-backend executor dispatches to a spawned session, reused
  * by the dashboard to show a read-only preview of the exact prompt per task.
@@ -110,6 +140,31 @@ export function previewTaskPrompt(
   ].join("\n\n");
 }
 
+/**
+ * Render the prompt for one lens pass of a logical task. The `initial` pass uses
+ * the task's implementation prompt; each review pass loads its lens template,
+ * substitutes the shared worktree path for `{artifact}` (the diff it reviews),
+ * and appends the task context + a review-pass completion directive.
+ */
+export function buildPassPrompt(
+  task: WorkflowTask,
+  pass: TaskPass,
+  sharedWorkspacePath: string | undefined,
+  implPromptFor: (task: WorkflowTask) => string,
+): string {
+  if (pass.role === "initial") return implPromptFor(task);
+  const artifact = sharedWorkspacePath ?? "your current worktree";
+  const lensBody = loadPromptTemplate(pass.template).replace("{artifact}", artifact);
+  const ac = task.acceptanceCriteria.map((c) => `- ${c}`).join("\n");
+  return [
+    lensBody,
+    `Task under review: ${task.title}`,
+    `Summary: ${task.summary}`,
+    `Acceptance criteria:\n${ac}`,
+    reviewPassCompletionDirective(),
+  ].join("\n\n");
+}
+
 /** Resolve the per-task prompt builder from PR mode (+ optional custom override). */
 function makePromptFor(deps: GenerateBackendDeps, epic: Epic, prMode: PrMode) {
   const epicBranch = prMode === "shared" ? sharedEpicBranch(epic.id) : undefined;
@@ -119,47 +174,190 @@ function makePromptFor(deps: GenerateBackendDeps, epic: Epic, prMode: PrMode) {
 }
 
 /**
- * Spawn one task's worker and wait for completion, auto-retrying ONCE on a stall.
- * Records per-task attempt/stall progress; throws (task → blocked) on failure or
- * a stall that survives the retry. Returns the worker's workspace path, if any.
+ * Spawn one worker (a legacy single-shot task OR one lens pass) and wait for
+ * completion, auto-retrying ONCE on a stall. Returns the worker's workspace
+ * path; throws on failure or a stall that survives the retry. `worktreeKey`,
+ * when set, makes the spawn SHARE a logical task's worktree across its passes.
+ * `onAttempt` records per-attempt progress for the caller (task-level kanban).
  */
-async function runTaskWithRetry(
+async function dispatchWithRetry(
+  deps: GenerateBackendDeps,
+  ctx: PhaseContext,
+  args: {
+    sdlcTaskId: string;
+    title: string;
+    prompt: string;
+    model?: string;
+    worktreeKey?: string;
+    label: string;
+  },
+  onAttempt?: (attempt: number, stalled: boolean) => Promise<void>,
+): Promise<{ workspacePath?: string }> {
+  let lastWorkspace: string | undefined;
+  for (let attempt = 1; attempt <= TASK_MAX_ATTEMPTS; attempt++) {
+    const { id: sessionId, workspacePath } = await deps.spawn({
+      projectId: deps.projectId,
+      prompt: args.prompt,
+      sdlcTaskId: args.sdlcTaskId,
+      metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: args.sdlcTaskId, sdlcPhase: "generate-backend" },
+      model: args.model,
+      worktreeKey: args.worktreeKey,
+    });
+    lastWorkspace = workspacePath ?? lastWorkspace;
+    const outcome: TaskOutcome = await deps.waitForDone(sessionId, workspacePath);
+
+    if (outcome === "done") {
+      await onAttempt?.(attempt, false);
+      return { workspacePath: workspacePath ?? lastWorkspace };
+    }
+
+    const canRetry = outcome === "stalled" && attempt < TASK_MAX_ATTEMPTS;
+    await onAttempt?.(attempt, outcome === "stalled");
+    if (canRetry) {
+      ctx.log(`${args.label} stalled (attempt ${attempt}); auto-retrying.`);
+      continue;
+    }
+    const why = outcome === "stalled" ? "stalled after auto-retry" : "failed";
+    throw new Error(`${args.label} ${why} during backend generation.`);
+  }
+  // Unreachable: the loop always returns or throws.
+  return { workspacePath: lastWorkspace };
+}
+
+/**
+ * Run one LOGICAL task to completion. A task with expanded `passes` runs its
+ * lens passes SEQUENTIALLY, sharing ONE worktree (keyed by the task id) so each
+ * review pass reviews the prior pass's diff in place. A task without passes
+ * (back-compat / trivial epics) runs the legacy single-shot worker path,
+ * untouched (no worktreeKey → one isolated worktree per session). On failure the
+ * task is marked blocked and the error propagates to the scheduler.
+ */
+async function runLogicalTask(
   deps: GenerateBackendDeps,
   ctx: PhaseContext,
   task: WorkflowTask,
   promptFor: (task: WorkflowTask) => string,
 ): Promise<{ workspacePath?: string }> {
-  let lastWorkspace: string | undefined;
-  for (let attempt = 1; attempt <= TASK_MAX_ATTEMPTS; attempt++) {
-    await ctx.setTaskStatus(task.id, "in_progress");
-    const { id: sessionId, workspacePath } = await deps.spawn({
-      projectId: deps.projectId,
-      prompt: promptFor(task),
-      sdlcTaskId: task.id,
-      metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
-      model: task.model,
-    });
-    lastWorkspace = workspacePath;
-    const outcome: TaskOutcome = await deps.waitForDone(sessionId, workspacePath);
+  await ctx.setTaskStatus(task.id, "in_progress");
 
-    if (outcome === "done") {
-      await ctx.setTaskProgress(task.id, { attempts: attempt, stalled: false });
+  // Legacy single-shot path (no expanded passes) — byte-identical to before.
+  if (!task.passes || task.passes.length === 0) {
+    try {
+      const { workspacePath } = await dispatchWithRetry(
+        deps,
+        ctx,
+        { sdlcTaskId: task.id, title: task.title, prompt: promptFor(task), model: task.model, label: `Task '${task.title}'` },
+        (attempts, stalled) => ctx.setTaskProgress(task.id, { attempts, stalled }),
+      );
       await ctx.setTaskStatus(task.id, "done");
       return { workspacePath };
+    } catch (e) {
+      await ctx.setTaskStatus(task.id, "blocked");
+      throw e;
     }
-
-    const canRetry = outcome === "stalled" && attempt < TASK_MAX_ATTEMPTS;
-    await ctx.setTaskProgress(task.id, { attempts: attempt, stalled: outcome === "stalled" });
-    if (canRetry) {
-      ctx.log(`Task '${task.title}' stalled (attempt ${attempt}); auto-retrying.`);
-      continue;
-    }
-    await ctx.setTaskStatus(task.id, "blocked");
-    const why = outcome === "stalled" ? "stalled after auto-retry" : "failed";
-    throw new Error(`Task '${task.title}' ${why} during backend generation.`);
   }
-  // Unreachable: the loop always returns or throws.
-  return { workspacePath: lastWorkspace };
+
+  // Graduated lens passes: serialize, sharing the task's worktree.
+  let sharedWorkspace: string | undefined;
+  try {
+    for (const pass of task.passes) {
+      const prompt = buildPassPrompt(task, pass, sharedWorkspace, promptFor);
+      const { workspacePath } = await dispatchWithRetry(deps, ctx, {
+        sdlcTaskId: task.id,
+        title: task.title,
+        prompt,
+        model: pass.model,
+        worktreeKey: task.id,
+        label: `Task '${task.title}' pass '${pass.role}'`,
+      });
+      sharedWorkspace = workspacePath ?? sharedWorkspace;
+    }
+    // Record one attempt entry at the task level (passes succeeded).
+    await ctx.setTaskProgress(task.id, { attempts: 1, stalled: false });
+    await ctx.setTaskStatus(task.id, "done");
+    return { workspacePath: sharedWorkspace };
+  } catch (e) {
+    await ctx.setTaskStatus(task.id, "blocked");
+    throw e;
+  }
+}
+
+/**
+ * Dependency-parallel slot scheduler (taskmaster `dispatch_ready_tasks`):
+ * dependency-ready logical tasks run concurrently up to a bounded cap; a
+ * completing task unblocks its dependents. A failed task isolates its dependents
+ * (they never become ready) while independent tasks keep running; the first
+ * failure is rethrown once the in-flight work drains. Tasks already `done`
+ * (resume) are treated as completed up-front.
+ */
+async function runScheduler(
+  deps: GenerateBackendDeps,
+  ctx: PhaseContext,
+  epic: Epic,
+  promptFor: (task: WorkflowTask) => string,
+): Promise<string[]> {
+  topoOrder(epic); // reject cycles before scheduling anything
+
+  const tasks = epic.tasks;
+  const byId = new Map(tasks.map((t) => [t.id, t]));
+  const indeg = new Map<string, number>(tasks.map((t) => [t.id, 0]));
+  const dependents = new Map<string, string[]>(tasks.map((t) => [t.id, []]));
+  for (const d of epic.dependencies) {
+    if (!byId.has(d.taskId) || !byId.has(d.dependsOnTaskId)) continue;
+    indeg.set(d.taskId, (indeg.get(d.taskId) ?? 0) + 1);
+    dependents.get(d.dependsOnTaskId)!.push(d.taskId);
+  }
+
+  const done = new Set<string>();
+  const failed = new Set<string>();
+  const scheduled = new Set<string>();
+  const inFlight = new Map<string, Promise<void>>();
+  const workspacePaths: string[] = [];
+  let firstError: Error | undefined;
+
+  const complete = (id: string, workspacePath?: string) => {
+    done.add(id);
+    if (workspacePath) workspacePaths.push(workspacePath);
+    for (const dep of dependents.get(id) ?? []) indeg.set(dep, (indeg.get(dep) ?? 1) - 1);
+  };
+
+  // Resume: a task a prior run already finished is complete; unblock dependents.
+  for (const t of tasks) {
+    if (ctx.run.taskStatus[t.id] === "done") {
+      scheduled.add(t.id);
+      complete(t.id);
+    }
+  }
+
+  const cap = Math.max(1, deps.maxConcurrent ?? DEFAULT_MAX_CONCURRENT);
+
+  const fill = () => {
+    for (const t of tasks) {
+      if (inFlight.size >= cap) break;
+      if (scheduled.has(t.id) || done.has(t.id) || failed.has(t.id)) continue;
+      if ((indeg.get(t.id) ?? 0) !== 0) continue; // deps not all done → still blocked
+      scheduled.add(t.id);
+      const p = runLogicalTask(deps, ctx, t, promptFor)
+        .then((r) => complete(t.id, r.workspacePath))
+        .catch((err: unknown) => {
+          failed.add(t.id);
+          if (!firstError) firstError = err instanceof Error ? err : new Error(String(err));
+        })
+        .finally(() => {
+          inFlight.delete(t.id);
+        });
+      inFlight.set(t.id, p);
+    }
+  };
+
+  for (;;) {
+    fill();
+    if (inFlight.size === 0) break;
+    await Promise.race([...inFlight.values()]);
+  }
+
+  if (firstError) throw firstError;
+  return workspacePaths;
 }
 
 export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExecutor {
@@ -172,14 +370,7 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
       // sentinel. A custom buildTaskPrompt (e.g. the smoke) overrides verbatim.
       const prMode: PrMode = ctx.run.prMode ?? "per-task";
       const promptFor = makePromptFor(deps, ctx.epic, prMode);
-      const order = topoOrder(ctx.epic);
-      const workspacePaths: string[] = [];
-      for (const task of order) {
-        // Resume: skip tasks a prior run already completed.
-        if (ctx.run.taskStatus[task.id] === "done") continue;
-        const { workspacePath } = await runTaskWithRetry(deps, ctx, task, promptFor);
-        if (workspacePath) workspacePaths.push(workspacePath);
-      }
+      const workspacePaths = await runScheduler(deps, ctx, ctx.epic, promptFor);
       // Real artifact for the eval gate: the spawned task worktree path(s), one
       // per line. Falls back to an epic ref when no workspace path is available.
       return { artifactRef: workspacePaths.length ? workspacePaths.join("\n") : `epic:${ctx.epic.id}` };
@@ -190,7 +381,7 @@ export function makeGenerateBackendExecutor(deps: GenerateBackendDeps): PhaseExe
       if (!task) throw new Error(`Task '${taskId}' not found in epic '${ctx.epic.id}'.`);
       const prMode: PrMode = ctx.run.prMode ?? "per-task";
       const promptFor = makePromptFor(deps, ctx.epic, prMode);
-      await runTaskWithRetry(deps, ctx, task, promptFor);
+      await runLogicalTask(deps, ctx, task, promptFor);
     },
   };
 }

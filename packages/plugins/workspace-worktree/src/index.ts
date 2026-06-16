@@ -330,9 +330,34 @@ export function create(config?: Record<string, unknown>): Workspace {
       const projectWorktreeDir = cfg.worktreeDir
         ? effectiveBaseDir
         : join(effectiveBaseDir, cfg.projectId);
-      const worktreePath = join(projectWorktreeDir, cfg.sessionId);
+      // SDLC-only: a shared worktree is keyed by worktreeKey (a logical task's
+      // passes share it); a normal spawn keys by sessionId (one per session).
+      const worktreeId = cfg.worktreeKey ?? cfg.sessionId;
+      if (cfg.worktreeKey) assertSafePathSegment(cfg.worktreeKey, "worktreeKey");
+      const worktreePath = join(projectWorktreeDir, worktreeId);
 
       mkdirSync(projectWorktreeDir, { recursive: true });
+
+      // Shared-worktree ATTACH: a later pass of the same logical task reuses the
+      // worktree the first pass already created (same dir + branch). Returning
+      // reused:true tells the session-manager this session does not own the
+      // checkout, so its kill must not destroy the shared work. Only the keyed,
+      // already-registered case attaches; everything else falls through to the
+      // normal create path (so the default per-session behavior is untouched).
+      if (
+        cfg.worktreeKey &&
+        existsSync(worktreePath) &&
+        (await isRegisteredWorktree(repoPath, worktreePath))
+      ) {
+        return {
+          path: worktreePath,
+          branch: cfg.branch,
+          sessionId: cfg.sessionId,
+          projectId: cfg.projectId,
+          reused: true,
+        };
+      }
+
       await clearStaleWorktreePath(repoPath, worktreePath);
 
       const hasOrigin = await hasOriginRemote(repoPath);

@@ -51,6 +51,7 @@ interface SdlcSessionManager {
     projectId: string;
     prompt: string;
     model?: string;
+    worktreeKey?: string;
   }): Promise<{ id: string; workspacePath?: string | null }>;
   get(id: string): Promise<Session | null>;
   kill(id: string): Promise<unknown>;
@@ -128,11 +129,13 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     sdlcTaskId: string;
     metadata: Record<string, string>;
     model?: string;
+    worktreeKey?: string;
   }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await deps.sessionManager.spawn({
       projectId: cfg.projectId,
       prompt: cfg.prompt,
       model: cfg.model,
+      worktreeKey: cfg.worktreeKey,
     });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
@@ -163,6 +166,7 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
       waitForDone,
       projectId: deps.projectId,
       buildTaskPrompt: deps.buildTaskPrompt,
+      maxConcurrent: Number(process.env.AO_SDLC_MAX_CONCURRENT) || 3,
     }),
   };
 
