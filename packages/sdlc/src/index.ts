@@ -2,6 +2,17 @@
 export * from "./plan/types.js";
 export { normalizePlan, extractTaskSectionNames } from "./plan/normalizer.js";
 
+// Graduated lens-pass config (taskmaster implement.passes + complexity gating)
+export {
+  PASS_ROLES,
+  PASS_DEFS,
+  COMPLEXITY_PASSES,
+  passesForComplexity,
+  isReviewPass,
+  type PassRole,
+  type PassDef,
+} from "./passes/passes-config.js";
+
 // Gates
 export * from "./gates/types.js";
 export { makeLensGate, loadLensPrompt, type AgentRunner, type LensName } from "./gates/lens-gate.js";
