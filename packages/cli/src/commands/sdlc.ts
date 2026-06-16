@@ -422,9 +422,10 @@ export function registerSdlc(program: Command): void {
     .option("-p, --project <id>", "project id the run belongs to")
     .action(async (runId: string, opts: { project?: string }) => {
       try {
-        const { store } = await buildLiveEngine(opts.project);
-        const run = await store.load(runId);
-        if (!run) throw new Error(`Run not found: ${runId}`);
+        const { engine, store } = await buildLiveEngine(opts.project);
+        if (!(await store.load(runId))) throw new Error(`Run not found: ${runId}`);
+        // Reconcile a run whose driving engine process has died (stale running).
+        const run = await engine.reconcile(runId);
         printRun(run);
         if (run.lastError) {
           console.log(

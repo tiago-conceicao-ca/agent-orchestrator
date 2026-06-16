@@ -88,7 +88,7 @@ describe("WorkflowEngine", () => {
     expect((await eng.load(b.id))?.prMode).toBe("shared");
   });
 
-  it("marks the run failed when a gate returns needs_fixes", async () => {
+  it("marks the run failed when a gate returns needs_fixes and surfaces lastError", async () => {
     const def: WorkflowDefinition = {
       name: "w",
       phases: [{ id: "p1", executor: "p1", gates: ["tactical"], humanGate: false }],
@@ -98,6 +98,31 @@ describe("WorkflowEngine", () => {
     const s = await eng.load(run.id);
     expect(s?.status).toBe("failed");
     expect(s?.verdicts[0].verdict).toBe("needs_fixes");
+    expect(s?.lastError?.phase).toBe("p1");
+    expect(s?.lastError?.message).toMatch(/tactical/);
+  });
+
+  it("records lastError when an executor throws (no silent failure)", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const boomExec: PhaseExecutor = {
+      id: "p1",
+      run: async () => {
+        throw new Error("executor boom");
+      },
+    };
+    const eng = new WorkflowEngine({
+      store: new RunStore(dir),
+      definitions: { w: def },
+      executors: { p1: boomExec },
+      gates: {},
+    });
+    await expect(eng.start("w", "epic-1", "input")).rejects.toThrow(/executor boom/);
+    const runs = await new RunStore(dir).list();
+    expect(runs[0].status).toBe("failed");
+    expect(runs[0].lastError).toEqual({ phase: "p1", message: "executor boom" });
   });
 
   it("gives each run a unique id so re-running the same plan does not overwrite", async () => {
@@ -123,6 +148,7 @@ describe("WorkflowEngine", () => {
     expect(runs).toHaveLength(1);
     expect(runs[0].status).toBe("failed");
     expect(runs[0].phaseStates["p1"]).toBe("failed");
+    expect(runs[0].lastError).toEqual({ phase: "p1", message: "gate boom" });
   });
 });
 
@@ -217,6 +243,59 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     const run = await engine.retryTask("run-y", "b");
     expect(spawns).toEqual(["b"]); // only task b re-spawned
     expect(run.taskStatus["b"]).toBe("done");
+  });
+
+  it("reconcile marks a running run with a dead engine pid as failed", async () => {
+    const store = new RunStore(dir);
+    const engine = new WorkflowEngine({
+      store,
+      definitions: { w: { name: "w", phases: [] } },
+      executors: {},
+      gates: {},
+      isPidAlive: () => false, // engine process is gone
+    });
+    await store.save({
+      id: "run-dead",
+      workflow: "w",
+      epicId: "e",
+      status: "running",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      enginePid: 999999,
+    });
+    const run = await engine.reconcile("run-dead");
+    expect(run.status).toBe("failed");
+    expect(run.lastError?.message).toMatch(/no longer alive/);
+  });
+
+  it("reconcile leaves a run alone when its engine pid is still alive", async () => {
+    const store = new RunStore(dir);
+    const engine = new WorkflowEngine({
+      store,
+      definitions: { w: { name: "w", phases: [] } },
+      executors: {},
+      gates: {},
+      isPidAlive: () => true,
+    });
+    await store.save({
+      id: "run-live",
+      workflow: "w",
+      epicId: "e",
+      status: "running",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      enginePid: 12345,
+    });
+    const run = await engine.reconcile("run-live");
+    expect(run.status).toBe("running");
   });
 
   it("resumeRun re-drives advance and skips already-done tasks", async () => {

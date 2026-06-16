@@ -89,6 +89,8 @@ export interface WorkflowRun {
   taskProgress?: Record<string, TaskProgress>;
   /** Last surfaced engine/gate failure (set on fail paths, abandon, reconcile). */
   lastError?: { phase: string; message: string };
+  /** PID of the process currently driving this run — used to reconcile dead engines. */
+  enginePid?: number;
   /**
    * The epic produced by `normalize-plan`, persisted so later phases (and a
    * resume after a human gate) can recover it — `advance()`'s local epic does

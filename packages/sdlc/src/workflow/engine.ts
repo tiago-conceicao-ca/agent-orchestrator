@@ -14,6 +14,18 @@ export interface EngineDeps {
   definitions: Record<string, WorkflowDefinition>;
   executors: Record<string, PhaseExecutor>;
   gates: Record<string, Gate>;
+  /** Liveness probe for dead-run reconciliation; defaults to a `process.kill(pid, 0)` check. */
+  isPidAlive?: (pid: number) => boolean;
+}
+
+/** Default liveness probe: EPERM means the process exists but isn't ours. */
+function defaultIsPidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    return (e as NodeJS.ErrnoException).code === "EPERM";
+  }
 }
 
 export class WorkflowEngine {
@@ -45,6 +57,7 @@ export class WorkflowEngine {
       pendingApproval: null,
       createdAt: new Date().toISOString(),
       prMode: opts.prMode ?? "per-task",
+      enginePid: process.pid,
     };
     await this.deps.store.save(run);
     return this.advance(run.id, input);
@@ -84,6 +97,7 @@ export class WorkflowEngine {
       status: "running",
       pendingApproval: null,
       lastError: undefined,
+      enginePid: process.pid,
       currentPhaseIndex: phaseIndex,
       phaseStates: { ...r.phaseStates, [phaseId]: "pending" },
     }));
@@ -163,11 +177,7 @@ export class WorkflowEngine {
         }
         artifactRef = result.artifactRef;
       } catch (e) {
-        await this.deps.store.update(id, (r) => ({
-          ...r,
-          status: "failed",
-          phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
-        }));
+        await this.failPhase(id, phase.id, e);
         throw e;
       }
 
@@ -184,20 +194,18 @@ export class WorkflowEngine {
           });
           run = await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
           if (verdict.verdict === "needs_fixes") {
+            const issue = verdict.issues[0]?.title ?? "needs fixes";
             run = await this.deps.store.update(id, (r) => ({
               ...r,
               status: "failed",
               phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
+              lastError: { phase: phase.id, message: `Lens '${lens}' rejected: ${issue}` },
             }));
             return run;
           }
         }
       } catch (e) {
-        await this.deps.store.update(id, (r) => ({
-          ...r,
-          status: "failed",
-          phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
-        }));
+        await this.failPhase(id, phase.id, e);
         throw e;
       }
 
@@ -221,6 +229,30 @@ export class WorkflowEngine {
     }
 
     return this.deps.store.update(id, (r) => ({ ...r, status: "completed" }));
+  }
+
+  /** Persist a phase failure with a surfaced lastError (not a silent failure). */
+  private async failPhase(id: string, phaseId: string, e: unknown): Promise<void> {
+    const message = e instanceof Error ? e.message : String(e);
+    await this.deps.store.update(id, (r) => ({
+      ...r,
+      status: "failed",
+      phaseStates: { ...r.phaseStates, [phaseId]: "failed" },
+      lastError: { phase: phaseId, message },
+    }));
+  }
+
+  /**
+   * Reconcile a run whose driving engine process is gone: a `running` run with a
+   * dead `enginePid` is marked terminal (failed) instead of lingering forever.
+   * No-op for runs that aren't running, have no recorded pid, or are still alive.
+   */
+  async reconcile(id: string): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    if (run.status !== "running" || run.enginePid === undefined) return run;
+    const alive = (this.deps.isPidAlive ?? defaultIsPidAlive)(run.enginePid);
+    if (alive) return run;
+    return this.abandon(id, `Engine process ${run.enginePid} is no longer alive.`);
   }
 
   /** Build the persisted PhaseContext for a phase/single-task run. */
