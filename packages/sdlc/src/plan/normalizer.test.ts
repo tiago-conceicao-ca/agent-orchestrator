@@ -43,6 +43,22 @@ describe("normalizePlan", () => {
       type: "blocks",
     });
   });
+  it("assigns each task a model from the complexity default map", () => {
+    const epic = normalizePlan(PLAN, { id: "epic-1", title: "X", description: "" });
+    const repo = epic.tasks.find((t) => t.title === "Repo layer")!;
+    const svc = epic.tasks.find((t) => t.title === "Service layer")!;
+    expect(repo.model).toBe("haiku"); // LOW → haiku
+    expect(svc.model).toBe("sonnet"); // MEDIUM → sonnet
+  });
+  it("preserves an explicit model authored in the plan", () => {
+    const withModel = PLAN.replace(
+      'summary: "DB access"',
+      'summary: "DB access"\n    model: opus',
+    );
+    const epic = normalizePlan(withModel, { id: "epic-1", title: "X", description: "" });
+    const repo = epic.tasks.find((t) => t.title === "Repo layer")!;
+    expect(repo.model).toBe("opus"); // explicit beats the LOW default (haiku)
+  });
   it("throws with aggregated messages on an invalid plan", () => {
     const bad = PLAN.replace('depends_on: ["Repo layer"]', 'depends_on: ["Ghost"]');
     expect(() => normalizePlan(bad, { id: "e", title: "X", description: "" })).toThrow(

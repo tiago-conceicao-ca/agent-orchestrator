@@ -1,5 +1,12 @@
 import * as yaml from "js-yaml";
-import { COMPLEXITY, type Complexity, type TaskGraph, type TaskGraphTask } from "./types.js";
+import {
+  COMPLEXITY,
+  SDLC_MODELS,
+  type Complexity,
+  type SdlcModel,
+  type TaskGraph,
+  type TaskGraphTask,
+} from "./types.js";
 
 // Mirrors tm parser.py regex: ## Task Graph followed by a ```yaml fence.
 const TASK_GRAPH_RE = /##\s+Task\s+Graph\s*\n+```ya?ml\s*\n([\s\S]*?)\n```/i;
@@ -37,6 +44,11 @@ export function parseTaskGraph(yamlStr: string): TaskGraph {
       throw new Error(`${where} ('${r.name}'): 'tdd' must be a boolean.`);
     if (typeof r.summary !== "string")
       throw new Error(`${where} ('${r.name}'): 'summary' is required.`);
+    if (
+      r.model !== undefined &&
+      (typeof r.model !== "string" || !SDLC_MODELS.includes(r.model as SdlcModel))
+    )
+      throw new Error(`${where} ('${r.name}'): 'model', when set, must be one of ${SDLC_MODELS.join("/")}.`);
     return {
       name: r.name,
       complexity: r.complexity as Complexity,
@@ -44,6 +56,7 @@ export function parseTaskGraph(yamlStr: string): TaskGraph {
       summary: r.summary,
       dependsOn: asStringArray(r.depends_on),
       acceptanceCriteria: asStringArray(r.acceptance_criteria),
+      ...(r.model !== undefined ? { model: r.model as SdlcModel } : {}),
     };
   });
   return { tasks };

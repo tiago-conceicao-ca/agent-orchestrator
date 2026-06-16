@@ -1,6 +1,6 @@
 import { extractTaskGraphYaml, parseTaskGraph } from "./parser.js";
 import { validateTaskGraph } from "./validator.js";
-import type { Epic, WorkflowTask, Dependency } from "./types.js";
+import { COMPLEXITY_MODEL_DEFAULT, type Epic, type WorkflowTask, type Dependency } from "./types.js";
 
 const TASK_HEADING_RE = /^##\s+Task:\s+(.+?)\s*$/gm;
 
@@ -47,6 +47,8 @@ export function normalizePlan(planMarkdown: string, meta: EpicMeta): Epic {
       tdd: t.tdd,
       acceptanceCriteria: t.acceptanceCriteria,
       status: "backlog",
+      // Best-fit default per complexity; an explicit plan model is preserved.
+      model: t.model ?? COMPLEXITY_MODEL_DEFAULT[t.complexity],
     };
   });
 

@@ -1,6 +1,20 @@
 export const COMPLEXITY = ["LOW", "MEDIUM", "HIGH"] as const;
 export type Complexity = (typeof COMPLEXITY)[number];
 
+/**
+ * Selectable claude CLI model aliases for a generate-backend task. Free-form
+ * strings reach `claude --model`, but these are the canonical, UI-offered set.
+ */
+export const SDLC_MODELS = ["opus", "sonnet", "haiku"] as const;
+export type SdlcModel = (typeof SDLC_MODELS)[number];
+
+/** Default model per complexity bucket (the engine's best-fit assignment). */
+export const COMPLEXITY_MODEL_DEFAULT: Record<Complexity, SdlcModel> = {
+  HIGH: "opus",
+  MEDIUM: "sonnet",
+  LOW: "haiku",
+};
+
 /** One entry in the plan's `## Task Graph` YAML block (tm task-graph-format). */
 export interface TaskGraphTask {
   name: string; // must match a `## Task: <name>` heading exactly
@@ -9,6 +23,8 @@ export interface TaskGraphTask {
   dependsOn: string[]; // task names; [] = no deps
   summary: string;
   acceptanceCriteria: string[];
+  /** Optional explicit model alias from the plan; preserved over the complexity default. */
+  model?: SdlcModel;
 }
 
 export interface TaskGraph {
@@ -34,6 +50,12 @@ export interface WorkflowTask {
   tdd: boolean;
   acceptanceCriteria: string[];
   status: TaskStatus;
+  /**
+   * Model alias the worker launches with (`claude --model`). Assigned from the
+   * complexity default at normalize, overridable per-task via the dashboard.
+   * Undefined = no override; spawn falls back to the project's agent model.
+   */
+  model?: string;
 }
 
 export interface Dependency {
