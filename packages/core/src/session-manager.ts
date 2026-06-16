@@ -89,6 +89,8 @@ import {
 } from "./opencode-shared.js";
 import { writeWorkspaceOpenCodeAgentsMd } from "./opencode-agents-md.js";
 import { writeOpenCodeConfig } from "./opencode-config.js";
+import { loadConfig } from "./config.js";
+import { getGlobalConfigPath } from "./global-config.js";
 import { CleanupStack } from "./cleanup-stack.js";
 import {
   getOrchestratorSessionId,
@@ -1636,8 +1638,13 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       // configured repo (addSibling throws naming it) — lands in the catch
       // below and rolls back the entire spawn. Self-references are skipped:
       // the project itself is the session's writable repo.
+      // Load the GLOBAL registered-projects catalog once for this spawn and
+      // reuse it across every per-sibling resolution (cache per spawn). This is
+      // what lets a globally-registered sibling resolve even when AO was started
+      // from a single-project local config.
+      const siblingCatalog = loadGlobalProjectCatalog();
       const configuredSiblings = (project.siblings ?? []).filter(
-        (entry) => resolveSiblingSource(entry)?.repoId !== spawnConfig.projectId,
+        (entry) => resolveSiblingSource(entry, siblingCatalog)?.repoId !== spawnConfig.projectId,
       );
       if (configuredSiblings.length > 0) {
         const worktreesDir = getProjectWorktreesDir(spawnConfig.projectId);
@@ -1646,7 +1653,12 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         // (LIFO), while the session metadata they read still exists.
         cleanupStack.push(() => removeAssembledView(worktreesDir, reservedSessionId));
         for (const entry of configuredSiblings) {
-          const ref = await addSibling(reservedSessionId, entry, { mode: "readonly-symlink" });
+          const ref = await addSibling(
+            reservedSessionId,
+            entry,
+            { mode: "readonly-symlink" },
+            siblingCatalog,
+          );
           cleanupStack.push(() => removeSibling(reservedSessionId, ref.repo));
           session.siblings.push(ref);
         }
@@ -3780,11 +3792,47 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     return restoredSession;
   }
 
-  /** Resolve a sibling source from the catalog (registered projects) by id or repo. */
+  /**
+   * Load the GLOBAL registered-projects catalog — the same source the web
+   * sidebar offers siblings from (`loadConfig(getGlobalConfigPath())`, used by
+   * `loadProjectDiscoveryConfig` in the web). Returns fully-resolved
+   * ProjectConfig entries keyed by project id.
+   *
+   * Degrades gracefully: returns `{}` when the global config is absent or
+   * unreadable, so sibling resolution falls back to `config.projects` only.
+   * Loaded fresh by the caller (threaded through `resolveSiblingSource` as
+   * `catalog`) so a project registered AFTER this AO started still resolves —
+   * never cached across spawns.
+   */
+  function loadGlobalProjectCatalog(): Record<string, ProjectConfig> {
+    try {
+      const globalPath = getGlobalConfigPath();
+      if (!existsSync(globalPath)) return {};
+      return loadConfig(globalPath).projects;
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Resolve a sibling source (by project id or "owner/name" repo) against the
+   * registered-projects catalog. The catalog is the GLOBAL registry merged with
+   * the running `config.projects` — local entries win for the active project,
+   * the global registry supplies every other registered project. This is the
+   * root-cause fix: when AO is started from a single-project local config,
+   * `config.projects` alone does not contain other globally-registered projects,
+   * so a sidebar-added global sibling (e.g. taskmaster) would never resolve.
+   *
+   * `catalog` lets the spawn path load the global catalog once and reuse it
+   * across the per-sibling resolution calls (cache per spawn); external callers
+   * omit it and get a fresh load.
+   */
   function resolveSiblingSource(
     repoOrProjectId: string,
+    catalog?: Record<string, ProjectConfig>,
   ): { repoId: string; project: ProjectConfig } | null {
-    for (const [id, proj] of Object.entries(config.projects)) {
+    const merged = { ...(catalog ?? loadGlobalProjectCatalog()), ...config.projects };
+    for (const [id, proj] of Object.entries(merged)) {
       if (id === repoOrProjectId || proj.repo === repoOrProjectId) {
         return { repoId: id, project: proj };
       }
@@ -3837,10 +3885,14 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     sessionId: SessionId,
     repoOrProjectId: string,
     options?: AddSiblingOptions,
+    // Internal: the spawn path threads a pre-loaded global catalog so the
+    // per-sibling resolution calls share one load (cache per spawn). External
+    // callers omit it and get a fresh load via resolveSiblingSource.
+    catalog?: Record<string, ProjectConfig>,
   ): Promise<SiblingRef> {
     const { raw, sessionsDir, project, projectId } = requireSessionRecord(sessionId);
 
-    const source = resolveSiblingSource(repoOrProjectId);
+    const source = resolveSiblingSource(repoOrProjectId, catalog);
     if (!source) {
       throw new Error(
         `Unknown sibling repo "${repoOrProjectId}": no registered project matches that id or repo`,

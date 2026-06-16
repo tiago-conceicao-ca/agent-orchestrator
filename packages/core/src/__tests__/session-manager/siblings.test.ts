@@ -644,3 +644,182 @@ describe("addSibling / removeSibling (#1095)", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Global-catalog resolution (root-cause fix)
+//
+// Spawn-time sibling resolution must consult the GLOBAL registered-projects
+// catalog (~/.agent-orchestrator/config.yaml) — the same source the web
+// sidebar offers siblings from — not just the config the running AO was loaded
+// with. Otherwise a globally-registered sibling (e.g. taskmaster) added via the
+// sidebar fails to resolve when AO was started from a single-project local
+// config. setupTestContext points HOME at a tmp dir, so getGlobalConfigPath()
+// resolves under ctx.tmpDir and we can plant a global config there.
+// ---------------------------------------------------------------------------
+describe("sibling resolution against the global registered-projects catalog", () => {
+  /**
+   * Write a global config at ~/.agent-orchestrator/config.yaml registering the
+   * given projects, each under {tmpDir}/{id}. Mirrors the canonical global
+   * config shape (defaults + projects with object-form repo identity).
+   */
+  function writeGlobalConfig(ids: string[]): void {
+    const globalDir = join(ctx.tmpDir, ".agent-orchestrator");
+    mkdirSync(globalDir, { recursive: true });
+    const projectBlocks = ids
+      .map((id) =>
+        [
+          `  ${id}:`,
+          `    path: ${join(ctx.tmpDir, id)}`,
+          `    defaultBranch: main`,
+          `    repo:`,
+          `      owner: org`,
+          `      name: ${id}`,
+          `      platform: github`,
+          `      originUrl: https://github.com/org/${id}`,
+        ].join("\n"),
+      )
+      .join("\n");
+    const yaml = [
+      `defaults:`,
+      `  runtime: mock`,
+      `  agent: mock-agent`,
+      `  workspace: mock-ws`,
+      `  notifiers: [desktop]`,
+      `projects:`,
+      projectBlocks,
+      ``,
+    ].join("\n");
+    writeFileSync(join(globalDir, "config.yaml"), yaml);
+  }
+
+  /** Workspace mock that materializes worktrees on disk (see pathAwareWorkspace). */
+  function pathAwareWorkspace(): Workspace {
+    return {
+      name: "mock-ws",
+      create: vi.fn().mockImplementation(async (cfg) => {
+        const path = join(cfg.worktreeDir, cfg.sessionId);
+        mkdirSync(path, { recursive: true });
+        return { path, branch: cfg.branch, sessionId: cfg.sessionId, projectId: cfg.projectId };
+      }),
+      destroy: vi.fn().mockResolvedValue(undefined),
+      list: vi.fn().mockResolvedValue([]),
+      findManagedWorkspace: vi.fn().mockResolvedValue(null),
+    };
+  }
+
+  /** A single-project running config — only "my-app" is locally known. */
+  function localOnlyConfig(): OrchestratorConfig {
+    return { ...config, projects: { ...config.projects } };
+  }
+
+  function makeManager(workspace: Workspace, cfg: OrchestratorConfig) {
+    const registry = {
+      ...ctx.mockRegistry,
+      get: vi.fn().mockImplementation((slot: string) => {
+        if (slot === "runtime") return ctx.mockRuntime;
+        if (slot === "agent") return ctx.mockAgent;
+        if (slot === "workspace") return workspace;
+        return null;
+      }),
+    };
+    return createSessionManager({ config: cfg, registry });
+  }
+
+  function writeWorker(sessionId: string): void {
+    const worktree = join(getProjectWorktreesDir("my-app"), sessionId);
+    mkdirSync(worktree, { recursive: true });
+    writeMetadata(sessionsDir, sessionId, {
+      worktree,
+      branch: "feat/work",
+      status: "working",
+      project: "my-app",
+      runtimeHandle: makeHandle(`rt-${sessionId}`),
+    });
+  }
+
+  it("resolves a sibling registered only in the global catalog (not in config.projects)", async () => {
+    // taskmaster is globally registered but absent from the running config.
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    mkdirSync(join(ctx.tmpDir, "taskmaster"), { recursive: true });
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", "taskmaster", { mode: "readonly-symlink" });
+
+    expect(ref.repo).toBe("taskmaster");
+    expect(ref.mode).toBe("readonly-symlink");
+    // The mounted symlink targets the globally-registered project's path.
+    expect(realpathSync(ref.path)).toBe(realpathSync(join(ctx.tmpDir, "taskmaster")));
+  });
+
+  it("resolves a globally-registered sibling by owner/name repo string", async () => {
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    mkdirSync(join(ctx.tmpDir, "taskmaster"), { recursive: true });
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", "org/taskmaster", { mode: "readonly-symlink" });
+
+    // Resolved id is the registered project id, not the owner/name string.
+    expect(ref.repo).toBe("taskmaster");
+  });
+
+  it("still resolves a sibling present in the local config (local wins)", async () => {
+    // Local config carries lib-shared; the global config does not list it.
+    writeGlobalConfig(["my-app"]);
+    const sourcePath = join(ctx.tmpDir, "lib-shared");
+    mkdirSync(sourcePath, { recursive: true });
+    writeWorker("app-1");
+
+    const cfg: OrchestratorConfig = {
+      ...config,
+      projects: {
+        ...config.projects,
+        "lib-shared": {
+          name: "Lib Shared",
+          repo: "org/lib-shared",
+          path: sourcePath,
+          defaultBranch: "master",
+          sessionPrefix: "lib",
+        },
+      },
+    };
+    const sm = makeManager(pathAwareWorkspace(), cfg);
+    const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+    expect(ref.repo).toBe("lib-shared");
+  });
+
+  it("falls back to config.projects when the global config is absent", async () => {
+    // No global config written; lib-shared lives only in the running config.
+    const sourcePath = join(ctx.tmpDir, "lib-shared");
+    mkdirSync(sourcePath, { recursive: true });
+    writeWorker("app-1");
+
+    const cfg: OrchestratorConfig = {
+      ...config,
+      projects: {
+        ...config.projects,
+        "lib-shared": {
+          name: "Lib Shared",
+          repo: "org/lib-shared",
+          path: sourcePath,
+          defaultBranch: "master",
+          sessionPrefix: "lib",
+        },
+      },
+    };
+    const sm = makeManager(pathAwareWorkspace(), cfg);
+    const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+    expect(ref.repo).toBe("lib-shared");
+  });
+
+  it("still throws for a sibling in neither the local config nor the global catalog", async () => {
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    await expect(
+      sm.addSibling("app-1", "does-not-exist", { mode: "readonly-symlink" }),
+    ).rejects.toThrow(/unknown sibling/i);
+  });
+});
