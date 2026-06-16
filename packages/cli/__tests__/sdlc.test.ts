@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type { Session } from "@aoagents/ao-core";
-import { buildSdlcServices, classifyTerminal } from "../src/commands/sdlc.js";
+import { buildSdlcServices, classifyTerminal, printRun } from "../src/commands/sdlc.js";
 
 /** Minimal Session fake: only the fields classifyTerminal reads. */
 function fakeSession(
@@ -74,5 +74,38 @@ describe("buildSdlcServices", () => {
       runPlanWriteAgent: async () => "",
     });
     expect(store).toBeDefined();
+  });
+});
+
+describe("printRun", () => {
+  function capture(fn: () => void): string {
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((m?: unknown) => {
+      lines.push(String(m));
+    });
+    try {
+      fn();
+    } finally {
+      spy.mockRestore();
+    }
+    return lines.join("\n");
+  }
+
+  it("surfaces prMode, stalled, and retry count for tasks", () => {
+    const out = capture(() =>
+      printRun({
+        id: "run-1",
+        status: "running",
+        prMode: "shared",
+        taskStatus: { a: "in_progress", b: "done" },
+        taskProgress: {
+          a: { attempts: 2, stalled: true },
+          b: { attempts: 2, stalled: false },
+        },
+      }),
+    );
+    expect(out).toContain("shared");
+    expect(out).toContain("stalled");
+    expect(out).toContain("retried x1"); // attempts 2 → 1 retry
   });
 });

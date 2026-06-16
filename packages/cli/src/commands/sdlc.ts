@@ -35,6 +35,7 @@ import {
   makeSessionPlanRunner,
   RunStore,
   smokeEvalArtifact,
+  waitForTaskCompletion,
   WorkflowEngine,
   type RunContext,
   type SdlcSessionSpawn,
@@ -65,6 +66,10 @@ export interface SdlcServiceDeps {
 
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
+// A task with no completion signal past this threshold is "stalled" → one
+// auto-retry (configurable via AO_SDLC_STALL_THRESHOLD_MS).
+const TASK_STALL_THRESHOLD_MS =
+  Number(process.env.AO_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -126,19 +131,21 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };
 
-  // waitForDone: poll SessionManager.get(id) until a terminal lifecycle state.
-  const waitForDone = async (sessionId: string): Promise<"done" | "failed"> => {
-    const deadline = Date.now() + TASK_POLL_TIMEOUT_MS;
-    for (;;) {
-      const session = await deps.sessionManager.get(sessionId);
-      if (session) {
-        const outcome = classifyTerminal(session);
-        if (outcome) return outcome;
-      }
-      if (Date.now() > deadline) return "failed";
-      await new Promise((resolve) => setTimeout(resolve, TASK_POLL_INTERVAL_MS));
-    }
-  };
+  // waitForDone: the worker's `.ao/sdlc-task-done.json` sentinel is the primary,
+  // PR-independent completion signal; classifyTerminal (PR/lifecycle) remains the
+  // fallback when no sentinel is written. 2h hard cap retained.
+  const waitForDone = (sessionId: string, workspacePath?: string) =>
+    waitForTaskCompletion({
+      sessionId,
+      workspacePath,
+      classifySession: async (id) => {
+        const session = await deps.sessionManager.get(id);
+        return session ? classifyTerminal(session) : null;
+      },
+      timeoutMs: TASK_POLL_TIMEOUT_MS,
+      stallThresholdMs: TASK_STALL_THRESHOLD_MS,
+      pollIntervalMs: TASK_POLL_INTERVAL_MS,
+    });
 
   const executors = {
     "normalize-plan": makeNormalizePlanExecutor({
@@ -193,6 +200,15 @@ function makeSdlcSessionSpawn(
       await sessionManager.kill(id);
     },
   };
+}
+
+/** Validate a --pr-mode flag value. */
+function parsePrMode(value: string | undefined): "per-task" | "shared" | undefined {
+  if (value === undefined) return undefined;
+  if (value !== "per-task" && value !== "shared") {
+    throw new Error(`Invalid --pr-mode '${value}' (expected 'per-task' or 'shared').`);
+  }
+  return value;
 }
 
 function slug(s: string): string {
@@ -265,15 +281,30 @@ async function buildLiveEngine(
   });
 }
 
-function printRun(run: { id: string; status: string; taskStatus: Record<string, string> }): void {
-  console.log(chalk.bold(`run ${run.id}`) + chalk.dim(` — ${run.status}`));
+interface PrintableRun {
+  id: string;
+  status: string;
+  taskStatus: Record<string, string>;
+  prMode?: string;
+  taskProgress?: Record<string, { attempts: number; stalled: boolean }>;
+}
+
+export function printRun(run: PrintableRun): void {
+  const mode = run.prMode ? chalk.dim(` [${run.prMode}]`) : "";
+  console.log(chalk.bold(`run ${run.id}`) + chalk.dim(` — ${run.status}`) + mode);
   const entries = Object.entries(run.taskStatus);
   if (entries.length === 0) {
     console.log(chalk.dim("  (no tasks yet)"));
     return;
   }
   for (const [taskId, status] of entries) {
-    console.log(`  ${chalk.cyan(status.padEnd(12))} ${taskId}`);
+    const p = run.taskProgress?.[taskId];
+    // Surface stalls and auto-retries so a stuck task is visible, not silent.
+    const notes: string[] = [];
+    if (p?.stalled) notes.push(chalk.yellow("stalled"));
+    if (p && p.attempts > 1) notes.push(chalk.magenta(`retried x${p.attempts - 1}`));
+    const suffix = notes.length ? chalk.dim(`  (${notes.join(", ")})`) : "";
+    console.log(`  ${chalk.cyan(status.padEnd(12))} ${taskId}${suffix}`);
   }
 }
 
@@ -292,12 +323,22 @@ export function registerSdlc(program: Command): void {
       "--skip-lens",
       "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
     )
+    .option(
+      "--pr-mode <mode>",
+      "PR landing mode: 'per-task' (each worker opens its own PR, default) or 'shared' (N tasks land in one PR via the sentinel)",
+    )
     .action(
       async (
         planFileOrText: string,
-        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+        opts: {
+          project?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+          prMode?: string;
+        },
       ) => {
         try {
+          const prMode = parsePrMode(opts.prMode);
           const input = existsSync(planFileOrText)
             ? readFileSync(planFileOrText, "utf-8")
             : planFileOrText;
@@ -312,7 +353,7 @@ export function registerSdlc(program: Command): void {
             opts.generationInstruction,
             opts.skipLens,
           );
-          const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input);
+          const run = await engine.start(CA_PLAN_TO_BACKEND.name, epicId, input, { prMode });
           console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
           printRun(run);
           if (run.status === "awaiting_approval") {
@@ -337,13 +378,23 @@ export function registerSdlc(program: Command): void {
       "--skip-lens",
       "Bypass lens gates (tactical/architectural) for this run — demo/testing only",
     )
+    .option(
+      "--pr-mode <mode>",
+      "override the run's PR landing mode ('per-task' | 'shared') before resuming the generate-backend phase",
+    )
     .action(
       async (
         runId: string,
-        opts: { project?: string; generationInstruction?: string; skipLens?: boolean },
+        opts: {
+          project?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+          prMode?: string;
+        },
       ) => {
         try {
-          const { engine } = await buildLiveEngine(
+          const prMode = parsePrMode(opts.prMode);
+          const { engine, store } = await buildLiveEngine(
             opts.project,
             opts.generationInstruction,
             opts.skipLens,
@@ -352,6 +403,9 @@ export function registerSdlc(program: Command): void {
           if (!current) throw new Error(`Run not found: ${runId}`);
           if (current.status !== "awaiting_approval")
             throw new Error(`Run '${runId}' is '${current.status}', not awaiting approval.`);
+          // The generate-backend executor reads prMode from the persisted record;
+          // a flag here overrides what `start` set.
+          if (prMode) await store.update(runId, (r) => ({ ...r, prMode }));
           const run = await engine.resume(runId);
           console.log(chalk.green(`Approved run ${chalk.bold(runId)}.`));
           printRun(run);
@@ -368,9 +422,92 @@ export function registerSdlc(program: Command): void {
     .option("-p, --project <id>", "project id the run belongs to")
     .action(async (runId: string, opts: { project?: string }) => {
       try {
-        const { store } = await buildLiveEngine(opts.project);
-        const run = await store.load(runId);
-        if (!run) throw new Error(`Run not found: ${runId}`);
+        const { engine, store } = await buildLiveEngine(opts.project);
+        if (!(await store.load(runId))) throw new Error(`Run not found: ${runId}`);
+        // Reconcile a run whose driving engine process has died (stale running).
+        const run = await engine.reconcile(runId);
+        printRun(run);
+        if (run.lastError) {
+          console.log(
+            chalk.red(`  error [${run.lastError.phase}]: ${run.lastError.message}`),
+          );
+        }
+      } catch (err) {
+        console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+        process.exit(1);
+      }
+    });
+
+  sdlc
+    .command("retry <runId>")
+    .description("Re-spawn a single task's worker, reusing the persisted epic")
+    .requiredOption("--task <taskId>", "id of the task to re-run")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .option("-g, --generation-instruction <text>", "per-task generation instruction (match `start`)")
+    .option("--skip-lens", "Bypass lens gates (no effect on a single-task retry)")
+    .action(
+      async (
+        runId: string,
+        opts: { task: string; project?: string; generationInstruction?: string; skipLens?: boolean },
+      ) => {
+        try {
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const run = await engine.retryTask(runId, opts.task);
+          console.log(chalk.green(`Retried task ${chalk.bold(opts.task)} on run ${runId}.`));
+          printRun(run);
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
+        }
+      },
+    );
+
+  sdlc
+    .command("resume <runId>")
+    .description("Resume a stalled/failed run from a phase or the first non-done task")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .option("--from-phase <phase>", "phase id to resume from (default: the phase it stopped in)")
+    .option("-g, --generation-instruction <text>", "per-task generation instruction (match `start`)")
+    .option("--skip-lens", "Bypass lens gates (tactical/architectural) for this run")
+    .action(
+      async (
+        runId: string,
+        opts: {
+          project?: string;
+          fromPhase?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+        },
+      ) => {
+        try {
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const run = await engine.resumeRun(runId, { fromPhase: opts.fromPhase });
+          console.log(chalk.green(`Resumed run ${chalk.bold(runId)} (${run.status}).`));
+          printRun(run);
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
+        }
+      },
+    );
+
+  sdlc
+    .command("abandon <runId>")
+    .description("Mark a run terminal (reconciles a stale status:running from a dead engine)")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .action(async (runId: string, opts: { project?: string }) => {
+      try {
+        const { engine } = await buildLiveEngine(opts.project);
+        const run = await engine.abandon(runId);
+        console.log(chalk.yellow(`Abandoned run ${chalk.bold(runId)} (${run.status}).`));
         printRun(run);
       } catch (err) {
         console.error(chalk.red(err instanceof Error ? err.message : String(err)));
