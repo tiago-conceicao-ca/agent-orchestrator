@@ -96,8 +96,13 @@ export async function buildWebSdlcEngine(
     prompt: string;
     sdlcTaskId: string;
     metadata: Record<string, string>;
+    model?: string;
   }): Promise<{ id: string; workspacePath?: string }> => {
-    const session = await sessionManager.spawn({ projectId: cfg.projectId, prompt: cfg.prompt });
+    const session = await sessionManager.spawn({
+      projectId: cfg.projectId,
+      prompt: cfg.prompt,
+      model: cfg.model,
+    });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
   };

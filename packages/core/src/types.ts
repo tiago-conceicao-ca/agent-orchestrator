@@ -391,6 +391,12 @@ export interface SessionSpawnConfig {
   agent?: string;
   /** Override the OpenCode subagent for this session (e.g. "sisyphus", "oracle") */
   subagent?: string;
+  /**
+   * Override the agent model for this spawn (e.g. "opus", "sonnet", "haiku").
+   * Takes precedence over the project's resolved model. Undefined preserves
+   * today's behavior (project model or the agent's own default).
+   */
+  model?: string;
 }
 
 /** Config for creating an orchestrator session */
