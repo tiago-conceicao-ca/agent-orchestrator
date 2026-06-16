@@ -1635,10 +1635,11 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       // Auto-mount the project's configured sibling repos as read-only refs
       // (#1095). This must stay AFTER the writeMetadata above: addSibling
       // resolves the session via requireSessionRecord, which needs the
-      // persisted `worktree` key. Any mount failure — including an unknown
-      // configured repo (addSibling throws naming it) — lands in the catch
-      // below and rolls back the entire spawn. Self-references are skipped:
-      // the project itself is the session's writable repo.
+      // persisted `worktree` key. A genuine mount failure (workspace/symlink
+      // error) still lands in the catch below and rolls back the entire spawn;
+      // an UNRESOLVABLE configured repo is instead skipped+warned (see below) so
+      // it never bricks the spawn. Self-references are skipped: the project
+      // itself is the session's writable repo.
       // Load the GLOBAL registered-projects catalog once for this spawn and
       // reuse it across every per-sibling resolution (cache per spawn). This is
       // what lets a globally-registered sibling resolve even when AO was started
