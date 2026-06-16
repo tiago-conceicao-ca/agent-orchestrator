@@ -9,9 +9,9 @@ interface LandingHeroProps {
 const terminalLines = [
   { text: "$ ao batch-spawn 42 43 44 45 46", type: "cmd" as const, delay: 0 },
   { text: "", type: "blank" as const, delay: 800 },
-  { text: "⟡ Loaded agent-orchestrator.yaml (agent: claude-code, tracker: github)", type: "info" as const, delay: 1000 },
+  { text: "⟡ Loaded cahi.yaml (agent: claude-code, tracker: github)", type: "info" as const, delay: 1000 },
   { text: "⟡ Resolving 5 issues from ComposioHQ/my-saas-app", type: "info" as const, delay: 1400 },
-  { text: "⟡ Creating worktrees in ~/.agent-orchestrator/a1b2c3/worktrees/", type: "info" as const, delay: 1800 },
+  { text: "⟡ Creating worktrees in ~/.cahi/a1b2c3/worktrees/", type: "info" as const, delay: 1800 },
   { text: "", type: "blank" as const, delay: 2200 },
   { text: "✓ s-001 → #42 Add user auth flow (claude-code)", type: "success" as const, delay: 2400 },
   { text: "✓ s-002 → #43 Fix pagination bug (codex)", type: "success" as const, delay: 2700 },

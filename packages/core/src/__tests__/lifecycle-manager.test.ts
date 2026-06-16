@@ -354,8 +354,8 @@ describe("check (single session)", () => {
   });
 
   it("does not mirror lifecycle transition observability logs to stderr during polling", async () => {
-    const originalAoObservabilityStderr = process.env["AO_OBSERVABILITY_STDERR"];
-    delete process.env["AO_OBSERVABILITY_STDERR"];
+    const originalAoObservabilityStderr = process.env["CAHI_OBSERVABILITY_STDERR"];
+    delete process.env["CAHI_OBSERVABILITY_STDERR"];
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
 
@@ -370,9 +370,9 @@ describe("check (single session)", () => {
     } finally {
       stderrSpy.mockRestore();
       if (originalAoObservabilityStderr === undefined) {
-        delete process.env["AO_OBSERVABILITY_STDERR"];
+        delete process.env["CAHI_OBSERVABILITY_STDERR"];
       } else {
-        process.env["AO_OBSERVABILITY_STDERR"] = originalAoObservabilityStderr;
+        process.env["CAHI_OBSERVABILITY_STDERR"] = originalAoObservabilityStderr;
       }
     }
   });

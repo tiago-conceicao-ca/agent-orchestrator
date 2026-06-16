@@ -142,13 +142,13 @@ export async function cleanNextCache(webDir: string): Promise<void> {
 }
 
 /**
- * Compare the .next/AO_VERSION stamp against the current web package version.
+ * Compare the .next/CAHI_VERSION stamp against the current web package version.
  * If they differ (or the stamp is missing), clear the .next/cache directory
  * so Next.js doesn't serve stale pages after a version upgrade.
  */
 export async function clearStaleCacheIfNeeded(webDir: string): Promise<void> {
   try {
-    const stampPath = resolve(webDir, ".next", "AO_VERSION");
+    const stampPath = resolve(webDir, ".next", "CAHI_VERSION");
     const pkgPath = resolve(webDir, "package.json");
 
     if (!existsSync(pkgPath)) return;

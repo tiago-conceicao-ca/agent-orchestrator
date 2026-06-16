@@ -27,7 +27,7 @@ export function LandingAbout() {
               <div className="w-2 h-2 rounded-full bg-[rgba(255,240,220,0.12)]" />
               <div className="w-2 h-2 rounded-full bg-[rgba(255,240,220,0.12)]" />
               <span className="ml-1.5 font-mono text-[0.5625rem] text-[var(--landing-muted-dim)]">
-                agent-orchestrator.yaml
+                cahi.yaml
               </span>
             </div>
             <pre className="px-5 py-4 font-mono text-[0.75rem] leading-[1.9] overflow-x-auto">

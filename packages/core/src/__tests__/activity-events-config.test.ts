@@ -33,21 +33,21 @@ describe("activity events: config loading", () => {
       tmpdir(),
       `ao-config-events-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     );
-    configPath = join(tempRoot, ".agent-orchestrator", "config.yaml");
+    configPath = join(tempRoot, ".cahi", "config.yaml");
     mkdirSync(tempRoot, { recursive: true });
     originalHome = process.env["HOME"];
-    originalGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
+    originalGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     process.env["HOME"] = tempRoot;
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
     vi.mocked(recordActivityEvent).mockClear();
   });
 
   afterEach(() => {
     process.env["HOME"] = originalHome;
     if (originalGlobalConfig === undefined) {
-      delete process.env["AO_GLOBAL_CONFIG"];
+      delete process.env["CAHI_GLOBAL_CONFIG"];
     } else {
-      process.env["AO_GLOBAL_CONFIG"] = originalGlobalConfig;
+      process.env["CAHI_GLOBAL_CONFIG"] = originalGlobalConfig;
     }
     rmSync(tempRoot, { recursive: true, force: true });
   });
@@ -56,7 +56,7 @@ describe("activity events: config loading", () => {
     const projectPath = join(tempRoot, "old-format");
     mkdirSync(projectPath, { recursive: true });
     writeFileSync(
-      join(projectPath, "agent-orchestrator.yaml"),
+      join(projectPath, "cahi.yaml"),
       ["projects:", "  old-format:", "    path: .", ""].join("\n"),
     );
 
@@ -87,7 +87,7 @@ describe("activity events: config loading", () => {
   it("does not emit config.project_resolve_failed for malformed local yaml", () => {
     const projectPath = join(tempRoot, "malformed");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(projectPath, "agent-orchestrator.yaml"), "tracker: [\n");
+    writeFileSync(join(projectPath, "cahi.yaml"), "tracker: [\n");
 
     saveGlobalConfig(
       makeGlobalConfig({
@@ -119,7 +119,7 @@ describe("activity events: config loading", () => {
     const projectPath = join(tempRoot, "clean");
     mkdirSync(projectPath, { recursive: true });
     writeFileSync(
-      join(projectPath, "agent-orchestrator.yaml"),
+      join(projectPath, "cahi.yaml"),
       ["agent: codex", "runtime: tmux", "workspace: worktree", ""].join("\n"),
     );
 
@@ -145,7 +145,7 @@ describe("activity events: config loading", () => {
   it("emits config.project_malformed for unparseable local yaml", () => {
     const projectPath = join(tempRoot, "malformed");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(projectPath, "agent-orchestrator.yaml"), "tracker: [\n");
+    writeFileSync(join(projectPath, "cahi.yaml"), "tracker: [\n");
 
     saveGlobalConfig(
       makeGlobalConfig({
@@ -175,7 +175,7 @@ describe("activity events: config loading", () => {
     const projectPath = join(tempRoot, "invalid");
     mkdirSync(projectPath, { recursive: true });
     // Valid YAML but fails LocalProjectConfigSchema (numeric agent isn't a string)
-    writeFileSync(join(projectPath, "agent-orchestrator.yaml"), "agent: 123\n");
+    writeFileSync(join(projectPath, "cahi.yaml"), "agent: 123\n");
 
     saveGlobalConfig(
       makeGlobalConfig({

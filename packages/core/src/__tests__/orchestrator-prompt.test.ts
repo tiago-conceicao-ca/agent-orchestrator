@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { OrchestratorConfig, ProjectConfig } from "../types.js";
 
 const config: OrchestratorConfig = {
-  configPath: "/tmp/agent-orchestrator.yaml",
+  configPath: "/tmp/cahi.yaml",
   port: 3000,
   power: { preventIdleSleep: false },
   defaults: {

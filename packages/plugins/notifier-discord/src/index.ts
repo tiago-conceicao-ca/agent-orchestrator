@@ -417,7 +417,7 @@ export function create(config?: Record<string, unknown>): Notifier {
   if (!webhookUrl) {
     console.warn(
       "[notifier-discord] No webhookUrl configured.\n" +
-        "  Set it in agent-orchestrator.yaml under notifiers.discord.webhookUrl\n" +
+        "  Set it in cahi.yaml under notifiers.discord.webhookUrl\n" +
         "  Create a webhook: Discord Server Settings > Integrations > Webhooks > New Webhook",
     );
   } else {

@@ -10,7 +10,7 @@ const distModuleUrl = pathToFileURL(resolve(packageRoot, "dist/orchestrator-prom
 const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 const config: OrchestratorConfig = {
-  configPath: "/tmp/agent-orchestrator.yaml",
+  configPath: "/tmp/cahi.yaml",
   port: 3000,
   power: { preventIdleSleep: false },
   defaults: {

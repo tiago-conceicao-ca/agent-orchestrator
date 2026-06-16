@@ -19,7 +19,7 @@ vi.mock("@/components/RepairDegradedProjectButton", () => ({
 
 const baseProps = {
   projectId: "my-project",
-  resolveError: "Local config at /tmp/my-project/agent-orchestrator.yaml failed validation: bad field",
+  resolveError: "Local config at /tmp/my-project/cahi.yaml failed validation: bad field",
   projectPath: "/tmp/my-project",
 };
 
@@ -42,7 +42,7 @@ describe("DegradedProjectState", () => {
   it("extracts and displays the config path from the resolve error", () => {
     render(<DegradedProjectState {...baseProps} />);
     expect(
-      screen.getByText("/tmp/my-project/agent-orchestrator.yaml"),
+      screen.getByText("/tmp/my-project/cahi.yaml"),
     ).toBeInTheDocument();
   });
 
@@ -54,7 +54,7 @@ describe("DegradedProjectState", () => {
       />,
     );
     expect(
-      screen.getByText("/tmp/my-project/agent-orchestrator.yaml or .yml"),
+      screen.getByText("/tmp/my-project/cahi.yaml or .yml"),
     ).toBeInTheDocument();
   });
 
@@ -78,7 +78,7 @@ describe("DegradedProjectState", () => {
     render(
       <DegradedProjectState
         {...baseProps}
-        resolveError="Local config at /tmp/x/agent-orchestrator.yaml still uses a wrapped projects: format"
+        resolveError="Local config at /tmp/x/cahi.yaml still uses a wrapped projects: format"
       />,
     );
     expect(screen.getByRole("button", { name: /repair/i })).toBeInTheDocument();

@@ -1,9 +1,9 @@
 # Agent Orchestrator Configuration
-# Copy to agent-orchestrator.yaml and customize.
+# Copy to cahi.yaml and customize.
 $schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
 
 # Runtime data directories are auto-derived from this config location under:
-#   ~/.agent-orchestrator/{hash}-{projectId}/
+#   ~/.cahi/{hash}-{projectId}/
 # You usually do not need to configure paths manually.
 
 # Web dashboard port
@@ -82,7 +82,7 @@ projects:
 
     # Per-project environment variables forwarded into worker session runtimes.
     # Useful for scoping per-project tokens (e.g. pinning gh auth via GH_TOKEN).
-    # AO-internal vars (AO_SESSION, AO_PROJECT_ID, etc.) always take precedence.
+    # AO-internal vars (CAHI_SESSION, CAHI_PROJECT_ID, etc.) always take precedence.
     # env:
     #   GH_TOKEN: ghp_xxx
 

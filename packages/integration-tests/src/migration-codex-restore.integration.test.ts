@@ -31,7 +31,7 @@ describe.skipIf(process.platform === "win32")("migrate-storage → agent-codex.g
 
   beforeEach(() => {
     testDir = mkdtempSync(join(tmpdir(), `ao-mig-codex-rt-${randomUUID()}-`));
-    aoBaseDir = join(testDir, ".agent-orchestrator");
+    aoBaseDir = join(testDir, ".cahi");
     mkdirSync(aoBaseDir, { recursive: true });
     configPath = join(aoBaseDir, "config.yaml");
     writeFileSync(

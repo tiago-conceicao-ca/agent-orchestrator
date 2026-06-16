@@ -168,7 +168,7 @@ beforeEach(() => {
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpDir;
 
-  configPath = join(tmpDir, "agent-orchestrator.yaml");
+  configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}");
 
   mockConfigRef.current = {
@@ -265,7 +265,7 @@ beforeEach(() => {
 
 afterEach(() => {
   process.env["HOME"] = originalHome;
-  // Clean up hash-based directories in ~/.agent-orchestrator
+  // Clean up hash-based directories in ~/.cahi
   const projectBaseDir = getProjectBaseDir(STORAGE_KEY);
   if (existsSync(projectBaseDir)) {
     rmSync(projectBaseDir, { recursive: true, force: true });
@@ -962,8 +962,8 @@ describe("session attach", () => {
 
 describe("session claim-pr", () => {
   afterEach(() => {
-    delete process.env["AO_SESSION_NAME"];
-    delete process.env["AO_SESSION"];
+    delete process.env["CAHI_SESSION_NAME"];
+    delete process.env["CAHI_SESSION"];
   });
 
   it("claims a PR for an explicit session", async () => {
@@ -986,8 +986,8 @@ describe("session claim-pr", () => {
     expect(output).toContain("feat/existing-pr");
   });
 
-  it("uses AO_SESSION_NAME when session argument is omitted", async () => {
-    process.env["AO_SESSION_NAME"] = "app-7";
+  it("uses CAHI_SESSION_NAME when session argument is omitted", async () => {
+    process.env["CAHI_SESSION_NAME"] = "app-7";
 
     await program.parseAsync(["node", "test", "session", "claim-pr", "42"]);
 

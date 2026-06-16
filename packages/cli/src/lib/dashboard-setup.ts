@@ -65,7 +65,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new DashboardSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 

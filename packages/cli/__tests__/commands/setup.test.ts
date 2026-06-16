@@ -102,7 +102,7 @@ vi.mock("@contaazul/cahi-core", () => ({
   getDashboardNotificationStorePath: (configPath: string) =>
     `${configPath}.dashboard-notifications.jsonl`,
   isCanonicalGlobalConfigPath: (configPath: string | undefined) =>
-    configPath === join(homedir(), ".agent-orchestrator", "config.yaml"),
+    configPath === join(homedir(), ".cahi", "config.yaml"),
   normalizeDashboardNotificationLimit: (value: unknown) => {
     const parsed =
       typeof value === "number"
@@ -259,7 +259,7 @@ describe("notifier routing helpers", () => {
 describe("setup dashboard command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
   });
@@ -310,7 +310,7 @@ describe("setup composio command", () => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
     mockComposioConstructorOptions.length = 0;
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockAuthConfigsList.mockResolvedValue({
@@ -2039,7 +2039,7 @@ describe("setup openclaw command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.mocked(recordActivityEvent).mockClear();
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockExistsSync.mockReturnValue(false);
@@ -2107,7 +2107,7 @@ describe("setup openclaw command", () => {
       const openclawConfigPath = join(homedir(), ".openclaw", "openclaw.json");
       mockExistsSync.mockImplementation((path: string) => path === openclawConfigPath);
       mockReadFileSync.mockImplementation((path: string) => {
-        if (path === "/tmp/agent-orchestrator.yaml") return MINIMAL_CONFIG;
+        if (path === "/tmp/cahi.yaml") return MINIMAL_CONFIG;
         if (path === openclawConfigPath) {
           return JSON.stringify({ hooks: { token: "openclaw-owned-token" } });
         }
@@ -2258,7 +2258,7 @@ describe("setup openclaw command", () => {
     });
 
     it("does not stamp wrapped config schema onto the canonical global config", async () => {
-      mockFindConfigFile.mockReturnValue(join(homedir(), ".agent-orchestrator", "config.yaml"));
+      mockFindConfigFile.mockReturnValue(join(homedir(), ".cahi", "config.yaml"));
       const program = createProgram();
 
       await program.parseAsync([
@@ -2461,7 +2461,7 @@ projects:
 
       mockExistsSync.mockImplementation((path: string) => path === openclawConfigPath);
       mockReadFileSync.mockImplementation((path: string) => {
-        if (path === "/tmp/agent-orchestrator.yaml") {
+        if (path === "/tmp/cahi.yaml") {
           return MINIMAL_CONFIG;
         }
         if (path === openclawConfigPath) {
@@ -2520,7 +2520,7 @@ projects:
     });
 
     it("writes to the correct config path", async () => {
-      mockFindConfigFile.mockReturnValue("/custom/path/agent-orchestrator.yaml");
+      mockFindConfigFile.mockReturnValue("/custom/path/cahi.yaml");
       const program = createProgram();
 
       await program.parseAsync([
@@ -2535,7 +2535,7 @@ projects:
         "--non-interactive",
       ]);
 
-      expect(mockWriteFileSync.mock.calls[0][0]).toBe("/custom/path/agent-orchestrator.yaml");
+      expect(mockWriteFileSync.mock.calls[0][0]).toBe("/custom/path/cahi.yaml");
     });
   });
 
@@ -2680,10 +2680,10 @@ describe("setup desktop command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
-    process.env["AO_DESKTOP_SETUP_PLATFORM"] = "darwin";
-    process.env["AO_NOTIFIER_MACOS_APP_PATH"] = sourceApp;
-    process.env["AO_DESKTOP_APP_INSTALL_PATH"] = targetApp;
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    process.env["CAHI_DESKTOP_SETUP_PLATFORM"] = "darwin";
+    process.env["CAHI_NOTIFIER_MACOS_APP_PATH"] = sourceApp;
+    process.env["CAHI_DESKTOP_APP_INSTALL_PATH"] = targetApp;
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockMkdirSync.mockImplementation(() => undefined);
@@ -3119,7 +3119,7 @@ projects:
   });
 
   it("exits on non-macOS install attempts", async () => {
-    process.env["AO_DESKTOP_SETUP_PLATFORM"] = "linux";
+    process.env["CAHI_DESKTOP_SETUP_PLATFORM"] = "linux";
     const program = createProgram();
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
       throw new Error("process.exit");
@@ -3140,7 +3140,7 @@ describe("setup webhook command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockFetch.mockResolvedValue({
@@ -3505,7 +3505,7 @@ describe("setup slack command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockFetch.mockReset();
@@ -3907,7 +3907,7 @@ describe("setup discord command", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     process.env = { ...originalEnv };
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockReadFileSync.mockReturnValue(MINIMAL_CONFIG);
     mockWriteFileSync.mockImplementation(() => {});
     mockFetch.mockReset();

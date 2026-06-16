@@ -28,8 +28,8 @@ describe("portfolio-projects", () => {
   beforeEach(() => {
     tempRoot = join(tmpdir(), `ao-portfolio-projects-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     mkdirSync(tempRoot, { recursive: true });
-    oldGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-    oldConfigPath = process.env["AO_CONFIG_PATH"];
+    oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+    oldConfigPath = process.env["CAHI_CONFIG_PATH"];
     oldHome = process.env["HOME"];
     oldUserProfile = process.env["USERPROFILE"];
     process.env["HOME"] = tempRoot;
@@ -38,10 +38,10 @@ describe("portfolio-projects", () => {
   });
 
   afterEach(() => {
-    if (oldGlobalConfig === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-    else process.env["AO_GLOBAL_CONFIG"] = oldGlobalConfig;
-    if (oldConfigPath === undefined) delete process.env["AO_CONFIG_PATH"];
-    else process.env["AO_CONFIG_PATH"] = oldConfigPath;
+    if (oldGlobalConfig === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+    else process.env["CAHI_GLOBAL_CONFIG"] = oldGlobalConfig;
+    if (oldConfigPath === undefined) delete process.env["CAHI_CONFIG_PATH"];
+    else process.env["CAHI_CONFIG_PATH"] = oldConfigPath;
     if (oldHome === undefined) delete process.env["HOME"];
     else process.env["HOME"] = oldHome;
     if (oldUserProfile === undefined) delete process.env["USERPROFILE"];
@@ -54,7 +54,7 @@ describe("portfolio-projects", () => {
     const globalConfigPath = join(tempRoot, "global-config.yaml");
     const docsRepo = join(tempRoot, "docs");
     mkdirSync(docsRepo, { recursive: true });
-    process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
 
     saveGlobalConfig(
       makeGlobalConfig({
@@ -92,7 +92,7 @@ describe("portfolio-projects", () => {
 
   it("uses the cache for local config resolution until cleared", () => {
     const repoPath = join(tempRoot, "repo");
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     mkdirSync(repoPath, { recursive: true });
 
     const writeWrappedConfig = (defaultBranch: string) => {

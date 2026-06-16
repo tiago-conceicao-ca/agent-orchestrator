@@ -278,7 +278,7 @@ function resolveApiKeyCandidate(
     return {
       apiKey: existingKey,
       shouldWriteApiKey: true,
-      sourceLabel: "agent-orchestrator.yaml",
+      sourceLabel: "cahi.yaml",
     };
   }
 
@@ -1501,7 +1501,7 @@ async function promptInteractiveComposioSlackReview(
   const choice = await clack.select({
     message: "Write this Composio Slack config?",
     options: [
-      { value: "write", label: "Write config", hint: "Update agent-orchestrator.yaml" },
+      { value: "write", label: "Write config", hint: "Update cahi.yaml" },
       { value: "channel", label: "Change channel", hint: "Return to channel step" },
       { value: "account", label: "Change Slack account", hint: "Return to account step" },
       { value: "routing", label: "Change routing", hint: "Choose notification priorities" },
@@ -1634,7 +1634,7 @@ async function promptInteractiveComposioDiscordWebhookReview(
   const choice = await clack.select({
     message: "Write this Composio Discord webhook config?",
     options: [
-      { value: "write", label: "Write config", hint: "Update agent-orchestrator.yaml" },
+      { value: "write", label: "Write config", hint: "Update cahi.yaml" },
       { value: "webhook", label: "Change webhook URL", hint: "Return to webhook URL step" },
       {
         value: "account",
@@ -2135,7 +2135,7 @@ async function promptInteractiveComposioDiscordBotReview(
   const choice = await clack.select({
     message: "Write this Composio Discord bot config?",
     options: [
-      { value: "write", label: "Write config", hint: "Update agent-orchestrator.yaml" },
+      { value: "write", label: "Write config", hint: "Update cahi.yaml" },
       { value: "channel", label: "Change channel ID", hint: "Return to channel step" },
       { value: "account", label: "Change bot account", hint: "Return to account step" },
       { value: "routing", label: "Change routing", hint: "Choose notification priorities" },
@@ -2670,7 +2670,7 @@ async function promptInteractiveComposioGmailReview(
   const choice = await clack.select({
     message: "Write this Composio Gmail config?",
     options: [
-      { value: "write", label: "Write config", hint: "Update agent-orchestrator.yaml" },
+      { value: "write", label: "Write config", hint: "Update cahi.yaml" },
       { value: "email", label: "Change recipient email", hint: "Return to email step" },
       { value: "account", label: "Change Gmail account", hint: "Return to account step" },
       { value: "routing", label: "Change routing", hint: "Choose notification priorities" },
@@ -3932,7 +3932,7 @@ export async function runComposioSetupAction(opts: ComposioSetupOptions): Promis
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 
@@ -3995,7 +3995,7 @@ export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): P
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 
@@ -4365,7 +4365,7 @@ export async function runComposioDiscordWebhookSetupAction(
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 
@@ -4422,7 +4422,7 @@ export async function runComposioDiscordBotSetupAction(
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 
@@ -4476,7 +4476,7 @@ export async function runComposioMailSetupAction(opts: ComposioMailSetupOptions)
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 

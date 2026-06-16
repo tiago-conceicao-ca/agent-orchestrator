@@ -112,7 +112,7 @@ export async function ensureGit(context: string): Promise<void> {
 
 /**
  * On Windows, attempt to rewrite `runtime: tmux` -> `runtime: process` in the
- * project's agent-orchestrator.yaml after asking the user. Uses a targeted
+ * project's cahi.yaml after asking the user. Uses a targeted
  * line replace (not a yaml round-trip) so comments and quoting are preserved.
  *
  * Returns `true` on a successful rewrite. The caller is responsible for
@@ -184,7 +184,7 @@ export async function ensureTmux(configPath?: string): Promise<{ switchedToProce
     console.log(
       chalk.bold("  Set ") +
         chalk.cyan("runtime: process") +
-        chalk.bold(" in agent-orchestrator.yaml, then re-run ao start.\n"),
+        chalk.bold(" in cahi.yaml, then re-run ao start.\n"),
     );
     process.exit(1);
   }

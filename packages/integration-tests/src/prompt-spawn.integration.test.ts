@@ -57,7 +57,7 @@ beforeAll(async () => {
   await execFileAsync("git", ["add", "."], { cwd: repoPath });
   await execFileAsync("git", ["commit", "-m", "init"], { cwd: repoPath });
 
-  configPath = join(tmpDir, "agent-orchestrator.yaml");
+  configPath = join(tmpDir, "cahi.yaml");
   await writeFile(
     configPath,
     JSON.stringify({

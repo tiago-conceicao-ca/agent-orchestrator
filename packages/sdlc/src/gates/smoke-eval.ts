@@ -2,7 +2,7 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
 /** Entries that don't count as "generated output". */
-const IGNORED = new Set([".git", "node_modules", ".ao", ".DS_Store"]);
+const IGNORED = new Set([".git", "node_modules", ".cahi", ".DS_Store"]);
 
 /** True if `dir` contains at least one non-ignored regular file (recursively). */
 function hasGeneratedFiles(dir: string): boolean {

@@ -603,7 +603,7 @@ describe("addSibling / removeSibling (#1095)", () => {
     });
 
     it("configure-then-spawn end to end: YAML config → loadConfig → spawn mounts the readonly sibling with working adjacency", async () => {
-      // The same wrapped agent-orchestrator.yaml shape a user writes (and the
+      // The same wrapped cahi.yaml shape a user writes (and the
       // web PATCH /api/projects/[id] persists) — exercises the full chain:
       // YAML → loadConfig (Zod) → ProjectConfig.siblings → _spawnInner auto-mount.
       // JSON.stringify keeps Windows backslash paths valid YAML.
@@ -691,7 +691,7 @@ describe("addSibling / removeSibling (#1095)", () => {
 // Global-catalog resolution (root-cause fix)
 //
 // Spawn-time sibling resolution must consult the GLOBAL registered-projects
-// catalog (~/.agent-orchestrator/config.yaml) — the same source the web
+// catalog (~/.cahi/config.yaml) — the same source the web
 // sidebar offers siblings from — not just the config the running AO was loaded
 // with. Otherwise a globally-registered sibling (e.g. taskmaster) added via the
 // sidebar fails to resolve when AO was started from a single-project local
@@ -700,12 +700,12 @@ describe("addSibling / removeSibling (#1095)", () => {
 // ---------------------------------------------------------------------------
 describe("sibling resolution against the global registered-projects catalog", () => {
   /**
-   * Write a global config at ~/.agent-orchestrator/config.yaml registering the
+   * Write a global config at ~/.cahi/config.yaml registering the
    * given projects, each under {tmpDir}/{id}. Mirrors the canonical global
    * config shape (defaults + projects with object-form repo identity).
    */
   function writeGlobalConfig(ids: string[]): void {
-    const globalDir = join(ctx.tmpDir, ".agent-orchestrator");
+    const globalDir = join(ctx.tmpDir, ".cahi");
     mkdirSync(globalDir, { recursive: true });
     const projectBlocks = ids
       .map((id) =>

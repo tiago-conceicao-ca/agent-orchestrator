@@ -2,15 +2,15 @@
  * Path utilities for the AO storage directory structure.
  *
  * V2 layout (projects/{projectId}/):
- *   getProjectDir(projectId)          → ~/.agent-orchestrator/projects/{projectId}
+ *   getProjectDir(projectId)          → ~/.cahi/projects/{projectId}
  *   getProjectSessionsDir(projectId)  → .../projects/{projectId}/sessions
  *   getProjectWorktreesDir(projectId) → .../projects/{projectId}/worktrees
  *   getOrchestratorPath(projectId)    → .../projects/{projectId}/orchestrator.json
  *   getSessionPath(projectId, sid)    → .../projects/{projectId}/sessions/{sid}.json
  *
  * Legacy layout ({storageKey}/):
- *   getProjectBaseDir(storageKey)     → ~/.agent-orchestrator/{storageKey}
- *   getSessionsDir(storageKey)        → ~/.agent-orchestrator/{storageKey}/sessions
+ *   getProjectBaseDir(storageKey)     → ~/.cahi/{storageKey}
+ *   getSessionsDir(storageKey)        → ~/.cahi/{storageKey}/sessions
  *   ... (deprecated, kept for migration only)
  */
 
@@ -23,7 +23,7 @@ import { realpathSync, existsSync, writeFileSync, readFileSync, mkdirSync } from
  * Generate a 12-character hash from a config directory path.
  *
  * The hash is derived from dirname(configPath), which equals the project root
- * directory when configPath is <project>/agent-orchestrator.yaml.
+ * directory when configPath is <project>/cahi.yaml.
  *
  * Handles non-existent paths gracefully (e.g. synthesized paths in remote/
  * Docker mode where no local config file exists) by falling back to
@@ -152,19 +152,19 @@ export function getSessionPath(projectId: string, sessionId: string): string {
 /**
  * @deprecated Use getProjectDir(projectId) instead.
  * Get the project base directory for a storage key.
- * Format: ~/.agent-orchestrator/{storageKey}
+ * Format: ~/.cahi/{storageKey}
  */
 export function getProjectBaseDir(storageKey: string | undefined): string {
-  return join(expandHome("~/.agent-orchestrator"), requireStorageKey(storageKey));
+  return join(expandHome("~/.cahi"), requireStorageKey(storageKey));
 }
 
 /**
  * Get the shared observability base directory for a config.
- * Format: ~/.agent-orchestrator/{hash}-observability
+ * Format: ~/.cahi/{hash}-observability
  */
 export function getObservabilityBaseDir(configPath: string): string {
   const hash = generateConfigHash(configPath);
-  return join(expandHome("~/.agent-orchestrator"), `${hash}-observability`);
+  return join(expandHome("~/.cahi"), `${hash}-observability`);
 }
 
 /**
@@ -276,12 +276,12 @@ export function expandHome(filepath: string): string {
   return filepath;
 }
 
-/** Get the base AO directory (~/.agent-orchestrator/) */
+/** Get the base AO directory (~/.cahi/) */
 export function getAoBaseDir(): string {
-  return expandHome("~/.agent-orchestrator");
+  return expandHome("~/.cahi");
 }
 
-/** Get the portfolio directory (~/.agent-orchestrator/portfolio/) */
+/** Get the portfolio directory (~/.cahi/portfolio/) */
 export function getPortfolioDir(): string {
   return join(getAoBaseDir(), "portfolio");
 }

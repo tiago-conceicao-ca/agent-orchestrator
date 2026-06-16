@@ -10,7 +10,7 @@ set -e
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'; BOLD='\033[1m'; RESET='\033[0m'
 
-RESTORE_FILE="$HOME/.ao-try-pr-restore"
+RESTORE_FILE="$HOME/.cahi-try-pr-restore"
 MAIN_REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
 # ── restore ────────────────────────────────────────────────────────────────────
@@ -19,11 +19,11 @@ if [ "$1" = "--restore" ]; then
     echo -e "${RED}Nothing to restore — no active try-pr session found.${RESET}"
     exit 1
   fi
-  AO_SHIM=$(which cahi)
+  CAHI_SHIM=$(which cahi)
   # Restore original shim
   if [ -f "$RESTORE_FILE.shim" ]; then
-    cp "$RESTORE_FILE.shim" "$AO_SHIM"
-    chmod +x "$AO_SHIM"
+    cp "$RESTORE_FILE.shim" "$CAHI_SHIM"
+    chmod +x "$CAHI_SHIM"
     rm "$RESTORE_FILE.shim"
   fi
   rm "$RESTORE_FILE"
@@ -38,7 +38,7 @@ if [ "$2" = "--with-web" ]; then
   WITH_WEB=true
 fi
 
-WORKTREES_DIR="${AO_WORKTREES_DIR:-$HOME/.worktrees/ao}"
+WORKTREES_DIR="${CAHI_WORKTREES_DIR:-$HOME/.worktrees/ao}"
 WORKTREE="$WORKTREES_DIR/$SESSION"
 
 if [ ! -d "$WORKTREE" ]; then
@@ -68,21 +68,21 @@ fi
 
 # ── link cahi ─────────────────────────────────────────────────────────────────
 # Directly update the pnpm shim to point at the worktree's dist/index.js
-AO_SHIM=$(which cahi)
-AO_TARGET="$WORKTREE/packages/cli/dist/index.js"
+CAHI_SHIM=$(which cahi)
+CAHI_TARGET="$WORKTREE/packages/cli/dist/index.js"
 
-echo -e "\n${BOLD}Linking cahi${RESET} → $AO_TARGET\n"
+echo -e "\n${BOLD}Linking cahi${RESET} → $CAHI_TARGET\n"
 
 # Save the original shim so we can restore it
-cp "$AO_SHIM" "$RESTORE_FILE.shim"
+cp "$CAHI_SHIM" "$RESTORE_FILE.shim"
 echo "$MAIN_REPO" > "$RESTORE_FILE"
 
 # Rewrite the shim to point at the worktree
-cat > "$AO_SHIM" <<EOF
+cat > "$CAHI_SHIM" <<EOF
 #!/bin/sh
-exec node "$AO_TARGET" "\$@"
+exec node "$CAHI_TARGET" "\$@"
 EOF
-chmod +x "$AO_SHIM"
+chmod +x "$CAHI_SHIM"
 
 echo -e "${GREEN}✔ cahi now points to: ${BOLD}$SESSION${RESET}${GREEN} ($BRANCH)${RESET}"
 echo ""
@@ -91,22 +91,22 @@ echo -e "  ${CYAN}bash scripts/try-pr.sh --restore${RESET}"
 
 # ── start dashboard if --with-web ──────────────────────────────────────────────
 if [ "$WITH_WEB" = true ]; then
-  # Find a free port starting from 3001 (3000 may be used by the main cahi start)
-  PORT=3001
+  # Find a free port starting from 4001 (4000 may be used by the main cahi start)
+  PORT=4001
   while lsof -ti ":$PORT" &>/dev/null; do
     PORT=$((PORT + 1))
   done
 
   # Use the real config so the PR dashboard shows actual sessions
-  REAL_CONFIG="$MAIN_REPO/agent-orchestrator.yaml"
+  REAL_CONFIG="$MAIN_REPO/cahi.yaml"
   if [ ! -f "$REAL_CONFIG" ]; then
-    REAL_CONFIG="${AO_CONFIG_PATH:-}"
+    REAL_CONFIG="${CAHI_CONFIG_PATH:-}"
   fi
 
   echo ""
   echo -e "  ${BOLD}Starting dashboard on port $PORT...${RESET}"
   echo -e "  ${CYAN}http://localhost:$PORT${RESET}  (Ctrl+C to stop)\n"
-  cd packages/web && AO_CONFIG_PATH="$REAL_CONFIG" PORT=$PORT pnpm dev
+  cd packages/web && CAHI_CONFIG_PATH="$REAL_CONFIG" PORT=$PORT pnpm dev
 else
   # Hint if this PR has web changes but --with-web wasn't passed
   if git -C "$WORKTREE" diff --name-only "origin/main...HEAD" 2>/dev/null | grep -q "packages/web/"; then

@@ -137,7 +137,7 @@ export async function buildDashboardEnv(
 
   // Pass config path so dashboard uses the same config as the CLI
   if (configPath) {
-    env["AO_CONFIG_PATH"] = configPath;
+    env["CAHI_CONFIG_PATH"] = configPath;
   }
 
   env["PORT"] = String(port);

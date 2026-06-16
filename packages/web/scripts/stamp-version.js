@@ -1,5 +1,5 @@
 /**
- * Writes the current package version to .next/AO_VERSION after a Next.js build.
+ * Writes the current package version to .next/CAHI_VERSION after a Next.js build.
  * This stamp is compared at `ao start` to detect stale runtime caches from
  * a previous version and clear them automatically.
  */
@@ -27,4 +27,4 @@ if (!pkg.version) {
   console.warn("stamp-version: no version field in package.json — skipping stamp");
   process.exit(0);
 }
-writeFileSync(resolve(nextDir, "AO_VERSION"), pkg.version, "utf8");
+writeFileSync(resolve(nextDir, "CAHI_VERSION"), pkg.version, "utf8");

@@ -148,14 +148,14 @@ describe("runtime.create()", () => {
       sessionId: "env-session",
       workspacePath: "/tmp/ws",
       launchCommand: "bash",
-      environment: { AO_SESSION: "env-session", FOO: "bar" },
+      environment: { CAHI_SESSION: "env-session", FOO: "bar" },
     });
 
     // First call: new-session with env args
     const firstCallArgs = mockExecFileCustom.mock.calls[0];
     const args = firstCallArgs[1] as string[];
     expect(args).toContain("-e");
-    expect(args).toContain("AO_SESSION=env-session");
+    expect(args).toContain("CAHI_SESSION=env-session");
     expect(args).toContain("FOO=bar");
     expect(args.at(-1)).toBe('bash\nexec "${SHELL:-/bin/bash}" -i');
   });

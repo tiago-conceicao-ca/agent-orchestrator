@@ -24,7 +24,7 @@ describe("opencode-agents-md", () => {
 
     expect(agentsMdPath).toBe(getWorkspaceAgentsMdPath(workspacePath));
     expect(readFileSync(agentsMdPath, "utf-8")).toBe(
-      "<!-- AO_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nUse worker sessions only.\n<!-- AO_ORCHESTRATOR_PROMPT_END -->\n",
+      "<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nUse worker sessions only.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n",
     );
   });
 
@@ -42,7 +42,7 @@ describe("opencode-agents-md", () => {
     writeWorkspaceOpenCodeAgentsMd(workspacePath, promptFile);
 
     expect(readFileSync(join(workspacePath, "AGENTS.md"), "utf-8")).toBe(
-      "# Existing\n\nDo keep this.\n\n<!-- AO_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nMerged orchestrator instructions.\n<!-- AO_ORCHESTRATOR_PROMPT_END -->\n",
+      "# Existing\n\nDo keep this.\n\n<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nMerged orchestrator instructions.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n",
     );
   });
 
@@ -51,7 +51,7 @@ describe("opencode-agents-md", () => {
     mkdirSync(workspacePath, { recursive: true });
     writeFileSync(
       join(workspacePath, "AGENTS.md"),
-      "# Existing\n\nBefore.\n\n<!-- AO_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nOld prompt.\n<!-- AO_ORCHESTRATOR_PROMPT_END -->\n\nAfter.\n",
+      "# Existing\n\nBefore.\n\n<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nOld prompt.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n\nAfter.\n",
       "utf-8",
     );
     const promptFile = join(root, "prompt.md");
@@ -60,7 +60,7 @@ describe("opencode-agents-md", () => {
     writeWorkspaceOpenCodeAgentsMd(workspacePath, promptFile);
 
     expect(readFileSync(join(workspacePath, "AGENTS.md"), "utf-8")).toBe(
-      "# Existing\n\nBefore.\n\nAfter.\n\n<!-- AO_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nNew prompt.\n<!-- AO_ORCHESTRATOR_PROMPT_END -->\n",
+      "# Existing\n\nBefore.\n\nAfter.\n\n<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nNew prompt.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n",
     );
   });
 });

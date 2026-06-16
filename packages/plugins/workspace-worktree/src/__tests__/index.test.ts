@@ -194,12 +194,12 @@ describe("create() factory", () => {
 
     const info = await ws.create(
       makeCreateConfig({
-        worktreeDir: "/mock-home/.agent-orchestrator/projects/myproject/worktrees",
+        worktreeDir: "/mock-home/.cahi/projects/myproject/worktrees",
       }),
     );
 
     // worktreeDir is used directly (not joined with projectId) — session-manager passes the project-scoped dir
-    expect(info.path).toBe("/mock-home/.agent-orchestrator/projects/myproject/worktrees/session-1");
+    expect(info.path).toBe("/mock-home/.cahi/projects/myproject/worktrees/session-1");
   });
 
   it("per-call worktreeDir overrides plugin-level worktreeDir", async () => {
@@ -323,7 +323,7 @@ describe("workspace.create()", () => {
 
     mockGitSuccess(
       [
-        "worktree /mock-home/.agent-orchestrator/projects/myproject/worktrees/session-1",
+        "worktree /mock-home/.cahi/projects/myproject/worktrees/session-1",
         "HEAD deadbeef",
         "branch refs/heads/feat/TEST-1",
       ].join("\n"),
@@ -332,12 +332,12 @@ describe("workspace.create()", () => {
 
     const info = await ws.findManagedWorkspace?.(
       makeCreateConfig({
-        worktreeDir: "/mock-home/.agent-orchestrator/projects/myproject/worktrees",
+        worktreeDir: "/mock-home/.cahi/projects/myproject/worktrees",
       }),
     );
 
     expect(info).toEqual({
-      path: "/mock-home/.agent-orchestrator/projects/myproject/worktrees/session-1",
+      path: "/mock-home/.cahi/projects/myproject/worktrees/session-1",
       branch: "feat/TEST-1",
       sessionId: "session-1",
       projectId: "myproject",
@@ -358,7 +358,7 @@ describe("workspace.create()", () => {
 
     const info = await ws.findManagedWorkspace?.(
       makeCreateConfig({
-        worktreeDir: "/mock-home/.agent-orchestrator/projects/myproject/worktrees",
+        worktreeDir: "/mock-home/.cahi/projects/myproject/worktrees",
       }),
     );
 

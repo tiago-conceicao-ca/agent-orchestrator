@@ -285,7 +285,7 @@ export async function isClaudeProcessAlive(handle: RuntimeHandle): Promise<Proce
  *
  * Claude activity is now derived from platform-event hooks
  * (PermissionRequest / StopFailure / Notification / Stop / PreToolUse / ...)
- * which write directly to `{workspace}/.ao/activity.jsonl`. The previous
+ * which write directly to `{workspace}/.cahi/activity.jsonl`. The previous
  * implementation regex-matched Claude's rendered terminal output, which
  * regressed every time Claude's UI footer or status-line wording changed
  * (15-commit churn in #1932 motivated the rewrite).

@@ -20,8 +20,8 @@ VM_HOST="aoqa.centralindia.cloudapp.azure.com"
 VM_USER="azureuser"
 VM_KEY="$HOME/.ssh/qakeypair.pem"
 VM_REPO_PATH="/srv/ao-preview/manual-qa/$REPO_NAME"
-VM_AO_PATH="/srv/ao-preview/manual-qa/agent-orchestrator"
-AO_BIN="$VM_AO_PATH/packages/cahi/node_modules/.bin/cahi"
+VM_CAHI_PATH="/srv/ao-preview/manual-qa/agent-orchestrator"
+CAHI_BIN="$VM_CAHI_PATH/packages/cahi/node_modules/.bin/cahi"
 
 # ── 1. Create GitHub repo (idempotent) ───────────────────────────────────────
 
@@ -110,19 +110,19 @@ echo ""
 echo "==> Issues:"
 gh issue list --repo "$REPO_FULL" | awk '{print "    #"$1, $2, $3, $4, $5}'
 
-# ── 3. Clone repo on VM and update agent-orchestrator.yaml ───────────────────
+# ── 3. Clone repo on VM and update cahi.yaml ───────────────────
 
 echo ""
 echo "==> Configuring VM..."
 
 ssh -i "$VM_KEY" "$VM_USER@$VM_HOST" bash -s -- \
-  "$VM_REPO_PATH" "$VM_AO_PATH" "$REPO_FULL" "$AO_BIN" << 'REMOTE'
+  "$VM_REPO_PATH" "$VM_CAHI_PATH" "$REPO_FULL" "$CAHI_BIN" << 'REMOTE'
 set -euo pipefail
 
 VM_REPO_PATH="$1"
-VM_AO_PATH="$2"
+VM_CAHI_PATH="$2"
 REPO_FULL="$3"
-AO_BIN="$4"
+CAHI_BIN="$4"
 
 echo "==> Cloning/updating throwaway repo on VM..."
 if [[ -d "$VM_REPO_PATH/.git" ]]; then
@@ -134,8 +134,8 @@ else
   echo "    Cloned."
 fi
 
-echo "==> Updating agent-orchestrator.yaml..."
-cat > "$VM_AO_PATH/agent-orchestrator.yaml" << YAML
+echo "==> Updating cahi.yaml..."
+cat > "$VM_CAHI_PATH/cahi.yaml" << YAML
 \$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
 
 port: 3000
@@ -162,13 +162,13 @@ projects:
 YAML
 
 echo "==> Stopping AO..."
-"$AO_BIN" stop 2>/dev/null || pkill -f 'start-all.js' 2>/dev/null || true
+"$CAHI_BIN" stop 2>/dev/null || pkill -f 'start-all.js' 2>/dev/null || true
 sleep 3
 
 echo "==> Restarting AO..."
 tmux has-session -t ao-qa 2>/dev/null || tmux new-session -d -s ao-qa
 tmux send-keys -t ao-qa:0 "" Enter
-tmux send-keys -t ao-qa:0 "cd $VM_AO_PATH && $AO_BIN start" Enter
+tmux send-keys -t ao-qa:0 "cd $VM_CAHI_PATH && $CAHI_BIN start" Enter
 
 echo ""
 echo "Done. VM is configured."
@@ -186,5 +186,5 @@ echo "  1. Wait ~15s for AO to start"
 echo "  2. Open the dashboard and go to the 'AO Multi-PR QA Test' project"
 echo "  3. Spawn sessions:"
 echo "     ssh -i ~/.ssh/qakeypair.pem $VM_USER@$VM_HOST"
-echo "     cd $VM_AO_PATH && $AO_BIN batch-spawn 1 2 3 4"
+echo "     cd $VM_CAHI_PATH && $CAHI_BIN batch-spawn 1 2 3 4"
 echo "================================================================"

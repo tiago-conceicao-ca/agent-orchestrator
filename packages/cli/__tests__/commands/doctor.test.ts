@@ -47,7 +47,7 @@ vi.mock("@contaazul/cahi-core", () => ({
   createPluginRegistry: (...args: unknown[]) => mockCreatePluginRegistry(...args),
   createProjectObserver: (...args: unknown[]) => mockCreateProjectObserver(...args),
   findConfigFile: (...args: unknown[]) => mockFindConfigFile(...args),
-  getObservabilityBaseDir: () => "/tmp/.agent-orchestrator/observability",
+  getObservabilityBaseDir: () => "/tmp/.cahi/observability",
   loadConfig: (...args: unknown[]) => mockLoadConfig(...args),
   recordNotificationDelivery: (...args: unknown[]) => mockRecordNotificationDelivery(...args),
   resolveNotifierTarget: (
@@ -101,7 +101,7 @@ function manifest(slot: string, name: string) {
 
 function makeConfig() {
   return {
-    configPath: "/tmp/agent-orchestrator.yaml",
+    configPath: "/tmp/cahi.yaml",
     port: 3000,
     readyThresholdMs: 300_000,
     defaults: {

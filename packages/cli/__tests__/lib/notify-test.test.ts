@@ -23,7 +23,7 @@ import {
 function makeConfig(overrides: Partial<OrchestratorConfig> = {}): OrchestratorConfig {
   const testHome = process.env["HOME"] ?? process.env["USERPROFILE"] ?? tmpdir();
   return {
-    configPath: join(testHome, "agent-orchestrator.yaml"),
+    configPath: join(testHome, "cahi.yaml"),
     readyThresholdMs: 300_000,
     defaults: {
       runtime: "tmux",

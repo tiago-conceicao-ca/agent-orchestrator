@@ -1,6 +1,6 @@
 /**
  * Integration tests for single-port-server — the opt-in HTTP + WebSocket
- * proxy used when AO_PATH_BASED_MUX=1.
+ * proxy used when CAHI_PATH_BASED_MUX=1.
  *
  * These pin the four behaviours surfaced in review of PR #1757:
  *   1. Hop-by-hop request headers are stripped before reaching the upstream.

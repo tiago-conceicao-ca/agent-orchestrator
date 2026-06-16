@@ -195,7 +195,7 @@ function createRenderData(opts: OrchestratorPromptConfig): OrchestratorPromptRen
     projectDefaultBranch: project.defaultBranch,
     projectSessionPrefix: project.sessionPrefix,
     projectPath: project.path,
-    dashboardPort: String(config.port ?? 3000),
+    dashboardPort: String(config.port ?? 4000),
     automatedReactionsSection: buildAutomatedReactionsSection(project),
     projectSpecificRulesSection: buildProjectSpecificRulesSection(project),
     siblingsSection: buildSiblingsSection(config, projectId, project),

@@ -141,8 +141,8 @@ export function registerSend(program: Command): void {
         // worker, worker → worker). The receiver gets the message as raw
         // terminal input with no `from:` metadata, so the prefix is the only
         // way to identify who's writing. Humans running ao send from their
-        // own terminal have no AO_SESSION_ID and stay unprefixed.
-        const senderSessionId = process.env["AO_SESSION_ID"];
+        // own terminal have no CAHI_SESSION_ID and stay unprefixed.
+        const senderSessionId = process.env["CAHI_SESSION_ID"];
         const message = senderSessionId
           ? `[from ${senderSessionId}] ${rawMessage}`
           : rawMessage;

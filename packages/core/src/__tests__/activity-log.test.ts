@@ -140,7 +140,7 @@ describe("getActivityFallbackState", () => {
   it("lets a newer active entry override an older waiting_input entry", async () => {
     const tmpDir = await mkdtemp(join(tmpdir(), "ao-test-"));
     try {
-      await mkdir(join(tmpDir, ".ao"), { recursive: true });
+      await mkdir(join(tmpDir, ".cahi"), { recursive: true });
       const waitingEntry: ActivityLogEntry = {
         ts: minutesAgo(6),
         state: "waiting_input",
@@ -194,7 +194,7 @@ describe("readLastActivityEntry", () => {
   });
 
   it("returns null for empty file", async () => {
-    await mkdir(join(tmpDir, ".ao"), { recursive: true });
+    await mkdir(join(tmpDir, ".cahi"), { recursive: true });
     await writeFile(getActivityLogPath(tmpDir), "", "utf-8");
     const result = await readLastActivityEntry(tmpDir);
     expect(result).toBeNull();
@@ -218,14 +218,14 @@ describe("readLastActivityEntry", () => {
   });
 
   it("returns null for invalid JSON", async () => {
-    await mkdir(join(tmpDir, ".ao"), { recursive: true });
+    await mkdir(join(tmpDir, ".cahi"), { recursive: true });
     await writeFile(getActivityLogPath(tmpDir), "not json\n", "utf-8");
     const result = await readLastActivityEntry(tmpDir);
     expect(result).toBeNull();
   });
 
   it("returns null for invalid state value", async () => {
-    await mkdir(join(tmpDir, ".ao"), { recursive: true });
+    await mkdir(join(tmpDir, ".cahi"), { recursive: true });
     const bad = JSON.stringify({ ts: new Date().toISOString(), state: "invalid", source: "terminal" });
     await writeFile(getActivityLogPath(tmpDir), bad + "\n", "utf-8");
     const result = await readLastActivityEntry(tmpDir);
@@ -233,7 +233,7 @@ describe("readLastActivityEntry", () => {
   });
 
   it("returns null for missing required fields", async () => {
-    await mkdir(join(tmpDir, ".ao"), { recursive: true });
+    await mkdir(join(tmpDir, ".cahi"), { recursive: true });
     const bad = JSON.stringify({ ts: new Date().toISOString() });
     await writeFile(getActivityLogPath(tmpDir), bad + "\n", "utf-8");
     const result = await readLastActivityEntry(tmpDir);
@@ -250,7 +250,7 @@ describe("readLastActivityEntry", () => {
   });
 
   it("falls back to the previous complete line when a read races a truncated tail", async () => {
-    await mkdir(join(tmpDir, ".ao"), { recursive: true });
+    await mkdir(join(tmpDir, ".cahi"), { recursive: true });
     const completeEntry: ActivityLogEntry = {
       ts: minutesAgo(10),
       state: "waiting_input",

@@ -294,20 +294,20 @@ describe("getLaunchCommand", () => {
 describe("getEnvironment", () => {
   const agent = create();
 
-  it("sets AO_SESSION_ID but not AO_PROJECT_ID (caller's responsibility)", () => {
+  it("sets CAHI_SESSION_ID but not CAHI_PROJECT_ID (caller's responsibility)", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
-    expect(env["AO_PROJECT_ID"]).toBeUndefined();
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_PROJECT_ID"]).toBeUndefined();
   });
 
-  it("sets AO_ISSUE_ID when provided", () => {
+  it("sets CAHI_ISSUE_ID when provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig({ issueId: "LIN-99" }));
-    expect(env["AO_ISSUE_ID"]).toBe("LIN-99");
+    expect(env["CAHI_ISSUE_ID"]).toBe("LIN-99");
   });
 
-  it("omits AO_ISSUE_ID when not provided", () => {
+  it("omits CAHI_ISSUE_ID when not provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
   });
 });
 

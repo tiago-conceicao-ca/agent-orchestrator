@@ -28,14 +28,14 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
   beforeEach(async () => {
     tmpHome = await realpath(await mkdtemp(join(tmpdir(), "ao-first-run-int-")));
     repoPath = join(tmpHome, "first-run-repo");
-    globalConfigPath = join(tmpHome, "global-agent-orchestrator.yaml");
+    globalConfigPath = join(tmpHome, "global-cahi.yaml");
 
     originalHome = process.env["HOME"];
-    originalAoGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-    originalAoConfigPath = process.env["AO_CONFIG_PATH"];
+    originalAoGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+    originalAoConfigPath = process.env["CAHI_CONFIG_PATH"];
     process.env["HOME"] = tmpHome;
-    process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
-    delete process.env["AO_CONFIG_PATH"];
+    process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
+    delete process.env["CAHI_CONFIG_PATH"];
 
     mkdirSync(repoPath, { recursive: true });
     await execFileAsync("git", ["init"], { cwd: repoPath });
@@ -55,10 +55,10 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
   afterEach(async () => {
     if (originalHome === undefined) delete process.env["HOME"];
     else process.env["HOME"] = originalHome;
-    if (originalAoGlobalConfig === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-    else process.env["AO_GLOBAL_CONFIG"] = originalAoGlobalConfig;
-    if (originalAoConfigPath === undefined) delete process.env["AO_CONFIG_PATH"];
-    else process.env["AO_CONFIG_PATH"] = originalAoConfigPath;
+    if (originalAoGlobalConfig === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+    else process.env["CAHI_GLOBAL_CONFIG"] = originalAoGlobalConfig;
+    if (originalAoConfigPath === undefined) delete process.env["CAHI_CONFIG_PATH"];
+    else process.env["CAHI_CONFIG_PATH"] = originalAoConfigPath;
     await rm(tmpHome, { recursive: true, force: true }).catch(() => {});
   });
 
@@ -66,10 +66,10 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       HOME: tmpHome,
-      AO_GLOBAL_CONFIG: globalConfigPath,
+      CAHI_GLOBAL_CONFIG: globalConfigPath,
     };
-    delete env["AO_CONFIG_PATH"];
-    env["AO_CALLER_TYPE"] = "agent";
+    delete env["CAHI_CONFIG_PATH"];
+    env["CAHI_CALLER_TYPE"] = "agent";
 
     await execFileAsync(
       tsxBin,
@@ -77,7 +77,7 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
       { cwd: repoPath, env, timeout: 60_000 },
     );
 
-    const localConfigPath = join(repoPath, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoPath, "cahi.yaml");
     expect(existsSync(localConfigPath)).toBe(true);
     expect(existsSync(globalConfigPath)).toBe(true);
 

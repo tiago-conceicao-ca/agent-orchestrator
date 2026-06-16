@@ -159,13 +159,13 @@ describe("getDashboardPageData fast path", () => {
   });
 
   it("surfaces getServices failure as dashboardLoadError instead of a silent empty list", async () => {
-    hoisted.getServicesMock.mockRejectedValue(new Error("No agent-orchestrator.yaml found"));
+    hoisted.getServicesMock.mockRejectedValue(new Error("No cahi.yaml found"));
 
     const pageData = await getDashboardPageData("all");
 
     expect(pageData.sessions).toEqual([]);
     expect(pageData.orchestrators).toEqual([]);
-    expect(pageData.dashboardLoadError).toBe("No agent-orchestrator.yaml found");
+    expect(pageData.dashboardLoadError).toBe("No cahi.yaml found");
   });
 
   it("applies attentionZones from config when getServices succeeds but sessionManager.list fails", async () => {

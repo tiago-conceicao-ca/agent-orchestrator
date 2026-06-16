@@ -207,7 +207,7 @@ export const DEFAULT_RECOVERY_CONFIG: RecoveryConfig = {
   enabled: true,
   timeoutMs: 30_000,
   parallelValidation: 5,
-  logPath: "", // Will be set to ~/.agent-orchestrator/recovery.log
+  logPath: "", // Will be set to ~/.cahi/recovery.log
   autoCleanup: true,
   escalatePartial: true,
   maxRecoveryAttempts: 3,

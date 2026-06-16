@@ -312,7 +312,7 @@ def stars_delta_estimate(repo: str, current: int | None) -> int | None:
     """Read last week's star count from a local cache file, if present."""
     if current is None:
         return None
-    cache_dir = os.environ.get("AO_RELEASE_NOTES_CACHE") or os.path.expanduser(
+    cache_dir = os.environ.get("CAHI_RELEASE_NOTES_CACHE") or os.path.expanduser(
         "~/.cache/ao-weekly-release"
     )
     cache_path = os.path.join(cache_dir, f"{repo.replace('/', '__')}.json")

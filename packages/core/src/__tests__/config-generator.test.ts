@@ -273,7 +273,7 @@ describe("generateConfigFromUrl", () => {
     expect(config["$schema"]).toBe(
       "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
     );
-    expect(config.port).toBe(3000);
+    expect(config.port).toBe(4000);
     expect(config.defaults).toEqual({
       runtime: getDefaultRuntime(),
       agent: "claude-code",

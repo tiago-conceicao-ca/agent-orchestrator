@@ -95,7 +95,7 @@ const recordedEvents = (): Array<Record<string, unknown>> =>
 
 beforeEach(() => {
   tmpDir = mkdtempSync(join(tmpdir(), "ao-spawn-test-"));
-  configPath = join(tmpDir, "agent-orchestrator.yaml");
+  configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}");
 
   mockConfigRef.current = {

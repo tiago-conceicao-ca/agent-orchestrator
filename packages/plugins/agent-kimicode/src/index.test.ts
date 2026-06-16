@@ -377,14 +377,14 @@ describe("getLaunchCommand", () => {
 describe("getEnvironment", () => {
   const agent = create();
 
-  it("sets AO_SESSION_ID", () => {
+  it("sets CAHI_SESSION_ID", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
   });
 
-  it("sets AO_ISSUE_ID only when provided", () => {
-    expect(agent.getEnvironment(makeLaunchConfig()).AO_ISSUE_ID).toBeUndefined();
-    expect(agent.getEnvironment(makeLaunchConfig({ issueId: "GH-42" })).AO_ISSUE_ID).toBe(
+  it("sets CAHI_ISSUE_ID only when provided", () => {
+    expect(agent.getEnvironment(makeLaunchConfig()).CAHI_ISSUE_ID).toBeUndefined();
+    expect(agent.getEnvironment(makeLaunchConfig({ issueId: "GH-42" })).CAHI_ISSUE_ID).toBe(
       "GH-42",
     );
   });
@@ -728,16 +728,16 @@ describe("getActivityState", () => {
     expect(result).toBeNull();
   });
 
-  it("pin file (.ao/kimi-session-id.json) wins over recency", async () => {
+  it("pin file (.cahi/kimi-session-id.json) wins over recency", async () => {
     const realWorkspace = join(fakeHome, "workspace-pin-1");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
     writeKimiSession(realWorkspace, "sess-newer"); // newer, but not pinned
     writeKimiSession(realWorkspace, "pinned-uuid", {
       contextAgeMs: 2 * 60 * 1000,
       wireAgeMs: 2 * 60 * 1000,
     });
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-session-id.json"),
+      join(realWorkspace, ".cahi", "kimi-session-id.json"),
       JSON.stringify({ sessionId: "pinned-uuid", pinnedAt: "2026-04-01T00:00:00.000Z" }),
     );
 
@@ -760,7 +760,7 @@ describe("getActivityState", () => {
     expect(info?.agentSessionId).toBe("ao-spawned");
 
     const pin = JSON.parse(
-      readFileSync(join(realWorkspace, ".ao", "kimi-session-id.json"), "utf-8"),
+      readFileSync(join(realWorkspace, ".cahi", "kimi-session-id.json"), "utf-8"),
     );
     expect(pin.sessionId).toBe("ao-spawned");
     expect(typeof pin.pinnedAt).toBe("string");
@@ -770,13 +770,13 @@ describe("getActivityState", () => {
   // freshest in the bucket later, the pinned UUID stays put.
   it("pin file holds even when a newer non-pinned UUID appears later", async () => {
     const realWorkspace = join(fakeHome, "workspace-pin-stable");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
     writeKimiSession(realWorkspace, "ao-original", {
       contextAgeMs: 2 * 60 * 1000,
       wireAgeMs: 2 * 60 * 1000,
     });
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-session-id.json"),
+      join(realWorkspace, ".cahi", "kimi-session-id.json"),
       JSON.stringify({ sessionId: "ao-original", pinnedAt: "2026-04-01T00:00:00.000Z" }),
     );
 
@@ -816,13 +816,13 @@ describe("getActivityState", () => {
 
     // Use a real on-disk workspace so the plugin can read the baseline file.
     const realWorkspace = join(fakeHome, "workspace-baseline-1");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     writeKimiSession(realWorkspace, "manual-run-uuid"); // pre-AO
     writeKimiSession(realWorkspace, "ao-launched-uuid"); // post-AO
 
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-baseline.json"),
+      join(realWorkspace, ".cahi", "kimi-baseline.json"),
       JSON.stringify({
         preExistingUuids: ["manual-run-uuid"],
         capturedAt: new Date().toISOString(),
@@ -839,13 +839,13 @@ describe("getActivityState", () => {
     mockTmuxWithProcess("kimi");
 
     const realWorkspace = join(fakeHome, "workspace-baseline-2");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     writeKimiSession(realWorkspace, "old-1");
     writeKimiSession(realWorkspace, "old-2");
 
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-baseline.json"),
+      join(realWorkspace, ".cahi", "kimi-baseline.json"),
       JSON.stringify({
         preExistingUuids: ["old-1", "old-2"],
         capturedAt: new Date().toISOString(),
@@ -907,14 +907,14 @@ describe("getActivityState", () => {
 
   it("preLaunchSetup is write-once — restore preserves the original baseline", async () => {
     const realWorkspace = join(fakeHome, "workspace-baseline-4");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     const originalBaseline = {
       preExistingUuids: ["original-pre-existing"],
       capturedAt: "2026-04-01T00:00:00.000Z",
     };
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-baseline.json"),
+      join(realWorkspace, ".cahi", "kimi-baseline.json"),
       JSON.stringify(originalBaseline),
     );
 
@@ -926,7 +926,7 @@ describe("getActivityState", () => {
     await agent.preLaunchSetup!(realWorkspace);
 
     const baselineNow = JSON.parse(
-      readFileSync(join(realWorkspace, ".ao", "kimi-baseline.json"), "utf-8"),
+      readFileSync(join(realWorkspace, ".cahi", "kimi-baseline.json"), "utf-8"),
     );
     expect(baselineNow.preExistingUuids).toEqual(["original-pre-existing"]);
     expect(baselineNow.capturedAt).toBe("2026-04-01T00:00:00.000Z");
@@ -934,10 +934,10 @@ describe("getActivityState", () => {
 
   it("pinned UUID that no longer exists returns null (no fallback to recency)", async () => {
     const realWorkspace = join(fakeHome, "workspace-pin-missing");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
     writeKimiSession(realWorkspace, "some-other-uuid"); // exists but not pinned
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-session-id.json"),
+      join(realWorkspace, ".cahi", "kimi-session-id.json"),
       JSON.stringify({ sessionId: "pinned-missing", pinnedAt: "2026-04-01T00:00:00.000Z" }),
     );
 
@@ -1217,7 +1217,7 @@ describe("getSessionInfo", () => {
   // baseline + createdAt filters as the recency contest.
   it("rejects kimi.json soft-pin when it points at a baseline UUID", async () => {
     const realWorkspace = join(fakeHome, "workspace-kimijson-stale");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     // "stale-uuid" was left in the bucket and in kimi.json by an earlier
     // manual run. "ao-spawned" is the UUID kimi created for this AO session.
@@ -1226,7 +1226,7 @@ describe("getSessionInfo", () => {
 
     // Baseline (captured by preLaunchSetup) flags "stale-uuid" as pre-AO.
     writeFileSync(
-      join(realWorkspace, ".ao", "kimi-baseline.json"),
+      join(realWorkspace, ".cahi", "kimi-baseline.json"),
       JSON.stringify({
         preExistingUuids: ["stale-uuid"],
         capturedAt: new Date().toISOString(),
@@ -1252,7 +1252,7 @@ describe("getSessionInfo", () => {
     // And the AO pin file must record "ao-spawned", not "stale-uuid" —
     // otherwise every later call would resolve to the wrong conversation.
     const pin = JSON.parse(
-      readFileSync(join(realWorkspace, ".ao", "kimi-session-id.json"), "utf-8"),
+      readFileSync(join(realWorkspace, ".cahi", "kimi-session-id.json"), "utf-8"),
     );
     expect(pin.sessionId).toBe("ao-spawned");
   });
@@ -1261,7 +1261,7 @@ describe("getSessionInfo", () => {
   // createdAt. The soft-pin must be filtered by the createdAt floor too.
   it("rejects kimi.json soft-pin when its UUID predates session.createdAt", async () => {
     const realWorkspace = join(fakeHome, "workspace-kimijson-old");
-    mkdirSync(join(realWorkspace, ".ao"), { recursive: true });
+    mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     // "old-uuid" exists with mtime far before session.createdAt; nothing
     // is in the baseline file, but the createdAt floor should still

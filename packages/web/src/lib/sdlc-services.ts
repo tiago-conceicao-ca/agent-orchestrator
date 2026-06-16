@@ -36,11 +36,11 @@ import { getServices } from "./services";
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap
 // A task with no completion signal past this threshold is "stalled" → one
-// auto-retry (configurable via AO_SDLC_STALL_THRESHOLD_MS).
+// auto-retry (configurable via CAHI_SDLC_STALL_THRESHOLD_MS).
 const TASK_STALL_THRESHOLD_MS =
-  Number(process.env.AO_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
+  Number(process.env.CAHI_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
 // Dependency-parallel slot cap for the generate-backend scheduler.
-const SDLC_MAX_CONCURRENT = Number(process.env.AO_SDLC_MAX_CONCURRENT) || 3;
+const SDLC_MAX_CONCURRENT = Number(process.env.CAHI_SDLC_MAX_CONCURRENT) || 3;
 
 /**
  * Map an AO session's terminal state to the engine's done/failed outcome.
@@ -127,7 +127,7 @@ export async function buildWebSdlcEngine(
     },
   };
 
-  // The worker's `.ao/sdlc-task-done.json` sentinel is the primary, PR-independent
+  // The worker's `.cahi/sdlc-task-done.json` sentinel is the primary, PR-independent
   // completion signal; classifyTerminal (PR/lifecycle) remains the fallback.
   const waitForDone = (sessionId: string, workspacePath?: string) =>
     waitForTaskCompletion({

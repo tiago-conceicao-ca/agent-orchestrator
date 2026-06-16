@@ -226,12 +226,12 @@ async function startWebServer(fixture: Fixture): Promise<ServerHandle> {
     env: {
       ...process.env,
       HOME: fixture.homeDir,
-      AO_GLOBAL_CONFIG: fixture.globalConfigPath,
-      AO_CONFIG_PATH: fixture.localConfigPath,
-      AO_CODE_REVIEW_COMMAND: buildFindingReviewCommand(1_000),
+      CAHI_GLOBAL_CONFIG: fixture.globalConfigPath,
+      CAHI_CONFIG_PATH: fixture.localConfigPath,
+      CAHI_CODE_REVIEW_COMMAND: buildFindingReviewCommand(1_000),
       PORT: String(port),
       NEXT_TELEMETRY_DISABLED: "1",
-      AO_NO_UPDATE_NOTIFIER: "1",
+      CAHI_NO_UPDATE_NOTIFIER: "1",
       AGENT_ORCHESTRATOR_CI: "1",
     },
   });
@@ -276,9 +276,9 @@ function createFixture(): Fixture {
   const rootDir = mkdtempSync(join(tmpdir(), "ao-review-board-e2e-"));
   const homeDir = join(rootDir, "home");
   const projectDir = join(rootDir, "todo-app");
-  const globalConfigPath = join(homeDir, ".agent-orchestrator", "config.yaml");
-  const localConfigPath = join(projectDir, "agent-orchestrator.yaml");
-  const sessionsDir = join(homeDir, ".agent-orchestrator", "projects", PROJECT_ID, "sessions");
+  const globalConfigPath = join(homeDir, ".cahi", "config.yaml");
+  const localConfigPath = join(projectDir, "cahi.yaml");
+  const sessionsDir = join(homeDir, ".cahi", "projects", PROJECT_ID, "sessions");
   const tmuxSuffix = basename(rootDir).replace(/[^a-zA-Z0-9_-]/g, "-");
   const tmuxSessionPrefix = `${tmuxSuffix}-`;
   const workerTmuxName = `${tmuxSuffix}-worker`;
@@ -316,8 +316,8 @@ function createFixture(): Fixture {
   );
 
   process.env["HOME"] = homeDir;
-  process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
-  process.env["AO_CONFIG_PATH"] = localConfigPath;
+  process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
+  process.env["CAHI_CONFIG_PATH"] = localConfigPath;
 
   const createdAt = new Date("2026-05-13T10:00:00.000Z");
   const workerLifecycle = createInitialCanonicalLifecycle("worker", createdAt);
@@ -406,7 +406,7 @@ function reviewCard(page: Page, reviewerSessionId: string): Locator {
 }
 
 function projectAoDir(fixture: Fixture): string {
-  return join(fixture.homeDir, ".agent-orchestrator", "projects", PROJECT_ID);
+  return join(fixture.homeDir, ".cahi", "projects", PROJECT_ID);
 }
 
 function runAoCli(fixture: Fixture, args: string[]): string {
@@ -416,9 +416,9 @@ function runAoCli(fixture: Fixture, args: string[]): string {
     env: {
       ...process.env,
       HOME: fixture.homeDir,
-      AO_GLOBAL_CONFIG: fixture.globalConfigPath,
-      AO_CONFIG_PATH: fixture.localConfigPath,
-      AO_NO_UPDATE_NOTIFIER: "1",
+      CAHI_GLOBAL_CONFIG: fixture.globalConfigPath,
+      CAHI_CONFIG_PATH: fixture.localConfigPath,
+      CAHI_NO_UPDATE_NOTIFIER: "1",
       AGENT_ORCHESTRATOR_CI: "1",
     },
   });
@@ -432,9 +432,9 @@ function runAoCliAsync(fixture: Fixture, args: string[]): Promise<string> {
       env: {
         ...process.env,
         HOME: fixture.homeDir,
-        AO_GLOBAL_CONFIG: fixture.globalConfigPath,
-        AO_CONFIG_PATH: fixture.localConfigPath,
-        AO_NO_UPDATE_NOTIFIER: "1",
+        CAHI_GLOBAL_CONFIG: fixture.globalConfigPath,
+        CAHI_CONFIG_PATH: fixture.localConfigPath,
+        CAHI_NO_UPDATE_NOTIFIER: "1",
         AGENT_ORCHESTRATOR_CI: "1",
       },
     });
@@ -857,7 +857,7 @@ async function main(): Promise<void> {
       // Best effort cleanup; tmux sessions and fixture files still need cleanup.
     }
     killReviewBoardTmuxSessions(fixture);
-    if (process.env["AO_E2E_KEEP_ARTIFACTS"] !== "1") {
+    if (process.env["CAHI_E2E_KEEP_ARTIFACTS"] !== "1") {
       rmSync(fixture.rootDir, { recursive: true, force: true });
     } else {
       process.stdout.write(`\nKept e2e fixture at ${fixture.rootDir}\n`);

@@ -185,7 +185,7 @@ function parseBooleanEnv(raw: string | undefined): boolean | null {
 }
 
 function getLogLevel(config: OrchestratorConfig): ObservabilityLevel {
-  const raw = process.env["AO_LOG_LEVEL"]?.trim().toLowerCase();
+  const raw = process.env["CAHI_LOG_LEVEL"]?.trim().toLowerCase();
   return parseLogLevel(raw) ?? config.observability?.logLevel ?? "warn";
 }
 
@@ -195,7 +195,7 @@ function shouldLog(level: ObservabilityLevel, config: OrchestratorConfig): boole
 
 function shouldMirrorStructuredLogsToStderr(config: OrchestratorConfig): boolean {
   return (
-    parseBooleanEnv(process.env["AO_OBSERVABILITY_STDERR"]) ?? config.observability?.stderr ?? false
+    parseBooleanEnv(process.env["CAHI_OBSERVABILITY_STDERR"]) ?? config.observability?.stderr ?? false
   );
 }
 

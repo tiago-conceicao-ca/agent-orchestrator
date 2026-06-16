@@ -32,23 +32,23 @@ describe("project resolver", () => {
 
   beforeEach(() => {
     tempRoot = join(tmpdir(), `ao-project-resolver-${Date.now()}-${Math.random().toString(16).slice(2)}`);
-    configPath = join(tempRoot, ".agent-orchestrator", "config.yaml");
+    configPath = join(tempRoot, ".cahi", "config.yaml");
     mkdirSync(tempRoot, { recursive: true });
     originalHome = process.env["HOME"];
     originalUserProfile = process.env["USERPROFILE"];
-    originalGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
+    originalGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     process.env["HOME"] = tempRoot;
     process.env["USERPROFILE"] = tempRoot;
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
   });
 
   afterEach(() => {
     process.env["HOME"] = originalHome;
     process.env["USERPROFILE"] = originalUserProfile;
     if (originalGlobalConfig === undefined) {
-      delete process.env["AO_GLOBAL_CONFIG"];
+      delete process.env["CAHI_GLOBAL_CONFIG"];
     } else {
-      process.env["AO_GLOBAL_CONFIG"] = originalGlobalConfig;
+      process.env["CAHI_GLOBAL_CONFIG"] = originalGlobalConfig;
     }
     rmSync(tempRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
   });
@@ -117,7 +117,7 @@ describe("project resolver", () => {
   it("throws ProjectResolveError for broken local yaml", () => {
     const projectPath = join(tempRoot, "broken");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(projectPath, "agent-orchestrator.yaml"), "tracker: [\n");
+    writeFileSync(join(projectPath, "cahi.yaml"), "tracker: [\n");
 
     const globalConfig = makeGlobalConfig({
       broken: {
@@ -138,7 +138,7 @@ describe("project resolver", () => {
     const projectPath = join(tempRoot, "app");
     mkdirSync(projectPath, { recursive: true });
     writeFileSync(
-      join(projectPath, "agent-orchestrator.yaml"),
+      join(projectPath, "cahi.yaml"),
       ["agent: codex", "runtime: docker", "workspace: clone", "tracker:", "  plugin: github", ""].join("\n"),
     );
 
@@ -174,8 +174,8 @@ describe("project resolver", () => {
     const brokenPath = join(tempRoot, "broken");
     mkdirSync(cleanPath, { recursive: true });
     mkdirSync(brokenPath, { recursive: true });
-    writeFileSync(join(cleanPath, "agent-orchestrator.yaml"), "agent: codex\nruntime: tmux\nworkspace: worktree\n");
-    writeFileSync(join(brokenPath, "agent-orchestrator.yaml"), "tracker: [\n");
+    writeFileSync(join(cleanPath, "cahi.yaml"), "agent: codex\nruntime: tmux\nworkspace: worktree\n");
+    writeFileSync(join(brokenPath, "cahi.yaml"), "tracker: [\n");
 
     saveGlobalConfig(
       makeGlobalConfig({
@@ -217,7 +217,7 @@ describe("project resolver", () => {
     mkdirSync(symlinkParent, { recursive: true });
     symlinkSync(realProjectPath, symlinkProjectPath);
     writeFileSync(
-      join(realProjectPath, "agent-orchestrator.yaml"),
+      join(realProjectPath, "cahi.yaml"),
       ["agent: codex", "runtime: docker", "workspace: clone", ""].join("\n"),
     );
 
@@ -234,7 +234,7 @@ describe("project resolver", () => {
       configPath,
     );
 
-    const loaded = loadConfig(join(symlinkProjectPath, "agent-orchestrator.yaml"));
+    const loaded = loadConfig(join(symlinkProjectPath, "cahi.yaml"));
     expect(loaded.projects.app).toMatchObject({
       name: "App",
       path: realProjectPath,

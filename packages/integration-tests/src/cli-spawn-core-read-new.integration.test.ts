@@ -3,7 +3,7 @@
  *
  * This test verifies that sessions work correctly with the projectId-based
  * project isolation architecture:
- * - Sessions stored in project-specific directories (~/.agent-orchestrator/projects/{projectId}/)
+ * - Sessions stored in project-specific directories (~/.cahi/projects/{projectId}/)
  * - projectId-based namespacing prevents collisions
  * - tmuxName field correctly maps user-facing → tmux names
  * - Core session-manager finds sessions in new structure
@@ -90,7 +90,7 @@ describe.skipIf(!tmuxOk)("CLI-Core integration (projectId-based architecture)", 
       reactions: {},
     };
 
-    configPath = join(tmpDir, "agent-orchestrator.yaml");
+    configPath = join(tmpDir, "cahi.yaml");
     await writeFile(configPath, JSON.stringify(config, null, 2));
   }, 30_000);
 
@@ -109,7 +109,7 @@ describe.skipIf(!tmuxOk)("CLI-Core integration (projectId-based architecture)", 
   it("sessions are stored in projectId-based project-specific directory", () => {
     const sessionsDir = getProjectSessionsDir(projectId);
 
-    expect(sessionsDir).toMatch(/\.agent-orchestrator\/projects\/test-project\/sessions$/);
+    expect(sessionsDir).toMatch(/\.cahi\/projects\/test-project\/sessions$/);
   });
 
   it("session metadata includes tmuxName field", () => {

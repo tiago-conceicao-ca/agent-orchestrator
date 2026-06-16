@@ -233,8 +233,8 @@ export interface GitUpdateTarget {
 }
 
 export function getGitUpdateTarget(): GitUpdateTarget {
-  const remote = process.env["AO_UPDATE_GIT_REMOTE"] || DEFAULT_GIT_REMOTE;
-  const branch = process.env["AO_UPDATE_GIT_BRANCH"] || DEFAULT_GIT_BRANCH;
+  const remote = process.env["CAHI_UPDATE_GIT_REMOTE"] || DEFAULT_GIT_REMOTE;
+  const branch = process.env["CAHI_UPDATE_GIT_BRANCH"] || DEFAULT_GIT_BRANCH;
   return { remote, branch, ref: `${remote}/${branch}` };
 }
 
@@ -575,7 +575,7 @@ export async function checkForUpdate(opts?: {
  */
 export function maybeShowUpdateNotice(): void {
   if (!process.stderr.isTTY) return;
-  if (process.env["AO_NO_UPDATE_NOTIFIER"] === "1") return;
+  if (process.env["CAHI_NO_UPDATE_NOTIFIER"] === "1") return;
   if (process.env["CI"] || process.env["AGENT_ORCHESTRATOR_CI"]) return;
 
   const skipArgs = ["update", "doctor", "--version", "-V", "--help", "-h"];

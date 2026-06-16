@@ -421,20 +421,20 @@ describe("getLaunchCommand", () => {
 describe("getEnvironment", () => {
   const agent = create();
 
-  it("sets AO_SESSION_ID but not AO_PROJECT_ID (caller's responsibility)", () => {
+  it("sets CAHI_SESSION_ID but not CAHI_PROJECT_ID (caller's responsibility)", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
-    expect(env["AO_PROJECT_ID"]).toBeUndefined();
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_PROJECT_ID"]).toBeUndefined();
   });
 
-  it("sets AO_ISSUE_ID when provided", () => {
+  it("sets CAHI_ISSUE_ID when provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig({ issueId: "GH-42" }));
-    expect(env["AO_ISSUE_ID"]).toBe("GH-42");
+    expect(env["CAHI_ISSUE_ID"]).toBe("GH-42");
   });
 
-  it("omits AO_ISSUE_ID when not provided", () => {
+  it("omits CAHI_ISSUE_ID when not provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
   });
 
   it("does not set PATH (injected by session-manager)", () => {
@@ -2012,7 +2012,7 @@ describe("setupWorkspaceHooks", () => {
 });
 
 // (Legacy wrapper-write tests removed: the plugin no longer installs wrappers
-// or writes ao-metadata-helper.sh / gh / git / .ao-version — session-manager
+// or writes ao-metadata-helper.sh / gh / git / .cahi-version — session-manager
 // owns that path now. See main's test refresh in #1487.)
 
 // =========================================================================
@@ -2045,10 +2045,10 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
       expect(content).toContain("update_ao_metadata()");
     });
 
-    it("uses AO_DATA_DIR and AO_SESSION env vars", async () => {
+    it("uses CAHI_DATA_DIR and CAHI_SESSION env vars", async () => {
       const content = await getWrapperContent("ao-metadata-helper.sh");
-      expect(content).toContain("AO_DATA_DIR");
-      expect(content).toContain("AO_SESSION");
+      expect(content).toContain("CAHI_DATA_DIR");
+      expect(content).toContain("CAHI_SESSION");
     });
 
     it("escapes sed metacharacters in values", async () => {
@@ -2073,9 +2073,9 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
 
     it("validates ao_dir is an absolute path under expected locations", async () => {
       const content = await getWrapperContent("ao-metadata-helper.sh");
-      // Only allows paths under $HOME/.ao/, $HOME/.agent-orchestrator/, or /tmp/
-      expect(content).toContain('$HOME"/.ao/*');
-      expect(content).toContain('$HOME"/.agent-orchestrator/*');
+      // Only allows paths under $HOME/.cahi/ or /tmp/
+      expect(content).toContain('$HOME"/.cahi/*');
+      expect(content).toContain('$HOME"/.cahi/*');
       expect(content).toContain("/tmp/*");
     });
 

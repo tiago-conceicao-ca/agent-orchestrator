@@ -24,7 +24,7 @@ function assertPortfolioEnabled(): void {
   if (isPortfolioEnabled()) return;
   console.error(
     chalk.red(
-      "Portfolio mode is disabled. Unset AO_ENABLE_PORTFOLIO or set it to 1 to use `ao project`.",
+      "Portfolio mode is disabled. Unset CAHI_ENABLE_PORTFOLIO or set it to 1 to use `ao project`.",
     ),
   );
   process.exit(1);
@@ -80,15 +80,15 @@ export function registerProjectCommand(program: Command): void {
     .description("Register a project path in the portfolio")
     .option(
       "-k, --key <key>",
-      "Legacy only: the project key under `projects:` in a wrapped agent-orchestrator.yaml. Omit for flat configs.",
+      "Legacy only: the project key under `projects:` in a wrapped cahi.yaml. Omit for flat configs.",
     )
     .option("--default", "Use the default project ID, adding a numeric suffix if needed")
     .action(async (path: string, opts: { key?: string; default?: boolean }) => {
       assertPortfolioEnabled();
       const resolvedPath = resolve(path);
       const candidatePaths = [
-        resolve(resolvedPath, "agent-orchestrator.yaml"),
-        resolve(resolvedPath, "agent-orchestrator.yml"),
+        resolve(resolvedPath, "cahi.yaml"),
+        resolve(resolvedPath, "cahi.yml"),
       ];
 
       if (!loadLocalProjectConfig(resolvedPath)) {
@@ -102,7 +102,7 @@ export function registerProjectCommand(program: Command): void {
             summary: `ao project add: no agent-orchestrator config found`,
             data: { resolvedPath, reason: "no_config_found" },
           });
-          console.error(chalk.red(`No agent-orchestrator.yaml found at ${resolvedPath}`));
+          console.error(chalk.red(`No cahi.yaml found at ${resolvedPath}`));
           process.exit(1);
         }
 

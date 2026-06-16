@@ -22,7 +22,7 @@ import {
 
 describe("paths", () => {
   const storageKey = "aaaaaaaaaaaa";
-  const baseDir = join(process.env["HOME"] ?? "", ".agent-orchestrator", storageKey);
+  const baseDir = join(process.env["HOME"] ?? "", ".cahi", storageKey);
 
   it("returns storage-key scoped directories", () => {
     expect(getProjectBaseDir(storageKey)).toBe(baseDir);
@@ -57,7 +57,7 @@ describe("paths", () => {
 
 describe("V2 paths", () => {
   const home = process.env["HOME"] ?? "";
-  const aoBase = join(home, ".agent-orchestrator");
+  const aoBase = join(home, ".cahi");
 
   it("getProjectDir returns projects/{projectId}", () => {
     expect(getProjectDir("my-app")).toBe(join(aoBase, "projects", "my-app"));

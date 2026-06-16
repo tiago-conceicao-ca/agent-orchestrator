@@ -65,7 +65,7 @@ git init
 git config user.email "test@example.com"
 git config user.name "Test User"
 
-cat > agent-orchestrator.yaml << 'EOF'
+cat > cahi.yaml << 'EOF'
 dataDir: /tmp/ao-test-data
 worktreeDir: /tmp/ao-test-worktrees
 port: 9000
@@ -82,7 +82,7 @@ end_step "Step 4: Configuration created"
 # Step 5: Verify config is valid
 start_step "Step 5: Validate configuration"
 # Verify the config file is readable
-if [ ! -f agent-orchestrator.yaml ]; then
+if [ ! -f cahi.yaml ]; then
     fail_step "Step 5: Config file not found"
 fi
 end_step "Step 5: Configuration validated"

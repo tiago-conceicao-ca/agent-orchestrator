@@ -312,7 +312,7 @@ async function checkNotifierConnectivity(
 
   const configuredNotifiers = Object.keys(config.notifiers ?? {});
   if (configuredNotifiers.length === 0) {
-    warn("No notifiers are configured. Fix: add notifiers to your agent-orchestrator.yaml");
+    warn("No notifiers are configured. Fix: add notifiers to your cahi.yaml");
     return;
   }
 
@@ -348,7 +348,7 @@ async function sendTestNotifications(
   });
 
   if (result.targets.length === 0) {
-    warn("No notifiers to test. Fix: configure notifiers in your agent-orchestrator.yaml");
+    warn("No notifiers to test. Fix: configure notifiers in your cahi.yaml");
     return;
   }
 
@@ -453,7 +453,7 @@ export function registerDoctor(program: Command): void {
           }
         }
       } else if (opts.testNotify) {
-        fail("No config file found. Cannot test notifiers without agent-orchestrator.yaml");
+        fail("No config file found. Cannot test notifiers without cahi.yaml");
       }
 
       // Exit non-zero if shell checks or notifier checks failed

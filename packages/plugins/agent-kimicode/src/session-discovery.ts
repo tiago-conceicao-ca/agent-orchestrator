@@ -13,7 +13,7 @@ import type { Session } from "@contaazul/cahi-core";
 //
 //   priority │ source                                    │ when
 //   ─────────┼───────────────────────────────────────────┼──────────────────────
-//   1        │ Pin file (.ao/kimi-session-id.json)       │ written once after a
+//   1        │ Pin file (.cahi/kimi-session-id.json)       │ written once after a
 //            │                                           │ successful match;
 //            │                                           │ then dominant.
 //   2        │ kimi.json soft-pin (`last_session_id`)    │ kimi-cli's own
@@ -28,7 +28,7 @@ import type { Session } from "@contaazul/cahi-core";
 //            │                                           │ winner is persisted
 //            │                                           │ to the pin file (1).
 //
-// Files written into the workspace's .ao/ dir:
+// Files written into the workspace's .cahi/ dir:
 //   - kimi-baseline.json   — UUIDs that existed BEFORE launch
 //   - kimi-session-id.json — pinned UUID for this AO session
 //
@@ -46,8 +46,8 @@ export function kimiShareDir(): string {
   return join(homedir(), ".kimi");
 }
 
-const KIMI_BASELINE_FILE = ".ao/kimi-baseline.json";
-const KIMI_PIN_FILE = ".ao/kimi-session-id.json";
+const KIMI_BASELINE_FILE = ".cahi/kimi-baseline.json";
+const KIMI_PIN_FILE = ".cahi/kimi-session-id.json";
 
 /** Positive-result TTL: a found session is unlikely to change identity within
  *  a single refresh cycle. Mirrors agent-codex's SESSION_FILE_CACHE_TTL_MS. */
@@ -278,7 +278,7 @@ export async function captureKimiBaseline(workspacePath: string): Promise<void> 
     capturedAt: new Date().toISOString(),
   };
   try {
-    await mkdir(join(workspacePath, ".ao"), { recursive: true });
+    await mkdir(join(workspacePath, ".cahi"), { recursive: true });
     await writeFile(baselineFile, JSON.stringify(baseline), "utf-8");
   } catch {
     // Workspace not writable — best-effort. Discovery falls back to the
@@ -314,7 +314,7 @@ async function writeKimiSessionPin(workspacePath: string, sessionId: string): Pr
     pinnedAt: new Date().toISOString(),
   };
   try {
-    await mkdir(join(workspacePath, ".ao"), { recursive: true });
+    await mkdir(join(workspacePath, ".cahi"), { recursive: true });
     await writeFile(join(workspacePath, KIMI_PIN_FILE), JSON.stringify(pin), "utf-8");
   } catch {
     // Workspace not writable — best-effort. Discovery falls back to the

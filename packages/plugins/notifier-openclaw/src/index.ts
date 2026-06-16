@@ -424,7 +424,7 @@ function formatActionsLine(actions: NotifyAction[]): string {
 
 /**
  * Resolve a token value that may be a `${ENV_VAR}` placeholder (as written
- * into agent-orchestrator.yaml by `ao setup openclaw`) or a literal string.
+ * into cahi.yaml by `ao setup openclaw`) or a literal string.
  * Returns undefined for empty/unresolvable values so callers can chain `??`.
  */
 function resolveEnvVarToken(raw: unknown): string | undefined {

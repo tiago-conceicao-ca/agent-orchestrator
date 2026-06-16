@@ -55,15 +55,15 @@ id_ed25519
 
 # Development symlinks (created per-worktree, not committed)
 .claude
-packages/web/agent-orchestrator.yaml
+packages/web/cahi.yaml
 
 # Local agent orchestrator config (may contain secrets)
-agent-orchestrator.yaml
+cahi.yaml
 
 # Agent configuration and activity logs
 .claude/
 .opencode/
-.ao/
+.cahi/
 
 # OS-specific files
 .DS_Store

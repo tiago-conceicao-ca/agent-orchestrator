@@ -586,7 +586,7 @@ describe("loadFromConfig", () => {
     const registry = createPluginRegistry();
     const agentPlugin = makePlugin("agent", "goose");
     const config = makeOrchestratorConfig({
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       plugins: [
         {
           name: "goose",
@@ -621,7 +621,7 @@ describe("loadFromConfig", () => {
     );
 
     const config = makeOrchestratorConfig({
-      configPath: join(tmpConfigDir, "agent-orchestrator.yaml"),
+      configPath: join(tmpConfigDir, "cahi.yaml"),
       plugins: [
         {
           name: "gitlab-plus",
@@ -647,7 +647,7 @@ describe("loadFromConfig", () => {
   it("skips disabled external plugins", async () => {
     const registry = createPluginRegistry();
     const config = makeOrchestratorConfig({
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       plugins: [
         {
           name: "goose",

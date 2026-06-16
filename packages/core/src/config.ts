@@ -1,5 +1,5 @@
 /**
- * Configuration loader — reads agent-orchestrator.yaml and validates with Zod.
+ * Configuration loader — reads cahi.yaml and validates with Zod.
  *
  * Minimal config that just works:
  *   projects:
@@ -357,7 +357,7 @@ const LifecycleConfigSchema = z
 
 const OrchestratorConfigSchema = z.object({
   $schema: z.string().optional(),
-  port: z.number().int().default(3000),
+  port: z.number().int().default(4000),
   terminalPort: z.number().int().optional(),
   directTerminalPort: z.number().int().optional(),
   readyThresholdMs: z.number().int().nonnegative().default(300_000),
@@ -749,15 +749,15 @@ function applyDefaultReactions(config: OrchestratorConfig): OrchestratorConfig {
  * Search for config file in standard locations.
  *
  * Search order:
- * 1. AO_CONFIG_PATH environment variable (if set)
+ * 1. CAHI_CONFIG_PATH environment variable (if set)
  * 2. Search up directory tree from CWD (like git)
  * 3. Explicit startDir (if provided)
  * 4. Home directory locations
  */
 export function findConfigFile(startDir?: string): string | null {
   // 1. Check environment variable override
-  if (process.env["AO_CONFIG_PATH"]) {
-    const envPath = resolve(process.env["AO_CONFIG_PATH"]);
+  if (process.env["CAHI_CONFIG_PATH"]) {
+    const envPath = resolve(process.env["CAHI_CONFIG_PATH"]);
     if (existsSync(envPath)) {
       return envPath;
     }
@@ -765,7 +765,7 @@ export function findConfigFile(startDir?: string): string | null {
 
   // 2. Search up directory tree from CWD (like git)
   const searchUpTree = (dir: string): string | null => {
-    const configFiles = ["agent-orchestrator.yaml", "agent-orchestrator.yml"];
+    const configFiles = ["cahi.yaml", "cahi.yml"];
 
     for (const filename of configFiles) {
       const configPath = resolve(dir, filename);
@@ -790,7 +790,7 @@ export function findConfigFile(startDir?: string): string | null {
 
   // 3. Check explicit startDir if provided
   if (startDir) {
-    const files = ["agent-orchestrator.yaml", "agent-orchestrator.yml"];
+    const files = ["cahi.yaml", "cahi.yml"];
     for (const filename of files) {
       const path = resolve(startDir, filename);
       if (!existsSync(path)) continue;
@@ -798,7 +798,7 @@ export function findConfigFile(startDir?: string): string | null {
     }
   }
 
-  // 4. Check global config path (new hybrid mode: ~/.agent-orchestrator/config.yaml)
+  // 4. Check global config path (new hybrid mode: ~/.cahi/config.yaml)
   //    This takes priority over legacy home-directory locations so that users who
   //    have migrated to the hybrid model always load from the canonical global path.
   const globalConfigPath = getGlobalConfigPath();
@@ -808,9 +808,9 @@ export function findConfigFile(startDir?: string): string | null {
 
   // 5. Legacy home directory locations (backward compatibility)
   const homePaths = [
-    resolve(homedir(), ".agent-orchestrator.yaml"),
-    resolve(homedir(), ".agent-orchestrator.yml"),
-    resolve(homedir(), ".config", "agent-orchestrator", "config.yaml"),
+    resolve(homedir(), ".cahi.yaml"),
+    resolve(homedir(), ".cahi.yml"),
+    resolve(homedir(), ".config", "cahi", "config.yaml"),
   ];
 
   for (const path of homePaths) {
@@ -927,8 +927,8 @@ export function findConfig(startDir?: string): string | null {
 
 /** Load and validate config from a YAML file */
 export function loadConfig(configPath?: string): LoadedConfig {
-  // Priority: 1. Explicit param, 2. Search (including AO_CONFIG_PATH env var)
-  // findConfigFile treats AO_CONFIG_PATH as authoritative when present.
+  // Priority: 1. Explicit param, 2. Search (including CAHI_CONFIG_PATH env var)
+  // findConfigFile treats CAHI_CONFIG_PATH as authoritative when present.
   const path = configPath ?? findConfigFile();
 
   if (!path) {

@@ -18,7 +18,7 @@
  *
  * 4. Clears stale Next.js runtime cache (.next/cache) from @composio/ao-web
  *    after a version upgrade, so `ao start` serves fresh dashboard assets.
- *    Writes a version stamp (.next/AO_VERSION) to skip cleanup on subsequent runs.
+ *    Writes a version stamp (.next/CAHI_VERSION) to skip cleanup on subsequent runs.
  */
 
 import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -226,7 +226,7 @@ function clearDashboardCache() {
         const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
         const version = pkg.version;
         const cacheDir = resolve(webDir, ".next", "cache");
-        const stampPath = resolve(webDir, ".next", "AO_VERSION");
+        const stampPath = resolve(webDir, ".next", "CAHI_VERSION");
 
         if (existsSync(cacheDir)) {
           rmSync(cacheDir, { recursive: true, force: true });

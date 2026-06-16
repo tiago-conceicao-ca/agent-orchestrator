@@ -128,7 +128,7 @@ describe("/api/filesystem/browse", () => {
     const hiddenFile = path.join(homeDir, ".env");
 
     mkdirSync(path.join(repoDir, ".git"), { recursive: true });
-    writeFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "defaults: {}\n");
+    writeFileSync(path.join(repoDir, "cahi.yaml"), "defaults: {}\n");
     mkdirSync(plainDir);
     writeFileSync(filePath, "# hi\n");
     mkdirSync(hiddenDir);
@@ -188,7 +188,7 @@ describe("/api/filesystem/browse", () => {
   it("detects git repo and local config for subdirectories", async () => {
     const repo = path.join(homeDir, "repo");
     mkdirSync(path.join(repo, ".git"), { recursive: true });
-    writeFileSync(path.join(repo, "agent-orchestrator.yaml"), "version: 1\n");
+    writeFileSync(path.join(repo, "cahi.yaml"), "version: 1\n");
 
     const response = await browseGET(makeRequest("http://localhost:3000/api/filesystem/browse?path=~"));
     const body = await response.json();

@@ -1,7 +1,7 @@
 /**
  * Shared PATH-based workspace hooks for all agent plugins.
  *
- * Installs ~/.ao/bin/gh and ~/.ao/bin/git wrappers that:
+ * Installs ~/.cahi/bin/gh and ~/.cahi/bin/git wrappers that:
  * - Intercept PR creation and branch operations to auto-update session metadata
  * - Cache repeated read-only gh commands (PR discovery, issue context) to reduce
  *   GitHub API traffic — see D4-wrapper-cache-plan.md for design
@@ -31,7 +31,7 @@ export const PREFERRED_GH_PATH = `${PREFERRED_GH_BIN_DIR}/gh`;
  * which breaks test mocks that replace homedir after import.
  */
 function getAoBinDir(): string {
-  return join(homedir(), ".ao", "bin");
+  return join(homedir(), ".cahi", "bin");
 }
 
 /** Current version of wrapper scripts — bump when scripts change */
@@ -42,7 +42,7 @@ const WRAPPER_VERSION = "0.8.0";
 // =============================================================================
 
 /**
- * Build a PATH string with ~/.ao/bin prepended for wrapper interception.
+ * Build a PATH string with ~/.cahi/bin prepended for wrapper interception.
  * Deduplicates entries and ensures /usr/local/bin is early for gh resolution.
  */
 export function buildAgentPath(basePath: string | undefined): string {
@@ -85,19 +85,19 @@ export function buildAgentPath(basePath: string | undefined): string {
  *   ao_cache_read <key>                — print cached stdout
  *   ao_cache_write <key>               — write stdin to cache atomically
  */
-export const AO_METADATA_HELPER = `#!/usr/bin/env bash
+export const CAHI_METADATA_HELPER = `#!/usr/bin/env bash
 # ao-metadata-helper — shared by gh/git wrappers
 # Provides: update_ao_metadata, read_ao_metadata, ao_cache_*
 
 # ── Shared validation ────────────────────────────────────────────────────────
 
 _ao_validate_env() {
-  local ao_dir="\${AO_DATA_DIR:-}"
-  local ao_session="\${AO_SESSION:-}"
+  local ao_dir="\${CAHI_DATA_DIR:-}"
+  local ao_session="\${CAHI_SESSION:-}"
   [[ -z "\$ao_dir" || -z "\$ao_session" ]] && return 1
   case "\$ao_session" in */* | *..*) return 1 ;; esac
   case "\$ao_dir" in
-    "\$HOME"/.ao/* | "\$HOME"/.agent-orchestrator/* | /tmp/*) ;;
+    "\$HOME"/.cahi/* | /tmp/*) ;;
     *) return 1 ;;
   esac
   return 0
@@ -107,8 +107,8 @@ _ao_validate_env() {
 
 update_ao_metadata() {
   local key="\$1" value="\$2"
-  local ao_dir="\${AO_DATA_DIR:-}"
-  local ao_session="\${AO_SESSION:-}"
+  local ao_dir="\${CAHI_DATA_DIR:-}"
+  local ao_session="\${CAHI_SESSION:-}"
 
   [[ -z "\$ao_dir" || -z "\$ao_session" ]] && return 0
 
@@ -119,7 +119,7 @@ update_ao_metadata() {
 
   # Validate: ao_dir must be an absolute path under known ao directories or /tmp
   case "\$ao_dir" in
-    "\$HOME"/.ao/* | "\$HOME"/.agent-orchestrator/* | /tmp/*) ;;
+    "\$HOME"/.cahi/* | /tmp/*) ;;
     *) return 0 ;;
   esac
 
@@ -137,7 +137,7 @@ update_ao_metadata() {
   # Re-validate real_ao_dir against trusted roots after canonicalization
   # (prevents /tmp/../../home/user from escaping the allowlist)
   case "\$real_ao_dir" in
-    "\$HOME"/.ao/* | "\$HOME"/.ao | "\$HOME"/.agent-orchestrator/* | "\$HOME"/.agent-orchestrator | /tmp/*) ;;
+    "\$HOME"/.cahi/* | "\$HOME"/.cahi | /tmp/*) ;;
     *) return 0 ;;
   esac
 
@@ -190,7 +190,7 @@ update_ao_metadata() {
 read_ao_metadata() {
   local key="\$1"
   _ao_validate_env || return 1
-  local metadata_file="\${AO_DATA_DIR}/\${AO_SESSION}"
+  local metadata_file="\${CAHI_DATA_DIR}/\${CAHI_SESSION}"
   [[ -f "\$metadata_file" ]] || return 1
   [[ "\$key" =~ ^[a-zA-Z0-9_-]+$ ]] || return 1
   local line
@@ -202,7 +202,7 @@ read_ao_metadata() {
 
 ao_cache_dir() {
   _ao_validate_env || return 1
-  local d="\${AO_DATA_DIR}/.ghcache/\${AO_SESSION}"
+  local d="\${CAHI_DATA_DIR}/.ghcache/\${CAHI_SESSION}"
   mkdir -p "\$d" 2>/dev/null || return 1
   printf '%s' "\$d"
 }
@@ -249,7 +249,7 @@ ao_cache_write() {
  * 1. Caching repeated read-only commands (PR discovery, issue context)
  * 2. Auto-updating session metadata on PR creation
  *
- * Cache storage: $AO_DATA_DIR/.ghcache/$AO_SESSION/{key}.stdout + {key}.ts
+ * Cache storage: $CAHI_DATA_DIR/.ghcache/$CAHI_SESSION/{key}.stdout + {key}.ts
  * See D4-wrapper-cache-plan.md for full design rationale.
  */
 export const GH_WRAPPER = `#!/usr/bin/env bash
@@ -262,7 +262,7 @@ clean_path="\${clean_path%:}"
 real_gh=""
 
 # Prefer explicit gh path when provided by AO environment.
-# Guard against recursive self-reference to the wrapper in ~/.ao/bin.
+# Guard against recursive self-reference to the wrapper in ~/.cahi/bin.
 if [[ -n "\${GH_PATH:-}" && -x "\$GH_PATH" ]]; then
   gh_dir="\$(cd "\$(dirname "\$GH_PATH")" 2>/dev/null && pwd)"
   if [[ "\$gh_dir" != "\$ao_bin_dir" ]]; then
@@ -308,7 +308,7 @@ _ao_redact_args() {
 
 # Best-effort JSONL tracing for agent-side gh invocations.
 log_gh_invocation() {
-  local trace_file="\${AO_AGENT_GH_TRACE:-}"
+  local trace_file="\${CAHI_AGENT_GH_TRACE:-}"
   [[ -z "\$trace_file" ]] && return 0
   command -v jq >/dev/null 2>&1 || return 0
 
@@ -326,11 +326,11 @@ log_gh_invocation() {
     --arg timestamp "\$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
     --arg cwd "\$PWD" \
     --arg operation "\$_ao_op" \
-    --arg aoSession "\${AO_SESSION:-}" \
-    --arg aoSessionName "\${AO_SESSION_NAME:-}" \
-    --arg aoProjectId "\${AO_PROJECT_ID:-}" \
-    --arg aoIssueId "\${AO_ISSUE_ID:-}" \
-    --arg aoCallerType "\${AO_CALLER_TYPE:-}" \
+    --arg aoSession "\${CAHI_SESSION:-}" \
+    --arg aoSessionName "\${CAHI_SESSION_NAME:-}" \
+    --arg aoProjectId "\${CAHI_PROJECT_ID:-}" \
+    --arg aoIssueId "\${CAHI_ISSUE_ID:-}" \
+    --arg aoCallerType "\${CAHI_CALLER_TYPE:-}" \
     --arg pid "\$\$" \
     --arg wrapperVersion "${WRAPPER_VERSION}" \
     --argjson args "\$args_json" \
@@ -355,7 +355,7 @@ log_gh_invocation "\$@"
 # result: hit | miss-stored | miss-write-failed | miss-negative | miss-error | passthrough
 log_ao_cache() {
   local result="\$1" cache_key="\$2" duration_ms="\${3:-0}" exit_code="\${4:-0}" ok="\${5:-true}"
-  local trace_file="\${AO_AGENT_GH_TRACE:-}"
+  local trace_file="\${CAHI_AGENT_GH_TRACE:-}"
   [[ -z "\$trace_file" ]] && return 0
   printf '{"timestamp":"%s","cacheResult":"%s","cacheKey":"%s","pid":%s,"durationMs":%s,"exitCode":%s,"ok":%s}\\n' \
     "\$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "\$result" "\$cache_key" "\$\$" \
@@ -531,8 +531,8 @@ case "\$1/\$2" in
         update_ao_metadata agentReportedPrUrl "\$pr_url"
         # Append to prs field (comma-separated list of all PR URLs for this session).
         # Supports multiple PRs per session — same repo or different repos.
-        _ao_meta_f="\${AO_DATA_DIR}/\${AO_SESSION}.json"
-        [[ -f "\$_ao_meta_f" ]] || _ao_meta_f="\${AO_DATA_DIR}/\${AO_SESSION}"
+        _ao_meta_f="\${CAHI_DATA_DIR}/\${CAHI_SESSION}.json"
+        [[ -f "\$_ao_meta_f" ]] || _ao_meta_f="\${CAHI_DATA_DIR}/\${CAHI_SESSION}"
         if head -c1 "\$_ao_meta_f" 2>/dev/null | grep -q '{'; then
           existing_prs="\$(jq -r '.prs // empty' "\$_ao_meta_f" 2>/dev/null || echo "")"
         else
@@ -659,15 +659,15 @@ export function buildNodeWrapper(name: "gh" | "git", realBinaryPath: string): st
 
 /**
  * Shared Node.js snippet: updateAoMetadata function used by both gh and git wrappers.
- * Validates session, key, and AO_DATA_DIR before writing metadata.
+ * Validates session, key, and CAHI_DATA_DIR before writing metadata.
  */
-const NODE_UPDATE_AO_METADATA = `\
+const NODE_UPDATE_CAHI_METADATA = `\
 // ---------------------------------------------------------------------------
 // Metadata update (shared by gh/git wrappers)
 // ---------------------------------------------------------------------------
 function updateAoMetadata(key, value) {
-  const aoDir = process.env["AO_DATA_DIR"] || "";
-  const aoSession = process.env["AO_SESSION"] || "";
+  const aoDir = process.env["CAHI_DATA_DIR"] || "";
+  const aoSession = process.env["CAHI_SESSION"] || "";
   if (!aoDir || !aoSession) return;
 
   // Validate session — no path separators or traversal
@@ -682,7 +682,7 @@ function updateAoMetadata(key, value) {
   const sep = path.sep;
   let resolvedDir;
   try { resolvedDir = fs.realpathSync(aoDir); } catch { resolvedDir = path.resolve(aoDir); }
-  const allowed = [path.join(home, ".ao"), path.join(home, ".agent-orchestrator"), os.tmpdir()];
+  const allowed = [path.join(home, ".cahi"), os.tmpdir()];
   if (!allowed.some(a => resolvedDir === a || resolvedDir.startsWith(a + sep))) return;
 
   // Try V2 (.json) first, then fall back to V1 (bare) — mirrors bash ao-metadata-helper.sh
@@ -735,7 +735,7 @@ const path = require("path");
 // ---------------------------------------------------------------------------
 // Real binary resolution
 // ---------------------------------------------------------------------------
-const AO_BIN_DIR = path.dirname(__filename);
+const CAHI_BIN_DIR = path.dirname(__filename);
 
 function findRealGh() {
   const explicit = process.env["GH_PATH"] || "";
@@ -743,14 +743,14 @@ function findRealGh() {
     try {
       const resolved = path.resolve(explicit);
       const dir = path.dirname(resolved);
-      if (dir !== AO_BIN_DIR && fs.existsSync(resolved)) return resolved;
+      if (dir !== CAHI_BIN_DIR && fs.existsSync(resolved)) return resolved;
     } catch {}
   }
 
   // Walk PATH, skip wrapper directory
   const pathDirs = (process.env["PATH"] || "").split(path.delimiter);
   for (const dir of pathDirs) {
-    if (!dir || path.resolve(dir) === AO_BIN_DIR) continue;
+    if (!dir || path.resolve(dir) === CAHI_BIN_DIR) continue;
     // Windows executables always have an extension (.exe/.cmd). Skip the bare
     // no-extension case — on Windows X_OK is identical to F_OK (execute bit
     // doesn't exist), so a bare text file named "gh" would otherwise be
@@ -766,7 +766,7 @@ function findRealGh() {
   return null;
 }
 
-${NODE_UPDATE_AO_METADATA}
+${NODE_UPDATE_CAHI_METADATA}
 
 // ---------------------------------------------------------------------------
 // Main
@@ -802,8 +802,8 @@ if (key === "pr/create" || key === "pr/merge") {
         // Append to prs field — supports multiple PRs per session
         let existingPrs = "";
         try {
-          const aoDir = process.env["AO_DATA_DIR"] || "";
-          const aoSession = process.env["AO_SESSION"] || "";
+          const aoDir = process.env["CAHI_DATA_DIR"] || "";
+          const aoSession = process.env["CAHI_SESSION"] || "";
           if (aoDir && aoSession && /^[a-zA-Z0-9_-]+$/.test(aoSession)) {
             let metaFile = path.join(aoDir, aoSession + ".json");
             if (!fs.existsSync(metaFile)) metaFile = path.join(aoDir, aoSession);
@@ -849,12 +849,12 @@ const path = require("path");
 // ---------------------------------------------------------------------------
 // Real binary resolution
 // ---------------------------------------------------------------------------
-const AO_BIN_DIR = path.dirname(__filename);
+const CAHI_BIN_DIR = path.dirname(__filename);
 
 function findRealGit() {
   const pathDirs = (process.env["PATH"] || "").split(path.delimiter);
   for (const dir of pathDirs) {
-    if (!dir || path.resolve(dir) === AO_BIN_DIR) continue;
+    if (!dir || path.resolve(dir) === CAHI_BIN_DIR) continue;
     // Windows executables always have an extension (.exe/.cmd). Skip the bare
     // no-extension case — on Windows X_OK is identical to F_OK (execute bit
     // doesn't exist), so a bare text file named "git" would otherwise be
@@ -870,7 +870,7 @@ function findRealGit() {
   return null;
 }
 
-${NODE_UPDATE_AO_METADATA}
+${NODE_UPDATE_CAHI_METADATA}
 
 // ---------------------------------------------------------------------------
 // Main
@@ -918,7 +918,7 @@ process.exit(exitCode);
  * handle metadata updates automatically, but AGENTS.md reinforces the intent
  * and helps if the wrappers are bypassed.
  */
-export const AO_AGENTS_MD_SECTION = `
+export const CAHI_AGENTS_MD_SECTION = `
 ## Agent Orchestrator (ao) Session
 
 You are running inside an Agent Orchestrator managed workspace.
@@ -926,7 +926,7 @@ Session metadata is updated automatically via shell wrappers.
 
 If automatic updates fail, you can manually update metadata:
 \`\`\`bash
-~/.ao/bin/ao-metadata-helper.sh  # sourced automatically
+~/.cahi/bin/ao-metadata-helper.sh  # sourced automatically
 # Then call: update_ao_metadata <key> <value>
 \`\`\`
 `;
@@ -954,14 +954,14 @@ async function atomicWriteFile(filePath: string, content: string, mode: number):
  * systems (Codex, Aider, OpenCode). Call this from both `setupWorkspaceHooks`
  * and `postLaunchSetup`.
  *
- * 1. Creates ~/.ao/bin/ with gh/git wrappers and metadata helper script
+ * 1. Creates ~/.cahi/bin/ with gh/git wrappers and metadata helper script
  * 2. Appends an "Agent Orchestrator" section to the workspace AGENTS.md
  */
 export async function setupPathWrapperWorkspace(workspacePath: string): Promise<void> {
-  // 1. Write shared wrappers to ~/.ao/bin/ (skip if version marker matches)
+  // 1. Write shared wrappers to ~/.cahi/bin/ (skip if version marker matches)
   await mkdir(getAoBinDir(), { recursive: true });
 
-  const markerPath = join(getAoBinDir(), ".ao-version");
+  const markerPath = join(getAoBinDir(), ".cahi-version");
   let needsUpdate = true;
   try {
     const existing = await readFile(markerPath, "utf-8");
@@ -986,7 +986,7 @@ export async function setupPathWrapperWorkspace(workspacePath: string): Promise<
     } else {
       await atomicWriteFile(
         join(getAoBinDir(), "ao-metadata-helper.sh"),
-        AO_METADATA_HELPER,
+        CAHI_METADATA_HELPER,
         0o755,
       );
       // Write wrappers atomically, then write the version marker last.
@@ -998,14 +998,14 @@ export async function setupPathWrapperWorkspace(workspacePath: string): Promise<
     await atomicWriteFile(markerPath, WRAPPER_VERSION, 0o644);
   }
 
-  // 2. Write AO session context to .ao/AGENTS.md (gitignored) so agents
+  // 2. Write AO session context to .cahi/AGENTS.md (gitignored) so agents
   //    can discover they're in a managed session. We don't modify the
   //    repo-tracked AGENTS.md to avoid polluting worktrees with dirty state.
-  const aoAgentsMdPath = join(workspacePath, ".ao", "AGENTS.md");
-  await mkdir(join(workspacePath, ".ao"), { recursive: true });
+  const aoAgentsMdPath = join(workspacePath, ".cahi", "AGENTS.md");
+  await mkdir(join(workspacePath, ".cahi"), { recursive: true });
   // On Windows, ao-metadata-helper.sh is never created — use a platform-appropriate section
   const agentsMdContent = isWindows()
     ? `## Agent Orchestrator (ao) Session\n\nYou are running inside an Agent Orchestrator managed workspace.\nSession metadata is updated automatically via shell wrappers.\n`
-    : AO_AGENTS_MD_SECTION.trimStart();
+    : CAHI_AGENTS_MD_SECTION.trimStart();
   await writeFile(aoAgentsMdPath, agentsMdContent, "utf-8");
 }

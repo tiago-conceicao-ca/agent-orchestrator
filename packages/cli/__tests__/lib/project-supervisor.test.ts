@@ -10,7 +10,7 @@ const activeWorkers = new Set<string>();
 
 vi.mock("@contaazul/cahi-core", () => ({
   ConfigNotFoundError: class ConfigNotFoundError extends Error {
-    constructor(message = "No agent-orchestrator.yaml found.") {
+    constructor(message = "No cahi.yaml found.") {
       super(message);
       this.name = "ConfigNotFoundError";
     }
@@ -278,7 +278,7 @@ describe("project-supervisor", () => {
     // `config.configPath` to that path. Asserting on the local path here
     // catches any bug that would propagate the global path through the
     // fallback (e.g. accidentally returning the global config object).
-    const localConfigPath = "/tmp/cwd/agent-orchestrator.yaml";
+    const localConfigPath = "/tmp/cwd/cahi.yaml";
     sessionsByProject.set("app", [makeSession("app")]);
     mockLoadConfig.mockImplementation((path?: string) => {
       if (path === "/tmp/global-config.yaml") {
@@ -311,16 +311,16 @@ describe("project-supervisor", () => {
           path: "/tmp/global-config.yaml",
         });
       }
-      if (path === "/some/repo/agent-orchestrator.yaml") {
+      if (path === "/some/repo/cahi.yaml") {
         return makeConfig(["app"]);
       }
       throw new Error(`unexpected loadConfig path: ${path}`);
     });
 
-    await reconcileProjectSupervisor({ configPath: "/some/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/some/repo/cahi.yaml" });
 
     expect(mockLoadConfig).toHaveBeenCalledWith("/tmp/global-config.yaml");
-    expect(mockLoadConfig).toHaveBeenCalledWith("/some/repo/agent-orchestrator.yaml");
+    expect(mockLoadConfig).toHaveBeenCalledWith("/some/repo/cahi.yaml");
     // No bare cwd-walk when the caller resolved a path for us.
     expect(mockLoadConfig).not.toHaveBeenCalledWith();
     expect(activeWorkers.has("app")).toBe(true);
@@ -332,16 +332,16 @@ describe("project-supervisor", () => {
     // the global path. The configPath is the fallback, not an override.
     mockLoadConfig.mockImplementation((path?: string) => {
       if (path === "/tmp/global-config.yaml") return makeConfig(["app"]);
-      if (path === "/repo/agent-orchestrator.yaml") {
+      if (path === "/repo/cahi.yaml") {
         throw new Error("supervisor should not consult configPath when global is healthy");
       }
       throw new Error(`unexpected loadConfig path: ${path}`);
     });
 
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
 
     expect(mockLoadConfig).toHaveBeenCalledWith("/tmp/global-config.yaml");
-    expect(mockLoadConfig).not.toHaveBeenCalledWith("/repo/agent-orchestrator.yaml");
+    expect(mockLoadConfig).not.toHaveBeenCalledWith("/repo/cahi.yaml");
     expect(activeWorkers.has("app")).toBe(true);
   });
 
@@ -360,7 +360,7 @@ describe("project-supervisor", () => {
       if (path === "/tmp/global-config.yaml") return makeConfig(["alpha", "beta", "gamma"]);
       throw new Error(`unexpected path on tick 1: ${path}`);
     });
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
     expect(activeWorkers.has("alpha")).toBe(true);
     expect(activeWorkers.has("beta")).toBe(true);
     expect(activeWorkers.has("gamma")).toBe(true);
@@ -373,10 +373,10 @@ describe("project-supervisor", () => {
           path: "/tmp/global-config.yaml",
         });
       }
-      if (path === "/repo/agent-orchestrator.yaml") return makeConfig(["alpha"]);
+      if (path === "/repo/cahi.yaml") return makeConfig(["alpha"]);
       throw new Error(`unexpected path on tick 2: ${path}`);
     });
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
 
     // All three workers must survive — fallback isn't authoritative for removal.
     expect(activeWorkers.has("alpha")).toBe(true);
@@ -404,10 +404,10 @@ describe("project-supervisor", () => {
           path: "/tmp/global-config.yaml",
         });
       }
-      if (path === "/repo/agent-orchestrator.yaml") return makeConfig(["local-only"]);
+      if (path === "/repo/cahi.yaml") return makeConfig(["local-only"]);
       throw new Error(`unexpected path on tick 1: ${path}`);
     });
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
     expect(activeWorkers.has("local-only")).toBe(true);
 
     // Tick 2: global appears (e.g. another `ao start <url>` wrote it),
@@ -416,7 +416,7 @@ describe("project-supervisor", () => {
       if (path === "/tmp/global-config.yaml") return makeConfig(["from-global"]);
       throw new Error(`unexpected path on tick 2: ${path}`);
     });
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
 
     expect(activeWorkers.has("from-global")).toBe(true);
     expect(activeWorkers.has("local-only")).toBe(false);
@@ -440,7 +440,7 @@ describe("project-supervisor", () => {
       return makeConfig(["cwd-project"]);
     });
 
-    await reconcileProjectSupervisor({ configPath: "/repo/agent-orchestrator.yaml" });
+    await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
 
     expect(activeWorkers.has("other-project")).toBe(true);
     expect(mockRemoveProjectFromRunning).not.toHaveBeenCalledWith("other-project");

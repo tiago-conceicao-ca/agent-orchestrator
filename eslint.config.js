@@ -15,7 +15,7 @@ export default tseslint.config(
       "**/next-env.d.ts",
       "**/.next-dev/**",
       "**/coverage/**",
-      ".ao/**",
+      ".cahi/**",
       ".claude/**",
       ".context/**",
       ".cursor/**",

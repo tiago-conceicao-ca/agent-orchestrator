@@ -595,7 +595,7 @@ export interface Agent {
    * Called by the lifecycle manager during each poll cycle with captured terminal output.
    *
    * Plugins classify the terminal output (via detectActivity) and append a JSONL entry
-   * to `{session.workspacePath}/.ao/activity.jsonl`. The next `getActivityState()` call
+   * to `{session.workspacePath}/.cahi/activity.jsonl`. The next `getActivityState()` call
    * reads from this file to detect states like `waiting_input` and `blocked`.
    *
    * Agents with native JSONL (Claude Code, Codex) should NOT implement this — their
@@ -1428,7 +1428,7 @@ export interface ObservabilityConfig {
   stderr: boolean;
 }
 
-/** Top-level orchestrator configuration (from agent-orchestrator.yaml) */
+/** Top-level orchestrator configuration (from cahi.yaml) */
 export interface OrchestratorConfig {
   /** Optional JSON Schema hint for editor autocomplete/validation. */
   "$schema"?: string;
@@ -1440,7 +1440,7 @@ export interface OrchestratorConfig {
    */
   configPath: string;
 
-  /** Web dashboard port (defaults to 3000) */
+  /** Web dashboard port (defaults to 4000) */
   port?: number;
 
   /** Terminal WebSocket server port (defaults to 3001) */
@@ -1624,7 +1624,7 @@ export interface ProjectConfig {
   /** Override default workspace */
   workspace?: string;
 
-  /** Environment variables forwarded into worker session runtimes (AO_* internals always win) */
+  /** Environment variables forwarded into worker session runtimes (CAHI_* internals always win) */
   env?: Record<string, string>;
 
   /** Issue tracker configuration */
@@ -2125,10 +2125,10 @@ export class SessionNotFoundError extends Error {
   }
 }
 
-/** Thrown when no agent-orchestrator.yaml config file can be found. */
+/** Thrown when no cahi.yaml config file can be found. */
 export class ConfigNotFoundError extends Error {
   constructor(message?: string) {
-    super(message ?? "No agent-orchestrator.yaml found. Run `ao start` to create one.");
+    super(message ?? "No cahi.yaml found. Run `ao start` to create one.");
     this.name = "ConfigNotFoundError";
   }
 }
@@ -2155,7 +2155,7 @@ export class ProjectResolveError extends Error {
 export interface PortfolioProject {
   id: string;                          // Stable portfolio identity (configProjectKey, with collision suffix if needed)
   name: string;                        // Human-readable display name
-  configPath: string;                  // Absolute path to agent-orchestrator.yaml
+  configPath: string;                  // Absolute path to cahi.yaml
   configProjectKey: string;            // Key in config.projects map
   repoPath: string;                    // Absolute local filesystem path
   repo?: string;                       // "owner/repo" for SCM

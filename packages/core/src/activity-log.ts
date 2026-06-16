@@ -2,7 +2,7 @@
  * Activity JSONL log — shared utilities for agents that don't have native JSONL.
  *
  * Agents like Aider and OpenCode use this to write activity observations
- * (derived from terminal output) to `{workspacePath}/.ao/activity.jsonl`.
+ * (derived from terminal output) to `{workspacePath}/.cahi/activity.jsonl`.
  * Their `getActivityState()` then reads from this file, enabling detection
  * of states like `waiting_input` and `blocked` that terminal-only parsing
  * couldn't surface through the deprecated `detectActivity()` path.
@@ -22,15 +22,15 @@ export const ACTIVITY_INPUT_STALENESS_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Get the path to the activity JSONL log for a session.
- * Location: `{workspacePath}/.ao/activity.jsonl`
+ * Location: `{workspacePath}/.cahi/activity.jsonl`
  */
 export function getActivityLogPath(workspacePath: string): string {
-  return join(workspacePath, ".ao", "activity.jsonl");
+  return join(workspacePath, ".cahi", "activity.jsonl");
 }
 
 /**
  * Append an activity observation to the session's JSONL log.
- * Creates the `.ao/` directory if it doesn't exist.
+ * Creates the `.cahi/` directory if it doesn't exist.
  */
 export async function appendActivityEntry(
   workspacePath: string,

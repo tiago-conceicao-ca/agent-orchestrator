@@ -57,7 +57,7 @@ async function runNpmInStore(args: string[]): Promise<void> {
 }
 
 export function getPluginStoreRoot(): string {
-  return join(homedir(), ".agent-orchestrator", "plugins");
+  return join(homedir(), ".cahi", "plugins");
 }
 
 export function ensurePluginStore(): string {

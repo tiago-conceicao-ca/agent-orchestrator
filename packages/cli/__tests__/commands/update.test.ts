@@ -581,7 +581,7 @@ describe("update command", () => {
         .mockResolvedValue(null);
       mockLoadConfig.mockImplementation((path?: string) => ({
         projects: { "my-app": { path: "/tmp/foo" } },
-        configPath: path ?? "/cwd/agent-orchestrator.yaml",
+        configPath: path ?? "/cwd/cahi.yaml",
       }));
       mockSessions.value = [{ id: "feat-1", status: "working", projectId: "my-app" }];
     });
@@ -602,7 +602,7 @@ describe("update command", () => {
         ["stop", "--yes"],
         expect.objectContaining({
           stdio: "inherit",
-          env: expect.objectContaining({ AO_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
+          env: expect.objectContaining({ CAHI_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
         }),
       ]);
       expect(mockSpawn.mock.calls[1][0]).toBe("pnpm");
@@ -614,7 +614,7 @@ describe("update command", () => {
         ["start", "my-app", "--restore"],
         expect.objectContaining({
           stdio: "inherit",
-          env: expect.objectContaining({ AO_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
+          env: expect.objectContaining({ CAHI_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
         }),
       ]);
 
@@ -670,7 +670,7 @@ describe("update command", () => {
       expect(mockSpawn.mock.calls[0][1]).toEqual(["stop", "--yes"]);
       expect(mockSpawn.mock.calls[0][2]).toEqual(
         expect.objectContaining({
-          env: expect.objectContaining({ AO_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
+          env: expect.objectContaining({ CAHI_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
         }),
       );
       expect(mockSpawn.mock.calls[1][0]).toBe("pnpm");
@@ -696,7 +696,7 @@ describe("update command", () => {
         ["start", "my-app", "--no-restore"],
         expect.objectContaining({
           stdio: "inherit",
-          env: expect.objectContaining({ AO_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
+          env: expect.objectContaining({ CAHI_CONFIG_PATH: "/tmp/test-global-config.yaml" }),
         }),
       ]);
     });
@@ -909,7 +909,7 @@ describe("update command", () => {
       });
       mockLoadConfig.mockImplementation((path?: string) => ({
         projects: { "my-app": { path: "/tmp/foo" } },
-        configPath: path ?? "/cwd/agent-orchestrator.yaml",
+        configPath: path ?? "/cwd/cahi.yaml",
       }));
     });
 
@@ -971,7 +971,7 @@ describe("update command", () => {
   // API-invoked (non-interactive) install — Ashish P1 merge blocker
   // -----------------------------------------------------------------------
 
-  describe("API-invoked install (AO_NON_INTERACTIVE_INSTALL=1)", () => {
+  describe("API-invoked install (CAHI_NON_INTERACTIVE_INSTALL=1)", () => {
     let origNonInteractive: string | undefined;
     beforeEach(() => {
       mockDetectInstallMethod.mockReturnValue("npm-global");
@@ -983,26 +983,26 @@ describe("update command", () => {
       });
       mockLoadConfig.mockImplementation((path?: string) => ({
         projects: { "my-app": { path: "/tmp/foo" } },
-        configPath: path ?? "/cwd/agent-orchestrator.yaml",
+        configPath: path ?? "/cwd/cahi.yaml",
       }));
       // stdio: "ignore" makes isTTY() return false, simulating the spawn
       // context POST /api/update creates.
       Object.defineProperty(process.stdin, "isTTY", { value: false, configurable: true });
       Object.defineProperty(process.stdout, "isTTY", { value: false, configurable: true });
-      origNonInteractive = process.env["AO_NON_INTERACTIVE_INSTALL"];
-      process.env["AO_NON_INTERACTIVE_INSTALL"] = "1";
+      origNonInteractive = process.env["CAHI_NON_INTERACTIVE_INSTALL"];
+      process.env["CAHI_NON_INTERACTIVE_INSTALL"] = "1";
       mockSpawn.mockReturnValue(createMockChild(0));
     });
 
     afterEach(() => {
       if (origNonInteractive === undefined) {
-        delete process.env["AO_NON_INTERACTIVE_INSTALL"];
+        delete process.env["CAHI_NON_INTERACTIVE_INSTALL"];
       } else {
-        process.env["AO_NON_INTERACTIVE_INSTALL"] = origNonInteractive;
+        process.env["CAHI_NON_INTERACTIVE_INSTALL"] = origNonInteractive;
       }
     });
 
-    it("invokes runNpmInstall exactly once when AO_NON_INTERACTIVE_INSTALL=1 even though isTTY is false", async () => {
+    it("invokes runNpmInstall exactly once when CAHI_NON_INTERACTIVE_INSTALL=1 even though isTTY is false", async () => {
       // The P1 bug: before this fix, the !isTTY() branch printed "Run: ..."
       // and returned. The dashboard's banner click would 202 but no install
       // would run. Asserting spawn was called proves the install actually
@@ -1023,7 +1023,7 @@ describe("update command", () => {
     });
 
     it("preserves the old 'print Run:' behavior for non-API non-TTY (piped output)", async () => {
-      delete process.env["AO_NON_INTERACTIVE_INSTALL"];
+      delete process.env["CAHI_NON_INTERACTIVE_INSTALL"];
       const logSpy = vi.mocked(console.log);
       await program.parseAsync(["node", "test", "update"]);
       const all = logSpy.mock.calls.map((c) => String(c[0])).join("\n");

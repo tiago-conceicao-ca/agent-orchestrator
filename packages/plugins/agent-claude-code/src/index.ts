@@ -48,7 +48,7 @@ export const METADATA_UPDATER_SCRIPT = `#!/usr/bin/env bash
 set -euo pipefail
 
 # Configuration
-AO_DATA_DIR="\${AO_DATA_DIR:-$HOME/.ao-sessions}"
+CAHI_DATA_DIR="\${CAHI_DATA_DIR:-$HOME/.cahi-sessions}"
 
 # Read hook input from stdin
 input=$(cat)
@@ -79,25 +79,25 @@ if [[ "$tool_name" != "Bash" ]]; then
   exit 0
 fi
 
-# Validate AO_SESSION is set
-if [[ -z "\${AO_SESSION:-}" ]]; then
-  echo '{"systemMessage": "AO_SESSION environment variable not set, skipping metadata update"}'
+# Validate CAHI_SESSION is set
+if [[ -z "\${CAHI_SESSION:-}" ]]; then
+  echo '{"systemMessage": "CAHI_SESSION environment variable not set, skipping metadata update"}'
   exit 0
 fi
 
 # Construct metadata file path
-# AO_DATA_DIR is already set to the project-specific sessions directory
+# CAHI_DATA_DIR is already set to the project-specific sessions directory
 # V2 storage uses .json extension
-metadata_file="$AO_DATA_DIR/\${AO_SESSION}.json"
+metadata_file="$CAHI_DATA_DIR/\${CAHI_SESSION}.json"
 
 # Fallback to bare filename for pre-migration layouts
 if [[ ! -f "$metadata_file" ]]; then
-  metadata_file="$AO_DATA_DIR/$AO_SESSION"
+  metadata_file="$CAHI_DATA_DIR/$CAHI_SESSION"
 fi
 
 # Ensure metadata file exists
 if [[ ! -f "$metadata_file" ]]; then
-  echo '{"systemMessage": "Metadata file not found: '"$AO_DATA_DIR/\${AO_SESSION}"'"}'
+  echo '{"systemMessage": "Metadata file not found: '"$CAHI_DATA_DIR/\${CAHI_SESSION}"'"}'
   exit 0
 fi
 
@@ -266,8 +266,8 @@ const { readFileSync, writeFileSync, renameSync, existsSync, realpathSync } = re
 const { join, sep, resolve: resolvePath } = require("node:path");
 const os = require("node:os");
 
-const AO_DATA_DIR = process.env.AO_DATA_DIR || join(process.env.HOME || process.env.USERPROFILE || "", ".ao-sessions");
-const AO_SESSION = process.env.AO_SESSION || "";
+const CAHI_DATA_DIR = process.env.CAHI_DATA_DIR || join(process.env.HOME || process.env.USERPROFILE || "", ".cahi-sessions");
+const CAHI_SESSION = process.env.CAHI_SESSION || "";
 
 // Read hook input from stdin (fd 0 is cross-platform, no /dev/stdin needed)
 let inputRaw = "";
@@ -302,29 +302,29 @@ if (toolName !== "Bash") {
   process.exit(0);
 }
 
-// Validate AO_SESSION is set
-if (!AO_SESSION) {
-  process.stdout.write(JSON.stringify({ systemMessage: "AO_SESSION environment variable not set, skipping metadata update" }) + "\\n");
+// Validate CAHI_SESSION is set
+if (!CAHI_SESSION) {
+  process.stdout.write(JSON.stringify({ systemMessage: "CAHI_SESSION environment variable not set, skipping metadata update" }) + "\\n");
   process.exit(0);
 }
 
-// Validate AO_SESSION contains no path traversal components
-if (AO_SESSION.includes("/") || AO_SESSION.includes("\\\\") || AO_SESSION.includes("..")) {
-  process.stdout.write(JSON.stringify({ systemMessage: "AO_SESSION contains invalid path characters, skipping metadata update" }) + "\\n");
+// Validate CAHI_SESSION contains no path traversal components
+if (CAHI_SESSION.includes("/") || CAHI_SESSION.includes("\\\\") || CAHI_SESSION.includes("..")) {
+  process.stdout.write(JSON.stringify({ systemMessage: "CAHI_SESSION contains invalid path characters, skipping metadata update" }) + "\\n");
   process.exit(0);
 }
 
-// Validate AO_DATA_DIR is within an allowed base directory (mirrors ao-metadata-helper.sh)
+// Validate CAHI_DATA_DIR is within an allowed base directory (mirrors ao-metadata-helper.sh)
 const home = os.homedir();
 let resolvedAoDir;
-try { resolvedAoDir = realpathSync(AO_DATA_DIR); } catch { resolvedAoDir = resolvePath(AO_DATA_DIR); }
-const allowedBases = [join(home, ".ao"), join(home, ".agent-orchestrator"), os.tmpdir()];
+try { resolvedAoDir = realpathSync(CAHI_DATA_DIR); } catch { resolvedAoDir = resolvePath(CAHI_DATA_DIR); }
+const allowedBases = [join(home, ".cahi"), os.tmpdir()];
 if (!allowedBases.some((a) => resolvedAoDir === a || resolvedAoDir.startsWith(a + sep))) {
-  process.stdout.write(JSON.stringify({ systemMessage: "AO_DATA_DIR is outside allowed directories, skipping metadata update" }) + "\\n");
+  process.stdout.write(JSON.stringify({ systemMessage: "CAHI_DATA_DIR is outside allowed directories, skipping metadata update" }) + "\\n");
   process.exit(0);
 }
 
-const metadataFile = join(AO_DATA_DIR, AO_SESSION);
+const metadataFile = join(CAHI_DATA_DIR, CAHI_SESSION);
 
 if (!existsSync(metadataFile)) {
   process.stdout.write(JSON.stringify({ systemMessage: "Metadata file not found: " + metadataFile }) + "\\n");
@@ -440,7 +440,7 @@ process.exit(0);
  *
  * Reads the JSON payload from stdin, parses `hook_event_name`, maps it to an
  * activity state, and appends a single JSONL entry to
- * `$CLAUDE_PROJECT_DIR/.ao/activity.jsonl` with `source: "hook"`.
+ * `$CLAUDE_PROJECT_DIR/.cahi/activity.jsonl` with `source: "hook"`.
  *
  * Notification is filtered by `notification_type` — only `permission_prompt`
  * and `idle_prompt` map to `waiting_input`; `auth_success`/`elicitation_*` etc.
@@ -452,7 +452,7 @@ process.exit(0);
 export const ACTIVITY_UPDATER_SCRIPT = `#!/usr/bin/env bash
 # Activity Updater Hook for Agent Orchestrator
 #
-# Records Claude Code lifecycle events to {workspace}/.ao/activity.jsonl so
+# Records Claude Code lifecycle events to {workspace}/.cahi/activity.jsonl so
 # the dashboard / lifecycle reducer derives activity state from authoritative
 # platform events instead of regex over rendered terminal output. (#1941)
 
@@ -516,7 +516,7 @@ case "$event" in
 esac
 
 workspace="\${CLAUDE_PROJECT_DIR:-$(pwd)}"
-log_dir="$workspace/.ao"
+log_dir="$workspace/.cahi"
 log_file="$log_dir/activity.jsonl"
 
 mkdir -p "$log_dir" 2>/dev/null || { echo '{}'; exit 0; }
@@ -632,7 +632,7 @@ switch (event) {
 }
 
 const workspace = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const logDir = join(workspace, ".ao");
+const logDir = join(workspace, ".cahi");
 const logFile = join(logDir, "activity.jsonl");
 
 try {
@@ -1096,16 +1096,16 @@ function createClaudeCodeAgent(): Agent {
       env["CLAUDECODE"] = "";
 
       // Set session info for introspection
-      env["AO_SESSION_ID"] = config.sessionId;
+      env["CAHI_SESSION_ID"] = config.sessionId;
 
-      // NOTE: AO_PROJECT_ID is NOT set here - it's the caller's responsibility
+      // NOTE: CAHI_PROJECT_ID is NOT set here - it's the caller's responsibility
       // to set it based on their metadata path scheme:
       // - spawn.ts sets it to projectId for project-specific directories
       // - start.ts omits it for orchestrator (flat directories)
       // - session manager omits it (flat directories)
 
       if (config.issueId) {
-        env["AO_ISSUE_ID"] = config.issueId;
+        env["CAHI_ISSUE_ID"] = config.issueId;
       }
 
       return env;
@@ -1114,7 +1114,7 @@ function createClaudeCodeAgent(): Agent {
     detectActivity(terminalOutput: string): ActivityState {
       // #1941: Claude activity is derived from platform-event hooks
       // (PermissionRequest / StopFailure / Notification / Stop / ...) which
-      // write directly to {workspace}/.ao/activity.jsonl. The terminal-regex
+      // write directly to {workspace}/.cahi/activity.jsonl. The terminal-regex
       // layer was structurally fragile (every UI tweak in Claude regressed
       // it; see the 15-commit churn in #1932) so it has been retired in
       // favour of those authoritative events.
@@ -1133,7 +1133,7 @@ function createClaudeCodeAgent(): Agent {
     // recordActivity is intentionally NOT implemented for the Claude agent
     // (#1941). Hooks write activity entries directly via the activity-updater
     // script, so polling-driven terminal-output classification would only add
-    // stale duplicates to .ao/activity.jsonl.
+    // stale duplicates to .cahi/activity.jsonl.
 
     async isProcessRunning(handle: RuntimeHandle): Promise<ProcessProbeResult> {
       return isClaudeProcessAlive(handle);

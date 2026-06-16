@@ -2,7 +2,7 @@
  * Update-channel onboarding helpers.
  *
  * On first `ao start`, prompt the user once for an `updateChannel` and persist
- * it to ~/.agent-orchestrator/config.yaml. Never re-prompt — if they dismiss
+ * it to ~/.cahi/config.yaml. Never re-prompt — if they dismiss
  * (Ctrl+C / Esc), default to `manual` so we don't surprise-install anything.
  *
  * Spec: release-process.html §08 (Onboarding integration).

@@ -88,7 +88,7 @@ describe("services", () => {
     mockGetGlobalConfigPath.mockReset();
     mockGetGlobalConfigPath.mockReturnValue("/tmp/global-config.yaml");
     mockLoadConfig.mockReturnValue({
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       port: 3000,
       readyThresholdMs: 300_000,
       defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },
@@ -158,7 +158,7 @@ describe("services", () => {
         throw error;
       })
       .mockReturnValueOnce({
-        configPath: "/tmp/local/agent-orchestrator.yaml",
+        configPath: "/tmp/local/cahi.yaml",
         port: 3000,
         readyThresholdMs: 300_000,
         defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },
@@ -192,7 +192,7 @@ describe("pollBacklog", () => {
     mockSpawn.mockClear();
 
     mockLoadConfig.mockReturnValue({
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       port: 3000,
       readyThresholdMs: 300_000,
       defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },

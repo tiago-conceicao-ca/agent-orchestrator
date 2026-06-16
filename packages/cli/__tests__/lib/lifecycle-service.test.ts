@@ -18,7 +18,7 @@ import {
 
 function makeConfig(projectIds: string[]): OrchestratorConfig {
   return {
-    configPath: "/tmp/agent-orchestrator.yaml",
+    configPath: "/tmp/cahi.yaml",
     port: 3000,
     readyThresholdMs: 300_000,
     defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },

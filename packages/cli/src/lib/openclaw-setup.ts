@@ -110,7 +110,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new OpenClawSetupError(
-      "No agent-orchestrator.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'ao start' first to create one.",
     );
   }
 
@@ -462,7 +462,7 @@ async function resolveInteractiveToken(
       {
         value: "manual",
         label: "Enter token manually",
-        hint: "For remote OpenClaw only; AO stores it in agent-orchestrator.yaml",
+        hint: "For remote OpenClaw only; AO stores it in cahi.yaml",
       },
       {
         value: "config-path",
@@ -776,7 +776,7 @@ function printOpenClawInstructions(nonInteractive: boolean, resolved: ResolvedOp
       ? displayOpenClawConfigPath(resolved.openclawConfigPath)
       : resolved.tokenSource === "env"
         ? "OPENCLAW_HOOKS_TOKEN"
-        : "agent-orchestrator.yaml";
+        : "cahi.yaml";
 
   if (nonInteractive) {
     console.log(chalk.green("✓ AO config written (OpenClaw config left unchanged)"));
@@ -785,7 +785,7 @@ function printOpenClawInstructions(nonInteractive: boolean, resolved: ResolvedOp
   }
 
   console.log(`\n${chalk.green.bold("Done — AO config written.")}`);
-  console.log(chalk.dim("  agent-orchestrator.yaml  — notifiers.openclaw block"));
+  console.log(chalk.dim("  cahi.yaml  — notifiers.openclaw block"));
   console.log(chalk.dim(`  token source             — ${tokenLocation}`));
   if (resolved.tokenSource === "openclaw-config") {
     console.log(chalk.dim("  AO did not write OpenClaw config or shell profile exports."));

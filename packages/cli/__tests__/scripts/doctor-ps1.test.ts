@@ -45,7 +45,7 @@ describe.runIf(process.platform === "win32")("ao-doctor.ps1", () => {
   });
 
   it("runs the full check pipeline against an empty repo and reports findings", () => {
-    // Point AO_REPO_ROOT at an empty directory and AO_SCRIPT_LAYOUT at
+    // Point CAHI_REPO_ROOT at an empty directory and CAHI_SCRIPT_LAYOUT at
     // source-checkout so the script exercises every Check-* function. The
     // exact PASS/WARN/FAIL count depends on the runner's environment (node,
     // git, pnpm typically present on GitHub windows-latest), but the script
@@ -55,10 +55,10 @@ describe.runIf(process.platform === "win32")("ao-doctor.ps1", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-ps1-"));
     try {
       const result = runPwsh([], {
-        AO_REPO_ROOT: tempRoot,
-        AO_SCRIPT_LAYOUT: "source-checkout",
-        AO_CONFIG_PATH: join(tempRoot, "agent-orchestrator.yaml"),
-        AO_DOCTOR_TMP_ROOT: tempRoot,
+        CAHI_REPO_ROOT: tempRoot,
+        CAHI_SCRIPT_LAYOUT: "source-checkout",
+        CAHI_CONFIG_PATH: join(tempRoot, "cahi.yaml"),
+        CAHI_DOCTOR_TMP_ROOT: tempRoot,
       });
       expect([0, 1]).toContain(result.status);
       expect(result.stdout).toContain("Agent Orchestrator Doctor");

@@ -1,6 +1,6 @@
 /**
  * Config generator for `ao start <url>` — auto-detects project settings
- * from a repo URL and generates a valid agent-orchestrator.yaml.
+ * from a repo URL and generates a valid cahi.yaml.
  *
  * SCM-agnostic: parses GitHub, GitLab, Bitbucket URLs and infers plugins.
  */
@@ -226,16 +226,16 @@ export interface GenerateConfigOptions {
   parsed: ParsedRepoUrl;
   /** Local path to the cloned repo */
   repoPath: string;
-  /** Dashboard port (default: 3000) */
+  /** Dashboard port (default: 4000) */
   port?: number;
 }
 
 /**
- * Generate a complete agent-orchestrator.yaml config object from a repo URL.
+ * Generate a complete cahi.yaml config object from a repo URL.
  * Returns the raw object ready for YAML serialization.
  */
 export function generateConfigFromUrl(options: GenerateConfigOptions): Record<string, unknown> {
-  const { parsed, repoPath, port = 3000 } = options;
+  const { parsed, repoPath, port = 4000 } = options;
 
   const platform = detectScmPlatform(parsed.host);
   const defaultBranch = detectDefaultBranchFromDir(repoPath);

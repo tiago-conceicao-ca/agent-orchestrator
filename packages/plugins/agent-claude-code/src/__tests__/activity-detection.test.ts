@@ -81,7 +81,7 @@ function writeActivityLog(
   trigger?: string,
 ): void {
   const ts = new Date(Date.now() - ageMs).toISOString();
-  const aoDir = join(workspacePath, ".ao");
+  const aoDir = join(workspacePath, ".cahi");
   mkdirSync(aoDir, { recursive: true });
   const entry: Record<string, unknown> = { ts, state, source };
   if (trigger !== undefined) entry.trigger = trigger;
@@ -304,10 +304,10 @@ describe("Claude Code Activity Detection", () => {
       expect(agent.recordActivity).toBeUndefined();
     });
 
-    it("does NOT write to .ao/activity.jsonl on its own (hook-only producer)", () => {
+    it("does NOT write to .cahi/activity.jsonl on its own (hook-only producer)", () => {
       // Without recordActivity, the plugin no longer derives anything from
-      // terminal output. .ao/activity.jsonl stays empty until a hook fires.
-      expect(existsSync(join(workspacePath, ".ao", "activity.jsonl"))).toBe(false);
+      // terminal output. .cahi/activity.jsonl stays empty until a hook fires.
+      expect(existsSync(join(workspacePath, ".cahi", "activity.jsonl"))).toBe(false);
     });
 
     it("keeps native JSONL as primary when AO activity JSONL also exists", async () => {

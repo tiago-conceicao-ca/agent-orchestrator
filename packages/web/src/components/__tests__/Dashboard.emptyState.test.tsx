@@ -112,12 +112,12 @@ describe("Dashboard empty state", () => {
     render(
       <Dashboard
         initialSessions={[]}
-        dashboardLoadError="No agent-orchestrator.yaml found"
+        dashboardLoadError="No cahi.yaml found"
       />,
     );
     expect(screen.queryByText(/Ready to orchestrate/i)).not.toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("Orchestrator failed to load");
-    expect(screen.getByRole("alert")).toHaveTextContent("No agent-orchestrator.yaml found");
+    expect(screen.getByRole("alert")).toHaveTextContent("No cahi.yaml found");
   });
 
   it("shows live load-error banner when WS transport reports a fetch failure", async () => {

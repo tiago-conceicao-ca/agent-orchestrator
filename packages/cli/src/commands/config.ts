@@ -1,5 +1,5 @@
 /**
- * `ao config` — read/write fields in ~/.agent-orchestrator/config.yaml.
+ * `ao config` — read/write fields in ~/.cahi/config.yaml.
  *
  * Today this only manages `updateChannel` and `installMethod`, which are the
  * two settings the release pipeline depends on. We deliberately resist adding
@@ -82,7 +82,7 @@ function showGet(key: SupportedKey): void {
 export function registerConfig(program: Command): void {
   const config = program
     .command("config")
-    .description("Read or write global AO config (~/.agent-orchestrator/config.yaml)");
+    .description("Read or write global AO config (~/.cahi/config.yaml)");
 
   config
     .command("set <key> <value>")

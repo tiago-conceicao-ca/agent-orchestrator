@@ -2,8 +2,8 @@
  * Session metadata read/write — JSON format.
  *
  * V2 storage layout:
- * - Session metadata: ~/.agent-orchestrator/projects/{projectId}/sessions/{sessionId}.json
- * - Orchestrator metadata: ~/.agent-orchestrator/projects/{projectId}/orchestrator.json
+ * - Session metadata: ~/.cahi/projects/{projectId}/sessions/{sessionId}.json
+ * - Orchestrator metadata: ~/.cahi/projects/{projectId}/orchestrator.json
  *
  * Format: JSON (2-space indented), one object per file.
  * Status: computed on read from lifecycle via deriveLegacyStatus().

@@ -38,11 +38,11 @@ function isTTY(): boolean {
  * the install. The route would respond 202 "started" and absolutely nothing
  * would happen.
  *
- * /api/update sets `AO_NON_INTERACTIVE_INSTALL=1` on the spawn env so we can
+ * /api/update sets `CAHI_NON_INTERACTIVE_INSTALL=1` on the spawn env so we can
  * distinguish "API kicked this off, please install without prompting" from
  * "user piped output and we shouldn't surprise-install."
  */
-export const NON_INTERACTIVE_INSTALL_ENV = "AO_NON_INTERACTIVE_INSTALL";
+export const NON_INTERACTIVE_INSTALL_ENV = "CAHI_NON_INTERACTIVE_INSTALL";
 
 function isApiInvoked(): boolean {
   return process.env[NON_INTERACTIVE_INSTALL_ENV] === "1";
@@ -160,7 +160,7 @@ async function getUpdateLifecyclePlan(): Promise<UpdateLifecyclePlan> {
   try {
     // Live signal first: running.json lists whichever projects the active
     // `ao start` daemon is currently polling. That can include local-only
-    // projects whose `agent-orchestrator.yaml` is NOT in the global registry
+    // projects whose `cahi.yaml` is NOT in the global registry
     // (Dhruv edge case: user runs `ao start` from a repo with a local config
     // and no global registration — sessions live on disk, would be clobbered
     // if `ao update` proceeded).
@@ -173,7 +173,7 @@ async function getUpdateLifecyclePlan(): Promise<UpdateLifecyclePlan> {
       configPath = running.configPath;
       primaryProjectId = running.projects[0];
       // running.configPath could be local-wrapped (a project's
-      // agent-orchestrator.yaml) OR the canonical global path. loadConfig
+      // cahi.yaml) OR the canonical global path. loadConfig
       // dispatches based on the path shape — both cases produce a full
       // OrchestratorConfig the SessionManager can enumerate.
       const config = loadConfig(running.configPath);
@@ -182,7 +182,7 @@ async function getUpdateLifecyclePlan(): Promise<UpdateLifecyclePlan> {
     } else {
       // No live daemon. Fall back to the global registry — covers the case
       // where the user ran `ao stop` (running.json gone) but stale sessions
-      // sit on disk under ~/.agent-orchestrator/{hash}-{projectId}/. The
+      // sit on disk under ~/.cahi/{hash}-{projectId}/. The
       // SessionManager's enrichment will reconcile any stale-runtime
       // sessions to `killed`, so terminal statuses don't block the update.
       const globalPath = getGlobalConfigPath();
@@ -322,7 +322,7 @@ function runAoLifecycleCommand(
       stdio: "inherit",
       shell: isWindows(),
       windowsHide: true,
-      env: opts.configPath ? { ...process.env, AO_CONFIG_PATH: opts.configPath } : process.env,
+      env: opts.configPath ? { ...process.env, CAHI_CONFIG_PATH: opts.configPath } : process.env,
     });
     child.on("error", (error) => {
       console.error(chalk.yellow(`Could not run ao ${args.join(" ")}: ${error.message}`));
@@ -834,7 +834,7 @@ async function handleUnknownUpdate(): Promise<void> {
   );
   console.log(
     chalk.dim(
-      `  Override detection in ~/.agent-orchestrator/config.yaml:\n    installMethod: pnpm-global  # or bun-global, npm-global, homebrew, git`,
+      `  Override detection in ~/.cahi/config.yaml:\n    installMethod: pnpm-global  # or bun-global, npm-global, homebrew, git`,
     ),
   );
 }

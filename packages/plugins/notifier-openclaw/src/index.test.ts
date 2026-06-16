@@ -63,7 +63,7 @@ describe("notifier-openclaw", () => {
     vi.restoreAllMocks();
     delete process.env.OPENCLAW_HOOKS_TOKEN;
     tempConfigDir = mkdtempSync(join(tmpdir(), "openclaw-notifier-test-"));
-    tempConfigPath = join(tempConfigDir, "agent-orchestrator.yaml");
+    tempConfigPath = join(tempConfigDir, "cahi.yaml");
     tempHealthPath = join(tempConfigDir, "openclaw-health.json");
     writeFileSync(tempConfigPath, "projects: {}\n");
   });

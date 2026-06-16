@@ -28,7 +28,7 @@ describe("opencode-shared", () => {
   describe("getOpenCodeTmpDir / ensureOpenCodeTmpDir", () => {
     it("lives under the AO base dir, not the system /tmp", () => {
       const dir = getOpenCodeTmpDir();
-      expect(dir).toMatch(/\.agent-orchestrator[\\/]\.bun-tmp$/);
+      expect(dir).toMatch(/\.cahi[\\/]\.bun-tmp$/);
       expect(dir.startsWith("/tmp")).toBe(false);
     });
 

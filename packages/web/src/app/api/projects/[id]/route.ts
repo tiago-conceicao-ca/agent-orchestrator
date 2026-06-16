@@ -302,7 +302,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     const localConfigPath =
       "path" in localConfigResult && typeof localConfigResult.path === "string"
         ? localConfigResult.path
-        : path.join(projectPath, "agent-orchestrator.yaml");
+        : path.join(projectPath, "cahi.yaml");
     writeLocalProjectConfig(projectPath, validated, localConfigPath);
     invalidatePortfolioServicesCache();
     revalidateProjectPaths(id);

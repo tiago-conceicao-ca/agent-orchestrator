@@ -60,7 +60,7 @@ export function createProgram(): Command {
 
   program
     .command("config-help")
-    .description("Show config schema and guide for creating agent-orchestrator.yaml")
+    .description("Show config schema and guide for creating cahi.yaml")
     .action(() => {
       console.log(getConfigInstruction());
     });

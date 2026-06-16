@@ -251,10 +251,10 @@ function createOpenCodeAgent(): Agent {
 
     getEnvironment(config: AgentLaunchConfig): Record<string, string> {
       const env: Record<string, string> = {};
-      env["AO_SESSION_ID"] = config.sessionId;
-      // NOTE: AO_PROJECT_ID is the caller's responsibility (spawn.ts sets it)
+      env["CAHI_SESSION_ID"] = config.sessionId;
+      // NOTE: CAHI_PROJECT_ID is the caller's responsibility (spawn.ts sets it)
       if (config.issueId) {
-        env["AO_ISSUE_ID"] = config.issueId;
+        env["CAHI_ISSUE_ID"] = config.issueId;
       }
 
       // Point Bun's embedded shared-library extraction at an AO-owned temp

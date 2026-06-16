@@ -73,13 +73,13 @@ describe.skipIf(!canRun)("daemon child reaping (integration)", () => {
     await execFileAsync("git", ["add", "."], { cwd: repoPath });
     await execFileAsync("git", ["commit", "-m", "Initial commit"], { cwd: repoPath });
 
-    configPath = join(repoPath, "agent-orchestrator.yaml");
+    configPath = join(repoPath, "cahi.yaml");
     writeFileSync(
       configPath,
       ["runtime: process", "agent: claude-code", "workspace: worktree"].join("\n"),
     );
 
-    const globalConfigPath = join(tmpHome, "global-agent-orchestrator.yaml");
+    const globalConfigPath = join(tmpHome, "global-cahi.yaml");
     writeFileSync(
       globalConfigPath,
       [
@@ -111,9 +111,9 @@ describe.skipIf(!canRun)("daemon child reaping (integration)", () => {
     const env = {
       ...process.env,
       HOME: tmpHome,
-      AO_CALLER_TYPE: "agent",
-      AO_CONFIG_PATH: configPath,
-      AO_GLOBAL_CONFIG: configPath,
+      CAHI_CALLER_TYPE: "agent",
+      CAHI_CONFIG_PATH: configPath,
+      CAHI_GLOBAL_CONFIG: configPath,
       PORT: String(port),
     };
     const start = spawn(tsxBin, [cliEntry, "start", "--no-orchestrator", "--reap-orphans"], {
@@ -124,7 +124,7 @@ describe.skipIf(!canRun)("daemon child reaping (integration)", () => {
     startPid = start.pid;
     expect(startPid).toBeTypeOf("number");
 
-    const runningPath = join(tmpHome, ".agent-orchestrator/running.json");
+    const runningPath = join(tmpHome, ".cahi/running.json");
     let runningPid: number | undefined;
     for (let i = 0; i < 100; i++) {
       if (existsSync(runningPath)) {

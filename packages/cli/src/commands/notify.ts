@@ -150,7 +150,7 @@ export function registerNotify(program: Command): void {
 
         const configPath = findConfigFile();
         if (!configPath) {
-          throw new Error("No config file found. Cannot test notifiers without agent-orchestrator.yaml");
+          throw new Error("No config file found. Cannot test notifiers without cahi.yaml");
         }
 
         let config: OrchestratorConfig = loadConfig(configPath);

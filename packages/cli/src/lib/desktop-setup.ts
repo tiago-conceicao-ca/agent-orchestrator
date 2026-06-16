@@ -66,7 +66,7 @@ interface ResolvedDesktopSetup {
 }
 
 function currentPlatform(): NodeJS.Platform | string {
-  return process.env["AO_DESKTOP_SETUP_PLATFORM"] ?? platform();
+  return process.env["CAHI_DESKTOP_SETUP_PLATFORM"] ?? platform();
 }
 
 function stringValue(value: unknown): string | undefined {
@@ -95,7 +95,7 @@ function packageDirFromImport(): string | null {
 }
 
 export function getBundledNotifierAppPath(): string | null {
-  const override = process.env["AO_NOTIFIER_MACOS_APP_PATH"];
+  const override = process.env["CAHI_NOTIFIER_MACOS_APP_PATH"];
   if (override) return override;
 
   const packageDir = packageDirFromImport();
@@ -108,7 +108,7 @@ export function getBundledNotifierAppPath(): string | null {
 }
 
 export function getInstalledNotifierAppPath(): string {
-  return process.env["AO_DESKTOP_APP_INSTALL_PATH"] ?? join(homedir(), "Applications", APP_NAME);
+  return process.env["CAHI_DESKTOP_APP_INSTALL_PATH"] ?? join(homedir(), "Applications", APP_NAME);
 }
 
 export function getNotifierExecutablePath(appPath: string): string {
@@ -598,7 +598,7 @@ async function wireDesktopConfig(
   conflictAlreadyChecked = false,
 ): Promise<boolean> {
   if (!configPath) {
-    console.log(chalk.dim("No agent-orchestrator.yaml found; skipping config wiring."));
+    console.log(chalk.dim("No cahi.yaml found; skipping config wiring."));
     return false;
   }
 
@@ -707,7 +707,7 @@ export async function runDesktopSetupAction(opts: DesktopSetupOptions): Promise<
   if (shouldWireConfig) {
     await wireDesktopConfig(context.configPath, force, nonInteractive, resolved, true);
   } else if (!context.configPath) {
-    console.log(chalk.dim("No agent-orchestrator.yaml found; skipping config wiring."));
+    console.log(chalk.dim("No cahi.yaml found; skipping config wiring."));
   } else {
     console.log(chalk.dim("Skipped config wiring."));
   }

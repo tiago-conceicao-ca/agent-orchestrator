@@ -8,7 +8,7 @@ const RESTRICTED_SINGLE_SEGMENTS = new Set([
   ".aws",
   ".kube",
   ".gnupg",
-  ".agent-orchestrator",
+  ".cahi",
 ]);
 
 function splitInputSegments(rawPath: string): string[] {

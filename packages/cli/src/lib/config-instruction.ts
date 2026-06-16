@@ -7,15 +7,15 @@ import { CONFIG_SCHEMA_URL } from "@contaazul/cahi-core";
 export function getConfigInstruction(): string {
   return `
 # Agent Orchestrator Config Reference
-# File: agent-orchestrator.yaml
+# File: cahi.yaml
 
 $schema: ${CONFIG_SCHEMA_URL}
 
 # ── Top-level settings ──────────────────────────────────────────────
 # Runtime data paths are auto-derived from the config location under:
-#   ~/.agent-orchestrator/{hash}-{projectId}/
+#   ~/.cahi/{hash}-{projectId}/
 
-port: 3000                    # Dashboard port
+port: 4000                    # Dashboard port
 terminalPort: 14800           # Optional terminal WebSocket port override
 directTerminalPort: 14801     # Optional direct terminal WebSocket port override
 readyThresholdMs: 300000      # Ms before "ready" becomes "idle" (default: 5 min)
@@ -77,7 +77,7 @@ projects:
     agentRules: |             # Inline rules passed to every agent prompt
       Always run tests before committing.
       Use conventional commits.
-    agentRulesFile: .ao-rules # Or point to a file (relative to project path)
+    agentRulesFile: .cahi-rules # Or point to a file (relative to project path)
     orchestratorRules: |      # Rules for the orchestrator agent
 
     # ── Orchestrator session strategy (optional) ──────────────────

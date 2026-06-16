@@ -44,19 +44,19 @@ describe("/api/projects/[id]", () => {
         kill: vi.fn().mockResolvedValue({ cleaned: true, alreadyTerminated: false }),
       },
     });
-    oldGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
+    oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     oldHome = process.env["HOME"];
     tempRoot = mkdtempSync(path.join(tmpdir(), "ao-project-detail-route-"));
     configPath = path.join(tempRoot, "config.yaml");
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
     process.env["HOME"] = tempRoot;
   });
 
   afterEach(() => {
     if (oldGlobalConfig === undefined) {
-      delete process.env["AO_GLOBAL_CONFIG"];
+      delete process.env["CAHI_GLOBAL_CONFIG"];
     } else {
-      process.env["AO_GLOBAL_CONFIG"] = oldGlobalConfig;
+      process.env["CAHI_GLOBAL_CONFIG"] = oldGlobalConfig;
     }
     if (oldHome === undefined) {
       delete process.env["HOME"];
@@ -77,7 +77,7 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    const localYaml = readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8");
+    const localYaml = readFileSync(path.join(repoDir, "cahi.yaml"), "utf-8");
     expect(localYaml).toContain("agent: codex");
     expect(localYaml).toContain("runtime: tmux");
     expect(invalidatePortfolioServicesCache).toHaveBeenCalledTimes(1);
@@ -87,7 +87,7 @@ describe("/api/projects/[id]", () => {
     const repoDir = path.join(tempRoot, "demo-nested");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
-      path.join(repoDir, "agent-orchestrator.yaml"),
+      path.join(repoDir, "cahi.yaml"),
       [
         "tracker:",
         '  plugin: "linear"',
@@ -108,7 +108,7 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    const localYaml = readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8");
+    const localYaml = readFileSync(path.join(repoDir, "cahi.yaml"), "utf-8");
     expect(localYaml).toContain("plugin: linear");
     expect(localYaml).toContain("team: growth");
     expect(localYaml).toContain("plugin: github");
@@ -120,7 +120,7 @@ describe("/api/projects/[id]", () => {
     const repoDir = path.join(tempRoot, "demo-yml");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
-      path.join(repoDir, "agent-orchestrator.yml"),
+      path.join(repoDir, "cahi.yml"),
       [
         'agent: "claude-code"',
         'runtime: "tmux"',
@@ -135,15 +135,15 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(readFileSync(path.join(repoDir, "agent-orchestrator.yml"), "utf-8")).toContain(
+    expect(readFileSync(path.join(repoDir, "cahi.yml"), "utf-8")).toContain(
       "runtime: docker",
     );
-    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+    expect(existsSync(path.join(repoDir, "cahi.yaml"))).toBe(false);
   });
 
   it("GET falls back to the repo-local config when no global registry exists yet", async () => {
     const repoDir = path.join(tempRoot, "demo-local");
-    const localConfigPath = path.join(repoDir, "agent-orchestrator.yaml");
+    const localConfigPath = path.join(repoDir, "cahi.yaml");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
       localConfigPath,
@@ -158,7 +158,7 @@ describe("/api/projects/[id]", () => {
         "",
       ].join("\n"),
     );
-    process.env["AO_CONFIG_PATH"] = localConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = localConfigPath;
 
     const { GET } = await import("@/app/api/projects/[id]/route");
     const response = await GET(makeRequest("GET"), {
@@ -191,7 +191,7 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    const localYamlPath = path.join(repoDir, "agent-orchestrator.yaml");
+    const localYamlPath = path.join(repoDir, "cahi.yaml");
     expect(readFileSync(localYamlPath, "utf-8")).toContain(`- ${libId}`);
 
     const clearResponse = await PATCH(makeRequest("PATCH", { siblings: [] }, effectiveId), {
@@ -220,7 +220,7 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8")).toContain(
+    expect(readFileSync(path.join(repoDir, "cahi.yaml"), "utf-8")).toContain(
       "- acme/lib",
     );
   });
@@ -240,7 +240,7 @@ describe("/api/projects/[id]", () => {
     await expect(response.json()).resolves.toEqual({
       error: expect.stringContaining('Unknown sibling repo "acme/missing"'),
     });
-    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+    expect(existsSync(path.join(repoDir, "cahi.yaml"))).toBe(false);
   });
 
   it("PATCH rejects a self-referencing sibling with 400", async () => {
@@ -257,7 +257,7 @@ describe("/api/projects/[id]", () => {
     await expect(response.json()).resolves.toEqual({
       error: expect.stringContaining("itself"),
     });
-    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+    expect(existsSync(path.join(repoDir, "cahi.yaml"))).toBe(false);
   });
 
   it("PATCH rejects duplicate sibling entries with 400", async () => {
@@ -315,7 +315,7 @@ describe("/api/projects/[id]", () => {
   it("GET returns a degraded payload for degraded projects", async () => {
     const repoDir = path.join(tempRoot, "broken");
     mkdirSync(repoDir, { recursive: true });
-    writeFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "agent: [broken\n");
+    writeFileSync(path.join(repoDir, "cahi.yaml"), "agent: [broken\n");
     const effectiveId = registerProjectInGlobalConfig("broken", "Broken", repoDir);
 
     const { GET } = await import("@/app/api/projects/[id]/route");
@@ -340,7 +340,7 @@ describe("/api/projects/[id]", () => {
   it("PATCH and PUT return useful degraded errors instead of 500s", async () => {
     const repoDir = path.join(tempRoot, "broken");
     mkdirSync(repoDir, { recursive: true });
-    writeFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "agent: [broken\n");
+    writeFileSync(path.join(repoDir, "cahi.yaml"), "agent: [broken\n");
     const effectiveId = registerProjectInGlobalConfig("broken", "Broken", repoDir);
 
     const { PATCH, PUT } = await import("@/app/api/projects/[id]/route");
@@ -483,7 +483,7 @@ describe("/api/projects/[id]", () => {
 
     const { stopStaleWindowsPtyHosts } = await import("@/lib/windows-pty-cleanup");
     await stopStaleWindowsPtyHosts(
-      "C:\\Users\\priya\\.agent-orchestrator\\projects\\ao-windows-test-2-b8fv",
+      "C:\\Users\\priya\\.cahi\\projects\\ao-windows-test-2-b8fv",
       {
         platform: "win32",
         execFileStdout,
@@ -551,7 +551,7 @@ describe("/api/projects/[id]", () => {
     const repoDir = path.join(tempRoot, "broken");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
-      path.join(repoDir, "agent-orchestrator.yaml"),
+      path.join(repoDir, "cahi.yaml"),
       [
         "projects:",
         "  broken:",
@@ -574,14 +574,14 @@ describe("/api/projects/[id]", () => {
       repaired: true,
       projectId: effectiveId,
     });
-    expect(readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8")).toContain("agent: codex");
+    expect(readFileSync(path.join(repoDir, "cahi.yaml"), "utf-8")).toContain("agent: codex");
   });
 
   it("POST repair preserves wrapped defaults so the project can start with its intended agent", async () => {
     const repoDir = path.join(tempRoot, "broken-defaults");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
-      path.join(repoDir, "agent-orchestrator.yaml"),
+      path.join(repoDir, "cahi.yaml"),
       [
         "defaults:",
         "  agent: codex",
@@ -602,7 +602,7 @@ describe("/api/projects/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    const localYaml = readFileSync(path.join(repoDir, "agent-orchestrator.yaml"), "utf-8");
+    const localYaml = readFileSync(path.join(repoDir, "cahi.yaml"), "utf-8");
     expect(localYaml).toContain("agent: codex");
     expect(localYaml).toContain("runtime: tmux");
     expect(localYaml).toContain("workspace: worktree");
@@ -612,7 +612,7 @@ describe("/api/projects/[id]", () => {
     const repoDir = path.join(tempRoot, "broken-yml");
     mkdirSync(repoDir, { recursive: true });
     writeFileSync(
-      path.join(repoDir, "agent-orchestrator.yml"),
+      path.join(repoDir, "cahi.yml"),
       [
         "projects:",
         "  broken:",
@@ -635,7 +635,7 @@ describe("/api/projects/[id]", () => {
       repaired: true,
       projectId: effectiveId,
     });
-    expect(readFileSync(path.join(repoDir, "agent-orchestrator.yml"), "utf-8")).toContain("agent: codex");
-    expect(existsSync(path.join(repoDir, "agent-orchestrator.yaml"))).toBe(false);
+    expect(readFileSync(path.join(repoDir, "cahi.yml"), "utf-8")).toContain("agent: codex");
+    expect(existsSync(path.join(repoDir, "cahi.yaml"))).toBe(false);
   });
 });

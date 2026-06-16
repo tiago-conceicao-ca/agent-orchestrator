@@ -118,7 +118,7 @@ import { registerNotify } from "../../src/commands/notify.js";
 
 function makeConfig() {
   return {
-    configPath: "/tmp/agent-orchestrator.yaml",
+    configPath: "/tmp/cahi.yaml",
     readyThresholdMs: 300_000,
     defaults: {
       runtime: "tmux",
@@ -167,7 +167,7 @@ describe("notify command", () => {
     });
 
     mockFindConfigFile.mockReset();
-    mockFindConfigFile.mockReturnValue("/tmp/agent-orchestrator.yaml");
+    mockFindConfigFile.mockReturnValue("/tmp/cahi.yaml");
     mockLoadConfig.mockReset();
     mockLoadConfig.mockReturnValue(makeConfig());
     mockCreatePluginRegistry.mockReset();

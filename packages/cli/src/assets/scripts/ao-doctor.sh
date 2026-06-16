@@ -28,8 +28,8 @@ EOF
   shift
 done
 
-REPO_ROOT="${AO_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-SCRIPT_LAYOUT="${AO_SCRIPT_LAYOUT:-}"
+REPO_ROOT="${CAHI_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+SCRIPT_LAYOUT="${CAHI_SCRIPT_LAYOUT:-}"
 if [ -z "$SCRIPT_LAYOUT" ]; then
   if [ -f "$REPO_ROOT/package.json" ] && [ -f "$REPO_ROOT/dist/index.js" ] && [ ! -d "$REPO_ROOT/packages" ]; then
     SCRIPT_LAYOUT="package-install"
@@ -79,31 +79,31 @@ expand_home() {
 }
 
 find_config() {
-  if [ -n "${AO_CONFIG_PATH:-}" ] && [ -f "$AO_CONFIG_PATH" ]; then
-    printf '%s\n' "$AO_CONFIG_PATH"
+  if [ -n "${CAHI_CONFIG_PATH:-}" ] && [ -f "$CAHI_CONFIG_PATH" ]; then
+    printf '%s\n' "$CAHI_CONFIG_PATH"
     return 0
   fi
 
   local current_dir="$PWD"
   while [ "$current_dir" != "/" ]; do
-    if [ -f "$current_dir/agent-orchestrator.yaml" ]; then
-      printf '%s\n' "$current_dir/agent-orchestrator.yaml"
+    if [ -f "$current_dir/cahi.yaml" ]; then
+      printf '%s\n' "$current_dir/cahi.yaml"
       return 0
     fi
-    if [ -f "$current_dir/agent-orchestrator.yml" ]; then
-      printf '%s\n' "$current_dir/agent-orchestrator.yml"
+    if [ -f "$current_dir/cahi.yml" ]; then
+      printf '%s\n' "$current_dir/cahi.yml"
       return 0
     fi
     current_dir="$(dirname "$current_dir")"
   done
 
-  if [ -f "$REPO_ROOT/agent-orchestrator.yaml" ]; then
-    printf '%s\n' "$REPO_ROOT/agent-orchestrator.yaml"
+  if [ -f "$REPO_ROOT/cahi.yaml" ]; then
+    printf '%s\n' "$REPO_ROOT/cahi.yaml"
     return 0
   fi
 
-  if [ -f "$DEFAULT_CONFIG_HOME/.agent-orchestrator.yaml" ]; then
-    printf '%s\n' "$DEFAULT_CONFIG_HOME/.agent-orchestrator.yaml"
+  if [ -f "$DEFAULT_CONFIG_HOME/.cahi.yaml" ]; then
+    printf '%s\n' "$DEFAULT_CONFIG_HOME/.cahi.yaml"
     return 0
   fi
 
@@ -358,7 +358,7 @@ check_config_dirs() {
   worktree_dir="$(read_config_value worktreeDir "$config_path")"
 
   if [ -z "$data_dir" ]; then
-    data_dir="$DEFAULT_CONFIG_HOME/.agent-orchestrator"
+    data_dir="$DEFAULT_CONFIG_HOME/.cahi"
   fi
   if [ -z "$worktree_dir" ]; then
     worktree_dir="$DEFAULT_CONFIG_HOME/.worktrees"
@@ -373,7 +373,7 @@ check_config_dirs() {
 
 check_stale_temp_files() {
   local temp_root stale_count deleted_count
-  temp_root="${AO_DOCTOR_TMP_ROOT:-${TMPDIR:-/tmp}/agent-orchestrator}"
+  temp_root="${CAHI_DOCTOR_TMP_ROOT:-${TMPDIR:-/tmp}/agent-orchestrator}"
   if [ ! -d "$temp_root" ]; then
     pass "temp root exists check skipped because $temp_root does not exist"
     return

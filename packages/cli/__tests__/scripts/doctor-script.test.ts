@@ -110,7 +110,7 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
     mkdirSync(binDir, { recursive: true });
     createHealthyPath(binDir);
 
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     const dataDir = join(tempRoot, "data");
     const worktreeDir = join(tempRoot, "worktrees");
     mkdirSync(dataDir, { recursive: true });
@@ -124,8 +124,8 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeRepo,
-        AO_CONFIG_PATH: configPath,
+        CAHI_REPO_ROOT: fakeRepo,
+        CAHI_CONFIG_PATH: configPath,
       },
       encoding: "utf8",
     });
@@ -153,7 +153,7 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
       `printf '%s\\n' "$*" >> ${JSON.stringify(npmLog)}\nif [ "$1" = "bin" ]; then\n  printf "/tmp/npm-bin\\n"\nfi\nexit 0`,
     );
 
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     const dataDir = join(tempRoot, "data");
     const worktreeDir = join(tempRoot, "worktrees");
     const commentedDataDir = `${dataDir} # session metadata`;
@@ -176,9 +176,9 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeRepo,
-        AO_CONFIG_PATH: configPath,
-        AO_DOCTOR_TMP_ROOT: tmpRoot,
+        CAHI_REPO_ROOT: fakeRepo,
+        CAHI_CONFIG_PATH: configPath,
+        CAHI_DOCTOR_TMP_ROOT: tmpRoot,
       },
       encoding: "utf8",
     });
@@ -230,7 +230,7 @@ fi
 exit 0`,
     );
 
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     const dataDir = join(tempRoot, "data");
     const worktreeDir = join(tempRoot, "worktrees");
     mkdirSync(dataDir, { recursive: true });
@@ -244,8 +244,8 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeRepo,
-        AO_CONFIG_PATH: configPath,
+        CAHI_REPO_ROOT: fakeRepo,
+        CAHI_CONFIG_PATH: configPath,
       },
       encoding: "utf8",
     });
@@ -280,7 +280,7 @@ exit 0`,
     writeFileSync(helperPath, "#!/bin/sh\nexit 0\n");
     chmodSync(helperPath, 0o644);
 
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     const dataDir = join(tempRoot, "data");
     const worktreeDir = join(tempRoot, "worktrees");
     mkdirSync(dataDir, { recursive: true });
@@ -294,8 +294,8 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeRepo,
-        AO_CONFIG_PATH: configPath,
+        CAHI_REPO_ROOT: fakeRepo,
+        CAHI_CONFIG_PATH: configPath,
       },
       encoding: "utf8",
     });
@@ -304,8 +304,8 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeRepo,
-        AO_CONFIG_PATH: configPath,
+        CAHI_REPO_ROOT: fakeRepo,
+        CAHI_CONFIG_PATH: configPath,
       },
       encoding: "utf8",
     });
@@ -328,7 +328,7 @@ exit 0`,
     mkdirSync(binDir, { recursive: true });
     createHealthyPath(binDir);
 
-    const configPath = join(tempRoot, "agent-orchestrator.yaml");
+    const configPath = join(tempRoot, "cahi.yaml");
     const dataDir = join(tempRoot, "data");
     const worktreeDir = join(tempRoot, "worktrees");
     mkdirSync(dataDir, { recursive: true });
@@ -342,9 +342,9 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:/bin:/usr/bin`,
-        AO_REPO_ROOT: fakeInstall,
-        AO_SCRIPT_LAYOUT: "package-install",
-        AO_CONFIG_PATH: configPath,
+        CAHI_REPO_ROOT: fakeInstall,
+        CAHI_SCRIPT_LAYOUT: "package-install",
+        CAHI_CONFIG_PATH: configPath,
       },
       encoding: "utf8",
     });

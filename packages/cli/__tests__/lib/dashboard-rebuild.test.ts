@@ -55,11 +55,11 @@ describe("clearStaleCacheIfNeeded", () => {
   });
 
   it("does nothing when stamp matches current version", async () => {
-    // existsSync: package.json → true, AO_VERSION → true
+    // existsSync: package.json → true, CAHI_VERSION → true
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockImplementation((path: string) => {
       if (path.includes("package.json")) return JSON.stringify({ version: "0.2.2" });
-      if (path.includes("AO_VERSION")) return "0.2.2";
+      if (path.includes("CAHI_VERSION")) return "0.2.2";
       return "";
     });
 
@@ -69,11 +69,11 @@ describe("clearStaleCacheIfNeeded", () => {
   });
 
   it("clears cache and updates stamp when version differs", async () => {
-    // existsSync: package.json, AO_VERSION, .next/cache, .next → all true
+    // existsSync: package.json, CAHI_VERSION, .next/cache, .next → all true
     mockExistsSync.mockReturnValue(true);
     mockReadFileSync.mockImplementation((path: string) => {
       if (path.includes("package.json")) return JSON.stringify({ version: "0.3.0" });
-      if (path.includes("AO_VERSION")) return "0.2.2";
+      if (path.includes("CAHI_VERSION")) return "0.2.2";
       return "";
     });
 
@@ -83,7 +83,7 @@ describe("clearStaleCacheIfNeeded", () => {
       { recursive: true, force: true },
     );
     expect(mockWriteFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("AO_VERSION"),
+      expect.stringContaining("CAHI_VERSION"),
       "0.3.0",
       "utf8",
     );
@@ -91,7 +91,7 @@ describe("clearStaleCacheIfNeeded", () => {
 
   it("clears cache when stamp file is missing (upgrade from old version)", async () => {
     mockExistsSync.mockImplementation((path: string) => {
-      if (path.includes("AO_VERSION")) return false;
+      if (path.includes("CAHI_VERSION")) return false;
       return true; // package.json, .next/cache, .next all exist
     });
     mockReadFileSync.mockImplementation((path: string) => {
@@ -105,7 +105,7 @@ describe("clearStaleCacheIfNeeded", () => {
       { recursive: true, force: true },
     );
     expect(mockWriteFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("AO_VERSION"),
+      expect.stringContaining("CAHI_VERSION"),
       "0.3.0",
       "utf8",
     );
@@ -114,7 +114,7 @@ describe("clearStaleCacheIfNeeded", () => {
   it("writes stamp but skips rmSync when no cache dir exists", async () => {
     mockExistsSync.mockImplementation((path: string) => {
       if (path.includes("cache")) return false;
-      if (path.includes("AO_VERSION")) return false;
+      if (path.includes("CAHI_VERSION")) return false;
       return true; // package.json, .next exist
     });
     mockReadFileSync.mockImplementation((path: string) => {
@@ -125,7 +125,7 @@ describe("clearStaleCacheIfNeeded", () => {
     await clearStaleCacheIfNeeded("/web");
     expect(mockRmSync).not.toHaveBeenCalled();
     expect(mockWriteFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("AO_VERSION"),
+      expect.stringContaining("CAHI_VERSION"),
       "0.3.0",
       "utf8",
     );

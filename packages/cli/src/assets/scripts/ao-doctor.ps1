@@ -32,9 +32,9 @@ Options:
     exit 0
 }
 
-# AO_REPO_ROOT and AO_SCRIPT_LAYOUT are exported by runRepoScript().
-$RepoRoot = if ($env:AO_REPO_ROOT) { $env:AO_REPO_ROOT } else { (Resolve-Path (Join-Path $PSScriptRoot '..')).Path }
-$ScriptLayout = $env:AO_SCRIPT_LAYOUT
+# CAHI_REPO_ROOT and CAHI_SCRIPT_LAYOUT are exported by runRepoScript().
+$RepoRoot = if ($env:CAHI_REPO_ROOT) { $env:CAHI_REPO_ROOT } else { (Resolve-Path (Join-Path $PSScriptRoot '..')).Path }
+$ScriptLayout = $env:CAHI_SCRIPT_LAYOUT
 if (-not $ScriptLayout) {
     if ((Test-Path (Join-Path $RepoRoot 'package.json')) -and
         (Test-Path (Join-Path $RepoRoot 'dist/index.js')) -and
@@ -66,12 +66,12 @@ function Expand-HomePath([string]$p) {
 }
 
 function Find-AoConfig {
-    if ($env:AO_CONFIG_PATH -and (Test-Path $env:AO_CONFIG_PATH)) {
-        return $env:AO_CONFIG_PATH
+    if ($env:CAHI_CONFIG_PATH -and (Test-Path $env:CAHI_CONFIG_PATH)) {
+        return $env:CAHI_CONFIG_PATH
     }
     $current = Get-Location | Select-Object -ExpandProperty Path
     while ($current) {
-        foreach ($name in @('agent-orchestrator.yaml', 'agent-orchestrator.yml')) {
+        foreach ($name in @('cahi.yaml', 'cahi.yml')) {
             $candidate = Join-Path $current $name
             if (Test-Path $candidate) { return $candidate }
         }
@@ -80,8 +80,8 @@ function Find-AoConfig {
         $current = $parent
     }
     foreach ($candidate in @(
-        (Join-Path $RepoRoot 'agent-orchestrator.yaml'),
-        (Join-Path $DefaultConfigHome '.agent-orchestrator.yaml')
+        (Join-Path $RepoRoot 'cahi.yaml'),
+        (Join-Path $DefaultConfigHome '.cahi.yaml')
     )) {
         if (Test-Path $candidate) { return $candidate }
     }
@@ -290,7 +290,7 @@ function Check-ConfigDirs {
     Write-Pass "config found at $configPath"
     $dataDir = Read-ConfigValue 'dataDir' $configPath
     $worktreeDir = Read-ConfigValue 'worktreeDir' $configPath
-    if (-not $dataDir)     { $dataDir     = Join-Path $DefaultConfigHome '.agent-orchestrator' }
+    if (-not $dataDir)     { $dataDir     = Join-Path $DefaultConfigHome '.cahi' }
     if (-not $worktreeDir) { $worktreeDir = Join-Path $DefaultConfigHome '.worktrees' }
     $dataDir     = Expand-HomePath $dataDir
     $worktreeDir = Expand-HomePath $worktreeDir
@@ -299,7 +299,7 @@ function Check-ConfigDirs {
 }
 
 function Check-StaleTempFiles {
-    $tempRoot = if ($env:AO_DOCTOR_TMP_ROOT) { $env:AO_DOCTOR_TMP_ROOT } else { Join-Path $env:TEMP 'agent-orchestrator' }
+    $tempRoot = if ($env:CAHI_DOCTOR_TMP_ROOT) { $env:CAHI_DOCTOR_TMP_ROOT } else { Join-Path $env:TEMP 'agent-orchestrator' }
     if (-not (Test-Path $tempRoot)) {
         Write-Pass "temp root exists check skipped because $tempRoot does not exist"
         return

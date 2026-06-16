@@ -175,7 +175,7 @@ const mockRegistry: PluginRegistry = {
 };
 
 const mockConfig: OrchestratorConfig = {
-  configPath: "/tmp/ao-test/agent-orchestrator.yaml",
+  configPath: "/tmp/ao-test/cahi.yaml",
   port: 3000,
   readyThresholdMs: 300_000,
   defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },
@@ -213,7 +213,7 @@ vi.mock("@/lib/services", () => ({
 }));
 
 // Mock filesystem-touching core helpers so PATCH /api/sessions/:id doesn't
-// write to the user's actual ~/.agent-orchestrator dir during tests. Spread
+// write to the user's actual ~/.cahi dir during tests. Spread
 // the real module first so the rest of the test file (types, errors, etc.)
 // keeps working. Factory must self-contain its mocks because vi.mock is
 // hoisted above any module-level declarations.

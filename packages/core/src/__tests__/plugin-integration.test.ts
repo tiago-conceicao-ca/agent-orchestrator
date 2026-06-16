@@ -114,7 +114,7 @@ beforeEach(() => {
   previousUserProfile = process.env["USERPROFILE"];
   process.env["HOME"] = env.tmpDir;
   process.env["USERPROFILE"] = env.tmpDir;
-  env.configPath = join(env.tmpDir, "agent-orchestrator.yaml");
+  env.configPath = join(env.tmpDir, "cahi.yaml");
   writeFileSync(env.configPath, "projects: {}\n");
 
   // Create mock plugins using test-utils

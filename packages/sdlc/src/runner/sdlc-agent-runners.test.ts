@@ -14,7 +14,7 @@ import {
 } from "./sdlc-agent-runners.js";
 import type { SdlcSessionSpawn } from "./session-runner.js";
 
-/** Fake session manager that writes `output` to `.ao/<sentinel>` on spawn. */
+/** Fake session manager that writes `output` to `.cahi/<sentinel>` on spawn. */
 function fakeSpawn(workspaceDir: string, sentinel: string, output: string) {
   const killed: string[] = [];
   const prompts: string[] = [];
@@ -23,8 +23,8 @@ function fakeSpawn(workspaceDir: string, sentinel: string, output: string) {
     spawn: async ({ prompt, metadata }) => {
       prompts.push(prompt);
       meta.push(metadata);
-      mkdirSync(join(workspaceDir, ".ao"), { recursive: true });
-      writeFileSync(join(workspaceDir, ".ao", sentinel), output, "utf-8");
+      mkdirSync(join(workspaceDir, ".cahi"), { recursive: true });
+      writeFileSync(join(workspaceDir, ".cahi", sentinel), output, "utf-8");
       return { id: "sess-1", workspacePath: workspaceDir };
     },
     kill: async (id) => {
@@ -75,7 +75,7 @@ describe("session-backed lens runner", () => {
     expect(killed).toEqual(["sess-1"]);
     // prompt carries the artifact path + the sentinel-write instruction
     expect(prompts[0]).toContain("/tmp/plan.md");
-    expect(prompts[0]).toContain(`.ao/${LENS_SENTINEL}`);
+    expect(prompts[0]).toContain(`.cahi/${LENS_SENTINEL}`);
   });
 });
 
@@ -119,6 +119,6 @@ describe("session-backed plan runner", () => {
       sdlcRole: "plan",
     });
     expect(killed).toEqual(["sess-1"]);
-    expect(prompts[0]).toContain(`.ao/${PLAN_SENTINEL}`);
+    expect(prompts[0]).toContain(`.cahi/${PLAN_SENTINEL}`);
   });
 });

@@ -18,7 +18,7 @@ import type { OrchestratorConfig, PluginRegistry, Runtime, Workspace } from "../
 const PROJECT_ID = "app";
 
 // Isolate tests from the real user home so parallel workers don't race on
-// ~/.agent-orchestrator/111111111111/sessions/.
+// ~/.cahi/111111111111/sessions/.
 let fakeHome: string;
 let originalHome: string | undefined;
 let originalUserProfile: string | undefined;
@@ -42,7 +42,7 @@ afterAll(() => {
 
 function makeConfig(rootDir: string): OrchestratorConfig {
   return {
-    configPath: join(rootDir, "agent-orchestrator.yaml"),
+    configPath: join(rootDir, "cahi.yaml"),
     port: 3000,
     readyThresholdMs: 300_000,
     power: { preventIdleSleep: false },
@@ -117,7 +117,7 @@ function makeAssessment(overrides: Partial<RecoveryAssessment> = {}): RecoveryAs
 
 function makeContext(rootDir: string, overrides: Partial<RecoveryContext> = {}): RecoveryContext {
   return {
-    configPath: join(rootDir, "agent-orchestrator.yaml"),
+    configPath: join(rootDir, "cahi.yaml"),
     recoveryConfig: {
       ...DEFAULT_RECOVERY_CONFIG,
       logPath: join(rootDir, "recovery.log"),
@@ -135,7 +135,7 @@ describe("recoverSession", () => {
     rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
   });
@@ -262,7 +262,7 @@ describe("escalateSession", () => {
     rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
   });
@@ -308,7 +308,7 @@ describe("cleanupSession", () => {
     rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
   });
@@ -441,7 +441,7 @@ describe("recovery actions update lifecycle for V2 sessions", () => {
     rootDir = join(tmpdir(), `ao-recovery-lifecycle-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
   });
@@ -600,7 +600,7 @@ describe("recovery manager and scanner", () => {
     rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
   });

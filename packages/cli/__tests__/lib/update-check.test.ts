@@ -1012,12 +1012,12 @@ describe("update-check", () => {
       origIsTTY = process.stderr.isTTY;
       origCI = process.env["CI"];
       origAOCI = process.env["AGENT_ORCHESTRATOR_CI"];
-      origNotifier = process.env["AO_NO_UPDATE_NOTIFIER"];
+      origNotifier = process.env["CAHI_NO_UPDATE_NOTIFIER"];
       origArgv = process.argv;
       Object.defineProperty(process.stderr, "isTTY", { value: true, configurable: true });
       delete process.env["CI"];
       delete process.env["AGENT_ORCHESTRATOR_CI"];
-      delete process.env["AO_NO_UPDATE_NOTIFIER"];
+      delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       process.argv = ["node", "ao", "start"];
     });
 
@@ -1027,8 +1027,8 @@ describe("update-check", () => {
       else delete process.env["CI"];
       if (origAOCI !== undefined) process.env["AGENT_ORCHESTRATOR_CI"] = origAOCI;
       else delete process.env["AGENT_ORCHESTRATOR_CI"];
-      if (origNotifier !== undefined) process.env["AO_NO_UPDATE_NOTIFIER"] = origNotifier;
-      else delete process.env["AO_NO_UPDATE_NOTIFIER"];
+      if (origNotifier !== undefined) process.env["CAHI_NO_UPDATE_NOTIFIER"] = origNotifier;
+      else delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       process.argv = origArgv;
     });
 
@@ -1161,8 +1161,8 @@ describe("update-check", () => {
       expect(stderrSpy).not.toHaveBeenCalled();
     });
 
-    it("does not print when AO_NO_UPDATE_NOTIFIER=1", () => {
-      process.env["AO_NO_UPDATE_NOTIFIER"] = "1";
+    it("does not print when CAHI_NO_UPDATE_NOTIFIER=1", () => {
+      process.env["CAHI_NO_UPDATE_NOTIFIER"] = "1";
       maybeShowUpdateNotice();
       expect(stderrSpy).not.toHaveBeenCalled();
     });
@@ -1378,7 +1378,7 @@ describe("update-check", () => {
       Object.defineProperty(process.stderr, "isTTY", { value: true, configurable: true });
       delete process.env["CI"];
       delete process.env["AGENT_ORCHESTRATOR_CI"];
-      delete process.env["AO_NO_UPDATE_NOTIFIER"];
+      delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       const origArgv = process.argv;
       process.argv = ["node", "ao", "start"];
       mockReadFileSync.mockReturnValue(

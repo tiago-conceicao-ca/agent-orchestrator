@@ -332,7 +332,7 @@ describe("global-config storage identity", () => {
   it("repairs a wrapped local project config into flat behavior-only config", () => {
     const repoPath = createRepo("wrapped-local", "https://github.com/OpenAI/demo.git");
     writeFileSync(
-      join(repoPath, "agent-orchestrator.yaml"),
+      join(repoPath, "cahi.yaml"),
       [
         "projects:",
         "  wrapped-local:",
@@ -346,7 +346,7 @@ describe("global-config storage identity", () => {
 
     repairWrappedLocalProjectConfig("wrapped-local", repoPath);
 
-    const repaired = parseYaml(readFileSync(join(repoPath, "agent-orchestrator.yaml"), "utf-8"));
+    const repaired = parseYaml(readFileSync(join(repoPath, "cahi.yaml"), "utf-8"));
     expect(repaired).toEqual({
       agent: "codex",
       runtime: "tmux",
@@ -363,7 +363,7 @@ describe("global-config storage identity", () => {
       configPath,
     );
     writeFileSync(
-      join(repoPath, "agent-orchestrator.yaml"),
+      join(repoPath, "cahi.yaml"),
       [
         "defaults:",
         "  agent: codex",
@@ -387,7 +387,7 @@ describe("global-config storage identity", () => {
 
     repairWrappedLocalProjectConfig(projectId, repoPath);
 
-    const repaired = parseYaml(readFileSync(join(repoPath, "agent-orchestrator.yaml"), "utf-8"));
+    const repaired = parseYaml(readFileSync(join(repoPath, "cahi.yaml"), "utf-8"));
     expect(repaired).toEqual({
       agent: "codex",
       runtime: "tmux",
@@ -406,7 +406,7 @@ describe("global-config storage identity", () => {
 
   it("repairs wrapped local .yml configs without creating a .yaml sibling", () => {
     const repoPath = createRepo("wrapped-local-yml", "https://github.com/OpenAI/demo.git");
-    const configPathYml = join(repoPath, "agent-orchestrator.yml");
+    const configPathYml = join(repoPath, "cahi.yml");
     writeFileSync(
       configPathYml,
       [
@@ -426,7 +426,7 @@ describe("global-config storage identity", () => {
       agent: "codex",
       runtime: "tmux",
     });
-    expect(existsSync(join(repoPath, "agent-orchestrator.yaml"))).toBe(false);
+    expect(existsSync(join(repoPath, "cahi.yaml"))).toBe(false);
   });
 
   it("registers a project successfully even when the existing config needs shadow-field cleanup", () => {
@@ -482,7 +482,7 @@ describe("global-config storage identity", () => {
       configPath,
     );
     writeFileSync(
-      join(repoPath, "agent-orchestrator.yaml"),
+      join(repoPath, "cahi.yaml"),
       [
         "repo: evil/override",
         "defaultBranch: develop",
@@ -551,7 +551,7 @@ describe("global-config storage identity", () => {
 
     registerProjectInGlobalConfig("with-siblings", "With Siblings", repoPath, undefined, configPath);
     writeFileSync(
-      join(repoPath, "agent-orchestrator.yaml"),
+      join(repoPath, "cahi.yaml"),
       ["siblings:", "  - other-project", "  - OpenAI/another-repo", ""].join("\n"),
     );
 
@@ -570,7 +570,7 @@ describe("global-config storage identity", () => {
       siblings: ["other-project", "OpenAI/another-repo"],
     });
 
-    const onDisk = parseYaml(readFileSync(join(repoPath, "agent-orchestrator.yaml"), "utf-8"));
+    const onDisk = parseYaml(readFileSync(join(repoPath, "cahi.yaml"), "utf-8"));
     expect(onDisk).toEqual({
       agent: "codex",
       siblings: ["other-project", "OpenAI/another-repo"],
@@ -586,7 +586,7 @@ describe("global-config storage identity", () => {
     const projectId = generateExternalId(repoPath, "https://github.com/OpenAI/no-siblings.git");
 
     registerProjectInGlobalConfig("no-siblings", "No Siblings", repoPath, undefined, configPath);
-    writeFileSync(join(repoPath, "agent-orchestrator.yaml"), "agent: codex\n");
+    writeFileSync(join(repoPath, "cahi.yaml"), "agent: codex\n");
 
     const resolved = resolveProjectIdentity(projectId, loadGlobalConfig(configPath)!, configPath);
     expect(resolved).toMatchObject({ agent: "codex" });
@@ -596,7 +596,7 @@ describe("global-config storage identity", () => {
   it("rejects local config with non-string siblings entries", () => {
     const repoPath = createRepo("bad-siblings", "https://github.com/OpenAI/bad-siblings.git");
     writeFileSync(
-      join(repoPath, "agent-orchestrator.yaml"),
+      join(repoPath, "cahi.yaml"),
       ["siblings:", "  - 42", ""].join("\n"),
     );
 

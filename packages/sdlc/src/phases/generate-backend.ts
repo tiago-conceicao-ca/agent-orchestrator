@@ -24,7 +24,7 @@ export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?
 /**
  * Polls AO until the spawned session completes; returns "done" | "failed" |
  * "stalled". `workspacePath` is where the worker's completion sentinel
- * (`.ao/sdlc-task-done.json`) is read from — the primary, PR-independent signal.
+ * (`.cahi/sdlc-task-done.json`) is read from — the primary, PR-independent signal.
  * "stalled" lets the executor auto-retry before failing the run.
  */
 export type WaitForDoneFn = (

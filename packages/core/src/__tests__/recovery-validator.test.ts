@@ -22,7 +22,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -71,7 +71,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -129,7 +129,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -169,7 +169,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -224,7 +224,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -264,7 +264,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -317,7 +317,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -357,7 +357,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -410,7 +410,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockWorkspace: Workspace = {
       name: "worktree",
@@ -430,7 +430,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -481,7 +481,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -521,7 +521,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -573,7 +573,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockWorkspace: Workspace = {
       name: "worktree",
@@ -593,7 +593,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },
@@ -644,7 +644,7 @@ describe("recovery validator", () => {
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
 
     const mockRuntime: Runtime = {
       name: "tmux",
@@ -684,7 +684,7 @@ describe("recovery validator", () => {
       loadFromConfig: vi.fn().mockResolvedValue(undefined),
     };
     const config: OrchestratorConfig = {
-      configPath: join(rootDir, "agent-orchestrator.yaml"),
+      configPath: join(rootDir, "cahi.yaml"),
       port: 3000,
       readyThresholdMs: 300_000,
       power: { preventIdleSleep: false },

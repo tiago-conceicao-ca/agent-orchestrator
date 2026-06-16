@@ -44,7 +44,7 @@ afterEach(() => {
 describe("ensureTmux on Windows", () => {
   it("rewrites runtime: tmux -> runtime: process when user accepts", async () => {
     setPlatform("win32");
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     const original = [
       "port: 3000",
       "defaults:",
@@ -70,7 +70,7 @@ describe("ensureTmux on Windows", () => {
 
   it("preserves quoting when rewriting", async () => {
     setPlatform("win32");
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     writeFileSync(configPath, 'defaults:\n  runtime: "tmux"\n  agent: claude-code\n', "utf-8");
 
     mockAskYesNo.mockResolvedValueOnce(true);
@@ -83,7 +83,7 @@ describe("ensureTmux on Windows", () => {
 
   it("preserves trailing comments when rewriting", async () => {
     setPlatform("win32");
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     writeFileSync(configPath, "defaults:\n  runtime: tmux  # legacy default\n", "utf-8");
 
     mockAskYesNo.mockResolvedValueOnce(true);
@@ -96,7 +96,7 @@ describe("ensureTmux on Windows", () => {
 
   it("exits when user declines the rewrite", async () => {
     setPlatform("win32");
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     writeFileSync(configPath, "defaults:\n  runtime: tmux\n", "utf-8");
 
     mockAskYesNo.mockResolvedValueOnce(false);
@@ -125,7 +125,7 @@ describe("ensureTmux on Windows", () => {
 
   it("does not invoke tmux -V on Windows", async () => {
     setPlatform("win32");
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     writeFileSync(configPath, "defaults:\n  runtime: tmux\n", "utf-8");
     mockAskYesNo.mockResolvedValueOnce(true);
 

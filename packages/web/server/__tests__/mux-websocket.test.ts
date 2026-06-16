@@ -787,7 +787,7 @@ describe("NotificationBroadcaster", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     tempDir = mkdtempSync(join(tmpdir(), "ao-notification-broadcaster-"));
-    configPath = join(tempDir, "agent-orchestrator.yaml");
+    configPath = join(tempDir, "cahi.yaml");
     writeFileSync(
       configPath,
       [
@@ -972,7 +972,7 @@ describe("TerminalManager.open — tmux target args (regression for #1714)", () 
     const helperPath = join(tempRoot, "spawn-helper");
     writeFileSync(helperPath, "#!/bin/sh\nexit 0\n");
     chmodSync(helperPath, 0o644);
-    process.env.AO_NODE_PTY_SPAWN_HELPER_PATH = helperPath;
+    process.env.CAHI_NODE_PTY_SPAWN_HELPER_PATH = helperPath;
 
     const pty = {
       onData: vi.fn(),
@@ -997,7 +997,7 @@ describe("TerminalManager.open — tmux target args (regression for #1714)", () 
         expect((statSync(helperPath).mode & 0o111) !== 0).toBe(true);
       }
     } finally {
-      delete process.env.AO_NODE_PTY_SPAWN_HELPER_PATH;
+      delete process.env.CAHI_NODE_PTY_SPAWN_HELPER_PATH;
       rmSync(tempRoot, { recursive: true, force: true });
     }
   });

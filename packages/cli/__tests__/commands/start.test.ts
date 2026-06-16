@@ -253,7 +253,7 @@ vi.mock("../../src/lib/prompts.js", () => ({
 }));
 
 // Stub the update-channel onboarding so `runStartup` doesn't touch the real
-// global config file under ~/.agent-orchestrator. Without this, a test that
+// global config file under ~/.cahi. Without this, a test that
 // reaches runStartup writes `updateChannel` to disk, which makes subsequent
 // tests load that config and report wrong errors (e.g. "No projects
 // configured" instead of the expected "project not found").
@@ -335,8 +335,8 @@ function createSpawnChild(options?: {
 
 beforeEach(async () => {
   tmpDir = mkdtempSync(join(tmpdir(), "ao-start-test-"));
-  originalAoGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-  process.env["AO_GLOBAL_CONFIG"] = join(tmpDir, "global-agent-orchestrator.yaml");
+  originalAoGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+  process.env["CAHI_GLOBAL_CONFIG"] = join(tmpDir, "global-cahi.yaml");
 
   program = new Command();
   program.exitOverride();
@@ -471,8 +471,8 @@ beforeEach(async () => {
 
 afterEach(() => {
   if (cwdSpy) cwdSpy.mockRestore();
-  if (originalAoGlobalConfig === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-  else process.env["AO_GLOBAL_CONFIG"] = originalAoGlobalConfig;
+  if (originalAoGlobalConfig === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+  else process.env["CAHI_GLOBAL_CONFIG"] = originalAoGlobalConfig;
   rmSync(tmpDir, { recursive: true, force: true });
   vi.restoreAllMocks();
 });
@@ -483,7 +483,7 @@ afterEach(() => {
 
 function makeConfig(projects: Record<string, Record<string, unknown>>): Record<string, unknown> {
   return {
-    configPath: join(tmpDir, "agent-orchestrator.yaml"),
+    configPath: join(tmpDir, "cahi.yaml"),
     port: 3000,
     defaults: {
       // Use "process" so the test runs on every platform without
@@ -696,7 +696,7 @@ describe("start command — URL argument", () => {
     ]);
 
     // Config should have been generated
-    expect(existsSync(join(repoDir, "agent-orchestrator.yaml"))).toBe(true);
+    expect(existsSync(join(repoDir, "cahi.yaml"))).toBe(true);
 
     const output = vi
       .mocked(console.log)
@@ -805,13 +805,13 @@ describe("start command — URL argument", () => {
     expect(output).toContain("Startup complete");
   });
 
-  it("uses existing config when repo already has agent-orchestrator.yaml", async () => {
+  it("uses existing config when repo already has cahi.yaml", async () => {
     const repoDir = join(tmpDir, "configured-app");
     createFakeRepo(repoDir, "https://github.com/owner/configured-app.git");
     mockCwd(tmpDir);
 
     writeFileSync(
-      join(repoDir, "agent-orchestrator.yaml"),
+      join(repoDir, "cahi.yaml"),
       [
         "port: 4000",
         "defaults:",
@@ -852,7 +852,7 @@ describe("start command — URL argument", () => {
     mockCwd(tmpDir);
 
     writeFileSync(
-      join(repoDir, "agent-orchestrator.yaml"),
+      join(repoDir, "cahi.yaml"),
       [
         "port: 4000",
         "defaults:",
@@ -2021,7 +2021,7 @@ describe("start command — platform-aware runtime fallback", () => {
   it("does not call ensureTmux when config has no runtime and platform is win32", async () => {
     // Config with no defaults.runtime — the fallback kicks in.
     const configWithoutRuntime: Record<string, unknown> = {
-      configPath: join(tmpDir, "agent-orchestrator.yaml"),
+      configPath: join(tmpDir, "cahi.yaml"),
       port: 3000,
       defaults: {
         // runtime intentionally absent
@@ -2059,7 +2059,7 @@ describe("start command — platform-aware runtime fallback", () => {
   it("calls ensureTmux when config has no runtime and platform is linux", async () => {
     // Same config without runtime, but on a non-Windows platform.
     const configWithoutRuntime: Record<string, unknown> = {
-      configPath: join(tmpDir, "agent-orchestrator.yaml"),
+      configPath: join(tmpDir, "cahi.yaml"),
       port: 3000,
       defaults: {
         agent: "claude-code",
@@ -2307,9 +2307,9 @@ describe("start command — platform-aware runtime fallback", () => {
   // running.json gets the project re-added, and runStartup is never called.
   it("ao start <project> while daemon alive but project removed: attaches to existing daemon (no second dashboard)", async () => {
     // Force the global-config fallback to use mockConfigRef.current rather
-    // than reading the test machine's real ~/.agent-orchestrator/config.yaml.
-    const origGlobalEnv = process.env["AO_GLOBAL_CONFIG"];
-    process.env["AO_GLOBAL_CONFIG"] = join(tmpDir, "no-such-global.yaml");
+    // than reading the test machine's real ~/.cahi/config.yaml.
+    const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
+    process.env["CAHI_GLOBAL_CONFIG"] = join(tmpDir, "no-such-global.yaml");
 
     try {
       mockConfigRef.current = makeConfig({
@@ -2356,8 +2356,8 @@ describe("start command — platform-aware runtime fallback", () => {
       expect(output).toContain("Attaching to running AO instance");
       expect(output).toContain("reattached to running daemon");
     } finally {
-      if (origGlobalEnv === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-      else process.env["AO_GLOBAL_CONFIG"] = origGlobalEnv;
+      if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+      else process.env["CAHI_GLOBAL_CONFIG"] = origGlobalEnv;
     }
   });
 });
@@ -2400,7 +2400,7 @@ describe("start command — autoCreateConfig", () => {
 
     const config = await autoCreateConfig(tmpDir);
 
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     expect(existsSync(configPath)).toBe(true);
 
     const content = readFileSync(configPath, "utf-8");
@@ -2415,7 +2415,7 @@ describe("start command — autoCreateConfig", () => {
     expect(parsed.agent).toBe("claude-code");
     expect(parsed.workspace).toBe("worktree");
 
-    const globalConfigPath = process.env["AO_GLOBAL_CONFIG"]!;
+    const globalConfigPath = process.env["CAHI_GLOBAL_CONFIG"]!;
     const globalContent = readFileSync(globalConfigPath, "utf-8");
     const globalParsed = parseYaml(globalContent) as {
       defaults?: { notifiers?: unknown[] };
@@ -2459,7 +2459,7 @@ describe("start command — autoCreateConfig", () => {
     vi.spyOn(callerContext, "isHumanCaller").mockReturnValue(false);
 
     writeFileSync(
-      process.env["AO_GLOBAL_CONFIG"]!,
+      process.env["CAHI_GLOBAL_CONFIG"]!,
       [
         "projects:",
         `  ${basename(tmpDir)}:`,
@@ -2470,7 +2470,7 @@ describe("start command — autoCreateConfig", () => {
 
     await expect(autoCreateConfig(tmpDir)).rejects.toThrow("already registered");
 
-    expect(existsSync(join(tmpDir, "agent-orchestrator.yaml"))).toBe(false);
+    expect(existsSync(join(tmpDir, "cahi.yaml"))).toBe(false);
   });
 });
 
@@ -2534,10 +2534,10 @@ describe("start command — already-running detection", () => {
     const repoDir = join(tmpDir, "registered-repo");
     createFakeRepo(repoDir, "https://github.com/org/registered-repo.git");
 
-    // Point AO_GLOBAL_CONFIG at a non-existent file so the global lookup
+    // Point CAHI_GLOBAL_CONFIG at a non-existent file so the global lookup
     // falls back to mockConfigRef.current.
-    const origGlobalEnv = process.env["AO_GLOBAL_CONFIG"];
-    process.env["AO_GLOBAL_CONFIG"] = join(tmpDir, "no-such-global.yaml");
+    const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
+    process.env["CAHI_GLOBAL_CONFIG"] = join(tmpDir, "no-such-global.yaml");
 
     try {
       mockIsAlreadyRunning.mockResolvedValue({
@@ -2574,8 +2574,8 @@ describe("start command — already-running detection", () => {
       expect(output).toContain("my-app");
       expect(output).toContain("already registered and running");
     } finally {
-      if (origGlobalEnv === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-      else process.env["AO_GLOBAL_CONFIG"] = origGlobalEnv;
+      if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+      else process.env["CAHI_GLOBAL_CONFIG"] = origGlobalEnv;
     }
   });
 
@@ -2583,7 +2583,7 @@ describe("start command — already-running detection", () => {
     const repoDir = join(tmpDir, "new-repo");
     createFakeRepo(repoDir, "https://github.com/org/new-repo.git");
 
-    // Point AO_GLOBAL_CONFIG at a real file in tmpDir so addProjectToConfig
+    // Point CAHI_GLOBAL_CONFIG at a real file in tmpDir so addProjectToConfig
     // routes through registerProjectInGlobalConfig.
     const globalConfigPath = join(tmpDir, "global-config.yaml");
     const { stringify: yamlStringify } = await import("yaml");
@@ -2611,10 +2611,10 @@ describe("start command — already-running detection", () => {
       ),
     );
 
-    const origGlobalEnv = process.env["AO_GLOBAL_CONFIG"];
-    const origConfigEnv = process.env["AO_CONFIG_PATH"];
-    process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
-    process.env["AO_CONFIG_PATH"] = globalConfigPath;
+    const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
+    const origConfigEnv = process.env["CAHI_CONFIG_PATH"];
+    process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = globalConfigPath;
 
     try {
       mockConfigRef.current = makeConfig({
@@ -2675,10 +2675,10 @@ describe("start command — already-running detection", () => {
       expect(output).toContain("Orchestrator session ready");
       expect(output).toContain("Opening dashboard");
     } finally {
-      if (origGlobalEnv === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-      else process.env["AO_GLOBAL_CONFIG"] = origGlobalEnv;
-      if (origConfigEnv === undefined) delete process.env["AO_CONFIG_PATH"];
-      else process.env["AO_CONFIG_PATH"] = origConfigEnv;
+      if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+      else process.env["CAHI_GLOBAL_CONFIG"] = origGlobalEnv;
+      if (origConfigEnv === undefined) delete process.env["CAHI_CONFIG_PATH"];
+      else process.env["CAHI_CONFIG_PATH"] = origConfigEnv;
     }
   });
 
@@ -2782,7 +2782,7 @@ describe("start command — already-running detection", () => {
 
     mockPromptSelect.mockResolvedValue("new");
 
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     const { stringify: yamlStringify } = await import("yaml");
     writeFileSync(
       configPath,
@@ -2842,14 +2842,14 @@ describe("start command — already-running detection", () => {
 
     const repoDir = join(tmpDir, "agent-orchestrator");
     createFakeRepo(repoDir, "https://github.com/org/agent-orchestrator.git");
-    const localConfigPath = join(repoDir, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoDir, "cahi.yaml");
     writeFileSync(localConfigPath, "agent: claude-code\n");
 
     const projectId = generateExternalId(
       repoDir,
       "https://github.com/org/agent-orchestrator.git",
     );
-    const globalConfigPath = process.env["AO_GLOBAL_CONFIG"]!;
+    const globalConfigPath = process.env["CAHI_GLOBAL_CONFIG"]!;
     const { stringify: yamlStringify } = await import("yaml");
     writeFileSync(
       globalConfigPath,
@@ -2919,7 +2919,7 @@ describe("start command — already-running detection", () => {
     const repoDir = join(tmpDir, "some-project");
     createFakeRepo(repoDir, "https://github.com/org/some-project.git");
 
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     const { stringify: yamlStringify } = await import("yaml");
     const originalYaml = yamlStringify(
       {
@@ -2975,7 +2975,7 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
     const repoDir = join(tmpDir, "my-app");
     createFakeRepo(repoDir, "https://github.com/org/my-app.git");
 
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     const { stringify: yamlStringify } = await import("yaml");
     writeFileSync(
       configPath,
@@ -3001,9 +3001,9 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
       ),
     );
 
-    // Set AO_CONFIG_PATH so findConfigFile() finds our config in the path-arg branch
-    const origEnv = process.env["AO_CONFIG_PATH"];
-    process.env["AO_CONFIG_PATH"] = configPath;
+    // Set CAHI_CONFIG_PATH so findConfigFile() finds our config in the path-arg branch
+    const origEnv = process.env["CAHI_CONFIG_PATH"];
+    process.env["CAHI_CONFIG_PATH"] = configPath;
 
     try {
       // Pass repoDir as a local path arg — enters the path-argument branch
@@ -3021,8 +3021,8 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
       const parsed = parseYaml(content) as { projects: Record<string, unknown> };
       expect(Object.keys(parsed.projects)).toEqual(["my-app"]);
     } finally {
-      if (origEnv === undefined) delete process.env["AO_CONFIG_PATH"];
-      else process.env["AO_CONFIG_PATH"] = origEnv;
+      if (origEnv === undefined) delete process.env["CAHI_CONFIG_PATH"];
+      else process.env["CAHI_CONFIG_PATH"] = origEnv;
     }
   });
 
@@ -3033,7 +3033,7 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
     const repoDir = join(tmpDir, "new-project");
     createFakeRepo(repoDir, "https://github.com/org/new-project.git");
 
-    const configPath = join(tmpDir, "agent-orchestrator.yaml");
+    const configPath = join(tmpDir, "cahi.yaml");
     const { stringify: yamlStringify } = await import("yaml");
     writeFileSync(
       configPath,
@@ -3059,9 +3059,9 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
       ),
     );
 
-    // Set AO_CONFIG_PATH so findConfigFile() finds our config
-    const origEnv = process.env["AO_CONFIG_PATH"];
-    process.env["AO_CONFIG_PATH"] = configPath;
+    // Set CAHI_CONFIG_PATH so findConfigFile() finds our config
+    const origEnv = process.env["CAHI_CONFIG_PATH"];
+    process.env["CAHI_CONFIG_PATH"] = configPath;
 
     try {
       // Pass repoDir as path arg. The path-argument branch's path-match check
@@ -3081,8 +3081,8 @@ describe("start command — path-based deduplication in addProjectToConfig", () 
       const parsed = parseYaml(content) as { projects: Record<string, unknown> };
       expect(Object.keys(parsed.projects)).toEqual(["old-name"]);
     } finally {
-      if (origEnv === undefined) delete process.env["AO_CONFIG_PATH"];
-      else process.env["AO_CONFIG_PATH"] = origEnv;
+      if (origEnv === undefined) delete process.env["CAHI_CONFIG_PATH"];
+      else process.env["CAHI_CONFIG_PATH"] = origEnv;
     }
   });
 });
@@ -3095,7 +3095,7 @@ describe("start command — global registry mutations", () => {
     createFakeRepo(addedRepoDir, "https://github.com/org/added.git");
     writeFileSync(join(addedRepoDir, ".git", "refs", "remotes", "origin", "master"), "abc\n");
 
-    const localCurrentConfigPath = join(currentRepoDir, "agent-orchestrator.yaml");
+    const localCurrentConfigPath = join(currentRepoDir, "cahi.yaml");
     writeFileSync(localCurrentConfigPath, "agent: claude-code\n");
 
     const globalConfigPath = join(tmpDir, "config.yaml");
@@ -3129,10 +3129,10 @@ describe("start command — global registry mutations", () => {
     });
     (mockConfigRef.current as Record<string, unknown>).configPath = globalConfigPath;
 
-    const origEnv = process.env["AO_CONFIG_PATH"];
-    const origGlobalEnv = process.env["AO_GLOBAL_CONFIG"];
-    process.env["AO_CONFIG_PATH"] = globalConfigPath;
-    process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
+    const origEnv = process.env["CAHI_CONFIG_PATH"];
+    const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
+    process.env["CAHI_CONFIG_PATH"] = globalConfigPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
 
     const shell = await import("../../src/lib/shell.js");
     vi.mocked(shell.git).mockImplementation(async (args: string[], workingDir?: string) => {
@@ -3187,13 +3187,13 @@ describe("start command — global registry mutations", () => {
       });
       expect(addedEntry).not.toHaveProperty("agentRules");
 
-      const localAddedConfig = readFileSync(join(addedRepoDir, "agent-orchestrator.yaml"), "utf-8");
+      const localAddedConfig = readFileSync(join(addedRepoDir, "cahi.yaml"), "utf-8");
       expect(localAddedConfig).not.toContain("projects:");
     } finally {
-      if (origEnv === undefined) delete process.env["AO_CONFIG_PATH"];
-      else process.env["AO_CONFIG_PATH"] = origEnv;
-      if (origGlobalEnv === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-      else process.env["AO_GLOBAL_CONFIG"] = origGlobalEnv;
+      if (origEnv === undefined) delete process.env["CAHI_CONFIG_PATH"];
+      else process.env["CAHI_CONFIG_PATH"] = origEnv;
+      if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+      else process.env["CAHI_GLOBAL_CONFIG"] = origGlobalEnv;
     }
   });
 
@@ -3201,7 +3201,7 @@ describe("start command — global registry mutations", () => {
     const repoDir = join(tmpDir, "current");
     createFakeRepo(repoDir, "https://github.com/org/current.git");
 
-    const localConfigPath = join(repoDir, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoDir, "cahi.yaml");
     writeFileSync(localConfigPath, "agent: claude-code\n");
 
     const globalConfigPath = join(tmpDir, "config.yaml");
@@ -3235,10 +3235,10 @@ describe("start command — global registry mutations", () => {
     });
     (mockConfigRef.current as Record<string, unknown>).configPath = globalConfigPath;
 
-    const origEnv = process.env["AO_CONFIG_PATH"];
-    const origGlobalEnv = process.env["AO_GLOBAL_CONFIG"];
-    process.env["AO_CONFIG_PATH"] = globalConfigPath;
-    process.env["AO_GLOBAL_CONFIG"] = globalConfigPath;
+    const origEnv = process.env["CAHI_CONFIG_PATH"];
+    const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
+    process.env["CAHI_CONFIG_PATH"] = globalConfigPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = globalConfigPath;
 
     const detectAgent = await import("../../src/lib/detect-agent.js");
     vi.mocked(detectAgent.detectAvailableAgents).mockResolvedValue([
@@ -3279,10 +3279,10 @@ describe("start command — global registry mutations", () => {
         value: originalStdoutTty,
         configurable: true,
       });
-      if (origEnv === undefined) delete process.env["AO_CONFIG_PATH"];
-      else process.env["AO_CONFIG_PATH"] = origEnv;
-      if (origGlobalEnv === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-      else process.env["AO_GLOBAL_CONFIG"] = origGlobalEnv;
+      if (origEnv === undefined) delete process.env["CAHI_CONFIG_PATH"];
+      else process.env["CAHI_CONFIG_PATH"] = origEnv;
+      if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+      else process.env["CAHI_GLOBAL_CONFIG"] = origGlobalEnv;
     }
   });
 
@@ -3290,7 +3290,7 @@ describe("start command — global registry mutations", () => {
     const repoDir = join(tmpDir, "current");
     createFakeRepo(repoDir, "https://github.com/org/current.git");
 
-    const localConfigPath = join(repoDir, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoDir, "cahi.yaml");
     writeFileSync(localConfigPath, "agent: claude-code\n");
 
     const projectId = generateExternalId(repoDir, "https://github.com/org/current.git");

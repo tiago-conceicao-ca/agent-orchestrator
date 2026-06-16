@@ -28,7 +28,7 @@ let storeDir: string;
 let store: CodeReviewStore;
 
 const config: OrchestratorConfig = {
-  configPath: "/tmp/ao/agent-orchestrator.yaml",
+  configPath: "/tmp/ao/cahi.yaml",
   readyThresholdMs: 300_000,
   defaults: { runtime: "tmux", agent: "codex", workspace: "worktree", notifiers: [] },
   projects: {
@@ -682,7 +682,7 @@ describe("prepareGitReviewerWorkspace", () => {
       const project = { ...config.projects.app!, path: repoPath };
       const workspaceRoot = join(
         tmpHome,
-        ".agent-orchestrator",
+        ".cahi",
         "projects",
         "app",
         "code-reviews",

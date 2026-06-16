@@ -9,7 +9,7 @@ import { ACTIVITY_UPDATER_SCRIPT, ACTIVITY_UPDATER_SCRIPT_NODE } from "./index.j
 // ---------------------------------------------------------------------------
 // Integration tests for the activity-updater hook script (#1941).
 // Pipes synthetic Claude Code hook JSON payloads into the real script and
-// asserts the JSONL line written to {workspace}/.ao/activity.jsonl matches.
+// asserts the JSONL line written to {workspace}/.cahi/activity.jsonl matches.
 //
 // Both the bash variant (Unix) and the Node variant (Windows) are exercised
 // against the same scenario table to keep them in lockstep.
@@ -67,7 +67,7 @@ function runHook(variant: Variant, payload: HookInput): HookResult {
     stdout = e.stdout ?? "";
   }
 
-  const logFile = join(workspace, ".ao", "activity.jsonl");
+  const logFile = join(workspace, ".cahi", "activity.jsonl");
   let rawJsonl = "";
   let lastEntry: Record<string, unknown> | null = null;
   if (existsSync(logFile)) {
@@ -219,7 +219,7 @@ for (const variant of variants) {
       expect(stdout.trim()).toBe("{}");
     });
 
-    it("creates .ao/ directory on first write", () => {
+    it("creates .cahi/ directory on first write", () => {
       const { rawJsonl } = runHook(variant, { hook_event_name: "Stop" });
       expect(rawJsonl.length).toBeGreaterThan(0);
     });

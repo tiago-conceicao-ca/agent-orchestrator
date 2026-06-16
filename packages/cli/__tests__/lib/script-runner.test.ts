@@ -27,34 +27,34 @@ import {
 } from "../../src/lib/script-runner.js";
 
 describe("script-runner", () => {
-  const originalAoRepoRoot = process.env["AO_REPO_ROOT"];
-  const originalAoScriptLayout = process.env["AO_SCRIPT_LAYOUT"];
-  const originalAoDev = process.env["AO_DEV"];
+  const originalAoRepoRoot = process.env["CAHI_REPO_ROOT"];
+  const originalAoScriptLayout = process.env["CAHI_SCRIPT_LAYOUT"];
+  const originalAoDev = process.env["CAHI_DEV"];
 
   beforeEach(() => {
-    delete process.env["AO_REPO_ROOT"];
-    delete process.env["AO_SCRIPT_LAYOUT"];
-    delete process.env["AO_DEV"];
+    delete process.env["CAHI_REPO_ROOT"];
+    delete process.env["CAHI_SCRIPT_LAYOUT"];
+    delete process.env["CAHI_DEV"];
     mockSpawn.mockReset();
   });
 
   afterEach(() => {
     if (originalAoRepoRoot === undefined) {
-      delete process.env["AO_REPO_ROOT"];
+      delete process.env["CAHI_REPO_ROOT"];
     } else {
-      process.env["AO_REPO_ROOT"] = originalAoRepoRoot;
+      process.env["CAHI_REPO_ROOT"] = originalAoRepoRoot;
     }
 
     if (originalAoScriptLayout === undefined) {
-      delete process.env["AO_SCRIPT_LAYOUT"];
+      delete process.env["CAHI_SCRIPT_LAYOUT"];
     } else {
-      process.env["AO_SCRIPT_LAYOUT"] = originalAoScriptLayout;
+      process.env["CAHI_SCRIPT_LAYOUT"] = originalAoScriptLayout;
     }
 
     if (originalAoDev === undefined) {
-      delete process.env["AO_DEV"];
+      delete process.env["CAHI_DEV"];
     } else {
-      process.env["AO_DEV"] = originalAoDev;
+      process.env["CAHI_DEV"] = originalAoDev;
     }
   });
 
@@ -101,18 +101,18 @@ describe("script-runner", () => {
     );
   });
 
-  it("rejects an invalid AO_REPO_ROOT override", () => {
+  it("rejects an invalid CAHI_REPO_ROOT override", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-invalid-"));
-    process.env["AO_REPO_ROOT"] = tempRoot;
+    process.env["CAHI_REPO_ROOT"] = tempRoot;
 
     expect(() => resolveRepoRoot()).toThrowError(
-      `AO_REPO_ROOT=${tempRoot} does not look like an agent-orchestrator checkout`,
+      `CAHI_REPO_ROOT=${tempRoot} does not look like an agent-orchestrator checkout`,
     );
 
     rmSync(tempRoot, { recursive: true, force: true });
   });
 
-  it("accepts a valid AO_REPO_ROOT override for source checkouts", () => {
+  it("accepts a valid CAHI_REPO_ROOT override for source checkouts", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-valid-"));
     mkdirSync(join(tempRoot, ".git"), { recursive: true });
     mkdirSync(join(tempRoot, "packages", "cahi"), { recursive: true });
@@ -121,17 +121,17 @@ describe("script-runner", () => {
       JSON.stringify({ name: "@contaazul/cahi" }),
     );
 
-    process.env["AO_REPO_ROOT"] = tempRoot;
+    process.env["CAHI_REPO_ROOT"] = tempRoot;
     expect(resolveRepoRoot()).toBe(tempRoot);
 
     rmSync(tempRoot, { recursive: true, force: true });
   });
 
-  it("ignores AO_SCRIPT_LAYOUT unless AO_DEV=1", () => {
-    process.env["AO_SCRIPT_LAYOUT"] = "package-install";
+  it("ignores CAHI_SCRIPT_LAYOUT unless CAHI_DEV=1", () => {
+    process.env["CAHI_SCRIPT_LAYOUT"] = "package-install";
     expect(resolveScriptLayout()).toBe("source-checkout");
 
-    process.env["AO_DEV"] = "1";
+    process.env["CAHI_DEV"] = "1";
     expect(resolveScriptLayout()).toBe("package-install");
   });
 
@@ -153,7 +153,7 @@ describe("script-runner", () => {
         JSON.stringify({ name: "@contaazul/cahi" }),
       );
 
-      process.env["AO_REPO_ROOT"] = tempRoot;
+      process.env["CAHI_REPO_ROOT"] = tempRoot;
       const child = new EventEmitter();
       mockSpawn.mockReturnValue(child);
       setTimeout(() => child.emit("exit", 0, null), 0);
@@ -182,7 +182,7 @@ describe("script-runner", () => {
       expect(args[5]).not.toMatch(/ao-doctor\.sh$/);
       expect(args.slice(6)).toEqual(["--check", "tmux"]);
 
-      // cwd is pinned to AO_REPO_ROOT just like the bash path does.
+      // cwd is pinned to CAHI_REPO_ROOT just like the bash path does.
       expect(opts.cwd).toBe(tempRoot);
 
       rmSync(tempRoot, { recursive: true, force: true });
@@ -203,7 +203,7 @@ describe("script-runner", () => {
         join(tempRoot, "packages", "cahi", "package.json"),
         JSON.stringify({ name: "@contaazul/cahi" }),
       );
-      process.env["AO_REPO_ROOT"] = tempRoot;
+      process.env["CAHI_REPO_ROOT"] = tempRoot;
 
       // No .ps1 lookup happens, falls through to bash branch which then
       // resolveScriptPath fails because we ship no .nope file.
@@ -225,7 +225,7 @@ describe("script-runner", () => {
       JSON.stringify({ name: "@contaazul/cahi" }),
     );
 
-    process.env["AO_REPO_ROOT"] = tempRoot;
+    process.env["CAHI_REPO_ROOT"] = tempRoot;
     const child = new EventEmitter();
     mockSpawn.mockReturnValue(child);
     setTimeout(() => child.emit("exit", 0, null), 0);
@@ -240,8 +240,8 @@ describe("script-runner", () => {
       expect.objectContaining({
         cwd: tempRoot,
         env: expect.objectContaining({
-          AO_REPO_ROOT: tempRoot,
-          AO_SCRIPT_LAYOUT: "source-checkout",
+          CAHI_REPO_ROOT: tempRoot,
+          CAHI_SCRIPT_LAYOUT: "source-checkout",
         }),
       }),
     );

@@ -122,9 +122,9 @@ describe("spawn", () => {
     expect(raw?.["worktreeShared"]).toBe("true");
   });
 
-  it("forwards AO_AGENT_GH_TRACE into spawned agent runtime env when configured", async () => {
-    const previousTrace = process.env["AO_AGENT_GH_TRACE"];
-    process.env["AO_AGENT_GH_TRACE"] = "/tmp/agent-gh-trace-test.jsonl";
+  it("forwards CAHI_AGENT_GH_TRACE into spawned agent runtime env when configured", async () => {
+    const previousTrace = process.env["CAHI_AGENT_GH_TRACE"];
+    process.env["CAHI_AGENT_GH_TRACE"] = "/tmp/agent-gh-trace-test.jsonl";
 
     try {
       const sm = createSessionManager({ config, registry: mockRegistry });
@@ -133,13 +133,13 @@ describe("spawn", () => {
       expect(mockRuntime.create).toHaveBeenCalledWith(
         expect.objectContaining({
           environment: expect.objectContaining({
-            AO_AGENT_GH_TRACE: "/tmp/agent-gh-trace-test.jsonl",
+            CAHI_AGENT_GH_TRACE: "/tmp/agent-gh-trace-test.jsonl",
           }),
         }),
       );
     } finally {
-      if (previousTrace === undefined) delete process.env["AO_AGENT_GH_TRACE"];
-      else process.env["AO_AGENT_GH_TRACE"] = previousTrace;
+      if (previousTrace === undefined) delete process.env["CAHI_AGENT_GH_TRACE"];
+      else process.env["CAHI_AGENT_GH_TRACE"] = previousTrace;
     }
   });
 
@@ -173,7 +173,7 @@ describe("spawn", () => {
     );
   });
 
-  it("AO_* internals override project.env values with the same key", async () => {
+  it("CAHI_* internals override project.env values with the same key", async () => {
     const projectConfig = config.projects["my-app"];
     if (!projectConfig) throw new Error("test setup: my-app missing");
     const configWithEnv: OrchestratorConfig = {
@@ -183,8 +183,8 @@ describe("spawn", () => {
         "my-app": {
           ...projectConfig,
           env: {
-            AO_SESSION: "should-not-win",
-            AO_PROJECT_ID: "should-not-win",
+            CAHI_SESSION: "should-not-win",
+            CAHI_PROJECT_ID: "should-not-win",
           },
         },
       },
@@ -194,9 +194,9 @@ describe("spawn", () => {
     await sm.spawn({ projectId: "my-app" });
 
     const call = (mockRuntime.create as ReturnType<typeof vi.fn>).mock.calls[0]?.[0];
-    expect(call?.environment?.AO_SESSION).not.toBe("should-not-win");
-    expect(call?.environment?.AO_SESSION).toBe("app-1");
-    expect(call?.environment?.AO_PROJECT_ID).toBe("my-app");
+    expect(call?.environment?.CAHI_SESSION).not.toBe("should-not-win");
+    expect(call?.environment?.CAHI_SESSION).toBe("app-1");
+    expect(call?.environment?.CAHI_PROJECT_ID).toBe("my-app");
   });
 
   it("PATH and GH_PATH override project.env values with the same key", async () => {
@@ -223,7 +223,7 @@ describe("spawn", () => {
     expect(call?.environment?.PATH).not.toBe("/should/not/win");
     // Use platform-aware path so the assertion works on both POSIX and Windows
     // (where buildAgentPath joins with backslashes via path.join).
-    expect(call?.environment?.PATH).toContain(join(".ao", "bin"));
+    expect(call?.environment?.PATH).toContain(join(".cahi", "bin"));
     expect(call?.environment?.GH_PATH).not.toBe("/should/not/win");
     expect(call?.environment?.GH_PATH).toBe("/usr/local/bin/gh");
   });
@@ -2157,9 +2157,9 @@ describe("spawn", () => {
       );
     });
 
-    it("forwards AO_AGENT_GH_TRACE into orchestrator runtime env when configured", async () => {
-      const previousTrace = process.env["AO_AGENT_GH_TRACE"];
-      process.env["AO_AGENT_GH_TRACE"] = "/tmp/orchestrator-gh-trace-test.jsonl";
+    it("forwards CAHI_AGENT_GH_TRACE into orchestrator runtime env when configured", async () => {
+      const previousTrace = process.env["CAHI_AGENT_GH_TRACE"];
+      process.env["CAHI_AGENT_GH_TRACE"] = "/tmp/orchestrator-gh-trace-test.jsonl";
 
       try {
         const sm = createSessionManager({ config, registry: mockRegistry });
@@ -2168,14 +2168,14 @@ describe("spawn", () => {
         expect(mockRuntime.create).toHaveBeenCalledWith(
           expect.objectContaining({
             environment: expect.objectContaining({
-              AO_AGENT_GH_TRACE: "/tmp/orchestrator-gh-trace-test.jsonl",
-              AO_CALLER_TYPE: "orchestrator",
+              CAHI_AGENT_GH_TRACE: "/tmp/orchestrator-gh-trace-test.jsonl",
+              CAHI_CALLER_TYPE: "orchestrator",
             }),
           }),
         );
       } finally {
-        if (previousTrace === undefined) delete process.env["AO_AGENT_GH_TRACE"];
-        else process.env["AO_AGENT_GH_TRACE"] = previousTrace;
+        if (previousTrace === undefined) delete process.env["CAHI_AGENT_GH_TRACE"];
+        else process.env["CAHI_AGENT_GH_TRACE"] = previousTrace;
       }
     });
 
@@ -2523,7 +2523,7 @@ describe("spawn", () => {
       const agentsMdPath = getWorkspaceAgentsMdPath("/tmp/ws");
       expect(existsSync(agentsMdPath)).toBe(true);
       const written = readFileSync(agentsMdPath, "utf-8");
-      expect(written).toContain("<!-- AO_ORCHESTRATOR_PROMPT_START -->");
+      expect(written).toContain("<!-- CAHI_ORCHESTRATOR_PROMPT_START -->");
       expect(written).toContain("## Agent Orchestrator");
       expect(written).toContain("You are the orchestrator.");
 

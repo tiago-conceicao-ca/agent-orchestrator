@@ -14,7 +14,7 @@ import {
 
 const { mockConfig, mockSessionManager } = vi.hoisted(() => ({
   mockConfig: {
-    configPath: "/tmp/ao/agent-orchestrator.yaml",
+    configPath: "/tmp/ao/cahi.yaml",
     readyThresholdMs: 300_000,
     defaults: { runtime: "tmux", agent: "codex", workspace: "worktree", notifiers: [] },
     projects: {

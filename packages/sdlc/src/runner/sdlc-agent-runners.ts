@@ -2,21 +2,21 @@ import type { AgentRunner } from "../gates/lens-gate.js";
 import type { PlanWriteRunner } from "../phases/input-adapter.js";
 import { runSessionBackedAgent, type SdlcSessionSpawn } from "./session-runner.js";
 
-/** Sentinel basenames the agent writes under `{workspace}/.ao/`. */
+/** Sentinel basenames the agent writes under `{workspace}/.cahi/`. */
 export const LENS_SENTINEL = "sdlc-output.json";
 export const PLAN_SENTINEL = "sdlc-output.md";
 
 /** Appended to a lens prompt: write the verdict JSON to the sentinel as the final action. */
 const LENS_OUTPUT_INSTRUCTION =
   `\n\n---\nWhen you have finished the review, your FINAL action MUST be to write ONLY your ` +
-  `verdict JSON object to the file \`.ao/${LENS_SENTINEL}\` in your current working directory ` +
-  `(create the \`.ao\` directory if it does not exist). Do not print the verdict anywhere else.`;
+  `verdict JSON object to the file \`.cahi/${LENS_SENTINEL}\` in your current working directory ` +
+  `(create the \`.cahi\` directory if it does not exist). Do not print the verdict anywhere else.`;
 
 /** Appended to a plan prompt: write the plan markdown to the sentinel as the final action. */
 const PLAN_OUTPUT_INSTRUCTION =
   `\n\n---\nWhen the plan is complete, your FINAL action MUST be to write the FULL plan markdown ` +
-  `to the file \`.ao/${PLAN_SENTINEL}\` in your current working directory ` +
-  `(create the \`.ao\` directory if it does not exist).`;
+  `to the file \`.cahi/${PLAN_SENTINEL}\` in your current working directory ` +
+  `(create the \`.cahi\` directory if it does not exist).`;
 
 /**
  * Build the lens-gate runner that evaluates a plan in a real, interactive AO

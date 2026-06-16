@@ -13,8 +13,8 @@ function ws(): string {
   return mkdtempSync(join(tmpdir(), "ts-"));
 }
 function writeSentinel(workspace: string, body: string): void {
-  mkdirSync(join(workspace, ".ao"), { recursive: true });
-  writeFileSync(join(workspace, ".ao", TASK_DONE_SENTINEL), body, "utf-8");
+  mkdirSync(join(workspace, ".cahi"), { recursive: true });
+  writeFileSync(join(workspace, ".cahi", TASK_DONE_SENTINEL), body, "utf-8");
 }
 
 describe("readTaskSentinel", () => {

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
   "title": "Agent Orchestrator Config",
-  "description": "Schema for agent-orchestrator.yaml.",
+  "description": "Schema for cahi.yaml.",
   "type": "object",
   "additionalProperties": false,
   "required": ["projects"],

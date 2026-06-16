@@ -53,10 +53,10 @@ function spawnDetached(cmd: string, args: string[]): boolean {
  * shim) is reported as ERROR_FILE_NOT_FOUND (0x80070002). Letting cmd.exe
  * be the first token lets it do the .cmd resolution.
  *
- * `cwd` should be the project directory (where agent-orchestrator.yaml lives)
+ * `cwd` should be the project directory (where cahi.yaml lives)
  * so the spawned `ao session attach` can resolve config via loadConfig's
  * upward search. Without it the new console inherits the user's homedir and
- * attach fails with "No agent-orchestrator.yaml found".
+ * attach fails with "No cahi.yaml found".
  */
 function openWindowsConsole(sessionId: string, cwd: string | undefined): boolean {
   const title = `ao:${sessionId}`;
@@ -174,7 +174,7 @@ export function registerOpen(program: Command): void {
           }
         } else if (isWindows()) {
           // The spawned `ao session attach` does loadConfig() which searches
-          // upward from cwd for agent-orchestrator.yaml. Anchor the new
+          // upward from cwd for cahi.yaml. Anchor the new
           // console at the project's path (where the yaml lives); if that
           // isn't in config, fall back to the worktree (yaml may live in a
           // parent directory of it).

@@ -6,11 +6,11 @@ import { parseLensVerdict, type GateVerdict } from "../gates/types.js";
  * Per-pass lens verdict sentinel. A review pass writes its `pass`/`needs_fixes`
  * verdict JSON here (in addition to the task-done sentinel) so the scheduler can
  * decide whether to AUTO re-dispatch the pass with the review feedback. Reuses
- * the same `.ao/<sentinel>.json` convention as the other SDLC sentinels.
+ * the same `.cahi/<sentinel>.json` convention as the other SDLC sentinels.
  */
 export const PASS_VERDICT_SENTINEL = "sdlc-pass-verdict.json";
 
-const SENTINEL_DIR = ".ao";
+const SENTINEL_DIR = ".cahi";
 
 /**
  * Instruction appended to a REVIEW pass prompt telling it to also write its lens
@@ -20,8 +20,8 @@ const SENTINEL_DIR = ".ao";
 export function passVerdictSentinelInstruction(): string {
   return (
     `In addition, write your verdict JSON object (the \`{"verdict":...,"issues":[...]}\` ` +
-    `you produced) to \`.ao/${PASS_VERDICT_SENTINEL}\` in your current working directory ` +
-    `(create the \`.ao\` directory if it does not exist). Write ONLY the verdict JSON.`
+    `you produced) to \`.cahi/${PASS_VERDICT_SENTINEL}\` in your current working directory ` +
+    `(create the \`.cahi\` directory if it does not exist). Write ONLY the verdict JSON.`
   );
 }
 

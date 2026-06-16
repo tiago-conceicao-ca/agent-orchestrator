@@ -37,7 +37,7 @@ describe("project-name fallback discovery", () => {
     mockLoadConfig.mockReset();
     mockGetGlobalConfigPath.mockClear();
     mockGetGlobalConfigPath.mockReturnValue("/tmp/global-config.yaml");
-    delete process.env["AO_CONFIG_PATH"];
+    delete process.env["CAHI_CONFIG_PATH"];
   });
 
   it("falls back to discovered local config when the canonical global config is missing", async () => {
@@ -159,7 +159,7 @@ describe("project-name fallback discovery", () => {
     const repoRoot = join(tempRoot, "agent-orchestrator");
     const webDir = join(repoRoot, "packages", "web");
     mkdirSync(webDir, { recursive: true });
-    const localConfigPath = join(repoRoot, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoRoot, "cahi.yaml");
     writeFileSync(localConfigPath, "projects: {}\n");
 
     const globalConfig = {
@@ -207,12 +207,12 @@ describe("project-name fallback discovery", () => {
     expect(getProjectName()).toBe("Agent Orchestrator");
   });
 
-  it("ignores ambient AO_CONFIG_PATH when discovering the local repo project", async () => {
+  it("ignores ambient CAHI_CONFIG_PATH when discovering the local repo project", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-project-name-"));
     const repoRoot = join(tempRoot, "agent-orchestrator");
     const webDir = join(repoRoot, "packages", "web");
     mkdirSync(webDir, { recursive: true });
-    const localConfigPath = join(repoRoot, "agent-orchestrator.yaml");
+    const localConfigPath = join(repoRoot, "cahi.yaml");
     writeFileSync(localConfigPath, "projects: {}\n");
 
     const globalConfig = {
@@ -238,7 +238,7 @@ describe("project-name fallback discovery", () => {
       degradedProjects: {},
     };
 
-    process.env["AO_CONFIG_PATH"] = "/tmp/ambient-config.yaml";
+    process.env["CAHI_CONFIG_PATH"] = "/tmp/ambient-config.yaml";
     mockLoadConfig.mockImplementation((configPath?: string) => {
       if (configPath === "/tmp/global-config.yaml") {
         return globalConfig;

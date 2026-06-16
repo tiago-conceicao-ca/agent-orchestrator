@@ -38,7 +38,7 @@ case "$PROJECT" in
     agent-orchestrator|ao)
         SESSION_PREFIX="ao"
         SESSION_MANAGER="$HOME/claude-ao-session"
-        SESSION_DATA_DIR="$HOME/.ao-sessions"
+        SESSION_DATA_DIR="$HOME/.cahi-sessions"
         GITHUB_REPO="ComposioHQ/agent-orchestrator"
         ;;
     *)

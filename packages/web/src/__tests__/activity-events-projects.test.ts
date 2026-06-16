@@ -51,21 +51,21 @@ describe("Activity events — project mutation routes", () => {
         kill: vi.fn().mockResolvedValue(undefined),
       },
     });
-    oldGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-    oldConfigPath = process.env["AO_CONFIG_PATH"];
+    oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+    oldConfigPath = process.env["CAHI_CONFIG_PATH"];
     oldHome = process.env["HOME"];
     tempRoot = mkdtempSync(path.join(tmpdir(), "ao-activity-projects-"));
     configPath = path.join(tempRoot, "config.yaml");
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
-    process.env["AO_CONFIG_PATH"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_CONFIG_PATH"] = configPath;
     process.env["HOME"] = tempRoot;
   });
 
   afterEach(() => {
-    if (oldGlobalConfig === undefined) delete process.env["AO_GLOBAL_CONFIG"];
-    else process.env["AO_GLOBAL_CONFIG"] = oldGlobalConfig;
-    if (oldConfigPath === undefined) delete process.env["AO_CONFIG_PATH"];
-    else process.env["AO_CONFIG_PATH"] = oldConfigPath;
+    if (oldGlobalConfig === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
+    else process.env["CAHI_GLOBAL_CONFIG"] = oldGlobalConfig;
+    if (oldConfigPath === undefined) delete process.env["CAHI_CONFIG_PATH"];
+    else process.env["CAHI_CONFIG_PATH"] = oldConfigPath;
     if (oldHome === undefined) delete process.env["HOME"];
     else process.env["HOME"] = oldHome;
     rmSync(tempRoot, { recursive: true, force: true });

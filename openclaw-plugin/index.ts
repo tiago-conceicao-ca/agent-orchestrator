@@ -107,7 +107,7 @@ function sanitizeCliArg(arg: string): string {
 }
 
 function tryRunAo(config: PluginConfig, args: string[], timeoutMs?: number) {
-  // AO requires cwd to be the repo root where agent-orchestrator.yaml lives
+  // AO requires cwd to be the repo root where cahi.yaml lives
   const cwd = config.aoCwd || process.cwd();
   return tryRun(config.aoPath || "ao", args, timeoutMs, cwd);
 }
@@ -159,14 +159,14 @@ interface FetchIssuesDeps {
 
 function resolveAoConfigPath(config: PluginConfig): string | null {
   const candidates: string[] = [];
-  const envPath = process.env.AO_CONFIG_PATH;
+  const envPath = process.env.CAHI_CONFIG_PATH;
   if (envPath) candidates.push(resolve(envPath));
 
   let currentDir = resolve(config.aoCwd || process.cwd());
   while (true) {
     candidates.push(
-      join(currentDir, "agent-orchestrator.yaml"),
-      join(currentDir, "agent-orchestrator.yml"),
+      join(currentDir, "cahi.yaml"),
+      join(currentDir, "cahi.yml"),
     );
     const parentDir = dirname(currentDir);
     if (parentDir === currentDir) break;

@@ -140,7 +140,7 @@ function loadDashboardConfig(): LoadedConfig {
     return loadConfig(globalConfigPath);
   } catch (error) {
     // The dashboard prefers the global portfolio config, but users may still
-    // launch it from a single repo that only has a local agent-orchestrator.yaml.
+    // launch it from a single repo that only has a local cahi.yaml.
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       return loadConfig();
     }

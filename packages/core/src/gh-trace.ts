@@ -9,10 +9,10 @@ import type { SessionId } from "./types.js";
 const execFileAsync = promisify(execFile);
 
 /**
- * Resolve the real gh binary path, bypassing ~/.ao/bin wrapper.
+ * Resolve the real gh binary path, bypassing ~/.cahi/bin wrapper.
  * AO-owned calls must NOT go through the wrapper (which is for agent sessions).
  *
- * Strips ~/.ao/bin from PATH and resolves gh from the clean PATH.
+ * Strips ~/.cahi/bin from PATH and resolves gh from the clean PATH.
  * Cached after first resolution.
  */
 let resolvedGhPath: string | null = null;
@@ -27,10 +27,10 @@ async function getGhBinaryPath(): Promise<string> {
 }
 
 async function resolveGhBinary(): Promise<string> {
-  // Build a clean PATH without ~/.ao/bin and walk each directory looking
+  // Build a clean PATH without ~/.cahi/bin and walk each directory looking
   // for an executable `gh`. Uses fs.access instead of spawning a shell —
   // avoids blocking the event loop and shell injection concerns.
-  const aoBinDir = join(homedir(), ".ao", "bin");
+  const aoBinDir = join(homedir(), ".cahi", "bin");
   const dirs = (process.env["PATH"] ?? "")
     .split(delimiter)
     .filter((entry) => entry && entry !== aoBinDir);
@@ -57,11 +57,11 @@ async function resolveGhBinary(): Promise<string> {
   }
 
   throw new Error(
-    "gh CLI not found outside ~/.ao/bin. Install gh or set GH_PATH to the real binary.",
+    "gh CLI not found outside ~/.cahi/bin. Install gh or set GH_PATH to the real binary.",
   );
 }
 
-const GH_TRACE_FILE_ENV = "AO_GH_TRACE_FILE";
+const GH_TRACE_FILE_ENV = "CAHI_GH_TRACE_FILE";
 
 export interface GhTraceContext {
   component: string;

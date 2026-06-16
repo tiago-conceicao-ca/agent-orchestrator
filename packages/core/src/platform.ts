@@ -86,10 +86,10 @@ function findOnPath(name: string): string | null {
 }
 
 function resolveWindowsShell(): ShellInfo {
-  // Explicit override — set AO_SHELL to an absolute path or shell name
+  // Explicit override — set CAHI_SHELL to an absolute path or shell name
   // (e.g. "powershell.exe", "pwsh", "cmd.exe", "bash"). Args are inferred
   // from the basename so cmd / bash / sh are usable, not just PowerShell.
-  const override = process.env["AO_SHELL"];
+  const override = process.env["CAHI_SHELL"];
   if (override) {
     return { cmd: override, args: inferShellArgsFlag(override) };
   }
@@ -122,7 +122,7 @@ function resolveWindowsShell(): ShellInfo {
 
   // Last resort: cmd.exe. Note that agent launch commands often use PowerShell
   // syntax (e.g. the `&` call operator) and will fail under cmd.exe. Setting
-  // AO_SHELL is the supported escape hatch.
+  // CAHI_SHELL is the supported escape hatch.
   const comspec = process.env["ComSpec"] || "cmd.exe";
   return { cmd: comspec, args: (c) => ["/c", c] };
 }

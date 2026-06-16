@@ -8,21 +8,21 @@ import {
 
 describe("activity-events DB unavailable warning", () => {
   const originalArgv = process.argv;
-  const originalDebug = process.env["AO_DEBUG"];
+  const originalDebug = process.env["CAHI_DEBUG"];
 
   beforeEach(() => {
     __resetActivityEventsDbWarningForTests();
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    delete process.env["AO_DEBUG"];
+    delete process.env["CAHI_DEBUG"];
     process.argv = ["node", "ao"];
   });
 
   afterEach(() => {
     process.argv = originalArgv;
     if (originalDebug === undefined) {
-      delete process.env["AO_DEBUG"];
+      delete process.env["CAHI_DEBUG"];
     } else {
-      process.env["AO_DEBUG"] = originalDebug;
+      process.env["CAHI_DEBUG"] = originalDebug;
     }
     vi.restoreAllMocks();
   });
@@ -42,7 +42,7 @@ describe("activity-events DB unavailable warning", () => {
   });
 
   it("prints the runtime warning once per process", () => {
-    process.env["AO_DEBUG"] = "1";
+    process.env["CAHI_DEBUG"] = "1";
     const err = new Error(
       "Could not locate the bindings file. Tried:\n → /tmp/better_sqlite3.node",
     );
@@ -56,7 +56,7 @@ describe("activity-events DB unavailable warning", () => {
     );
   });
 
-  it("suppresses non-events invocations unless AO_DEBUG=1", () => {
+  it("suppresses non-events invocations unless CAHI_DEBUG=1", () => {
     const err = new Error(
       "Could not locate the bindings file. Tried:\n → /tmp/better_sqlite3.node",
     );

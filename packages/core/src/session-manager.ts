@@ -1533,18 +1533,18 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
           ...(project.env ?? {}),
           PATH: buildAgentPath(environment["PATH"] ?? process.env["PATH"]),
           GH_PATH: PREFERRED_GH_PATH,
-          ...(process.env["AO_AGENT_GH_TRACE"] && {
-            AO_AGENT_GH_TRACE: process.env["AO_AGENT_GH_TRACE"],
+          ...(process.env["CAHI_AGENT_GH_TRACE"] && {
+            CAHI_AGENT_GH_TRACE: process.env["CAHI_AGENT_GH_TRACE"],
           }),
-          AO_SESSION: sessionId,
-          AO_DATA_DIR: sessionsDir, // Pass sessions directory (not root dataDir)
-          AO_SESSION_NAME: sessionId, // User-facing session name
-          ...(tmuxName && { AO_TMUX_NAME: tmuxName }), // Tmux session name if using new arch
-          AO_CALLER_TYPE: "agent",
-          AO_PROJECT_ID: spawnConfig.projectId,
-          AO_CONFIG_PATH: config.configPath,
+          CAHI_SESSION: sessionId,
+          CAHI_DATA_DIR: sessionsDir, // Pass sessions directory (not root dataDir)
+          CAHI_SESSION_NAME: sessionId, // User-facing session name
+          ...(tmuxName && { CAHI_TMUX_NAME: tmuxName }), // Tmux session name if using new arch
+          CAHI_CALLER_TYPE: "agent",
+          CAHI_PROJECT_ID: spawnConfig.projectId,
+          CAHI_CONFIG_PATH: config.configPath,
           ...(config.port !== undefined &&
-            config.port !== null && { AO_PORT: String(config.port) }),
+            config.port !== null && { CAHI_PORT: String(config.port) }),
         },
       });
       const rt = plugins.runtime;
@@ -2063,18 +2063,18 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
           ...(project.env ?? {}),
           PATH: buildAgentPath(environment["PATH"] ?? process.env["PATH"]),
           GH_PATH: PREFERRED_GH_PATH,
-          ...(process.env["AO_AGENT_GH_TRACE"] && {
-            AO_AGENT_GH_TRACE: process.env["AO_AGENT_GH_TRACE"],
+          ...(process.env["CAHI_AGENT_GH_TRACE"] && {
+            CAHI_AGENT_GH_TRACE: process.env["CAHI_AGENT_GH_TRACE"],
           }),
-          AO_SESSION: sessionId,
-          AO_DATA_DIR: sessionsDir,
-          AO_SESSION_NAME: sessionId,
-          ...(tmuxName && { AO_TMUX_NAME: tmuxName }),
-          AO_CALLER_TYPE: "orchestrator",
-          AO_PROJECT_ID: orchestratorConfig.projectId,
-          AO_CONFIG_PATH: config.configPath,
+          CAHI_SESSION: sessionId,
+          CAHI_DATA_DIR: sessionsDir,
+          CAHI_SESSION_NAME: sessionId,
+          ...(tmuxName && { CAHI_TMUX_NAME: tmuxName }),
+          CAHI_CALLER_TYPE: "orchestrator",
+          CAHI_PROJECT_ID: orchestratorConfig.projectId,
+          CAHI_CONFIG_PATH: config.configPath,
           ...(config.port !== undefined &&
-            config.port !== null && { AO_PORT: String(config.port) }),
+            config.port !== null && { CAHI_PORT: String(config.port) }),
         },
       });
     } catch (err) {
@@ -3691,7 +3691,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     const orchestratorSystemPromptFile = ((): string | undefined => {
       if (selection.role !== "orchestrator") return undefined;
       // V2 storage: orchestrator-prompt-{sessionId}.md lives in the project dir
-      // (~/.agent-orchestrator/projects/{projectId}/), not the legacy hashed base dir.
+      // (~/.cahi/projects/{projectId}/), not the legacy hashed base dir.
       const baseDir = getProjectDir(projectId);
       const file = join(baseDir, `orchestrator-prompt-${sessionId}.md`);
       return existsSync(file) ? file : undefined;
@@ -3755,17 +3755,17 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         ...(project.env ?? {}),
         PATH: buildAgentPath(environment["PATH"] ?? process.env["PATH"]),
         GH_PATH: PREFERRED_GH_PATH,
-        ...(process.env["AO_AGENT_GH_TRACE"] && {
-          AO_AGENT_GH_TRACE: process.env["AO_AGENT_GH_TRACE"],
+        ...(process.env["CAHI_AGENT_GH_TRACE"] && {
+          CAHI_AGENT_GH_TRACE: process.env["CAHI_AGENT_GH_TRACE"],
         }),
-        AO_SESSION: sessionId,
-        AO_DATA_DIR: sessionsDir,
-        AO_SESSION_NAME: sessionId,
-        ...(tmuxName && { AO_TMUX_NAME: tmuxName }),
-        AO_CALLER_TYPE: "agent",
-        ...(projectId && { AO_PROJECT_ID: projectId }),
-        AO_CONFIG_PATH: config.configPath,
-        ...(config.port !== undefined && config.port !== null && { AO_PORT: String(config.port) }),
+        CAHI_SESSION: sessionId,
+        CAHI_DATA_DIR: sessionsDir,
+        CAHI_SESSION_NAME: sessionId,
+        ...(tmuxName && { CAHI_TMUX_NAME: tmuxName }),
+        CAHI_CALLER_TYPE: "agent",
+        ...(projectId && { CAHI_PROJECT_ID: projectId }),
+        CAHI_CONFIG_PATH: config.configPath,
+        ...(config.port !== undefined && config.port !== null && { CAHI_PORT: String(config.port) }),
       },
     });
 

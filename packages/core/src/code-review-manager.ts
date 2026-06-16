@@ -735,7 +735,7 @@ export function buildCodexCodeReviewArgs(outputFile: string, prompt: string): st
 export async function runCodexCodeReview(
   context: CodeReviewRunnerContext,
 ): Promise<CodeReviewRunnerResult> {
-  const outputFile = join(context.workspacePath, ".ao-code-review-output.json");
+  const outputFile = join(context.workspacePath, ".cahi-code-review-output.json");
   const prompt = buildDefaultReviewPrompt(context);
   const args = buildCodexCodeReviewArgs(outputFile, prompt);
 

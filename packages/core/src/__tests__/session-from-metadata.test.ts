@@ -152,13 +152,13 @@ describe("sessionFromMetadata — siblings (#1095)", () => {
     const siblings = [
       {
         repo: "ca-starters-front",
-        path: "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__sib__ca-starters-front",
+        path: "/home/u/.cahi/projects/svc/worktrees/app-1__sib__ca-starters-front",
         branch: "master",
         mode: "readonly-symlink",
       },
       {
         repo: "svc-infra",
-        path: "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__sib__svc-infra",
+        path: "/home/u/.cahi/projects/svc/worktrees/app-1__sib__svc-infra",
         branch: "sib/app-1/svc-infra",
         mode: "worktree",
       },
@@ -178,7 +178,7 @@ describe("sessionFromMetadata — siblings (#1095)", () => {
 
   it("exposes assembledViewPath from the assembledView metadata field", () => {
     const assembledView =
-      "/home/u/.agent-orchestrator/projects/svc/worktrees/app-1__ws/my-app";
+      "/home/u/.cahi/projects/svc/worktrees/app-1__ws/my-app";
     const session = sessionFromMetadata("app-1", { assembledView }, baseOptions);
     expect(session.assembledViewPath).toBe(assembledView);
   });

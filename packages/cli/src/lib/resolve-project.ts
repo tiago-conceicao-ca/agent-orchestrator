@@ -110,7 +110,7 @@ export interface ResolveDeps {
  *
  * `targetGlobalRegistry`:
  *   When `true`, URL and path arguments resolve and register against the
- *   global config (`~/.agent-orchestrator/config.yaml`) rather than a cwd-
+ *   global config (`~/.cahi/config.yaml`) rather than a cwd-
  *   local one. Used when an `ao` daemon is already running — the daemon's
  *   project supervisor reads from the global registry, so anything we
  *   freshly clone or add must land there to be visible.
@@ -243,10 +243,10 @@ async function fromUrlIntoGlobal(arg: string, deps: ResolveDeps): Promise<Resolv
   // Write a flat local config (behavior only, no `projects:` wrapper, no
   // identity fields). Identity lives in the global registry; this file
   // holds plugin choices for the project. Skip if the upstream commits its
-  // own agent-orchestrator.yaml — leave it for the user to reconcile.
+  // own cahi.yaml — leave it for the user to reconcile.
   const hasCommittedConfig =
-    existsSync(resolve(targetDir, "agent-orchestrator.yaml")) ||
-    existsSync(resolve(targetDir, "agent-orchestrator.yml"));
+    existsSync(resolve(targetDir, "cahi.yaml")) ||
+    existsSync(resolve(targetDir, "cahi.yml"));
   if (!hasCommittedConfig) {
     writeLocalProjectConfig(targetDir, {
       scm: { plugin: platform !== "unknown" ? platform : "github" },
@@ -318,8 +318,8 @@ async function fromUrl(arg: string, deps: ResolveDeps, opts: ResolveOptions): Pr
     }
   }
 
-  const configPath = resolve(targetDir, "agent-orchestrator.yaml");
-  const configPathAlt = resolve(targetDir, "agent-orchestrator.yml");
+  const configPath = resolve(targetDir, "cahi.yaml");
+  const configPathAlt = resolve(targetDir, "cahi.yml");
 
   let config: OrchestratorConfig;
   let justCreated: boolean;

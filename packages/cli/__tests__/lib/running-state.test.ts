@@ -30,18 +30,18 @@ describe("running-state", () => {
 
     await runningState.register({
       pid: 424242,
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       port: 4321,
       startedAt: new Date("2026-04-19T00:00:00.000Z").toISOString(),
       projects: ["my-app"],
     });
 
     const state = await runningState.getRunning();
-    const stateFile = join(testHome, ".agent-orchestrator", "running.json");
+    const stateFile = join(testHome, ".cahi", "running.json");
 
     expect(state).toEqual({
       pid: 424242,
-      configPath: "/tmp/agent-orchestrator.yaml",
+      configPath: "/tmp/cahi.yaml",
       port: 4321,
       startedAt: new Date("2026-04-19T00:00:00.000Z").toISOString(),
       projects: ["my-app"],
@@ -52,7 +52,7 @@ describe("running-state", () => {
 
   it("keeps startup locks alive when the pid probe returns EPERM", async () => {
     const runningState = await import("../../src/lib/running-state.js");
-    const lockDir = join(testHome, ".agent-orchestrator");
+    const lockDir = join(testHome, ".cahi");
     const lockFile = join(lockDir, "startup.lock");
     const killSpy = vi.spyOn(process, "kill").mockImplementation(() => {
       const error = new Error("operation not permitted") as Error & { code?: string };

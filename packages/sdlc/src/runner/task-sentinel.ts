@@ -4,21 +4,21 @@ import { join } from "node:path";
 /**
  * Worker-task completion sentinel — the PR-independent "this task is done" signal.
  *
- * A generate-backend worker writes `{workspace}/.ao/sdlc-task-done.json` as its
+ * A generate-backend worker writes `{workspace}/.cahi/sdlc-task-done.json` as its
  * FINAL action. The engine treats this file as the primary completion signal,
  * falling back to PR/lifecycle detection (`classifyTerminal`) only when it is
  * absent. This decouples "task done" from per-session PR ownership, which breaks
  * the moment several tasks share one branch/PR (see the shared PR mode).
  *
- * Reuses the same `.ao/<sentinel>.json` convention as the plan/lens session
+ * Reuses the same `.cahi/<sentinel>.json` convention as the plan/lens session
  * runners (`runner/sdlc-agent-runners.ts`); this is the worker-task counterpart.
  */
 
-/** Sentinel basename the worker writes under `{workspace}/.ao/`. */
+/** Sentinel basename the worker writes under `{workspace}/.cahi/`. */
 export const TASK_DONE_SENTINEL = "sdlc-task-done.json";
 
-/** `.ao` subdirectory under the session workspace where the sentinel lives. */
-const SENTINEL_DIR = ".ao";
+/** `.cahi` subdirectory under the session workspace where the sentinel lives. */
+const SENTINEL_DIR = ".cahi";
 
 /** Shape of the JSON a worker writes to signal task completion. */
 export interface TaskDoneSentinel {
@@ -83,7 +83,7 @@ export function taskDoneSentinelInstruction(opts: { withPr: boolean }): string {
     : `{ "ok": true, "summary": "<one line>" }`;
   return (
     `When the task is complete, your FINAL action MUST be to write a JSON object to ` +
-    `\`.ao/${TASK_DONE_SENTINEL}\` in your current working directory (create the \`.ao\` ` +
+    `\`.cahi/${TASK_DONE_SENTINEL}\` in your current working directory (create the \`.cahi\` ` +
     `directory if it does not exist):\n${fields}\n` +
     `If you cannot complete the task, write \`{ "ok": false, "summary": "<why>" }\` instead. ` +
     `This file is how the orchestrator detects task completion — do not skip it.`

@@ -251,7 +251,7 @@ describe("POST /api/update", () => {
       expect.objectContaining({
         detached: true,
         stdio: "ignore",
-        env: expect.objectContaining({ AO_NON_INTERACTIVE_INSTALL: "1" }),
+        env: expect.objectContaining({ CAHI_NON_INTERACTIVE_INSTALL: "1" }),
       }),
     );
     expect(mockChildUnref).toHaveBeenCalledTimes(1);
@@ -269,7 +269,7 @@ describe("POST /api/update", () => {
       expect.objectContaining({
         detached: true,
         stdio: "ignore",
-        env: expect.objectContaining({ AO_NON_INTERACTIVE_INSTALL: "1" }),
+        env: expect.objectContaining({ CAHI_NON_INTERACTIVE_INSTALL: "1" }),
       }),
     );
     expect(mockChildUnref).toHaveBeenCalledTimes(1);

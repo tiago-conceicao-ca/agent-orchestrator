@@ -7,7 +7,7 @@
 # banners, no live typing, deterministic output.
 #
 # Strict sandbox: redirects $HOME to /tmp/ao-demo-1466 so getAoBaseDir()
-# resolves there instead of touching the operator's real ~/.agent-orchestrator.
+# resolves there instead of touching the operator's real ~/.cahi.
 # After the script exits the original $HOME of the parent shell is unaffected.
 #
 # Usage:
@@ -22,24 +22,24 @@ set -euo pipefail
 
 DEMO_HOME="/tmp/ao-demo-1466"
 DEMO_PORT="3947"
-AO_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-AO_CLI="$AO_REPO/packages/cli/dist/index.js"
+CAHI_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CAHI_CLI="$CAHI_REPO/packages/cli/dist/index.js"
 
 # Save the operator's real HOME so we can restore it for sub-commands
 # that legitimately need it (running the full test suites — tests read
-# getGlobalConfigPath() which honors AO_GLOBAL_CONFIG, and a sandboxed
+# getGlobalConfigPath() which honors CAHI_GLOBAL_CONFIG, and a sandboxed
 # global config would break tests that touch the global registry).
 REAL_HOME="$HOME"
 
 # Sandbox the entire script under a fake HOME so AO's hardcoded
-# ~/.agent-orchestrator path is redirected. Belt-and-suspenders: also
-# pin AO_GLOBAL_CONFIG explicitly.
+# ~/.cahi path is redirected. Belt-and-suspenders: also
+# pin CAHI_GLOBAL_CONFIG explicitly.
 export HOME="$DEMO_HOME"
-export AO_GLOBAL_CONFIG="$DEMO_HOME/.agent-orchestrator/config.yaml"
+export CAHI_GLOBAL_CONFIG="$DEMO_HOME/.cahi/config.yaml"
 
 # Local CLI invoker — never use the system `ao`.
 ao() {
-  node "$AO_CLI" "$@"
+  node "$CAHI_CLI" "$@"
 }
 
 banner() {
@@ -63,13 +63,13 @@ note() {
 
 banner "Pre-flight: build CLI + reset sandbox"
 
-if [[ ! -f "$AO_CLI" ]]; then
+if [[ ! -f "$CAHI_CLI" ]]; then
   note "CLI bundle not found, building..."
-  (cd "$AO_REPO" && pnpm --filter @contaazul/cahi-cli build >/dev/null)
+  (cd "$CAHI_REPO" && pnpm --filter @contaazul/cahi-cli build >/dev/null)
 fi
 
 rm -rf "$DEMO_HOME"
-mkdir -p "$DEMO_HOME/.agent-orchestrator"
+mkdir -p "$DEMO_HOME/.cahi"
 
 # Minimal git config so worktree operations during the demo don't fail
 # from the redirected HOME.
@@ -83,8 +83,8 @@ cat >"$DEMO_HOME/.gitconfig" <<'GITCONFIG'
   detachedHead = false
 GITCONFIG
 
-note "Repo:    $AO_REPO"
-note "CLI:     $AO_CLI"
+note "Repo:    $CAHI_REPO"
+note "CLI:     $CAHI_CLI"
 note "Sandbox: $DEMO_HOME"
 note "Port:    $DEMO_PORT (no real ao daemon spawned in this demo)"
 sleep 2
@@ -253,7 +253,7 @@ seed_project "$DEMO_REPO_B" "frontend"
 # In V2 (this PR): the archive directory is removed entirely. Terminated
 # sessions just stay in sessions/<sid>.json with lifecycle.session.state =
 # "terminated". The migrator flattens archive entries into sessions/.
-HASH_DIR_A="$DEMO_HOME/.agent-orchestrator/aaaaaa000000-myproject"
+HASH_DIR_A="$DEMO_HOME/.cahi/aaaaaa000000-myproject"
 mkdir -p "$HASH_DIR_A/sessions/archive" "$HASH_DIR_A/worktrees"
 
 LIFECYCLE_WORKING='{"version":2,"session":{"kind":"worker","state":"working"},"runtime":{"state":"alive"},"pr":{"state":"unknown"}}'
@@ -279,7 +279,7 @@ reportWatcherActiveTrigger=stale_report
 reportWatcherTriggerActivatedAt=2026-04-21T12:30:00.000Z
 reportWatcherLastAuditedAt=2026-04-21T12:36:00.000Z
 prAutoDetect=on
-dashboardPort=3000
+dashboardPort=4000
 terminalWsPort=3001
 branch=session/ao-1
 worktree=$DEMO_REPO_A/worktrees/ao-1
@@ -302,7 +302,7 @@ reportWatcherActiveTrigger=stale_report
 reportWatcherTriggerActivatedAt=2026-04-21T14:00:00.000Z
 reportWatcherLastAuditedAt=2026-04-21T14:55:00.000Z
 prAutoDetect=on
-dashboardPort=3000
+dashboardPort=4000
 branch=session/ao-3
 worktree=$DEMO_REPO_A/worktrees/ao-3
 statePayload=$LIFECYCLE_STUCK
@@ -315,7 +315,7 @@ agent=claude-code
 status=working
 createdAt=2026-04-21T11:00:00.000Z
 prAutoDetect=on
-dashboardPort=3000
+dashboardPort=4000
 branch=orchestrator/my-orchestrator-1
 worktree=$DEMO_REPO_A/worktrees/my-orchestrator-1
 statePayload=$LIFECYCLE_ORCH
@@ -341,7 +341,7 @@ git -C "$DEMO_REPO_A" worktree add -b session/ao-1 "$HASH_DIR_A/worktrees/ao-1" 
 echo "// pending edits for issue #101" >"$HASH_DIR_A/worktrees/ao-1/src/lib/util.ts.draft"
 
 # ── V1 hash dir 2: frontend ───────────────────────────────────────────────
-HASH_DIR_B="$DEMO_HOME/.agent-orchestrator/bbbbbb111111-frontend"
+HASH_DIR_B="$DEMO_HOME/.cahi/bbbbbb111111-frontend"
 mkdir -p "$HASH_DIR_B/sessions/archive" "$HASH_DIR_B/worktrees"
 
 # fe-1: working session with PR fields populated
@@ -351,7 +351,7 @@ agent=claude-code
 status=pr_open
 createdAt=2026-04-21T09:00:00.000Z
 prAutoDetect=on
-dashboardPort=3000
+dashboardPort=4000
 branch=session/fe-1
 worktree=$DEMO_REPO_B/worktrees/fe-1
 issue=demo/frontend#7
@@ -371,7 +371,7 @@ stateVersion=2
 V1META
 
 # ── Pre-seed the global config the migrator reads ────────────────────────
-cat >"$DEMO_HOME/.agent-orchestrator/config.yaml" <<CFG
+cat >"$DEMO_HOME/.cahi/config.yaml" <<CFG
 port: $DEMO_PORT
 defaults:
   runtime: tmux
@@ -414,8 +414,8 @@ echo "  Source repos (realistic TS package layout, multi-commit history):"
 echo "    myproject/  ($(git -C "$DEMO_REPO_A" log --oneline | wc -l | tr -d ' ') commits, $(find "$DEMO_REPO_A" -type f -not -path '*/.git/*' -not -path '*/worktrees/*' | wc -l | tr -d ' ') files)"
 echo "    frontend/   ($(git -C "$DEMO_REPO_B" log --oneline | wc -l | tr -d ' ') commits, $(find "$DEMO_REPO_B" -type f -not -path '*/.git/*' -not -path '*/worktrees/*' | wc -l | tr -d ' ') files)"
 echo
-echo "  ~/.agent-orchestrator/  (V1: hash-prefixed dirs, key=value session files):"
-ls -1 "$DEMO_HOME/.agent-orchestrator/" | sed 's/^/    /'
+echo "  ~/.cahi/  (V1: hash-prefixed dirs, key=value session files):"
+ls -1 "$DEMO_HOME/.cahi/" | sed 's/^/    /'
 echo
 echo "  V1 hash dir 1 (myproject):"
 echo "    sessions/         : $(ls "$HASH_DIR_A/sessions" | grep -v '^archive$' | tr '\n' ' ')"
@@ -440,10 +440,10 @@ sleep 2
 
 step "After — V2 layout (projects/{projectId}/sessions/{sid}.json)"
 echo "  Top level:"
-ls -1 "$DEMO_HOME/.agent-orchestrator/" | sed 's/^/    /'
+ls -1 "$DEMO_HOME/.cahi/" | sed 's/^/    /'
 echo
 echo "  projects/ (one dir per project, archives flattened into sessions/):"
-for p in "$DEMO_HOME"/.agent-orchestrator/projects/*; do
+for p in "$DEMO_HOME"/.cahi/projects/*; do
   pname=$(basename "$p")
   [[ "$pname" == *.migrated ]] && continue
   echo "    $pname/"
@@ -456,7 +456,7 @@ echo
 # Inspect the JSON for ao-1 (the headline session: agent-report state set,
 # PR fields, runtimeHandle as embedded JSON — exercises the most fields).
 MIGRATED_PROJECT="myproject"
-SESSION_JSON="$DEMO_HOME/.agent-orchestrator/projects/$MIGRATED_PROJECT/sessions/ao-1.json"
+SESSION_JSON="$DEMO_HOME/.cahi/projects/$MIGRATED_PROJECT/sessions/ao-1.json"
 sleep 4
 
 step "Migrated session JSON (note: typed fields, no key=value soup)"
@@ -526,19 +526,19 @@ sleep 3
 step "The regression test that asserts no second daemon is registered"
 echo
 sed -n '/attaches to existing daemon (no second dashboard)/,/^  });$/p' \
-  "$AO_REPO/packages/cli/__tests__/commands/start.test.ts" \
+  "$CAHI_REPO/packages/cli/__tests__/commands/start.test.ts" \
   | head -50 | sed 's/^/    /'
 sleep 5
 
 step "Run the test live (filtered by test name via vitest -t)"
-(cd "$AO_REPO" && pnpm --filter @contaazul/cahi-cli test -- start.test.ts -t "attaches to existing daemon" 2>&1 \
+(cd "$CAHI_REPO" && pnpm --filter @contaazul/cahi-cli test -- start.test.ts -t "attaches to existing daemon" 2>&1 \
   | grep -E "✓|✗|FAIL|Test Files|^\s*Tests " | head -10 | sed 's/^/    /') || true
 sleep 3
 
 step "removeProjectFromRunning + addProjectToRunning are the round-trip primitives"
 echo
 grep -n "export async function \(removeProjectFromRunning\|addProjectToRunning\)" \
-  "$AO_REPO/packages/cli/src/lib/running-state.ts" | sed 's/^/    /'
+  "$CAHI_REPO/packages/cli/src/lib/running-state.ts" | sed 's/^/    /'
 sleep 3
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -551,7 +551,7 @@ sleep 2
 
 step "The fix in Dashboard.tsx"
 grep -B 1 -A 7 "No project filter — sidebar needs all sessions" \
-  "$AO_REPO/packages/web/src/components/Dashboard.tsx" 2>/dev/null \
+  "$CAHI_REPO/packages/web/src/components/Dashboard.tsx" 2>/dev/null \
   | sed 's/^/    /' || note "(see commit 53e8476f)"
 sleep 4
 
@@ -560,7 +560,7 @@ banner "Act 4 — Restore from ao stop  (last-stop.json round-trip)"
 # ───────────────────────────────────────────────────────────────────────────
 
 step "Simulate what ao stop writes to last-stop.json"
-cat >"$DEMO_HOME/.agent-orchestrator/last-stop.json" <<JSON
+cat >"$DEMO_HOME/.cahi/last-stop.json" <<JSON
 {
   "stoppedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "projectId": "$MIGRATED_PROJECT",
@@ -569,20 +569,20 @@ cat >"$DEMO_HOME/.agent-orchestrator/last-stop.json" <<JSON
 }
 JSON
 echo
-sed 's/^/    /' "$DEMO_HOME/.agent-orchestrator/last-stop.json"
+sed 's/^/    /' "$DEMO_HOME/.cahi/last-stop.json"
 sleep 3
 
 step "What ao start does with it (start.ts)"
 echo
 grep -n "readLastStop\|Restore .* sessions" \
-  "$AO_REPO/packages/cli/src/commands/start.ts" | head -6 | sed 's/^/    /'
+  "$CAHI_REPO/packages/cli/src/commands/start.ts" | head -6 | sed 's/^/    /'
 sleep 3
 
 step "Cross-project sessions in the prompt — otherProjects field"
 echo
 grep -n "otherProjects" \
-  "$AO_REPO/packages/cli/src/lib/running-state.ts" \
-  "$AO_REPO/packages/cli/src/commands/start.ts" | head -6 | sed 's/^/    /'
+  "$CAHI_REPO/packages/cli/src/lib/running-state.ts" \
+  "$CAHI_REPO/packages/cli/src/commands/start.ts" | head -6 | sed 's/^/    /'
 sleep 3
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -597,7 +597,7 @@ sleep 2
 step "The shutdown handler"
 echo
 grep -n "shutdown.*signal: NodeJS.Signals\|10s hard timeout\|SHUTDOWN_TIMEOUT_MS" \
-  "$AO_REPO/packages/cli/src/commands/start.ts" | head -10 | sed 's/^/    /'
+  "$CAHI_REPO/packages/cli/src/commands/start.ts" | head -10 | sed 's/^/    /'
 sleep 3
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -612,11 +612,11 @@ sleep 2
 step "The detection helper + the early-exit message"
 echo
 sed -n '/detectClonedRepoDefaultBranch/,/^}/p' \
-  "$AO_REPO/packages/cli/src/commands/start.ts" \
+  "$CAHI_REPO/packages/cli/src/commands/start.ts" \
   | head -25 | sed 's/^/    /'
 echo
 grep -B 1 -A 4 "appears to be empty (no commits or refs)" \
-  "$AO_REPO/packages/cli/src/commands/start.ts" | head -10 | sed 's/^/    /'
+  "$CAHI_REPO/packages/cli/src/commands/start.ts" | head -10 | sed 's/^/    /'
 sleep 5
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -627,11 +627,11 @@ banner "Test summary: 560 CLI + 981 core (last full run)"
 # test suites — otherwise tests that read getGlobalConfigPath() see the
 # demo's sparse config and fail spuriously.
 step "pnpm --filter @contaazul/cahi-cli test"
-(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-cli test 2>&1 \
+(cd "$CAHI_REPO" && env -u CAHI_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-cli test 2>&1 \
   | grep -E "^\s*(Tests|Test Files|Duration)" | sed 's/^/    /') || true
 
 step "pnpm --filter @contaazul/cahi-core test"
-(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-core test 2>&1 \
+(cd "$CAHI_REPO" && env -u CAHI_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-core test 2>&1 \
   | grep -E "^\s*(Tests|Test Files|Duration)" | sed 's/^/    /') || true
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -642,7 +642,7 @@ note "To re-run:    scripts/demo-pr-1466.sh"
 note "To clean:     rm -rf $DEMO_HOME"
 note ""
 note "Reviewer next steps:"
-note "  • Inspect $DEMO_HOME/.agent-orchestrator/ to verify V2 shape"
+note "  • Inspect $DEMO_HOME/.cahi/ to verify V2 shape"
 note "  • Diff against base:   git diff origin/main...storage-redesign"
 note "  • Visual spec:         pr-1466.html"
 note "  • Behavior dashboard:  https://theharshitsingh.com/static/pr-1466.html"

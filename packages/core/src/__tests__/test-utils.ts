@@ -311,7 +311,7 @@ export function createTestEnvironment(): TestEnvironment {
   // or parallel vitest workers share the real home dir and race on storage.
   process.env["USERPROFILE"] = tmpDir;
 
-  const configPath = join(tmpDir, "agent-orchestrator.yaml");
+  const configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}\n");
 
   const config: OrchestratorConfig = {
@@ -403,7 +403,7 @@ export function setupTestContext(): TestContext {
   // os.homedir() reads USERPROFILE on Windows, not HOME
   process.env["USERPROFILE"] = tmpDir;
 
-  const configPath = join(tmpDir, "agent-orchestrator.yaml");
+  const configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}\n");
 
   const { runtime: mockRuntime, agent: mockAgent, workspace: mockWorkspace } = createMockPlugins();

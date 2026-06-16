@@ -22,7 +22,7 @@ import { projectSessionUrl } from "../lib/routes.js";
  * Auto-detect the project ID from the config.
  * - If only one project exists, use it.
  * - If multiple projects exist, match cwd against project paths.
- * - Falls back to AO_PROJECT_ID env var (set when called from an agent session).
+ * - Falls back to CAHI_PROJECT_ID env var (set when called from an agent session).
  */
 function autoDetectProject(config: OrchestratorConfig): string {
   const projectIds = Object.keys(config.projects);
@@ -33,8 +33,8 @@ function autoDetectProject(config: OrchestratorConfig): string {
     return projectIds[0];
   }
 
-  // Try AO_PROJECT_ID env var (set by AO when spawning agent sessions)
-  const envProject = process.env.AO_PROJECT_ID;
+  // Try CAHI_PROJECT_ID env var (set by AO when spawning agent sessions)
+  const envProject = process.env.CAHI_PROJECT_ID;
   if (envProject && config.projects[envProject]) {
     return envProject;
   }

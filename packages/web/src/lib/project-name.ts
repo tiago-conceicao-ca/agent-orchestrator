@@ -60,7 +60,7 @@ function findLocalConfigPath(startDir: string): string | undefined {
   let currentDir = resolve(startDir);
 
   while (true) {
-    for (const filename of ["agent-orchestrator.yaml", "agent-orchestrator.yml"]) {
+    for (const filename of ["cahi.yaml", "cahi.yml"]) {
       const candidate = resolve(currentDir, filename);
       if (existsSync(candidate)) {
         return candidate;

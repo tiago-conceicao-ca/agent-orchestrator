@@ -88,11 +88,11 @@ beforeEach(() => {
   mockConfigRef.current = null;
   mockExec.mockResolvedValue({ stdout: "", stderr: "" });
   // Tests assume the caller is a human (no AO session). Tests that need to
-  // simulate session-to-session sends override AO_SESSION_ID explicitly. This
+  // simulate session-to-session sends override CAHI_SESSION_ID explicitly. This
   // matters because the test process itself often runs inside an AO worker,
-  // which would leak its own AO_SESSION_ID into the auto-prefix logic.
-  savedSessionEnv = process.env["AO_SESSION_ID"];
-  delete process.env["AO_SESSION_ID"];
+  // which would leak its own CAHI_SESSION_ID into the auto-prefix logic.
+  savedSessionEnv = process.env["CAHI_SESSION_ID"];
+  delete process.env["CAHI_SESSION_ID"];
 });
 
 afterEach(() => {
@@ -100,8 +100,8 @@ afterEach(() => {
   consoleSpy.mockRestore();
   consoleErrorSpy.mockRestore();
   exitSpy.mockRestore();
-  if (savedSessionEnv === undefined) delete process.env["AO_SESSION_ID"];
-  else process.env["AO_SESSION_ID"] = savedSessionEnv;
+  if (savedSessionEnv === undefined) delete process.env["CAHI_SESSION_ID"];
+  else process.env["CAHI_SESSION_ID"] = savedSessionEnv;
 });
 
 describe("send command", () => {
@@ -284,9 +284,9 @@ describe("send command", () => {
     });
   });
 
-  describe("auto-prefix from AO_SESSION_ID", () => {
-    it("prefixes the message with [from <session>] when AO_SESSION_ID is set", async () => {
-      process.env["AO_SESSION_ID"] = "app-7";
+  describe("auto-prefix from CAHI_SESSION_ID", () => {
+    it("prefixes the message with [from <session>] when CAHI_SESSION_ID is set", async () => {
+      process.env["CAHI_SESSION_ID"] = "app-7";
       mockTmux.mockImplementation(async (...args: string[]) => {
         if (args[0] === "has-session") return "";
         if (args[0] === "capture-pane") return "❯ ";
@@ -305,8 +305,8 @@ describe("send command", () => {
       ]);
     });
 
-    it("does not prefix when AO_SESSION_ID is unset (human caller)", async () => {
-      // beforeEach already deletes AO_SESSION_ID — exercise that path.
+    it("does not prefix when CAHI_SESSION_ID is unset (human caller)", async () => {
+      // beforeEach already deletes CAHI_SESSION_ID — exercise that path.
       mockTmux.mockImplementation(async (...args: string[]) => {
         if (args[0] === "has-session") return "";
         if (args[0] === "capture-pane") return "❯ ";
@@ -326,9 +326,9 @@ describe("send command", () => {
     });
 
     it("auto-prefixes when delivering through SessionManager.send too", async () => {
-      process.env["AO_SESSION_ID"] = "app-orchestrator";
+      process.env["CAHI_SESSION_ID"] = "app-orchestrator";
       mockConfigRef.current = {
-        configPath: "/tmp/agent-orchestrator.yaml",
+        configPath: "/tmp/cahi.yaml",
         defaults: {
           runtime: "tmux",
           agent: "claude-code",
@@ -384,7 +384,7 @@ describe("send command", () => {
   describe("session manager integration", () => {
     function makeConfig(): Record<string, unknown> {
       return {
-        configPath: "/tmp/agent-orchestrator.yaml",
+        configPath: "/tmp/cahi.yaml",
         defaults: {
           runtime: "tmux",
           agent: "claude-code",

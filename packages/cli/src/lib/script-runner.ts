@@ -46,7 +46,7 @@ function isValidRepoRootForLayout(root: string, layout: ScriptLayout): boolean {
 }
 
 export function resolveRepoRoot(): string {
-  const override = process.env["AO_REPO_ROOT"];
+  const override = process.env["CAHI_REPO_ROOT"];
   if (!override) {
     return DEFAULT_REPO_ROOT;
   }
@@ -57,16 +57,16 @@ export function resolveRepoRoot(): string {
       DEFAULT_SCRIPT_LAYOUT === "source-checkout"
         ? "an agent-orchestrator checkout"
         : "an installed @contaazul/cahi-cli package";
-    throw new Error(`AO_REPO_ROOT=${override} does not look like ${expected}`);
+    throw new Error(`CAHI_REPO_ROOT=${override} does not look like ${expected}`);
   }
 
   return resolved;
 }
 
 export function resolveScriptLayout(): ScriptLayout {
-  const override = process.env["AO_SCRIPT_LAYOUT"];
+  const override = process.env["CAHI_SCRIPT_LAYOUT"];
   if (
-    process.env["AO_DEV"] === "1" &&
+    process.env["CAHI_DEV"] === "1" &&
     (override === "package-install" || override === "source-checkout")
   ) {
     return override;
@@ -170,21 +170,21 @@ export async function runRepoScript(scriptName: string, args: string[]): Promise
     }
   }
 
-  let shellOverride = process.env["AO_BASH_PATH"];
+  let shellOverride = process.env["CAHI_BASH_PATH"];
   // Unix: always use bash — repo scripts have #!/bin/bash shebangs and bash-specific syntax.
   // Shebangs are only honoured by the kernel when a file is executed directly; when passed as
   // an argument to another interpreter (e.g. zsh script.sh) the shebang is ignored, so we must
   // name bash explicitly rather than using the user's $SHELL.
   // Windows: no native shell (pwsh, powershell.exe, cmd.exe) can run bash scripts —
   // shebangs are ignored and bash-specific syntax fails. Auto-detect Git Bash / WSL,
-  // fall back to AO_BASH_PATH, throw with guidance if neither is found.
+  // fall back to CAHI_BASH_PATH, throw with guidance if neither is found.
   if (!shellOverride && isWindows()) {
     const detected = detectWindowsBash();
     if (!detected) {
       throw new Error(
         "Cannot run repo scripts on Windows without bash. " +
           "Install Git for Windows (https://git-scm.com/download/win) or " +
-          "set AO_BASH_PATH to a bash executable " +
+          "set CAHI_BASH_PATH to a bash executable " +
           "(e.g. C:\\Program Files\\Git\\bin\\bash.exe).",
       );
     }
@@ -206,7 +206,7 @@ function spawnAndWait(
   return new Promise<number>((resolveExit, reject) => {
     const child = spawn(shell, shellArgs, {
       cwd: repoRoot,
-      env: { ...process.env, AO_REPO_ROOT: repoRoot, AO_SCRIPT_LAYOUT: scriptLayout },
+      env: { ...process.env, CAHI_REPO_ROOT: repoRoot, CAHI_SCRIPT_LAYOUT: scriptLayout },
       stdio: "inherit",
       windowsHide: true,
     });

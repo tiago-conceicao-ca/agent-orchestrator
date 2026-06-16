@@ -58,7 +58,7 @@ const emittedCorruptClonePaths = new Set<string>();
 export function create(config?: Record<string, unknown>): Workspace {
   const cloneBaseDir = config?.cloneDir
     ? expandPath(config.cloneDir as string)
-    : join(homedir(), ".ao-clones");
+    : join(homedir(), ".cahi-clones");
 
   return {
     name: "clone",

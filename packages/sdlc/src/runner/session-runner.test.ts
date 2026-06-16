@@ -19,7 +19,7 @@ function makeFakeSpawn(opts: {
     spawn: async ({ metadata }) => {
       spawnedMeta.push(metadata);
       if (opts.workspaceDir && opts.sentinelContents !== null) {
-        const aoDir = join(opts.workspaceDir, ".ao");
+        const aoDir = join(opts.workspaceDir, ".cahi");
         mkdirSync(aoDir, { recursive: true });
         writeFileSync(
           join(aoDir, opts.sentinelName ?? "sdlc-output"),

@@ -11,7 +11,7 @@
  * crash mid-write, manual recovery), the runtime-side processes become
  * unreachable and `ao stop` orphans them silently.
  *
- * This registry is a flat list at `~/.agent-orchestrator/windows-pty-hosts.json`
+ * This registry is a flat list at `~/.cahi/windows-pty-hosts.json`
  * that AO writes on spawn and reads on `ao stop` (and on next `ao start`'s
  * orphan sweep, future work). It exists outside session JSON so cleanup of
  * sessions never severs AO's ability to find and graceful-kill the hosts.
@@ -33,7 +33,7 @@ export interface WindowsPtyHostEntry {
 // Resolved lazily so tests that mock node:os (vitest mock factories run after
 // module evaluation) can override `homedir()` before the first read/write.
 function getRegistryFile(): string {
-  return join(homedir(), ".agent-orchestrator", "windows-pty-hosts.json");
+  return join(homedir(), ".cahi", "windows-pty-hosts.json");
 }
 
 function readRaw(): WindowsPtyHostEntry[] {

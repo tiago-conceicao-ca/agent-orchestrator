@@ -522,7 +522,7 @@ export function registerPlugin(program: Command): void {
       ) => {
         const configPath = findConfigFile();
         if (!configPath) {
-          throw new Error("No agent-orchestrator.yaml found. Run 'ao start' first.");
+          throw new Error("No cahi.yaml found. Run 'ao start' first.");
         }
 
         const config = loadConfig(configPath);
@@ -563,7 +563,7 @@ export function registerPlugin(program: Command): void {
     .action(async (reference: string | undefined, opts: { all?: boolean }) => {
       const configPath = findConfigFile();
       if (!configPath) {
-        throw new Error("No agent-orchestrator.yaml found. Run 'ao start' first.");
+        throw new Error("No cahi.yaml found. Run 'ao start' first.");
       }
 
       if (!reference && opts.all !== true) {
@@ -623,7 +623,7 @@ export function registerPlugin(program: Command): void {
     .action((reference: string) => {
       const configPath = findConfigFile();
       if (!configPath) {
-        throw new Error("No agent-orchestrator.yaml found. Run 'ao start' first.");
+        throw new Error("No cahi.yaml found. Run 'ao start' first.");
       }
 
       const config = loadConfig(configPath);

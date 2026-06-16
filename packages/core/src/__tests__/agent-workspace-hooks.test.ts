@@ -4,7 +4,7 @@ import {
   buildAgentPath,
   buildNodeWrapper,
   setupPathWrapperWorkspace,
-  AO_METADATA_HELPER,
+  CAHI_METADATA_HELPER,
   GH_WRAPPER,
 } from "../agent-workspace-hooks.js";
 
@@ -31,9 +31,9 @@ vi.mock("../platform.js", () => ({
   isWindows: mockIsWindows,
 }));
 
-// On Windows, path.join('/home/testuser', '.ao', 'bin') => '\home\testuser\.ao\bin'
+// On Windows, path.join('/home/testuser', '.cahi', 'bin') => '\home\testuser\.cahi\bin'
 // Use join() so assertions match the runtime path format
-const AO_BIN_DIR = join("/home/testuser", ".ao", "bin");
+const CAHI_BIN_DIR = join("/home/testuser", ".cahi", "bin");
 
 describe("buildAgentPath", () => {
   beforeEach(() => {
@@ -42,8 +42,8 @@ describe("buildAgentPath", () => {
 
   it("prepends ao bin dir to PATH", () => {
     const result = buildAgentPath("/usr/bin:/bin");
-    expect(result).toContain(AO_BIN_DIR);
-    expect(result.startsWith(AO_BIN_DIR)).toBe(true);
+    expect(result).toContain(CAHI_BIN_DIR);
+    expect(result.startsWith(CAHI_BIN_DIR)).toBe(true);
     expect(result).toContain("/usr/bin");
     expect(result).toContain("/bin");
   });
@@ -57,15 +57,15 @@ describe("buildAgentPath", () => {
 
   it("uses default PATH when basePath is undefined", () => {
     const result = buildAgentPath(undefined);
-    expect(result).toContain(AO_BIN_DIR);
-    expect(result.startsWith(AO_BIN_DIR)).toBe(true);
+    expect(result).toContain(CAHI_BIN_DIR);
+    expect(result.startsWith(CAHI_BIN_DIR)).toBe(true);
     expect(result).toContain("/usr/bin");
   });
 
   it("ensures /usr/local/bin is early for gh resolution", () => {
     const result = buildAgentPath("/usr/bin:/bin");
     const entries = result.split(":");
-    const aoIdx = entries.indexOf(AO_BIN_DIR);
+    const aoIdx = entries.indexOf(CAHI_BIN_DIR);
     const ghIdx = entries.indexOf("/usr/local/bin");
     expect(aoIdx).toBe(0);
     expect(ghIdx).toBe(1);
@@ -81,14 +81,14 @@ describe("setupPathWrapperWorkspace (Unix)", () => {
 
   it("creates ao bin directory", async () => {
     await setupPathWrapperWorkspace("/workspace");
-    expect(mockMkdir).toHaveBeenCalledWith(AO_BIN_DIR, { recursive: true });
+    expect(mockMkdir).toHaveBeenCalledWith(CAHI_BIN_DIR, { recursive: true });
   });
 
   it("writes wrapper scripts when version marker is missing", async () => {
     await setupPathWrapperWorkspace("/workspace");
     // atomicWriteFile writes to .tmp then renames
     expect(mockRename).toHaveBeenCalled();
-    // .ao/AGENTS.md is written directly (path.join may use / or \ depending on platform)
+    // .cahi/AGENTS.md is written directly (path.join may use / or \ depending on platform)
     const agentsMdWrites = mockWriteFile.mock.calls.filter((c: unknown[]) =>
       String(c[0]).includes("AGENTS.md"),
     );
@@ -108,7 +108,7 @@ describe("setupPathWrapperWorkspace (Unix)", () => {
     expect(renamedPaths.filter((p: string) => p.includes("git."))).toHaveLength(0);
   });
 
-  it("writes .ao/AGENTS.md with session context", async () => {
+  it("writes .cahi/AGENTS.md with session context", async () => {
     await setupPathWrapperWorkspace("/workspace");
 
     const agentsMdWrites = mockWriteFile.mock.calls.filter((c: unknown[]) =>
@@ -200,7 +200,7 @@ describe("setupPathWrapperWorkspace (Windows)", () => {
     expect(String(cmdWrite![1])).toMatch(/@node "%~dp0(gh|git)\.cjs" %\*/);
   });
 
-  it("writes .ao/AGENTS.md on Windows too", async () => {
+  it("writes .cahi/AGENTS.md on Windows too", async () => {
     await setupPathWrapperWorkspace("C:\\workspace");
 
     const agentsMdWrites = mockWriteFile.mock.calls.filter((c: unknown[]) =>
@@ -218,7 +218,7 @@ describe("setupPathWrapperWorkspace (Windows)", () => {
     expect(result).toContain("C:\\Windows\\System32");
     // The ao bin dir should be first entry (joined with ;)
     const entries = result.split(";");
-    expect(entries[0]).toBe(AO_BIN_DIR);
+    expect(entries[0]).toBe(CAHI_BIN_DIR);
   });
 });
 
@@ -292,35 +292,35 @@ describe("buildNodeWrapper", () => {
   });
 });
 
-describe("AO_METADATA_HELPER", () => {
+describe("CAHI_METADATA_HELPER", () => {
   it("contains update_ao_metadata function", () => {
-    expect(AO_METADATA_HELPER).toContain("update_ao_metadata()");
+    expect(CAHI_METADATA_HELPER).toContain("update_ao_metadata()");
   });
 
   it("contains read_ao_metadata function", () => {
-    expect(AO_METADATA_HELPER).toContain("read_ao_metadata()");
+    expect(CAHI_METADATA_HELPER).toContain("read_ao_metadata()");
   });
 
   it("contains cache helper functions", () => {
-    expect(AO_METADATA_HELPER).toContain("ao_cache_dir()");
-    expect(AO_METADATA_HELPER).toContain("ao_cache_fresh()");
-    expect(AO_METADATA_HELPER).toContain("ao_cache_read()");
-    expect(AO_METADATA_HELPER).toContain("ao_cache_write()");
+    expect(CAHI_METADATA_HELPER).toContain("ao_cache_dir()");
+    expect(CAHI_METADATA_HELPER).toContain("ao_cache_fresh()");
+    expect(CAHI_METADATA_HELPER).toContain("ao_cache_read()");
+    expect(CAHI_METADATA_HELPER).toContain("ao_cache_write()");
   });
 
   it("uses .ghcache subdirectory for cache storage", () => {
-    expect(AO_METADATA_HELPER).toContain(".ghcache");
+    expect(CAHI_METADATA_HELPER).toContain(".ghcache");
   });
 
   it("validates environment in shared _ao_validate_env", () => {
-    expect(AO_METADATA_HELPER).toContain("_ao_validate_env()");
-    expect(AO_METADATA_HELPER).toContain("AO_DATA_DIR");
-    expect(AO_METADATA_HELPER).toContain("AO_SESSION");
+    expect(CAHI_METADATA_HELPER).toContain("_ao_validate_env()");
+    expect(CAHI_METADATA_HELPER).toContain("CAHI_DATA_DIR");
+    expect(CAHI_METADATA_HELPER).toContain("CAHI_SESSION");
   });
 
   it("validates trusted roots for path traversal prevention", () => {
-    expect(AO_METADATA_HELPER).toContain(".agent-orchestrator");
-    expect(AO_METADATA_HELPER).toContain("/tmp/*");
+    expect(CAHI_METADATA_HELPER).toContain(".cahi");
+    expect(CAHI_METADATA_HELPER).toContain("/tmp/*");
   });
 });
 

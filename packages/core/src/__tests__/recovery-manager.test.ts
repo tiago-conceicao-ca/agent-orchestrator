@@ -23,7 +23,7 @@ const PROJECT_ID = "app";
 
 function makeConfig(rootDir: string): OrchestratorConfig {
   return {
-    configPath: join(rootDir, "agent-orchestrator.yaml"),
+    configPath: join(rootDir, "cahi.yaml"),
     port: 3000,
     readyThresholdMs: 300_000,
     power: { preventIdleSleep: false },
@@ -94,7 +94,7 @@ describe("runRecovery activity events", () => {
     rootDir = join(tmpdir(), `ao-recovery-events-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
-    writeFileSync(join(rootDir, "agent-orchestrator.yaml"), "projects: {}\n", "utf-8");
+    writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
     previousHome = process.env["HOME"];
     process.env["HOME"] = rootDir;
 

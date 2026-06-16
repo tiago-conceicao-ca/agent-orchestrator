@@ -373,24 +373,24 @@ describe("getEnvironment (integration)", () => {
     },
   };
 
-  it("sets AO_SESSION_ID", () => {
+  it("sets CAHI_SESSION_ID", () => {
     const env = agent.getEnvironment(baseConfig);
-    expect(env["AO_SESSION_ID"]).toBe("sess-123");
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-123");
   });
 
-  it("sets AO_ISSUE_ID when provided", () => {
+  it("sets CAHI_ISSUE_ID when provided", () => {
     const env = agent.getEnvironment({ ...baseConfig, issueId: "GH-42" });
-    expect(env["AO_ISSUE_ID"]).toBe("GH-42");
+    expect(env["CAHI_ISSUE_ID"]).toBe("GH-42");
   });
 
-  it("omits AO_ISSUE_ID when not provided", () => {
+  it("omits CAHI_ISSUE_ID when not provided", () => {
     const env = agent.getEnvironment(baseConfig);
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
   });
 
-  it("does not set AO_PROJECT_ID (caller's responsibility)", () => {
+  it("does not set CAHI_PROJECT_ID (caller's responsibility)", () => {
     const env = agent.getEnvironment(baseConfig);
-    expect(env["AO_PROJECT_ID"]).toBeUndefined();
+    expect(env["CAHI_PROJECT_ID"]).toBeUndefined();
   });
 });
 

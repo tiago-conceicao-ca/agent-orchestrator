@@ -143,7 +143,7 @@ function writeProjectBehaviorConfig(projectPath: string, config: LocalProjectCon
 }
 
 /**
- * Register a flat local config (agent-orchestrator.yaml without `projects:`)
+ * Register a flat local config (cahi.yaml without `projects:`)
  * into the global config so loadConfig can resolve it.
  * Returns the registered project ID, or null if registration failed.
  */
@@ -202,7 +202,7 @@ async function resolveProject(
   const projectIds = Object.keys(config.projects);
 
   if (projectIds.length === 0) {
-    throw new Error("No projects configured. Add a project to agent-orchestrator.yaml.");
+    throw new Error("No projects configured. Add a project to cahi.yaml.");
   }
 
   // Explicit project argument
@@ -494,7 +494,7 @@ async function cloneRepo(parsed: ParsedRepoUrl, targetDir: string, cwd: string):
 }
 
 /**
- * Auto-create agent-orchestrator.yaml when no config exists.
+ * Auto-create cahi.yaml when no config exists.
  * Detects environment, project type, and generates config with smart defaults.
  * Returns the loaded config.
  */
@@ -574,7 +574,7 @@ export async function autoCreateConfig(workingDir: string): Promise<Orchestrator
     ...(agentRules ? { agentRules } : {}),
   };
 
-  const outputPath = resolve(workingDir, "agent-orchestrator.yaml");
+  const outputPath = resolve(workingDir, "cahi.yaml");
   if (existsSync(outputPath)) {
     console.log(chalk.yellow(`⚠ Config already exists: ${outputPath}`));
     console.log(chalk.dim("  Use 'ao start' to start with the existing config.\n"));
@@ -896,7 +896,7 @@ async function runStartup(
       const newPort = await findFreePort(port + 1);
       if (newPort === null) {
         throw new Error(
-          `Port ${port} is busy and no free port found in range ${port + 1}–${port + MAX_PORT_SCAN}. Free port ${port} or set a different 'port' in agent-orchestrator.yaml.`,
+          `Port ${port} is busy and no free port found in range ${port + 1}–${port + MAX_PORT_SCAN}. Free port ${port} or set a different 'port' in cahi.yaml.`,
         );
       }
       console.log(chalk.yellow(`Port ${port} is busy — using ${newPort} instead.`));
@@ -1756,7 +1756,7 @@ export function registerStart(program: Command): void {
                 agent: workerAgent,
               };
               writeProjectBehaviorConfig(project.path, nextLocalConfig);
-              console.log(chalk.dim(`  ✓ Saved to ${project.path}/agent-orchestrator.yaml\n`));
+              console.log(chalk.dim(`  ✓ Saved to ${project.path}/cahi.yaml\n`));
             } else {
               const rawYaml = readFileSync(config.configPath, "utf-8");
               const rawConfig = yamlParse(rawYaml) as Record<string, unknown> | null;
@@ -2000,7 +2000,7 @@ export function registerStop(program: Command): void {
         } else {
           const projectIds = Object.keys(config.projects);
           if (projectIds.length === 0) {
-            throw new Error("No projects configured. Add a project to agent-orchestrator.yaml.");
+            throw new Error("No projects configured. Add a project to cahi.yaml.");
           }
           const currentDir = resolve(cwd());
           const cwdProjectId = findProjectForDirectory(config.projects, currentDir);

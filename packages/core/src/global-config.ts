@@ -76,26 +76,26 @@ export interface RegisterProjectOptions {
  * Return the canonical path to the global config file.
  *
  * Priority:
- *   1. AO_GLOBAL_CONFIG environment variable (explicit global config override)
- *   2. $XDG_CONFIG_HOME/agent-orchestrator/config.yaml
- *   3. ~/.agent-orchestrator/config.yaml  (default)
+ *   1. CAHI_GLOBAL_CONFIG environment variable (explicit global config override)
+ *   2. $XDG_CONFIG_HOME/cahi/config.yaml
+ *   3. ~/.cahi/config.yaml  (default)
  *
- * NOTE: This intentionally does NOT read AO_CONFIG_PATH. That env var is used
+ * NOTE: This intentionally does NOT read CAHI_CONFIG_PATH. That env var is used
  * by findConfigFile() to locate any config (including project-local ones).
  * Using it here would risk overwriting a project-local config with global-format
  * YAML when registry helpers call this function.
  */
 export function getGlobalConfigPath(): string {
-  if (process.env["AO_GLOBAL_CONFIG"]) {
-    return resolve(process.env["AO_GLOBAL_CONFIG"]);
+  if (process.env["CAHI_GLOBAL_CONFIG"]) {
+    return resolve(process.env["CAHI_GLOBAL_CONFIG"]);
   }
 
   const xdgConfigHome = process.env["XDG_CONFIG_HOME"];
   if (xdgConfigHome) {
-    return join(xdgConfigHome, "agent-orchestrator", "config.yaml");
+    return join(xdgConfigHome, "cahi", "config.yaml");
   }
 
-  return join(homedir(), ".agent-orchestrator", "config.yaml");
+  return join(homedir(), ".cahi", "config.yaml");
 }
 
 export function isCanonicalGlobalConfigPath(configPath: string | undefined): boolean {
@@ -126,7 +126,7 @@ const GLOBAL_PROJECT_ENTRY_FIELDS = new Set([
   "storageKey", // Preserved until `ao migrate-storage` strips it
 ]);
 
-const LOCAL_CONFIG_FILENAMES = ["agent-orchestrator.yaml", "agent-orchestrator.yml"] as const;
+const LOCAL_CONFIG_FILENAMES = ["cahi.yaml", "cahi.yml"] as const;
 const LOCAL_IDENTITY_FIELDS = new Set([
   "repo",
   "defaultBranch",
@@ -184,8 +184,8 @@ export type InstallMethodOverride = z.infer<typeof InstallMethodOverrideSchema>;
 
 export const GlobalConfigSchema = z
   .object({
-    /** Web dashboard port. Default: 3000 */
-    port: z.number().default(3000),
+    /** Web dashboard port. Default: 4000 */
+    port: z.number().default(4000),
     terminalPort: z.number().optional(),
     directTerminalPort: z.number().optional(),
     /** Time before a "ready" session becomes "idle". Default: 300 000 ms (5 min). */
@@ -250,7 +250,7 @@ export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;
 
 /**
  * Flat, behavior-only local project config.
- * Lives at <project>/agent-orchestrator.yaml.
+ * Lives at <project>/cahi.yaml.
  *
  * Does NOT contain identity fields: projectId, path, repo,
  * defaultBranch, source, registeredAt, displayName, sessionPrefix.
@@ -385,7 +385,7 @@ export function saveGlobalConfig(config: GlobalConfig, configPath?: string): voi
 }
 
 /**
- * Load a flat local project config from <projectPath>/agent-orchestrator.yaml.
+ * Load a flat local project config from <projectPath>/cahi.yaml.
  *
  * Returns null when:
  *   - No config file found at projectPath
@@ -1050,7 +1050,7 @@ export function isOldConfigFormat(raw: unknown): boolean {
  *
  * What happens:
  *   1. Read old config from oldConfigPath
- *   2. Create global config at ~/.agent-orchestrator/config.yaml with:
+ *   2. Create global config at ~/.cahi/config.yaml with:
  *      - Global settings (port, defaults, notifiers, reactions)
  *      - Project registry entries (identity only)
  *   3. Rewrite local config at oldConfigPath to flat behavior-only format
@@ -1059,7 +1059,7 @@ export function isOldConfigFormat(raw: unknown): boolean {
  *       when the old config is inside the project directory)
  *   4. Returns the new global config path
  *
- * @param oldConfigPath  Absolute path to the old agent-orchestrator.yaml
+ * @param oldConfigPath  Absolute path to the old cahi.yaml
  * @param globalConfigPath  Override for global config path (default: getGlobalConfigPath())
  * @returns The global config path
  */
@@ -1176,7 +1176,7 @@ export function migrateToGlobalConfig(oldConfigPath: string, globalConfigPath?: 
  */
 export function createDefaultGlobalConfig(): GlobalConfig {
   return {
-    port: 3000,
+    port: 4000,
     readyThresholdMs: 300_000,
     observability: {
       logLevel: "warn",

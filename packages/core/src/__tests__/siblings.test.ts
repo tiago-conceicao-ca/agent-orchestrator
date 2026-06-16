@@ -15,13 +15,13 @@ describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
   const sample: SiblingRef[] = [
     {
       repo: "ca-starters-front",
-      path: "/home/u/.agent-orchestrator/projects/svc/worktrees/ao-10__sib__ca-starters-front",
+      path: "/home/u/.cahi/projects/svc/worktrees/ao-10__sib__ca-starters-front",
       branch: "master",
       mode: "readonly-symlink",
     },
     {
       repo: "svc-infra",
-      path: "/home/u/.agent-orchestrator/projects/svc/worktrees/ao-10__sib__svc-infra",
+      path: "/home/u/.cahi/projects/svc/worktrees/ao-10__sib__svc-infra",
       branch: "sib/ao-10/svc-infra",
       mode: "worktree",
     },
@@ -72,7 +72,7 @@ describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
 });
 
 describe("assembled adjacency view paths (#1095 Decision 3)", () => {
-  const worktreeDir = "/home/u/.agent-orchestrator/projects/svc/worktrees";
+  const worktreeDir = "/home/u/.cahi/projects/svc/worktrees";
 
   it("assembledViewDir is the per-session __ws dir", () => {
     expect(assembledViewDir(worktreeDir, "ao-10")).toBe(

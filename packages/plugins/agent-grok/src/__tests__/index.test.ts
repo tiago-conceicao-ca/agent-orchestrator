@@ -230,14 +230,14 @@ describe("getEnvironment", () => {
 
   it("writes AO session keys and leaves shared wrapper paths to session-manager", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
     expect(env["PATH"]).toBeUndefined();
     expect(env["GH_PATH"]).toBeUndefined();
     expect(env["GROK_SANDBOX"]).toBeUndefined();
   });
 
-  it("includes AO_ISSUE_ID and GROK_SANDBOX when provided", () => {
+  it("includes CAHI_ISSUE_ID and GROK_SANDBOX when provided", () => {
     const env = agent.getEnvironment(
       makeLaunchConfig({
         issueId: "INT-42",
@@ -247,7 +247,7 @@ describe("getEnvironment", () => {
         },
       }),
     );
-    expect(env["AO_ISSUE_ID"]).toBe("INT-42");
+    expect(env["CAHI_ISSUE_ID"]).toBe("INT-42");
     expect(env["GROK_SANDBOX"]).toBe("workspace-write");
   });
 });

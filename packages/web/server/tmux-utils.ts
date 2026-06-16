@@ -69,7 +69,7 @@ function findStorageKeysForSession(
   fs: FsAdapter,
   projectId?: string,
 ): string[] {
-  const aoBase = join(fs.homedir(), ".agent-orchestrator");
+  const aoBase = join(fs.homedir(), ".cahi");
   let entries: string[];
   try {
     entries = fs.readdir(aoBase);
@@ -180,7 +180,7 @@ export async function tmuxHasSession(
  * 1. Tries exact match using tmux's `=` prefix syntax to prevent
  *    prefix matching (where "ao-1" would incorrectly match "ao-15").
  * 2. Looks up the storageKey owning this sessionId on disk (under
- *    `~/.agent-orchestrator/{storageKey}/sessions/{sessionId}`) and asks
+ *    `~/.cahi/{storageKey}/sessions/{sessionId}`) and asks
  *    tmux whether the exact `{storageKey}-{sessionId}` session exists.
  *    The on-disk check is authoritative — it avoids ambiguous suffix
  *    matches where a bare session like `{hash}-my-app-1` could be
@@ -255,11 +255,11 @@ export function resolveTmuxSession(
  * Resolve a user-facing session ID to its Windows named pipe path.
  *
  * V2 layout (current): JSON metadata at
- *   `~/.agent-orchestrator/projects/{projectId}/sessions/{sessionId}.json`
+ *   `~/.cahi/projects/{projectId}/sessions/{sessionId}.json`
  *   with `runtimeHandle.data.pipePath` as a top-level field.
  *
  * V1 layout (legacy fallback): line-delimited key=value at
- *   `~/.agent-orchestrator/{storageKey}/sessions/{sessionId}` where
+ *   `~/.cahi/{storageKey}/sessions/{sessionId}` where
  *   storageKey is bare 12-hex or `{hash}-{projectName}`. Kept so users
  *   who haven't run `ao migrate-storage` still see live sessions.
  *
@@ -279,7 +279,7 @@ export function resolvePipePath(
   if (!isWindows()) return null;
 
   const readFile = fs.readFile ?? ((p: string) => readFileSync(p, "utf8"));
-  const aoBase = join(fs.homedir(), ".agent-orchestrator");
+  const aoBase = join(fs.homedir(), ".cahi");
 
   const readPipeFromV2 = (project: string): string | null => {
     const sessionFile = join(aoBase, "projects", project, "sessions", `${sessionId}.json`);

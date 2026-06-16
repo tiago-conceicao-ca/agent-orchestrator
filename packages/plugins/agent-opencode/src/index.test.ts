@@ -33,10 +33,10 @@ vi.mock("@contaazul/cahi-core", async (importOriginal) => {
     // Force POSIX-form shellEscape in tests so assertions are platform-stable.
     // (The real shellEscape picks PowerShell '' on Windows vs POSIX '\''.)
     shellEscape: (arg: string) => "'" + arg.replace(/'/g, "'\\''") + "'",
-    // buildAgentPath is platform-aware (path separator + ~/.ao/bin path).
+    // buildAgentPath is platform-aware (path separator + ~/.cahi/bin path).
     // Force a POSIX-form result for stable PATH assertions.
     buildAgentPath: (existing: string | undefined) =>
-      ["~/.ao/bin", existing ?? ""].filter(Boolean).join(":"),
+      ["~/.cahi/bin", existing ?? ""].filter(Boolean).join(":"),
   };
 });
 
@@ -458,20 +458,20 @@ describe("getLaunchCommand", () => {
 describe("getEnvironment", () => {
   const agent = create();
 
-  it("sets AO_SESSION_ID but not AO_PROJECT_ID (caller's responsibility)", () => {
+  it("sets CAHI_SESSION_ID but not CAHI_PROJECT_ID (caller's responsibility)", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
-    expect(env["AO_PROJECT_ID"]).toBeUndefined();
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_PROJECT_ID"]).toBeUndefined();
   });
 
-  it("sets AO_ISSUE_ID when provided", () => {
+  it("sets CAHI_ISSUE_ID when provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig({ issueId: "GH-42" }));
-    expect(env["AO_ISSUE_ID"]).toBe("GH-42");
+    expect(env["CAHI_ISSUE_ID"]).toBe("GH-42");
   });
 
-  it("omits AO_ISSUE_ID when not provided", () => {
+  it("omits CAHI_ISSUE_ID when not provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
   });
 });
 

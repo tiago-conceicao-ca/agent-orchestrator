@@ -1,7 +1,7 @@
 /**
  * Single-port server (opt-in) — a thin HTTP + WebSocket proxy that puts
  * Next.js and the `/ao-terminal-mux` WebSocket upgrade on the same public
- * port. Spawned by start-all.ts when AO_PATH_BASED_MUX=1, in front of a
+ * port. Spawned by start-all.ts when CAHI_PATH_BASED_MUX=1, in front of a
  * Next.js process that has shifted to an internal port.
  *
  *     ┌──────────────────────┐  HTTP  ┌──────────────────────┐
@@ -15,7 +15,7 @@
  *     │                      │        └──────────────────────┘
  *     └──────────────────────┘
  *
- * The default flow (AO_PATH_BASED_MUX unset) is unchanged: Next.js runs on
+ * The default flow (CAHI_PATH_BASED_MUX unset) is unchanged: Next.js runs on
  * PORT directly, direct-terminal-ws runs on DIRECT_TERMINAL_PORT, and the
  * dashboard JS picks one of three URLs at connection time
  * (see `packages/web/src/providers/MuxProvider.tsx`):
@@ -313,7 +313,7 @@ export function createSinglePortServer(config: SinglePortConfig): SinglePortServ
 
 /** Parse and validate the proxy config from env vars, exiting on bad input. */
 function configFromEnv(): SinglePortConfig {
-  const port = parseInt(process.env.PORT ?? "3000", 10);
+  const port = parseInt(process.env.PORT ?? "4000", 10);
   const directTerminalPort = parseInt(process.env.DIRECT_TERMINAL_PORT ?? "14801", 10);
   const nextInternalPort = parseInt(process.env.NEXT_INTERNAL_PORT ?? "0", 10);
 

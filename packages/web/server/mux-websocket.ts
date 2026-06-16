@@ -261,7 +261,7 @@ export class NotificationBroadcaster {
   private readonly configPath: string | undefined;
   private readonly storePath: string | null;
 
-  constructor(configPath = process.env["AO_CONFIG_PATH"]) {
+  constructor(configPath = process.env["CAHI_CONFIG_PATH"]) {
     this.configPath = configPath;
     this.storePath = configPath ? getDashboardNotificationStorePath(configPath) : null;
   }
@@ -391,7 +391,7 @@ let ptySpawn: PtySpawn | undefined;
 const nodePtyRequire = createRequire(import.meta.url);
 
 export function resolveNodePtySpawnHelperPath(): string | null {
-  const override = process.env.AO_NODE_PTY_SPAWN_HELPER_PATH;
+  const override = process.env.CAHI_NODE_PTY_SPAWN_HELPER_PATH;
   if (override) return override;
 
   try {
@@ -1071,7 +1071,7 @@ export function createMuxWebSocket(tmuxPath?: string | null): WebSocketServer | 
   const terminalManager =
     ptySpawn && !isWindows() ? new TerminalManager(tmuxPath ?? undefined) : null;
 
-  const nextPort = process.env.PORT || "3000";
+  const nextPort = process.env.PORT || "4000";
   const broadcaster = new SessionBroadcaster(nextPort);
   const notificationBroadcaster = new NotificationBroadcaster();
 

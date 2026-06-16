@@ -106,10 +106,10 @@ function resolveNextBin(): string {
 }
 
 // Start Next.js production server
-const port = process.env["PORT"] || "3000";
-const pathBasedMux = process.env["AO_PATH_BASED_MUX"] === "1";
+const port = process.env["PORT"] || "4000";
+const pathBasedMux = process.env["CAHI_PATH_BASED_MUX"] === "1";
 
-// When AO_PATH_BASED_MUX=1, single-port-server.js owns PORT and Next.js is
+// When CAHI_PATH_BASED_MUX=1, single-port-server.js owns PORT and Next.js is
 // shifted to PORT + 1000 (overridable via NEXT_INTERNAL_PORT). The proxy
 // forwards HTTP to Next.js and tunnels `/ao-terminal-mux` WS upgrades to
 // direct-terminal-ws. Default off — Next.js stays on PORT directly.

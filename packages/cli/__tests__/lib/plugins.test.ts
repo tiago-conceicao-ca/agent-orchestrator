@@ -12,7 +12,7 @@ function makeConfig(
   projects?: Record<string, { agent?: string; scm?: { plugin: string } }>,
 ): OrchestratorConfig {
   return {
-    configPath: "/tmp/agent-orchestrator.yaml",
+    configPath: "/tmp/cahi.yaml",
     port: 3000,
     readyThresholdMs: 300_000,
     defaults: { runtime: "tmux", agent: defaultAgent, workspace: "worktree", notifiers: [] },

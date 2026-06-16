@@ -7,7 +7,7 @@
  *
  * Both commands resolve the session from:
  *   1. Explicit `--session` / positional argument, OR
- *   2. the `AO_SESSION_ID` environment variable set by every agent plugin.
+ *   2. the `CAHI_SESSION_ID` environment variable set by every agent plugin.
  *
  * The lifecycle manager prefers fresh reports over weak inference but runtime
  * evidence (process death, merged PR) still overrides — see
@@ -29,11 +29,11 @@ import { getSessionManager } from "../lib/create-session-manager.js";
 function resolveSessionId(explicit: string | undefined): string {
   const fromArg = explicit?.trim();
   if (fromArg) return fromArg;
-  const fromEnv = process.env["AO_SESSION_ID"]?.trim();
+  const fromEnv = process.env["CAHI_SESSION_ID"]?.trim();
   if (fromEnv) return fromEnv;
   console.error(
     chalk.red(
-      "No session provided. Pass a session name or set AO_SESSION_ID (set automatically inside managed sessions).",
+      "No session provided. Pass a session name or set CAHI_SESSION_ID (set automatically inside managed sessions).",
     ),
   );
   process.exit(1);
@@ -98,7 +98,7 @@ export function registerAcknowledge(program: Command): void {
     .description(
       "Acknowledge session pickup — agents run this once after reading the initial prompt (Stage 3).",
     )
-    .argument("[session]", "Session ID (defaults to AO_SESSION_ID)")
+    .argument("[session]", "Session ID (defaults to CAHI_SESSION_ID)")
     .option("--note <text>", "Optional brief note to include with the acknowledgment")
     .action(async (session: string | undefined, opts: { note?: string }) => {
       const sessionId = resolveSessionId(session);
@@ -117,7 +117,7 @@ export function registerReport(program: Command): void {
       "<state>",
       `One of: ${allowed} (aliases: fixing-ci, addressing-reviews, needs-input, pr-created, ready-for-review, ...)`,
     )
-    .option("-s, --session <id>", "Session ID (defaults to AO_SESSION_ID)")
+    .option("-s, --session <id>", "Session ID (defaults to CAHI_SESSION_ID)")
     .option("--note <text>", "Optional brief note to include with the report")
     .option(
       "--pr-url <url>",

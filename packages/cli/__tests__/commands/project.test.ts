@@ -121,7 +121,7 @@ describe("ao project add", () => {
       program.parseAsync(["node", "ao", "project", "add", "/tmp/no-config"]),
     ).rejects.toThrow();
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("No agent-orchestrator.yaml"));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("No cahi.yaml"));
   });
 
   it("passes --key option to registerProject", async () => {

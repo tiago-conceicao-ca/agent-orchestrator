@@ -59,12 +59,12 @@ describe("config → metadata service integration (real filesystem)", () => {
       reactions: {},
     };
 
-    configPath = join(tmpDir, "agent-orchestrator.yaml");
+    configPath = join(tmpDir, "cahi.yaml");
     await writeFile(configPath, JSON.stringify(config, null, 2));
   });
 
   afterAll(async () => {
-    // Clean up hash-based directories in ~/.agent-orchestrator
+    // Clean up hash-based directories in ~/.cahi
     try {
       const projectBaseDir = getProjectBaseDir(storageKeyA);
       if (existsSync(projectBaseDir)) {
@@ -89,7 +89,7 @@ describe("config → metadata service integration (real filesystem)", () => {
   it("getSessionsDir returns hash-based path including project name", () => {
     const sessionsDir = getSessionsDir(storageKeyA);
 
-    expect(sessionsDir).toContain(".agent-orchestrator");
+    expect(sessionsDir).toContain(".cahi");
     expect(sessionsDir).toContain(storageKeyA);
     expect(sessionsDir).toContain("sessions");
   });

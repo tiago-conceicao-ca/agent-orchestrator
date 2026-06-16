@@ -17,7 +17,7 @@ let config: OrchestratorConfig;
 beforeEach(() => {
   tempRoot = join(tmpdir(), `ao-observability-test-${randomUUID()}`);
   mkdirSync(tempRoot, { recursive: true });
-  configPath = join(tempRoot, "agent-orchestrator.yaml");
+  configPath = join(tempRoot, "cahi.yaml");
   writeFileSync(configPath, "projects: {}\n", "utf-8");
 
   config = {
@@ -104,8 +104,8 @@ describe("observability snapshot", () => {
   });
 
   it("writes observability diagnostics to audit files without mirroring to stderr by default", () => {
-    const originalObservabilityStderr = process.env["AO_OBSERVABILITY_STDERR"];
-    delete process.env["AO_OBSERVABILITY_STDERR"];
+    const originalObservabilityStderr = process.env["CAHI_OBSERVABILITY_STDERR"];
+    delete process.env["CAHI_OBSERVABILITY_STDERR"];
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
 
@@ -152,18 +152,18 @@ describe("observability snapshot", () => {
     } finally {
       stderrSpy.mockRestore();
       if (originalObservabilityStderr === undefined) {
-        delete process.env["AO_OBSERVABILITY_STDERR"];
+        delete process.env["CAHI_OBSERVABILITY_STDERR"];
       } else {
-        process.env["AO_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
+        process.env["CAHI_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
       }
     }
   });
 
   it("uses YAML observability log level and stderr settings", () => {
-    const originalLogLevel = process.env["AO_LOG_LEVEL"];
-    const originalObservabilityStderr = process.env["AO_OBSERVABILITY_STDERR"];
-    delete process.env["AO_LOG_LEVEL"];
-    delete process.env["AO_OBSERVABILITY_STDERR"];
+    const originalLogLevel = process.env["CAHI_LOG_LEVEL"];
+    const originalObservabilityStderr = process.env["CAHI_OBSERVABILITY_STDERR"];
+    delete process.env["CAHI_LOG_LEVEL"];
+    delete process.env["CAHI_OBSERVABILITY_STDERR"];
     config.observability = { logLevel: "warn", stderr: true };
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
@@ -202,23 +202,23 @@ describe("observability snapshot", () => {
     } finally {
       stderrSpy.mockRestore();
       if (originalLogLevel === undefined) {
-        delete process.env["AO_LOG_LEVEL"];
+        delete process.env["CAHI_LOG_LEVEL"];
       } else {
-        process.env["AO_LOG_LEVEL"] = originalLogLevel;
+        process.env["CAHI_LOG_LEVEL"] = originalLogLevel;
       }
       if (originalObservabilityStderr === undefined) {
-        delete process.env["AO_OBSERVABILITY_STDERR"];
+        delete process.env["CAHI_OBSERVABILITY_STDERR"];
       } else {
-        process.env["AO_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
+        process.env["CAHI_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
       }
     }
   });
 
   it("lets observability env vars override YAML settings", () => {
-    const originalLogLevel = process.env["AO_LOG_LEVEL"];
-    const originalObservabilityStderr = process.env["AO_OBSERVABILITY_STDERR"];
-    process.env["AO_LOG_LEVEL"] = "info";
-    process.env["AO_OBSERVABILITY_STDERR"] = "0";
+    const originalLogLevel = process.env["CAHI_LOG_LEVEL"];
+    const originalObservabilityStderr = process.env["CAHI_OBSERVABILITY_STDERR"];
+    process.env["CAHI_LOG_LEVEL"] = "info";
+    process.env["CAHI_OBSERVABILITY_STDERR"] = "0";
     config.observability = { logLevel: "error", stderr: true };
 
     const stderrSpy = vi.spyOn(process.stderr, "write").mockReturnValue(true);
@@ -246,14 +246,14 @@ describe("observability snapshot", () => {
     } finally {
       stderrSpy.mockRestore();
       if (originalLogLevel === undefined) {
-        delete process.env["AO_LOG_LEVEL"];
+        delete process.env["CAHI_LOG_LEVEL"];
       } else {
-        process.env["AO_LOG_LEVEL"] = originalLogLevel;
+        process.env["CAHI_LOG_LEVEL"] = originalLogLevel;
       }
       if (originalObservabilityStderr === undefined) {
-        delete process.env["AO_OBSERVABILITY_STDERR"];
+        delete process.env["CAHI_OBSERVABILITY_STDERR"];
       } else {
-        process.env["AO_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
+        process.env["CAHI_OBSERVABILITY_STDERR"] = originalObservabilityStderr;
       }
     }
   });

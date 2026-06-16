@@ -70,7 +70,7 @@ esac\nexit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });
@@ -144,7 +144,7 @@ esac\nexit 0`,
         env: {
           ...process.env,
           PATH: `${binDir}:${process.env.PATH || ""}`,
-          AO_REPO_ROOT: fakeRepo,
+          CAHI_REPO_ROOT: fakeRepo,
         },
         encoding: "utf8",
       });
@@ -214,7 +214,7 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });
@@ -249,7 +249,7 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });
@@ -270,7 +270,7 @@ exit 0`,
   });
 
   it.skipIf(process.platform === "win32")(
-    "resolves the source checkout root when AO_REPO_ROOT is unset",
+    "resolves the source checkout root when CAHI_REPO_ROOT is unset",
     () => {
       const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-root-detect-"));
       const binDir = join(tempRoot, "bin");
@@ -288,7 +288,7 @@ exit 0`,
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
       };
-      delete env["AO_REPO_ROOT"];
+      delete env["CAHI_REPO_ROOT"];
 
       const result = spawnSync("bash", [scriptPath, "--smoke-only"], {
         env,
@@ -340,7 +340,7 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });
@@ -401,7 +401,7 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });
@@ -478,7 +478,7 @@ exit 0`,
       env: {
         ...process.env,
         PATH: `${binDir}:${process.env.PATH || ""}`,
-        AO_REPO_ROOT: fakeRepo,
+        CAHI_REPO_ROOT: fakeRepo,
       },
       encoding: "utf8",
     });

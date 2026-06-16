@@ -14,7 +14,7 @@ let tempDir: string | null = null;
 
 function makeConfigPath(): string {
   tempDir = mkdtempSync(join(tmpdir(), "ao-dashboard-plugin-"));
-  return join(tempDir, "agent-orchestrator.yaml");
+  return join(tempDir, "cahi.yaml");
 }
 
 function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEvent {

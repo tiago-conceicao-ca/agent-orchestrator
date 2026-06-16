@@ -52,15 +52,15 @@ export interface DaemonChildSweepOptions {
 }
 
 function getRegistryFile(): string {
-  return join(homedir(), ".agent-orchestrator", "daemon-children.json");
+  return join(homedir(), ".cahi", "daemon-children.json");
 }
 
 function getLockDir(): string {
-  return join(homedir(), ".agent-orchestrator", "daemon-children.lock");
+  return join(homedir(), ".cahi", "daemon-children.lock");
 }
 
 function ensureStateDir(): void {
-  mkdirSync(join(homedir(), ".agent-orchestrator"), { recursive: true });
+  mkdirSync(join(homedir(), ".cahi"), { recursive: true });
 }
 
 function sleepSync(ms: number): void {

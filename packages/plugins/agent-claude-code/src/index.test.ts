@@ -190,10 +190,10 @@ describe("toClaudeProjectPath", () => {
     // restore loses the conversation.
     expect(
       toClaudeProjectPath(
-        "/Users/dev/.agent-orchestrator/projects/graph-isomorphism_d185b44d56/worktrees/gi-orchestrator",
+        "/Users/dev/.cahi/projects/graph-isomorphism_d185b44d56/worktrees/gi-orchestrator",
       ),
     ).toBe(
-      "-Users-dev--agent-orchestrator-projects-graph-isomorphism-d185b44d56-worktrees-gi-orchestrator",
+      "-Users-dev--cahi-projects-graph-isomorphism-d185b44d56-worktrees-gi-orchestrator",
     );
   });
 
@@ -339,20 +339,20 @@ describe("getEnvironment", () => {
     expect(env["CLAUDECODE"]).toBe("");
   });
 
-  it("sets AO_SESSION_ID but not AO_PROJECT_ID (caller's responsibility)", () => {
+  it("sets CAHI_SESSION_ID but not CAHI_PROJECT_ID (caller's responsibility)", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_SESSION_ID"]).toBe("sess-1");
-    expect(env["AO_PROJECT_ID"]).toBeUndefined();
+    expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
+    expect(env["CAHI_PROJECT_ID"]).toBeUndefined();
   });
 
-  it("sets AO_ISSUE_ID when provided", () => {
+  it("sets CAHI_ISSUE_ID when provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig({ issueId: "INT-100" }));
-    expect(env["AO_ISSUE_ID"]).toBe("INT-100");
+    expect(env["CAHI_ISSUE_ID"]).toBe("INT-100");
   });
 
-  it("does not set AO_ISSUE_ID when not provided", () => {
+  it("does not set CAHI_ISSUE_ID when not provided", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
-    expect(env["AO_ISSUE_ID"]).toBeUndefined();
+    expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
   });
 });
 
@@ -501,7 +501,7 @@ describe("isProcessRunning", () => {
 describe("detectActivity (retired — see #1941)", () => {
   // Claude activity is derived from platform-event hooks (PermissionRequest,
   // StopFailure, Notification, Stop, ...) which write directly to
-  // .ao/activity.jsonl with source: "hook". The terminal-regex layer was
+  // .cahi/activity.jsonl with source: "hook". The terminal-regex layer was
   // structurally fragile (every Claude UI tweak regressed it; #1932 spent
   // 15 commits patching its sharpest edges) and has been retired.
   //
@@ -586,7 +586,7 @@ describe("getSessionInfo", () => {
       await agent.getSessionInfo(
         makeSession({
           workspacePath:
-            "/Users/dev/.agent-orchestrator/projects/graph-isomorphism_d185b44d56/worktrees/gi-orchestrator",
+            "/Users/dev/.cahi/projects/graph-isomorphism_d185b44d56/worktrees/gi-orchestrator",
         }),
       );
       expect(mockReaddir).toHaveBeenCalledWith(
@@ -594,7 +594,7 @@ describe("getSessionInfo", () => {
           "/mock/home",
           ".claude",
           "projects",
-          "-Users-dev--agent-orchestrator-projects-graph-isomorphism-d185b44d56-worktrees-gi-orchestrator",
+          "-Users-dev--cahi-projects-graph-isomorphism-d185b44d56-worktrees-gi-orchestrator",
         ),
       );
     });
@@ -1363,13 +1363,13 @@ describe("setupWorkspaceHooks on win32", () => {
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("merged");
   });
 
-  it("Node.js hook script validates AO_DATA_DIR against allowed directories", () => {
+  it("Node.js hook script validates CAHI_DATA_DIR against allowed directories", () => {
     // Must contain the allowlist check mirroring ao-metadata-helper.sh and
     // the Node.js wrappers in agent-workspace-hooks.ts (C-1 security fix)
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("allowedBases");
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("realpathSync");
-    expect(METADATA_UPDATER_SCRIPT_NODE).toContain(".ao");
-    expect(METADATA_UPDATER_SCRIPT_NODE).toContain(".agent-orchestrator");
+    expect(METADATA_UPDATER_SCRIPT_NODE).toContain(".cahi");
+    expect(METADATA_UPDATER_SCRIPT_NODE).toContain(".cahi");
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("os.tmpdir");
   });
 

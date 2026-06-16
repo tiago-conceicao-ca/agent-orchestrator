@@ -30,7 +30,7 @@ describe.skipIf(!tmuxOk)("runtime-tmux (integration)", () => {
       sessionId,
       workspacePath: "/tmp",
       launchCommand: "cat", // cat will wait for stdin
-      environment: { AO_TEST: "1" },
+      environment: { CAHI_TEST: "1" },
     });
 
     expect(handle.id).toBe(sessionId);

@@ -21,7 +21,7 @@ async function checkPort(port: number): Promise<void> {
   const free = await isPortAvailable(port);
   if (!free) {
     throw new Error(
-      `Port ${port} is already in use. Free it or change 'port' in agent-orchestrator.yaml.`,
+      `Port ${port} is already in use. Free it or change 'port' in cahi.yaml.`,
     );
   }
 }

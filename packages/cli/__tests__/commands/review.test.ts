@@ -159,7 +159,7 @@ beforeEach(() => {
   process.env["HOME"] = tmpDir;
 
   mockConfigRef.current = {
-    configPath: join(tmpDir, "agent-orchestrator.yaml"),
+    configPath: join(tmpDir, "cahi.yaml"),
     readyThresholdMs: 300_000,
     defaults: { runtime: "tmux", agent: "codex", workspace: "worktree", notifiers: [] },
     projects: {

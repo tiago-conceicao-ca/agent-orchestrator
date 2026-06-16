@@ -186,7 +186,7 @@ export function formatActivityEventsDbUnavailableWarning(err: unknown): string {
 
 export function emitActivityEventsDbUnavailableWarning(err: unknown): void {
   if (_dbUnavailableWarningEmitted) return;
-  if (process.env["AO_DEBUG"] !== "1" && !isAoEventsInvocation()) return;
+  if (process.env["CAHI_DEBUG"] !== "1" && !isAoEventsInvocation()) return;
   _dbUnavailableWarningEmitted = true;
   // eslint-disable-next-line no-console
   console.warn(formatActivityEventsDbUnavailableWarning(err));

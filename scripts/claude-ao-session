@@ -5,7 +5,7 @@ set -e
 
 MAIN_REPO=~/agent-orchestrator
 WORKTREE_DIR=~/.worktrees/ao
-SESSION_DIR=~/.ao-sessions
+SESSION_DIR=~/.cahi-sessions
 DEFAULT_BRANCH="main"
 GITHUB_REPO="ComposioHQ/agent-orchestrator"
 
@@ -75,7 +75,7 @@ cmd_new() {
     [ -d "$MAIN_REPO/.claude" ] && rm -rf "$worktree_path/.claude" && ln -s "$MAIN_REPO/.claude" "$worktree_path/.claude"
 
     # Create tmux session and start Claude (unset CLAUDECODE to avoid nested session detection)
-    tmux new-session -d -s "$session_name" -c "$worktree_path" -e "AO_SESSION=$session_name" -e "DIRENV_LOG_FORMAT="
+    tmux new-session -d -s "$session_name" -c "$worktree_path" -e "CAHI_SESSION=$session_name" -e "DIRENV_LOG_FORMAT="
     tmux send-keys -t "$session_name" "unset CLAUDECODE && claude --dangerously-skip-permissions" Enter
 
     # Create metadata file
@@ -211,7 +211,7 @@ cmd_cleanup() {
 }
 
 cmd_update() {
-    local session="${AO_SESSION:-}"
+    local session="${CAHI_SESSION:-}"
     [ -z "$session" ] && echo "Error: Not in an ao session" && exit 1
 
     local meta_file="$SESSION_DIR/$session"

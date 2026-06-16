@@ -72,8 +72,8 @@ beforeEach(() => {
   // Default: absolute powershell path doesn't exist (let probe-based tests run).
   // Specific tests override this when exercising the absolute-path branch.
   mockExistsSync.mockReturnValue(false);
-  // AO_SHELL short-circuits auto-detection; clear unless a test sets it.
-  delete process.env["AO_SHELL"];
+  // CAHI_SHELL short-circuits auto-detection; clear unless a test sets it.
+  delete process.env["CAHI_SHELL"];
 });
 
 afterEach(async () => {
@@ -152,10 +152,10 @@ describe("resolveWindowsShell", () => {
     }
   });
 
-  it("honors AO_SHELL override before any auto-detection", async () => {
+  it("honors CAHI_SHELL override before any auto-detection", async () => {
     setPlatform("win32");
-    const saved = process.env["AO_SHELL"];
-    process.env["AO_SHELL"] = "C:\\custom\\pwsh.exe";
+    const saved = process.env["CAHI_SHELL"];
+    process.env["CAHI_SHELL"] = "C:\\custom\\pwsh.exe";
 
     try {
       const mod = await import("../platform.js");
@@ -166,8 +166,8 @@ describe("resolveWindowsShell", () => {
       // Auto-detection probes are skipped entirely
       expect(mockExecFileSync).not.toHaveBeenCalled();
     } finally {
-      if (saved !== undefined) process.env["AO_SHELL"] = saved;
-      else delete process.env["AO_SHELL"];
+      if (saved !== undefined) process.env["CAHI_SHELL"] = saved;
+      else delete process.env["CAHI_SHELL"];
     }
   });
 
@@ -179,10 +179,10 @@ describe("resolveWindowsShell", () => {
     ["/usr/bin/sh", ["-c", "echo hi"]],
     ["pwsh", ["-Command", "echo hi"]],
     ["powershell.exe", ["-Command", "echo hi"]],
-  ])("AO_SHELL=%s infers args from basename", async (override, expectedArgs) => {
+  ])("CAHI_SHELL=%s infers args from basename", async (override, expectedArgs) => {
     setPlatform("win32");
-    const saved = process.env["AO_SHELL"];
-    process.env["AO_SHELL"] = override;
+    const saved = process.env["CAHI_SHELL"];
+    process.env["CAHI_SHELL"] = override;
 
     try {
       const mod = await import("../platform.js");
@@ -192,8 +192,8 @@ describe("resolveWindowsShell", () => {
       expect(shell.args("echo hi")).toEqual(expectedArgs);
       expect(mockExecFileSync).not.toHaveBeenCalled();
     } finally {
-      if (saved !== undefined) process.env["AO_SHELL"] = saved;
-      else delete process.env["AO_SHELL"];
+      if (saved !== undefined) process.env["CAHI_SHELL"] = saved;
+      else delete process.env["CAHI_SHELL"];
     }
   });
 

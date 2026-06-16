@@ -117,11 +117,11 @@ echo "==> Building..."
 pnpm build
 
 echo "==> Restarting AO in tmux session '$TMUX_SESSION'..."
-AO_BIN="$REPO_PATH/packages/cahi/node_modules/.bin/cahi"
+CAHI_BIN="$REPO_PATH/packages/cahi/node_modules/.bin/cahi"
 tmux send-keys -t "$TMUX_SESSION:0" "" Enter
-tmux send-keys -t "$TMUX_SESSION:0" "cd $REPO_PATH && $AO_BIN start" Enter
+tmux send-keys -t "$TMUX_SESSION:0" "cd $REPO_PATH && $CAHI_BIN start" Enter
 
 echo ""
 echo "Done. AO is starting on branch: $BRANCH"
-echo "Dashboard: http://aoqa.centralindia.cloudapp.azure.com:3000"
+echo "Dashboard: http://aoqa.centralindia.cloudapp.azure.com:4000"
 REMOTE

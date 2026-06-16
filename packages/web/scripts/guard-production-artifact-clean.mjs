@@ -13,7 +13,7 @@ function canonicalPath(path) {
 }
 
 const webDir = canonicalPath(process.cwd());
-const runningPath = join(homedir(), ".agent-orchestrator", "running.json");
+const runningPath = join(homedir(), ".cahi", "running.json");
 
 function isPidAlive(pid) {
   try {

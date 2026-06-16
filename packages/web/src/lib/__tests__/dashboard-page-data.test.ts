@@ -49,8 +49,8 @@ describe("resolveDashboardProjectFilter", () => {
 
 describe("formatDashboardLoadError", () => {
   it("uses Error.message when present", () => {
-    expect(formatDashboardLoadError(new Error("No agent-orchestrator.yaml found"))).toBe(
-      "No agent-orchestrator.yaml found",
+    expect(formatDashboardLoadError(new Error("No cahi.yaml found"))).toBe(
+      "No cahi.yaml found",
     );
   });
 

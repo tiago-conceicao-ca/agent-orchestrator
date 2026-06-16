@@ -87,7 +87,7 @@ describe("restore", () => {
     expect(meta!["createdAt"]).toBe("2025-01-01T00:00:00.000Z");
   });
 
-  it("forwards AO_AGENT_GH_TRACE into restored agent runtime env when configured", async () => {
+  it("forwards CAHI_AGENT_GH_TRACE into restored agent runtime env when configured", async () => {
     const wsPath = join(tmpDir, "ws-app-1-trace");
     mkdirSync(wsPath, { recursive: true });
 
@@ -99,8 +99,8 @@ describe("restore", () => {
       runtimeHandle: makeHandle("rt-old"),
     });
 
-    const previousTrace = process.env["AO_AGENT_GH_TRACE"];
-    process.env["AO_AGENT_GH_TRACE"] = "/tmp/restored-agent-gh-trace-test.jsonl";
+    const previousTrace = process.env["CAHI_AGENT_GH_TRACE"];
+    process.env["CAHI_AGENT_GH_TRACE"] = "/tmp/restored-agent-gh-trace-test.jsonl";
 
     try {
       const sm = createSessionManager({ config, registry: mockRegistry });
@@ -109,14 +109,14 @@ describe("restore", () => {
       expect(mockRuntime.create).toHaveBeenCalledWith(
         expect.objectContaining({
           environment: expect.objectContaining({
-            AO_AGENT_GH_TRACE: "/tmp/restored-agent-gh-trace-test.jsonl",
-            AO_CALLER_TYPE: "agent",
+            CAHI_AGENT_GH_TRACE: "/tmp/restored-agent-gh-trace-test.jsonl",
+            CAHI_CALLER_TYPE: "agent",
           }),
         }),
       );
     } finally {
-      if (previousTrace === undefined) delete process.env["AO_AGENT_GH_TRACE"];
-      else process.env["AO_AGENT_GH_TRACE"] = previousTrace;
+      if (previousTrace === undefined) delete process.env["CAHI_AGENT_GH_TRACE"];
+      else process.env["CAHI_AGENT_GH_TRACE"] = previousTrace;
     }
   });
 
@@ -938,7 +938,7 @@ describe("restore", () => {
     expect(existsSync(agentsMdPath)).toBe(true);
     const written = readFileSync(agentsMdPath, "utf-8");
     expect(written).toContain(promptContent);
-    expect(written).toContain("<!-- AO_ORCHESTRATOR_PROMPT_START -->");
+    expect(written).toContain("<!-- CAHI_ORCHESTRATOR_PROMPT_START -->");
   });
 
   it("injects OPENCODE_CONFIG for restored OpenCode workers", async () => {

@@ -21,7 +21,7 @@ export interface RunningState {
   projects: string[];
 }
 
-const STATE_DIR = join(homedir(), ".agent-orchestrator");
+const STATE_DIR = join(homedir(), ".cahi");
 const STATE_FILE = join(STATE_DIR, "running.json");
 const STATE_LOCK_FILE = join(STATE_DIR, "running.lock");
 const STARTUP_LOCK_FILE = join(STATE_DIR, "startup.lock");

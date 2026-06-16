@@ -49,7 +49,7 @@ async function describeDirectory(
     const names = new Set(await readdir(entryPath));
     return {
       isGitRepo: names.has(".git"),
-      hasLocalConfig: names.has("agent-orchestrator.yaml") || names.has("agent-orchestrator.yml"),
+      hasLocalConfig: names.has("cahi.yaml") || names.has("cahi.yml"),
     };
   } catch {
     return { isGitRepo: false, hasLocalConfig: false };

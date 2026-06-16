@@ -63,11 +63,11 @@ function mergeMarketplaceCatalogs(
 }
 
 export function getMarketplaceRegistryCachePath(): string {
-  const override = process.env["AO_PLUGIN_REGISTRY_CACHE_PATH"];
+  const override = process.env["CAHI_PLUGIN_REGISTRY_CACHE_PATH"];
   if (override && override.trim().length > 0) {
     return override;
   }
-  return join(homedir(), ".agent-orchestrator", MARKETPLACE_CACHE_FILE);
+  return join(homedir(), ".cahi", MARKETPLACE_CACHE_FILE);
 }
 
 function validateMarketplaceCatalog(payload: unknown, sourceLabel: string): MarketplacePluginEntry[] {
@@ -111,7 +111,7 @@ export function loadMarketplaceCatalog(): MarketplacePluginEntry[] {
 }
 
 export async function refreshMarketplaceCatalog(
-  url = process.env["AO_PLUGIN_REGISTRY_URL"] ?? DEFAULT_REMOTE_MARKETPLACE_REGISTRY_URL,
+  url = process.env["CAHI_PLUGIN_REGISTRY_URL"] ?? DEFAULT_REMOTE_MARKETPLACE_REGISTRY_URL,
 ): Promise<MarketplacePluginEntry[]> {
   const response = await fetch(url, { signal: AbortSignal.timeout(MARKETPLACE_FETCH_TIMEOUT_MS) });
   if (!response.ok) {

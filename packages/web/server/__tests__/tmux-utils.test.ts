@@ -667,7 +667,7 @@ describe("resolveTmuxSession", () => {
       // "361287ebbad1-smx-foundation", ao-core names the tmux session
       // "361287ebbad1-smx-foundation-sf-orchestrator-1". The resolver must
       // find the storageKey on disk (from the session file at
-      // ~/.agent-orchestrator/361287ebbad1-smx-foundation/sessions/sf-orchestrator-1)
+      // ~/.cahi/361287ebbad1-smx-foundation/sessions/sf-orchestrator-1)
       // and then ask tmux whether the full `{storageKey}-{sessionId}` exists.
       const fs = {
         readdir: () => ["361287ebbad1-smx-foundation", "other-unrelated-dir"],
@@ -1225,7 +1225,7 @@ describe("resolvePipePath", () => {
     });
     const fs = {
       readdir: (p: string) =>
-        p.replace(/\\/g, "/").endsWith("/.agent-orchestrator/projects") ? ["my-app"] : [],
+        p.replace(/\\/g, "/").endsWith("/.cahi/projects") ? ["my-app"] : [],
       exists: (p: string) => {
         const u = p.replace(/\\/g, "/");
         return (
@@ -1243,8 +1243,8 @@ describe("resolvePipePath", () => {
     const fs = {
       readdir: (p: string) => {
         const u = p.replace(/\\/g, "/");
-        if (u.endsWith("/.agent-orchestrator/projects")) return ["my-app"];
-        if (u.endsWith("/.agent-orchestrator")) return ["aabbccddeef0", "projects"];
+        if (u.endsWith("/.cahi/projects")) return ["my-app"];
+        if (u.endsWith("/.cahi")) return ["aabbccddeef0", "projects"];
         return [];
       },
       exists: (p: string) => {

@@ -40,24 +40,24 @@ describe("POST /api/projects", () => {
   beforeEach(() => {
     vi.resetModules();
     invalidatePortfolioServicesCache.mockReset();
-    oldGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-    oldConfigPath = process.env["AO_CONFIG_PATH"];
+    oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+    oldConfigPath = process.env["CAHI_CONFIG_PATH"];
     tempRoot = mkdtempSync(path.join(tmpdir(), "ao-projects-route-"));
     configPath = path.join(tempRoot, "config.yaml");
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
-    process.env["AO_CONFIG_PATH"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_CONFIG_PATH"] = configPath;
   });
 
   afterEach(() => {
     if (oldGlobalConfig === undefined) {
-      delete process.env["AO_GLOBAL_CONFIG"];
+      delete process.env["CAHI_GLOBAL_CONFIG"];
     } else {
-      process.env["AO_GLOBAL_CONFIG"] = oldGlobalConfig;
+      process.env["CAHI_GLOBAL_CONFIG"] = oldGlobalConfig;
     }
     if (oldConfigPath === undefined) {
-      delete process.env["AO_CONFIG_PATH"];
+      delete process.env["CAHI_CONFIG_PATH"];
     } else {
-      process.env["AO_CONFIG_PATH"] = oldConfigPath;
+      process.env["CAHI_CONFIG_PATH"] = oldConfigPath;
     }
     rmSync(tempRoot, { recursive: true, force: true });
   });
@@ -67,7 +67,7 @@ describe("POST /api/projects", () => {
     const brokenDir = path.join(tempRoot, "broken");
     mkdirSync(healthyDir, { recursive: true });
     mkdirSync(brokenDir, { recursive: true });
-    writeFileSync(path.join(brokenDir, "agent-orchestrator.yaml"), "agent: [broken\n");
+    writeFileSync(path.join(brokenDir, "cahi.yaml"), "agent: [broken\n");
 
     const healthyId = registerProjectInGlobalConfig("healthy", "Healthy", healthyDir);
     const brokenId = registerProjectInGlobalConfig("broken", "Broken", brokenDir);
@@ -88,7 +88,7 @@ describe("POST /api/projects", () => {
     });
   });
 
-  it("reads projects from the canonical global config even when AO_CONFIG_PATH points elsewhere", async () => {
+  it("reads projects from the canonical global config even when CAHI_CONFIG_PATH points elsewhere", async () => {
     const healthyDir = path.join(tempRoot, "healthy");
     mkdirSync(healthyDir, { recursive: true });
     const healthyId = registerProjectInGlobalConfig("healthy", "Healthy", healthyDir);
@@ -105,7 +105,7 @@ describe("POST /api/projects", () => {
         "",
       ].join("\n"),
     );
-    process.env["AO_CONFIG_PATH"] = ambientConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = ambientConfigPath;
 
     const { GET } = await import("@/app/api/projects/route");
     const response = await GET();
@@ -162,7 +162,7 @@ describe("POST /api/projects", () => {
     mkdirSync(path.join(addedRepoDir, ".git", "refs", "remotes", "origin"), { recursive: true });
     writeFileSync(path.join(addedRepoDir, ".git", "refs", "remotes", "origin", "master"), "abc\n");
 
-    const localConfigPath = path.join(currentRepoDir, "agent-orchestrator.yaml");
+    const localConfigPath = path.join(currentRepoDir, "cahi.yaml");
     writeFileSync(
       localConfigPath,
       [
@@ -177,7 +177,7 @@ describe("POST /api/projects", () => {
         "",
       ].join("\n"),
     );
-    process.env["AO_CONFIG_PATH"] = localConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = localConfigPath;
 
     const { POST } = await import("@/app/api/projects/route");
     const response = await POST(
@@ -338,24 +338,24 @@ describe("POST /api/projects/reload", () => {
   beforeEach(() => {
     vi.resetModules();
     invalidatePortfolioServicesCache.mockReset();
-    oldGlobalConfig = process.env["AO_GLOBAL_CONFIG"];
-    oldConfigPath = process.env["AO_CONFIG_PATH"];
+    oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
+    oldConfigPath = process.env["CAHI_CONFIG_PATH"];
     tempRoot = mkdtempSync(path.join(tmpdir(), "ao-projects-reload-"));
     configPath = path.join(tempRoot, "config.yaml");
-    process.env["AO_GLOBAL_CONFIG"] = configPath;
-    process.env["AO_CONFIG_PATH"] = configPath;
+    process.env["CAHI_GLOBAL_CONFIG"] = configPath;
+    process.env["CAHI_CONFIG_PATH"] = configPath;
   });
 
   afterEach(() => {
     if (oldGlobalConfig === undefined) {
-      delete process.env["AO_GLOBAL_CONFIG"];
+      delete process.env["CAHI_GLOBAL_CONFIG"];
     } else {
-      process.env["AO_GLOBAL_CONFIG"] = oldGlobalConfig;
+      process.env["CAHI_GLOBAL_CONFIG"] = oldGlobalConfig;
     }
     if (oldConfigPath === undefined) {
-      delete process.env["AO_CONFIG_PATH"];
+      delete process.env["CAHI_CONFIG_PATH"];
     } else {
-      process.env["AO_CONFIG_PATH"] = oldConfigPath;
+      process.env["CAHI_CONFIG_PATH"] = oldConfigPath;
     }
     rmSync(tempRoot, { recursive: true, force: true });
   });
@@ -365,7 +365,7 @@ describe("POST /api/projects/reload", () => {
     const brokenDir = path.join(tempRoot, "broken");
     mkdirSync(healthyDir, { recursive: true });
     mkdirSync(brokenDir, { recursive: true });
-    writeFileSync(path.join(brokenDir, "agent-orchestrator.yaml"), "agent: [broken\n");
+    writeFileSync(path.join(brokenDir, "cahi.yaml"), "agent: [broken\n");
 
     registerProjectInGlobalConfig("healthy", "Healthy", healthyDir);
     registerProjectInGlobalConfig("broken", "Broken", brokenDir);
@@ -382,7 +382,7 @@ describe("POST /api/projects/reload", () => {
     expect(invalidatePortfolioServicesCache).toHaveBeenCalledTimes(1);
   });
 
-  it("reload reads counts from the canonical global config even when AO_CONFIG_PATH diverges", async () => {
+  it("reload reads counts from the canonical global config even when CAHI_CONFIG_PATH diverges", async () => {
     const healthyDir = path.join(tempRoot, "healthy");
     mkdirSync(healthyDir, { recursive: true });
     registerProjectInGlobalConfig("healthy", "Healthy", healthyDir);
@@ -399,7 +399,7 @@ describe("POST /api/projects/reload", () => {
         "",
       ].join("\n"),
     );
-    process.env["AO_CONFIG_PATH"] = ambientConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = ambientConfigPath;
 
     const { POST } = await import("@/app/api/projects/reload/route");
     const response = await POST();
@@ -416,7 +416,7 @@ describe("POST /api/projects/reload", () => {
     const localOnlyDir = path.join(tempRoot, "local-only");
     mkdirSync(localOnlyDir, { recursive: true });
 
-    const localConfigPath = path.join(localOnlyDir, "agent-orchestrator.yaml");
+    const localConfigPath = path.join(localOnlyDir, "cahi.yaml");
     writeFileSync(
       localConfigPath,
       [
@@ -428,7 +428,7 @@ describe("POST /api/projects/reload", () => {
         "",
       ].join("\n"),
     );
-    process.env["AO_CONFIG_PATH"] = localConfigPath;
+    process.env["CAHI_CONFIG_PATH"] = localConfigPath;
 
     const { POST } = await import("@/app/api/projects/reload/route");
     const response = await POST();

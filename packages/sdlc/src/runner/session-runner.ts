@@ -20,7 +20,7 @@ export interface SdlcSessionSpawn {
 export interface RunSessionBackedAgentParams {
   /** Full agent prompt. MUST instruct the agent to write its result to the sentinel as its final action. */
   prompt: string;
-  /** Sentinel file basename under `{workspace}/.ao/`, e.g. `sdlc-output.json`. */
+  /** Sentinel file basename under `{workspace}/.cahi/`, e.g. `sdlc-output.json`. */
   sentinelName: string;
   /** Run id used to tag the session (`sdlcRunId`). */
   runId: string;
@@ -34,8 +34,8 @@ export interface RunSessionBackedAgentParams {
   pollIntervalMs?: number;
 }
 
-/** `.ao` subdirectory under the session workspace where the sentinel lives. */
-const SENTINEL_DIR = ".ao";
+/** `.cahi` subdirectory under the session workspace where the sentinel lives. */
+const SENTINEL_DIR = ".cahi";
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1_000; // 10 min — matches the headless `claude -p` cap.
 const DEFAULT_POLL_INTERVAL_MS = 2_000;
 
@@ -44,7 +44,7 @@ const DEFAULT_POLL_INTERVAL_MS = 2_000;
  * worker session instead of a headless `claude -p` subprocess.
  *
  * Spawns a session tagged with `sdlcRunId`/`sdlcPhase`/`sdlcRole`, then polls for
- * the agent's sentinel output file (`{workspace}/.ao/{sentinelName}`) — the
+ * the agent's sentinel output file (`{workspace}/.cahi/{sentinelName}`) — the
  * deterministic completion signal for these PR-less sessions (they can't use
  * `classifyTerminal`, which needs a PR). On success it returns the file contents
  * (verdict JSON or plan markdown). On timeout, a missing workspace, or an empty

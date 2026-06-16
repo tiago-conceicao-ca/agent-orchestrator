@@ -240,7 +240,7 @@ beforeEach(() => {
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpDir;
 
-  const configPath = join(tmpDir, "agent-orchestrator.yaml");
+  const configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}");
 
   mockConfigRef.current = {
@@ -268,7 +268,7 @@ beforeEach(() => {
     reactions: {},
   } as Record<string, unknown>;
 
-  // Keep test metadata under the temp fixture directory instead of ~/.agent-orchestrator.
+  // Keep test metadata under the temp fixture directory instead of ~/.cahi.
   sessionsDir = join(tmpDir, "sessions");
   mkdirSync(sessionsDir, { recursive: true });
   sessionsDirRef.current = sessionsDir;

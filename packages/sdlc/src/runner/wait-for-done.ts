@@ -32,7 +32,7 @@ export interface WaitForTaskParams {
 /**
  * Poll for a worker task's completion, sentinel FIRST.
  *
- * Each cycle: (1) read the `.ao/sdlc-task-done.json` sentinel — `ok:true`→done,
+ * Each cycle: (1) read the `.cahi/sdlc-task-done.json` sentinel — `ok:true`→done,
  * `ok:false`→failed; (2) absent → fall back to PR/lifecycle classification;
  * (3) past the stall threshold with no signal → "stalled"; (4) past the hard cap
  * → "failed". Preserves the original PR-based completion path as a fallback.

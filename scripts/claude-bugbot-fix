@@ -26,7 +26,7 @@ case "$PROJECT" in
         ;;
     agent-orchestrator|ao)
         REPO="ComposioHQ/agent-orchestrator"
-        SESSIONS_DIR="$HOME/.ao-sessions"
+        SESSIONS_DIR="$HOME/.cahi-sessions"
         SESSION_PREFIX="ao"
         ;;
     *)

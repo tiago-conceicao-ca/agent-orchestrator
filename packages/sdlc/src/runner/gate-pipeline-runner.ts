@@ -147,7 +147,7 @@ export function makeSessionGateAgentRunner(
 ): GateAgentRunner {
   const LENS_OUTPUT_INSTRUCTION =
     `\n\n---\nWhen finished, your FINAL action MUST be to write ONLY your verdict JSON object ` +
-    `to \`.ao/sdlc-output.json\` in your current working directory (create \`.ao\` if needed).`;
+    `to \`.cahi/sdlc-output.json\` in your current working directory (create \`.cahi\` if needed).`;
   return (prompt, role, runId) =>
     runSessionBackedAgent(sm, {
       prompt: prompt + LENS_OUTPUT_INSTRUCTION,

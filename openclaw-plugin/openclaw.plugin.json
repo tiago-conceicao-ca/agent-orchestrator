@@ -14,7 +14,7 @@
       },
       "aoCwd": {
         "type": "string",
-        "description": "Working directory for ao commands. Must contain agent-orchestrator.yaml. Defaults to the current working directory."
+        "description": "Working directory for ao commands. Must contain cahi.yaml. Defaults to the current working directory."
       },
       "healthPollIntervalMs": {
         "type": "number",
@@ -34,7 +34,7 @@
     "aoCwd": {
       "label": "AO working directory",
       "placeholder": "/home/user/my-project",
-      "help": "Path to the directory containing agent-orchestrator.yaml. Required — most commands fail without this."
+      "help": "Path to the directory containing cahi.yaml. Required — most commands fail without this."
     },
     "aoPath": {
       "label": "AO CLI path",
