@@ -119,7 +119,7 @@ describe("SdlcDashboard", () => {
     expect(screen.getByText(/1\/3 done/)).toBeInTheDocument();
     expect(screen.getByText(/1 blocked/)).toBeInTheDocument();
     const openLink = screen.getByRole("link", { name: "Open" });
-    expect(openLink).toHaveAttribute("href", "/sdlc/run-1");
+    expect(openLink).toHaveAttribute("href", "/sdlc/run-1?project=my-app");
     // The kanban board is NOT rendered inline on the list anymore.
     expect(screen.queryByText("In Review")).not.toBeInTheDocument();
   });

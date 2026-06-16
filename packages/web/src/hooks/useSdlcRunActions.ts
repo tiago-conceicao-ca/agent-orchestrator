@@ -10,52 +10,45 @@ import type { RunActionKind, RunView } from "@/lib/sdlc-board";
 
 const ALL_ACTIONS: RunActionKind[] = ["approve", "resume", "abandon"];
 
-function key(runId: string, action: RunActionKind): string {
+function actionKey(runId: string, action: RunActionKind): string {
   return `${runId}|${action}`;
+}
+
+function retryKey(runId: string, taskId: string): string {
+  return `${runId}|retry|${taskId}`;
 }
 
 export function useSdlcRunActions(onRefresh: () => void) {
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const dispatch = useCallback(
-    async (run: RunView, action: RunActionKind) => {
-      const k = key(run.id, action);
+  // Run a single POST under a busy key: skip if already in flight, surface the
+  // server message on failure, always clear the key and re-poll.
+  const run = useCallback(
+    async (key: string, url: string, body: Record<string, unknown>, verb: string) => {
       let alreadyBusy = false;
       setBusy((current) => {
-        if (current.has(k)) {
+        if (current.has(key)) {
           alreadyBusy = true;
           return current;
         }
-        return new Set(current).add(k);
+        return new Set(current).add(key);
       });
       if (alreadyBusy) return;
       try {
-        const url =
-          action === "approve"
-            ? "/api/sdlc/approve"
-            : `/api/sdlc/runs/${encodeURIComponent(run.id)}/${action}`;
-        const body =
-          action === "approve"
-            ? { runId: run.id, project: run.projectId }
-            : { project: run.projectId };
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
         const data = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string };
-        if (!res.ok || data.ok === false) {
-          setActionError(data.message ?? `Failed to ${action} run`);
-        } else {
-          setActionError(null);
-        }
+        setActionError(!res.ok || data.ok === false ? (data.message ?? `Failed to ${verb}`) : null);
       } catch (e) {
-        setActionError(e instanceof Error ? e.message : `Failed to ${action} run`);
+        setActionError(e instanceof Error ? e.message : `Failed to ${verb}`);
       } finally {
         setBusy((current) => {
           const next = new Set(current);
-          next.delete(k);
+          next.delete(key);
           return next;
         });
         onRefresh();
@@ -64,11 +57,42 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [onRefresh],
   );
 
+  const dispatch = useCallback(
+    (runView: RunView, action: RunActionKind) => {
+      const url =
+        action === "approve"
+          ? "/api/sdlc/approve"
+          : `/api/sdlc/runs/${encodeURIComponent(runView.id)}/${action}`;
+      const body =
+        action === "approve"
+          ? { runId: runView.id, project: runView.projectId }
+          : { project: runView.projectId };
+      return run(actionKey(runView.id, action), url, body, `${action} run`);
+    },
+    [run],
+  );
+
+  const retryTask = useCallback(
+    (runView: RunView, taskId: string) =>
+      run(
+        retryKey(runView.id, taskId),
+        `/api/sdlc/runs/${encodeURIComponent(runView.id)}/retry`,
+        { project: runView.projectId, taskId },
+        `retry task ${taskId}`,
+      ),
+    [run],
+  );
+
   const busyActionsFor = useCallback(
     (runId: string): Set<RunActionKind> =>
-      new Set(ALL_ACTIONS.filter((action) => busy.has(key(runId, action)))),
+      new Set(ALL_ACTIONS.filter((action) => busy.has(actionKey(runId, action)))),
     [busy],
   );
 
-  return { dispatch, busyActionsFor, actionError };
+  const isRetrying = useCallback(
+    (runId: string, taskId: string): boolean => busy.has(retryKey(runId, taskId)),
+    [busy],
+  );
+
+  return { dispatch, retryTask, busyActionsFor, isRetrying, actionError };
 }

@@ -1,14 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  availableRunActions,
-  taskTotals,
-  verdictSummary,
-  type RunActionKind,
-  type RunView,
-} from "@/lib/sdlc-board";
+import { taskTotals, verdictSummary, type RunActionKind, type RunView } from "@/lib/sdlc-board";
 import { sdlcRunPath } from "@/lib/routes";
+import { SdlcRunActionButtons } from "./SdlcRunActionButtons";
 
 // One run summary card on the /sdlc runs list: status, compact phase progress,
 // lens-verdict summary, run-level lastError (when failed), task counts, and the
@@ -27,18 +22,6 @@ const STATUS_TONE: Record<string, string> = {
   awaiting_approval: "review",
   completed: "merged",
   failed: "fail",
-};
-
-const ACTION_LABEL: Record<RunActionKind, string> = {
-  approve: "Approve",
-  resume: "Resume",
-  abandon: "Abandon",
-};
-
-const ACTION_BTN_CLASS: Record<RunActionKind, string> = {
-  approve: "dashboard-app-btn dashboard-app-btn--primary",
-  resume: "dashboard-app-btn dashboard-app-btn--amber",
-  abandon: "dashboard-app-btn dashboard-app-btn--danger",
 };
 
 function humanize(value: string): string {
@@ -60,12 +43,12 @@ export function SdlcRunCard({
 }) {
   const totals = taskTotals(run.board);
   const verdicts = verdictSummary(run.verdicts);
-  const actions = availableRunActions(run.status);
+  const href = sdlcRunPath(run.id, run.projectId);
 
   return (
     <article className="sdlc-run-card" data-run-status={run.status}>
       <header className="sdlc-run-card__header">
-        <Link href={sdlcRunPath(run.id)} className="sdlc-run-card__id">
+        <Link href={href} className="sdlc-run-card__id">
           {run.id}
         </Link>
         <span className="sdlc-status-badge" data-tone={STATUS_TONE[run.status] ?? "neutral"}>
@@ -118,20 +101,10 @@ export function SdlcRunCard({
       ) : null}
 
       <div className="sdlc-run-card__actions">
-        <Link href={sdlcRunPath(run.id)} className="dashboard-app-btn">
+        <Link href={href} className="dashboard-app-btn">
           Open
         </Link>
-        {actions.map((action) => (
-          <button
-            key={action}
-            type="button"
-            className={ACTION_BTN_CLASS[action]}
-            disabled={busyActions.has(action)}
-            onClick={() => onAction(run, action)}
-          >
-            {busyActions.has(action) ? `${ACTION_LABEL[action]}…` : ACTION_LABEL[action]}
-          </button>
-        ))}
+        <SdlcRunActionButtons run={run} busyActions={busyActions} onAction={onAction} />
       </div>
     </article>
   );

@@ -14,8 +14,9 @@ export function projectSdlcPath(projectId: string | undefined): string {
   return projectId ? `/sdlc?project=${encodeURIComponent(projectId)}` : "/sdlc?project=all";
 }
 
-export function sdlcRunPath(runId: string): string {
-  return `/sdlc/${encodeURIComponent(runId)}`;
+export function sdlcRunPath(runId: string, projectId?: string): string {
+  const base = `/sdlc/${encodeURIComponent(runId)}`;
+  return projectId ? `${base}?project=${encodeURIComponent(projectId)}` : base;
 }
 
 export function projectSessionPath(projectId: string, sessionId: string): string {
