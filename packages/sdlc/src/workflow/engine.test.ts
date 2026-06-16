@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { WorkflowEngine } from "./engine";
 import { RunStore } from "./run-store";
-import type { WorkflowDefinition, PhaseExecutor } from "./types";
+import type { WorkflowDefinition, PhaseExecutor, SdlcRunEvent } from "./types";
 import type { Gate } from "../gates/types";
 
 const passGate: Gate = {
@@ -357,5 +357,152 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     const run = await engine.resumeRun("run-z");
     expect(spawns).toEqual(["b"]); // task a skipped (already done)
     expect(run.status).toBe("completed");
+  });
+});
+
+describe("WorkflowEngine onRunEvent seam", () => {
+  let dir: string;
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "eng3-"));
+  });
+
+  function makeEngineWithEvents(
+    def: WorkflowDefinition,
+    gates: Gate[],
+    events: SdlcRunEvent[],
+    executors?: Record<string, PhaseExecutor>,
+  ) {
+    return new WorkflowEngine({
+      store: new RunStore(dir),
+      definitions: { [def.name]: def },
+      executors:
+        executors ?? Object.fromEntries(def.phases.map((p) => [p.executor, exec(p.executor)])),
+      gates: Object.fromEntries(gates.map((g) => [g.name, g])),
+      onRunEvent: (e) => {
+        events.push(e);
+      },
+    });
+  }
+
+  it("emits awaiting_approval at a human gate (kind + runId)", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: true }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const eng = makeEngineWithEvents(def, [], events);
+    const run = await eng.start("w", "epic-1", "input");
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ kind: "awaiting_approval", runId: run.id, phase: "p1" });
+  });
+
+  it("emits completed when the run finishes", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: ["tactical"], humanGate: false }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const eng = makeEngineWithEvents(def, [passGate], events);
+    const run = await eng.start("w", "epic-1", "input");
+    expect(events).toEqual([{ kind: "completed", runId: run.id, detail: "Run completed." }]);
+  });
+
+  it("emits needs_fixes when a gate rejects", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: ["tactical"], humanGate: false }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const eng = makeEngineWithEvents(def, [failGate], events);
+    const run = await eng.start("w", "epic-1", "input");
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ kind: "needs_fixes", runId: run.id, phase: "p1" });
+  });
+
+  it("emits failed when an executor throws", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const boomExec: PhaseExecutor = {
+      id: "p1",
+      run: async () => {
+        throw new Error("executor boom");
+      },
+    };
+    const eng = makeEngineWithEvents(def, [], events, { p1: boomExec });
+    await expect(eng.start("w", "epic-1", "input")).rejects.toThrow(/executor boom/);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({ kind: "failed", phase: "p1", detail: "executor boom" });
+  });
+
+  it("emits stalled when the failure message indicates a stall", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const stallExec: PhaseExecutor = {
+      id: "p1",
+      run: async () => {
+        throw new Error("Task 'A' stalled after auto-retry during backend generation.");
+      },
+    };
+    const eng = makeEngineWithEvents(def, [], events, { p1: stallExec });
+    await expect(eng.start("w", "epic-1", "input")).rejects.toThrow(/stalled/);
+    expect(events).toHaveLength(1);
+    expect(events[0]?.kind).toBe("stalled");
+  });
+
+  it("emits failed when a run is abandoned", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const events: SdlcRunEvent[] = [];
+    const store = new RunStore(dir);
+    const engine = new WorkflowEngine({
+      store,
+      definitions: { w: def },
+      executors: { p1: exec("p1") },
+      gates: {},
+      onRunEvent: (e) => events.push(e),
+    });
+    await store.save({
+      id: "run-ab",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "running",
+      currentPhaseIndex: 0,
+      phaseStates: { p1: "running" },
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+    });
+    await engine.abandon("run-ab");
+    expect(events).toEqual([
+      { kind: "failed", runId: "run-ab", phase: "p1", detail: "Run abandoned." },
+    ]);
+  });
+
+  it("swallows a throwing hook without changing run state", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const eng = new WorkflowEngine({
+      store: new RunStore(dir),
+      definitions: { w: def },
+      executors: { p1: exec("p1") },
+      gates: {},
+      onRunEvent: () => {
+        throw new Error("hook boom");
+      },
+    });
+    const run = await eng.start("w", "epic-1", "input");
+    const final = await new RunStore(dir).load(run.id);
+    expect(final?.status).toBe("completed"); // hook failure did not derail the run
   });
 });

@@ -5,6 +5,7 @@ import type {
   PhaseExecutor,
   PhaseContext,
   PrMode,
+  SdlcRunEvent,
 } from "./types.js";
 import type { Gate } from "../gates/types.js";
 import type { Epic } from "../plan/types.js";
@@ -16,6 +17,13 @@ export interface EngineDeps {
   gates: Record<string, Gate>;
   /** Liveness probe for dead-run reconciliation; defaults to a `process.kill(pid, 0)` check. */
   isPidAlive?: (pid: number) => boolean;
+  /**
+   * Optional run-event sink, invoked (best-effort) at every attention-worthy
+   * RUN-level transition. Defaults to undefined → no-op, so headless/test runs
+   * behave exactly as before. A throwing hook is caught and never alters run
+   * state. The engine imports no AO internals — the wiring owns the side effects.
+   */
+  onRunEvent?: (event: SdlcRunEvent) => void | Promise<void>;
 }
 
 /** Default liveness probe: EPERM means the process exists but isn't ours. */
@@ -141,11 +149,13 @@ export class WorkflowEngine {
       run.pendingApproval?.phaseId ??
       this.deps.definitions[run.workflow]?.phases[run.currentPhaseIndex]?.id ??
       "abandon";
-    return this.deps.store.update(id, (r) => ({
+    const run2 = await this.deps.store.update(id, (r) => ({
       ...r,
       status: "failed",
       lastError: { phase, message },
     }));
+    await this.emitRunEvent({ kind: "failed", runId: id, phase, detail: message });
+    return run2;
   }
 
   /** Drives phases from currentPhaseIndex until completion, failure, or a human gate. */
@@ -201,12 +211,14 @@ export class WorkflowEngine {
           run = await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
           if (verdict.verdict === "needs_fixes") {
             const issue = verdict.issues[0]?.title ?? "needs fixes";
+            const detail = `Lens '${lens}' rejected: ${issue}`;
             run = await this.deps.store.update(id, (r) => ({
               ...r,
               status: "failed",
               phaseStates: { ...r.phaseStates, [phase.id]: "failed" },
-              lastError: { phase: phase.id, message: `Lens '${lens}' rejected: ${issue}` },
+              lastError: { phase: phase.id, message: detail },
             }));
+            await this.emitRunEvent({ kind: "needs_fixes", runId: id, phase: phase.id, detail });
             return run;
           }
         }
@@ -221,11 +233,18 @@ export class WorkflowEngine {
       }));
 
       if (phase.humanGate) {
-        return this.deps.store.update(id, (r) => ({
+        const paused = await this.deps.store.update(id, (r) => ({
           ...r,
           status: "awaiting_approval",
           pendingApproval: { phaseId: phase.id, since: new Date().toISOString() },
         }));
+        await this.emitRunEvent({
+          kind: "awaiting_approval",
+          runId: id,
+          phase: phase.id,
+          detail: `Phase '${phase.id}' passed gates; awaiting approval.`,
+        });
+        return paused;
       }
 
       run = await this.deps.store.update(id, (r) => ({
@@ -234,7 +253,9 @@ export class WorkflowEngine {
       }));
     }
 
-    return this.deps.store.update(id, (r) => ({ ...r, status: "completed" }));
+    const completed = await this.deps.store.update(id, (r) => ({ ...r, status: "completed" }));
+    await this.emitRunEvent({ kind: "completed", runId: id, detail: "Run completed." });
+    return completed;
   }
 
   /** Persist a phase failure with a surfaced lastError (not a silent failure). */
@@ -246,6 +267,11 @@ export class WorkflowEngine {
       phaseStates: { ...r.phaseStates, [phaseId]: "failed" },
       lastError: { phase: phaseId, message },
     }));
+    // A task that exhausts its auto-retry surfaces as a "stalled" run event
+    // (distinct from a hard failure) so the orchestrator can tell them apart;
+    // the persisted run status is `failed` either way.
+    const kind = /stalled/i.test(message) ? "stalled" : "failed";
+    await this.emitRunEvent({ kind, runId: id, phase: phaseId, detail: message });
   }
 
   /**
@@ -296,5 +322,20 @@ export class WorkflowEngine {
     const r = await this.deps.store.load(id);
     if (!r) throw new Error(`Run '${id}' not found.`);
     return r;
+  }
+
+  /**
+   * Fire the optional run-event hook after a transition has been persisted.
+   * Best-effort: a missing hook is a no-op and a throwing hook is swallowed
+   * (logged) so a notification failure can never change the run's state.
+   */
+  private async emitRunEvent(event: SdlcRunEvent): Promise<void> {
+    if (!this.deps.onRunEvent) return;
+    try {
+      await this.deps.onRunEvent(event);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error(`[${event.runId}] onRunEvent(${event.kind}) failed: ${message}`);
+    }
   }
 }
