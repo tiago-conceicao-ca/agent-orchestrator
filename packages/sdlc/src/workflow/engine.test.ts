@@ -245,7 +245,7 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     return { engine, store, def };
   }
 
-  it("abandon marks a stale running run terminal with a lastError", async () => {
+  it("abandon marks a stale running run terminal (abandoned) with a lastError", async () => {
     const { engine, store } = engineWithGen([]);
     await store.save({
       id: "run-x",
@@ -260,7 +260,7 @@ describe("WorkflowEngine resume/retry/abandon", () => {
       createdAt: "2026-06-08T00:00:00Z",
     });
     const run = await engine.abandon("run-x");
-    expect(run.status).toBe("failed");
+    expect(run.status).toBe("abandoned");
     expect(run.lastError?.phase).toBe("gen");
   });
 
@@ -347,7 +347,7 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     await expect(engine.setTaskModel("run-e", "a", "gpt-4")).rejects.toThrow(/Invalid model/);
   });
 
-  it("reconcile marks a running run with a dead engine pid as failed", async () => {
+  it("reconcile marks a running run with a dead engine pid as abandoned", async () => {
     const store = new RunStore(dir);
     const engine = new WorkflowEngine({
       store,
@@ -370,7 +370,7 @@ describe("WorkflowEngine resume/retry/abandon", () => {
       enginePid: 999999,
     });
     const run = await engine.reconcile("run-dead");
-    expect(run.status).toBe("failed");
+    expect(run.status).toBe("abandoned");
     expect(run.lastError?.message).toMatch(/no longer alive/);
   });
 

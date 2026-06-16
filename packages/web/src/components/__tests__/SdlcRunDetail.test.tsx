@@ -230,6 +230,13 @@ describe("SdlcRunDetail", () => {
     expect(screen.queryByLabelText("Amendment instructions")).not.toBeInTheDocument();
   });
 
+  it("still loads a deep-linked abandoned run and renders an Abandoned badge", async () => {
+    mockFetch(makeRun({ status: "abandoned", pendingApproval: null }));
+    renderDetail();
+    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    expect(screen.getByText("Abandoned")).toBeInTheDocument();
+  });
+
   it("shows a not-found state for an unknown run", async () => {
     mockFetch(null);
     renderDetail();

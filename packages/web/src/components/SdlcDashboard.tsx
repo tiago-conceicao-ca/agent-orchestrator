@@ -67,7 +67,11 @@ export function SdlcDashboard({
 
   const { dispatch, busyActionsFor, actionError } = useSdlcRunActions(load);
 
-  const visibleRuns = useMemo(() => filterRunsByProject(runs, projectId), [runs, projectId]);
+  // Hide abandoned runs from the list (they stay deep-linkable at /sdlc/[id]).
+  const visibleRuns = useMemo(
+    () => filterRunsByProject(runs, projectId).filter((run) => run.status !== "abandoned"),
+    [runs, projectId],
+  );
 
   const allProjectsView = !projectId;
   const awaitingCount = visibleRuns.filter((run) => run.status === "awaiting_approval").length;

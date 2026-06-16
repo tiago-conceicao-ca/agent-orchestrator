@@ -22,6 +22,7 @@ const STATUS_TONE: Record<string, string> = {
   awaiting_approval: "review",
   completed: "merged",
   failed: "fail",
+  abandoned: "neutral",
 };
 
 function humanize(value: string): string {

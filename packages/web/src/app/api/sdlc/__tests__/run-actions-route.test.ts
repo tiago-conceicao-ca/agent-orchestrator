@@ -100,6 +100,13 @@ describe("POST /api/sdlc/runs/[id]/abandon", () => {
     expect(engine.abandon).not.toHaveBeenCalled();
   });
 
+  it("rejects an already-abandoned run (409)", async () => {
+    const engine = mockEngine(makeRun("abandoned"));
+    const res = await abandonPOST(req(), params);
+    expect(res.status).toBe(409);
+    expect(engine.abandon).not.toHaveBeenCalled();
+  });
+
   it("404s an unknown run", async () => {
     mockEngine(null);
     const res = await abandonPOST(req(), params);

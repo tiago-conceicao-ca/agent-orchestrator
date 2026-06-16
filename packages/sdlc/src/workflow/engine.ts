@@ -168,8 +168,13 @@ export class WorkflowEngine {
   }
 
   /**
-   * Mark a run terminal (status `failed`) — reconciles a dead-engine run left as
-   * `running` on disk, or lets a human abandon a stuck run.
+   * Mark a run terminal with the distinct `abandoned` status — reconciles a
+   * dead-engine run left as `running` on disk, or lets a human abandon a stuck
+   * run. `abandoned` is a separate RunStatus from `failed` so the runs list can
+   * hide it while a deep-linked run page still loads it. The emitted run event
+   * keeps `kind:"failed"` (a warning-priority terminal transition): the engine's
+   * event vocabulary is intentionally narrow and the orchestrator/notifiers treat
+   * abandon as just another terminal failure — only the persisted status differs.
    */
   async abandon(id: string, message = "Run abandoned."): Promise<WorkflowRun> {
     const run = await this.require(id);
@@ -179,7 +184,7 @@ export class WorkflowEngine {
       "abandon";
     const run2 = await this.deps.store.update(id, (r) => ({
       ...r,
-      status: "failed",
+      status: "abandoned",
       lastError: { phase, message },
     }));
     await this.emitRunEvent({ kind: "failed", runId: id, phase, detail: message });
@@ -331,7 +336,8 @@ export class WorkflowEngine {
 
   /**
    * Reconcile a run whose driving engine process is gone: a `running` run with a
-   * dead `enginePid` is marked terminal (failed) instead of lingering forever.
+   * dead `enginePid` is marked terminal (abandoned, via `abandon`) instead of
+   * lingering forever.
    * No-op for runs that aren't running, have no recorded pid, or are still alive.
    */
   async reconcile(id: string): Promise<WorkflowRun> {

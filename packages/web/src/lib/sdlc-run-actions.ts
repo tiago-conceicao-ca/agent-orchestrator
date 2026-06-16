@@ -26,7 +26,7 @@ export async function handleAbandon(
 ): Promise<RunActionResult> {
   const run = await engine.load(runId);
   if (!run) return notFound(runId);
-  if (run.status === "completed" || run.status === "failed")
+  if (run.status === "completed" || run.status === "failed" || run.status === "abandoned")
     return {
       ok: false,
       status: 409,
