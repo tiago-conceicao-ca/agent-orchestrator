@@ -8,7 +8,7 @@ import type {
   SdlcRunEvent,
 } from "./types.js";
 import type { Gate } from "../gates/types.js";
-import type { Epic } from "../plan/types.js";
+import { SDLC_MODELS, type Epic, type SdlcModel } from "../plan/types.js";
 
 export interface EngineDeps {
   store: RunStore;
@@ -137,6 +137,34 @@ export class WorkflowEngine {
     const ctx = this.makeContext(id, run, epic, "", phaseId);
     await executor.runTask(ctx, taskId);
     return this.require(id);
+  }
+
+  /**
+   * Persist a per-task model override on the run's epic (used by the dashboard's
+   * task-detail selector). `null` clears the override so the task falls back to
+   * the project's agent model. Persist-only: takes effect the next time the task
+   * is dispatched/retried — it does NOT re-spawn the worker.
+   */
+  async setTaskModel(id: string, taskId: string, model: string | null): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    if (!run.epic) throw new Error(`Run '${id}' has no persisted epic.`);
+    if (!run.epic.tasks.some((t) => t.id === taskId))
+      throw new Error(`Task '${taskId}' not found in epic '${run.epic.id}'.`);
+    if (model !== null && !SDLC_MODELS.includes(model as SdlcModel))
+      throw new Error(`Invalid model '${model}'. Allowed: ${SDLC_MODELS.join("/")}.`);
+    return this.deps.store.update(id, (r) =>
+      r.epic
+        ? {
+            ...r,
+            epic: {
+              ...r.epic,
+              tasks: r.epic.tasks.map((t) =>
+                t.id === taskId ? { ...t, model: model ?? undefined } : t,
+              ),
+            },
+          }
+        : r,
+    );
   }
 
   /**
