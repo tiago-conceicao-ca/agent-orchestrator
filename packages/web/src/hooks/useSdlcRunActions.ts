@@ -18,8 +18,8 @@ function retryKey(runId: string, taskId: string): string {
   return `${runId}|retry|${taskId}`;
 }
 
-function amendKey(runId: string): string {
-  return `${runId}|amend`;
+function amendPlanKey(runId: string): string {
+  return `${runId}|amend-plan`;
 }
 
 function setModelKey(runId: string, taskId: string): string {
@@ -102,13 +102,13 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [run],
   );
 
-  const amend = useCallback(
+  const amendPlan = useCallback(
     (runView: RunView, comment: string) =>
       run(
-        amendKey(runView.id),
-        `/api/sdlc/runs/${encodeURIComponent(runView.id)}/amend`,
+        amendPlanKey(runView.id),
+        `/api/sdlc/runs/${encodeURIComponent(runView.id)}/amend-plan`,
         { project: runView.projectId, comment },
-        "amend run",
+        "amend plan",
       ),
     [run],
   );
@@ -124,7 +124,10 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [busy],
   );
 
-  const isAmending = useCallback((runId: string): boolean => busy.has(amendKey(runId)), [busy]);
+  const isAmending = useCallback(
+    (runId: string): boolean => busy.has(amendPlanKey(runId)),
+    [busy],
+  );
 
   const isSettingModel = useCallback(
     (runId: string, taskId: string): boolean => busy.has(setModelKey(runId, taskId)),
@@ -135,7 +138,7 @@ export function useSdlcRunActions(onRefresh: () => void) {
     dispatch,
     retryTask,
     setTaskModel,
-    amend,
+    amendPlan,
     busyActionsFor,
     isRetrying,
     isSettingModel,

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PhaseStateView, RunView, VerdictView } from "@/lib/sdlc-board";
+import { SdlcAmendForm } from "./SdlcAmendForm";
 
-// Read-only run insights surfaced beneath each run's kanban board: phase
-// progress (normalize-plan → generate-backend), the lens-verdict history with
-// issues + captured reasoning, and the normalized plan artifact the lenses
-// reviewed. Pure presentation over the enriched RunView (no mutations).
+// Right-slide Plan-detail modal (mirrors SdlcTaskDetail's pattern + Escape/close).
+// Hosts the full plan text, the plan-details history moved out of the run page
+// (phase progress + lens verdicts with issues + collapsible reasoning), and the
+// append-only amend comment box. Saving a comment persists it to the plan; the
+// orchestrator consumes it on the next Resume (the run header's Resume button).
 
 function humanizePhase(id: string): string {
   const spaced = id.replaceAll("-", " ").replaceAll("_", " ");
@@ -28,7 +30,8 @@ function GroupTitle({ children }: { children: string }) {
   );
 }
 
-function PhaseProgress({ phases }: { phases: PhaseStateView[] }) {
+/** Phase badges in run order — reused as the run page's compact phase summary. */
+export function PhaseProgress({ phases }: { phases: PhaseStateView[] }) {
   if (phases.length === 0) return null;
   return (
     <div className="flex flex-col gap-1.5">
@@ -133,49 +136,93 @@ function LensVerdicts({ verdicts }: { verdicts: VerdictView[] }) {
   );
 }
 
-function PlanArtifact({ plan }: { plan: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="flex flex-col gap-1.5">
-      <button
-        type="button"
-        className="sdlc-detail__prompt-toggle"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-controls="sdlc-plan-artifact"
-      >
-        <svg
-          className={`sdlc-detail__chevron${open ? " sdlc-detail__chevron--open" : ""}`}
-          width="12"
-          height="12"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M9 6l6 6-6 6" />
-        </svg>
-        View normalized plan
-      </button>
-      {open ? (
-        <pre id="sdlc-plan-artifact" className="sdlc-detail__prompt">
-          {plan}
-        </pre>
-      ) : null}
-    </div>
-  );
+interface SdlcPlanDetailProps {
+  run: RunView;
+  /** Whether the amend comment box is shown (run settled with a persisted plan). */
+  amendable: boolean;
+  /** True when a lens returned needs_fixes (tunes the amend hint). */
+  needsFixes: boolean;
+  /** Disables the amend box while a save is in flight. */
+  saving: boolean;
+  onSaveComment: (comment: string) => void;
+  onClose: () => void;
 }
 
-export function SdlcRunInsights({ run }: { run: RunView }) {
-  const hasInsights =
-    run.phaseStates.length > 0 || run.verdicts.length > 0 || run.planArtifact !== null;
-  if (!hasInsights) return null;
+export function SdlcPlanDetail({
+  run,
+  amendable,
+  needsFixes,
+  saving,
+  onSaveComment,
+  onClose,
+}: SdlcPlanDetailProps) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <div className="flex flex-col gap-3 px-1 pt-3">
-      <PhaseProgress phases={run.phaseStates} />
-      <LensVerdicts verdicts={run.verdicts} />
-      {run.planArtifact !== null ? <PlanArtifact plan={run.planArtifact} /> : null}
-    </div>
+    <>
+      <div className="sdlc-detail-backdrop" onClick={onClose} />
+      <aside className="sdlc-detail" role="dialog" aria-modal="true" aria-label={`Plan for ${run.id}`}>
+        <header className="sdlc-detail__header">
+          <div className="sdlc-detail__heading">
+            <h2 className="sdlc-detail__title">Plan</h2>
+          </div>
+          <div className="sdlc-detail__header-actions">
+            <button
+              type="button"
+              className="sdlc-detail__close"
+              onClick={onClose}
+              aria-label="Close plan detail"
+            >
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div className="sdlc-detail__body">
+          <div className="sdlc-detail__badges">
+            <span className="sdlc-detail__run-id">{run.id}</span>
+          </div>
+
+          <section className="sdlc-detail__section">
+            <h3 className="sdlc-detail__section-title">Plan</h3>
+            {run.planArtifact !== null ? (
+              <pre className="sdlc-detail__prompt">{run.planArtifact}</pre>
+            ) : (
+              <p className="sdlc-detail__muted">No plan has been normalized yet.</p>
+            )}
+          </section>
+
+          {run.phaseStates.length > 0 || run.verdicts.length > 0 ? (
+            <section className="sdlc-detail__section">
+              <h3 className="sdlc-detail__section-title">Plan details</h3>
+              <div className="flex flex-col gap-3">
+                <PhaseProgress phases={run.phaseStates} />
+                <LensVerdicts verdicts={run.verdicts} />
+              </div>
+            </section>
+          ) : null}
+
+          {amendable ? (
+            <SdlcAmendForm needsFixes={needsFixes} busy={saving} onSave={onSaveComment} />
+          ) : null}
+        </div>
+      </aside>
+    </>
   );
 }
