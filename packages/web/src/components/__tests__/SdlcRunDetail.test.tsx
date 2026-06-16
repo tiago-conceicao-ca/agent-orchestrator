@@ -203,15 +203,15 @@ describe("SdlcRunDetail", () => {
     expect(screen.queryByRole("button", { name: "Retry task" })).not.toBeInTheDocument();
   });
 
-  it("amends & re-runs a failed run in place via the amend endpoint", async () => {
+  it("saves a plan comment on a failed run via the append-only amend-plan endpoint", async () => {
     mockFetch(makeRun({ status: "failed", pendingApproval: null }));
     renderDetail();
-    const input = await screen.findByLabelText("Amendment instructions");
+    const input = await screen.findByLabelText("Plan comment");
     fireEvent.change(input, { target: { value: "Please add integration tests." } });
-    fireEvent.click(screen.getByRole("button", { name: "Re-run" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save comment" }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
-        "/api/sdlc/runs/run-1/amend",
+        "/api/sdlc/runs/run-1/amend-plan",
         expect.objectContaining({
           method: "POST",
           body: JSON.stringify({
@@ -227,7 +227,7 @@ describe("SdlcRunDetail", () => {
     mockFetch(makeRun({ status: "completed", pendingApproval: null }));
     renderDetail();
     await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
-    expect(screen.queryByLabelText("Amendment instructions")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Plan comment")).not.toBeInTheDocument();
   });
 
   it("still loads a deep-linked abandoned run and renders an Abandoned badge", async () => {

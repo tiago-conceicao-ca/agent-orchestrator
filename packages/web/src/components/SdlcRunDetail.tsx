@@ -101,7 +101,7 @@ export function SdlcRunDetail({
     dispatch,
     retryTask,
     setTaskModel,
-    amend,
+    amendPlan,
     busyActionsFor,
     isRetrying,
     isSettingModel,
@@ -276,7 +276,7 @@ export function SdlcRunDetail({
                   <SdlcAmendForm
                     needsFixes={verdictSummary(run.verdicts).needsFixes > 0}
                     busy={isAmending(run.id)}
-                    onSubmit={(comment) => amend(run, comment)}
+                    onSave={(comment) => amendPlan(run, comment)}
                   />
                 ) : null}
 

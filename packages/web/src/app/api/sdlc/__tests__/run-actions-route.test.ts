@@ -7,7 +7,7 @@ vi.mock("@/lib/sdlc-services", () => ({ buildWebSdlcEngine }));
 import { POST as abandonPOST } from "../runs/[id]/abandon/route";
 import { POST as retryPOST } from "../runs/[id]/retry/route";
 import { POST as resumePOST } from "../runs/[id]/resume/route";
-import { POST as amendPOST } from "../runs/[id]/amend/route";
+import { POST as amendPlanPOST } from "../runs/[id]/amend-plan/route";
 import { POST as setModelPOST } from "../runs/[id]/set-model/route";
 
 const epicWithTask: WorkflowRun["epic"] = {
@@ -53,17 +53,17 @@ interface FakeEngine {
   abandon: ReturnType<typeof vi.fn>;
   retryTask: ReturnType<typeof vi.fn>;
   resumeRun: ReturnType<typeof vi.fn>;
-  amendAndRerun: ReturnType<typeof vi.fn>;
+  amendPlan: ReturnType<typeof vi.fn>;
   setTaskModel: ReturnType<typeof vi.fn>;
 }
 
 function mockEngine(run: WorkflowRun | null): FakeEngine {
   const engine: FakeEngine = {
     load: vi.fn().mockResolvedValue(run),
-    abandon: vi.fn().mockResolvedValue(run ? { ...run, status: "failed" } : null),
+    abandon: vi.fn().mockResolvedValue(run ? { ...run, status: "abandoned" } : null),
     retryTask: vi.fn().mockResolvedValue(run),
     resumeRun: vi.fn().mockResolvedValue(run ? { ...run, status: "completed" } : null),
-    amendAndRerun: vi.fn().mockResolvedValue(run ? { ...run, status: "running" } : null),
+    amendPlan: vi.fn().mockResolvedValue(run ? { ...run, planMarkdown: "amended" } : null),
     setTaskModel: vi.fn().mockResolvedValue(run),
   };
   buildWebSdlcEngine.mockResolvedValue({ engine: engine as unknown as WorkflowEngine });
@@ -172,38 +172,39 @@ describe("POST /api/sdlc/runs/[id]/resume", () => {
   });
 });
 
-describe("POST /api/sdlc/runs/[id]/amend", () => {
-  it("amends + re-runs a failed run with a plan (200)", async () => {
+describe("POST /api/sdlc/runs/[id]/amend-plan", () => {
+  it("appends a comment to a failed run's plan (200), append-only — no re-run", async () => {
     const engine = mockEngine(makeRun("failed", { planMarkdown: "# Plan\n## Task Graph" }));
-    const res = await amendPOST(req({ comment: "Add tests." }), params);
+    const res = await amendPlanPOST(req({ comment: "Add tests." }), params);
     expect(res.status).toBe(200);
-    expect(engine.amendAndRerun).toHaveBeenCalledWith("run-1", "Add tests.");
+    expect(engine.amendPlan).toHaveBeenCalledWith("run-1", "Add tests.");
+    expect(engine.resumeRun).not.toHaveBeenCalled();
   });
 
   it("400s when the comment is empty", async () => {
     const engine = mockEngine(makeRun("failed", { planMarkdown: "# Plan" }));
-    const res = await amendPOST(req({ comment: "   " }), params);
+    const res = await amendPlanPOST(req({ comment: "   " }), params);
     expect(res.status).toBe(400);
-    expect(engine.amendAndRerun).not.toHaveBeenCalled();
+    expect(engine.amendPlan).not.toHaveBeenCalled();
   });
 
   it("409s when the run is still running", async () => {
     const engine = mockEngine(makeRun("running", { planMarkdown: "# Plan" }));
-    const res = await amendPOST(req({ comment: "Add tests." }), params);
+    const res = await amendPlanPOST(req({ comment: "Add tests." }), params);
     expect(res.status).toBe(409);
-    expect(engine.amendAndRerun).not.toHaveBeenCalled();
+    expect(engine.amendPlan).not.toHaveBeenCalled();
   });
 
   it("409s when the run has no plan yet", async () => {
     const engine = mockEngine(makeRun("failed"));
-    const res = await amendPOST(req({ comment: "Add tests." }), params);
+    const res = await amendPlanPOST(req({ comment: "Add tests." }), params);
     expect(res.status).toBe(409);
-    expect(engine.amendAndRerun).not.toHaveBeenCalled();
+    expect(engine.amendPlan).not.toHaveBeenCalled();
   });
 
   it("404s an unknown run", async () => {
     mockEngine(null);
-    const res = await amendPOST(req({ comment: "Add tests." }), params);
+    const res = await amendPlanPOST(req({ comment: "Add tests." }), params);
     expect(res.status).toBe(404);
   });
 });

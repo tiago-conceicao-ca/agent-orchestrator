@@ -89,6 +89,12 @@ export class WorkflowEngine {
    * Resume a stalled/failed run from a phase (or the phase it stalled in),
    * re-driving `advance`. generate-backend skips already-done tasks, so this
    * picks up the first non-done task rather than restarting the whole run.
+   *
+   * The persisted `planMarkdown` is fed back in as `advance`'s input so that
+   * when the resume re-runs `normalize-plan`, it re-derives the epic from the
+   * (possibly amended via {@link amendPlan}) plan — picking up appended comments.
+   * Non-plan phases ignore the input, so resume-from-phase behavior elsewhere is
+   * unchanged.
    */
   async resumeRun(id: string, opts: { fromPhase?: string } = {}): Promise<WorkflowRun> {
     const run = await this.require(id);
@@ -109,7 +115,7 @@ export class WorkflowEngine {
       currentPhaseIndex: phaseIndex,
       phaseStates: { ...r.phaseStates, [phaseId]: "pending" },
     }));
-    return this.advance(id, "");
+    return this.advance(id, run.planMarkdown ?? "");
   }
 
   /**
@@ -192,30 +198,18 @@ export class WorkflowEngine {
   }
 
   /**
-   * Amend a run's plan with the user's comment and re-run normalize-plan + its
-   * lens IN PLACE (same run id) — the recovery path for a `needs_fixes` plan.
-   * Appends the comment to the persisted plan, resets the downstream run state
-   * (phases, verdicts, task status, epic) so the re-run starts clean, and
-   * re-drives `advance` from the first phase. Leaves resume/retry untouched.
+   * Append a user comment to the run's plan and persist it — APPEND-ONLY: no
+   * status/phaseStates/verdicts/epic change, no re-run, no `advance`. Each call
+   * adds a fresh `## Amendment` block to `planMarkdown`, preserving the prior
+   * plan and any earlier amendments. The appended instructions take effect the
+   * next time `normalize-plan` runs — i.e. on the next {@link resumeRun} that
+   * re-drives that phase (the recovery path for a `needs_fixes` plan).
    */
-  async amendAndRerun(id: string, comment: string): Promise<WorkflowRun> {
+  async amendPlan(id: string, comment: string): Promise<WorkflowRun> {
     const run = await this.require(id);
     if (!run.planMarkdown) throw new Error(`Run '${id}' has no plan to amend.`);
     const amended = `${run.planMarkdown.trimEnd()}\n\n## Amendment\n\n${comment.trim()}\n`;
-    await this.deps.store.update(id, (r) => ({
-      ...r,
-      status: "running",
-      pendingApproval: null,
-      lastError: undefined,
-      enginePid: process.pid,
-      currentPhaseIndex: 0,
-      phaseStates: {},
-      verdicts: [],
-      taskStatus: {},
-      epic: undefined, // re-derived by normalize-plan from the amended plan
-      planMarkdown: amended,
-    }));
-    return this.advance(id, amended);
+    return this.deps.store.update(id, (r) => ({ ...r, planMarkdown: amended }));
   }
 
   /** Drives phases from currentPhaseIndex until completion, failure, or a human gate. */
