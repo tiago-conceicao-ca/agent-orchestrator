@@ -1,4 +1,4 @@
-import { handleAmend } from "@/lib/sdlc-run-actions";
+import { handleAmendPlan } from "@/lib/sdlc-run-actions";
 import { buildWebSdlcEngine } from "@/lib/sdlc-services";
 
 export const dynamic = "force-dynamic";
@@ -11,15 +11,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       comment?: string;
     };
     const { engine } = await buildWebSdlcEngine(project);
-    const result = await handleAmend(engine, id, comment);
+    const result = await handleAmendPlan(engine, id, comment);
     return Response.json(
       { ok: result.ok, message: result.message, run: result.run },
       { status: result.status },
     );
   } catch (err) {
-    console.error("[POST /api/sdlc/runs/[id]/amend]", err);
+    console.error("[POST /api/sdlc/runs/[id]/amend-plan]", err);
     return Response.json(
-      { ok: false, message: err instanceof Error ? err.message : "Failed to amend run" },
+      { ok: false, message: err instanceof Error ? err.message : "Failed to amend plan" },
       { status: 500 },
     );
   }

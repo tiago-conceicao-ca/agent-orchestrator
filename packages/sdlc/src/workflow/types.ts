@@ -1,7 +1,7 @@
 import type { Epic, TaskStatus } from "../plan/types.js";
 import type { GateVerdict } from "../gates/types.js";
 
-export type RunStatus = "running" | "awaiting_approval" | "completed" | "failed";
+export type RunStatus = "running" | "awaiting_approval" | "completed" | "failed" | "abandoned";
 
 /**
  * How worker tasks land their work.

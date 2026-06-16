@@ -26,7 +26,7 @@ export async function handleAbandon(
 ): Promise<RunActionResult> {
   const run = await engine.load(runId);
   if (!run) return notFound(runId);
-  if (run.status === "completed" || run.status === "failed")
+  if (run.status === "completed" || run.status === "failed" || run.status === "abandoned")
     return {
       ok: false,
       status: 409,
@@ -89,17 +89,18 @@ export async function handleSetTaskModel(
 }
 
 /**
- * Amend a run's plan with the user's comment and re-run normalize + lens in
- * place. Valid while the run has settled (not running) and isn't already
- * completed; the engine rejects a run with no plan to amend.
+ * Append a comment to a run's plan (append-only) — persisted immediately, no
+ * re-run. The appended instructions are consumed on the next Resume. Valid while
+ * the run has settled (not running) and isn't already completed; the engine
+ * rejects a run with no plan to amend.
  */
-export async function handleAmend(
+export async function handleAmendPlan(
   engine: WorkflowEngine,
   runId: string,
   comment: string | undefined,
 ): Promise<RunActionResult> {
   if (!comment || !comment.trim())
-    return { ok: false, status: 400, message: "A comment is required to amend & re-run." };
+    return { ok: false, status: 400, message: "A comment is required to amend the plan." };
   const run = await engine.load(runId);
   if (!run) return notFound(runId);
   if (run.status === "running")
@@ -116,8 +117,8 @@ export async function handleAmend(
     };
   if (!run.planMarkdown)
     return { ok: false, status: 409, message: "Run has no plan to amend yet." };
-  const updated = await engine.amendAndRerun(runId, comment.trim());
-  return { ok: true, status: 200, message: "Amended; re-running normalize + lens.", run: updated };
+  const updated = await engine.amendPlan(runId, comment.trim());
+  return { ok: true, status: 200, message: "Comment saved; applied on the next Resume.", run: updated };
 }
 
 /** Re-drive a failed run from a phase (or where it stalled). */

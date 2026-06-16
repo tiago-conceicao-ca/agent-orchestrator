@@ -225,6 +225,17 @@ describe("SdlcDashboard", () => {
     );
   });
 
+  it("hides abandoned runs from the list", async () => {
+    mockRunsFetch([
+      makeRun({ id: "run-1", status: "running", pendingApproval: null }),
+      makeRun({ id: "run-abandoned", status: "abandoned", pendingApproval: null }),
+    ]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    expect(screen.queryByText("run-abandoned")).not.toBeInTheDocument();
+  });
+
   it("scopes runs to the active project", async () => {
     mockRunsFetch([
       makeRun({ id: "run-1", projectId: "my-app" }),

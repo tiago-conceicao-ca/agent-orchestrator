@@ -135,8 +135,9 @@ export async function buildWebSdlcEngine(
       pollIntervalMs: TASK_POLL_INTERVAL_MS,
     });
 
-  // Dashboard-driven approve/amend also notify the orchestrator (+ activity feed
-  // + human notifiers) on RUN-level events, mirroring the CLI wiring.
+  // Dashboard-driven approve/resume also notify the orchestrator (+ activity feed
+  // + human notifiers) on RUN-level events, mirroring the CLI wiring. (Append-only
+  // plan amends don't advance the run, so they emit no run event.)
   const onRunEvent = makeSdlcRunEventHandler({
     sessionManager,
     config,
