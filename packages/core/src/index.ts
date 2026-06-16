@@ -49,7 +49,11 @@ export {
   type SessionRole,
 } from "./agent-selection.js";
 export { sessionFromMetadata } from "./utils/session-from-metadata.js";
-export { resolveSiblingAdjacency, type SiblingAdjacency } from "./utils/siblings.js";
+export {
+  resolveSiblingAdjacency,
+  matchSiblingProjectId,
+  type SiblingAdjacency,
+} from "./utils/siblings.js";
 
 // AO-local code review store
 export { CodeReviewStore, createCodeReviewStore } from "./code-review-store.js";

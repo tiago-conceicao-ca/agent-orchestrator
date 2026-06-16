@@ -67,6 +67,27 @@ export function siblingName(sourceRepoPath: string): string {
   return basename(sourceRepoPath.replace(/[/\\]+$/, ""));
 }
 
+/**
+ * Match a configured sibling entry (a registered project id OR "owner/name"
+ * repo) to a registered project id, against the projects catalog. Returns the
+ * matched project id, or null when nothing matches.
+ *
+ * This is the SINGLE matching rule shared by every consumer — spawn-time
+ * resolution (resolveSiblingSource), adjacency rendering (resolveSiblingAdjacency),
+ * the web sidebar's available-siblings list, and the PATCH /api/projects/[id]
+ * validation. Sharing one rule against one catalog source is what guarantees the
+ * UI can never offer a sibling that spawn would then fail to resolve.
+ */
+export function matchSiblingProjectId(
+  entry: string,
+  projects: Record<string, { repo?: string }>,
+): string | null {
+  for (const [id, proj] of Object.entries(projects)) {
+    if (id === entry || proj.repo === entry) return id;
+  }
+  return null;
+}
+
 /** A configured sibling resolved against the projects catalog, for rendering. */
 export interface SiblingAdjacency {
   /** The resolved project's registered id (mirrors SiblingRef.repo). */
@@ -80,10 +101,9 @@ export interface SiblingAdjacency {
 /**
  * Resolve a project's configured `siblings` entries to their adjacency view, so
  * every renderer (orchestrator prompt, worker prompt, `ao status`) agrees on the
- * names. Each entry is a registered project id or "owner/name" repo, matched the
- * same way as resolveSiblingSource in session-manager (`id === entry ||
- * project.repo === entry`). Self-references, unresolvable entries, and duplicates
- * are skipped.
+ * names. Each entry is a registered project id or "owner/name" repo, matched via
+ * the shared matchSiblingProjectId rule. Self-references, unresolvable entries,
+ * and duplicates are skipped.
  *
  * Critical: the `../{name}` adjacency is `siblingName(resolvedProject.path)` (the
  * path basename), NOT the raw config string — so resolution against the catalog
@@ -100,21 +120,15 @@ export function resolveSiblingAdjacency(
   const seen = new Set<string>();
 
   for (const entry of entries) {
-    let match: { repoId: string; project: ProjectConfig } | null = null;
-    for (const [id, proj] of Object.entries(projects)) {
-      if (id === entry || proj.repo === entry) {
-        match = { repoId: id, project: proj };
-        break;
-      }
-    }
+    const repoId = matchSiblingProjectId(entry, projects);
+    if (!repoId || repoId === selfProjectId || seen.has(repoId)) continue;
+    seen.add(repoId);
 
-    if (!match || match.repoId === selfProjectId || seen.has(match.repoId)) continue;
-    seen.add(match.repoId);
-
+    const project = projects[repoId];
     resolved.push({
-      repo: match.repoId,
-      name: siblingName(match.project.path),
-      displayName: match.project.name,
+      repo: repoId,
+      name: siblingName(project.path),
+      displayName: project.name,
     });
   }
 

@@ -11,6 +11,8 @@ import {
 import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
 import { loadConfig } from "../../config.js";
+import { registerProjectInGlobalConfig } from "../../global-config.js";
+import { queryActivityEvents } from "../../query-activity-events.js";
 import { writeMetadata, readMetadataRaw, updateMetadata } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
 import {
@@ -469,7 +471,29 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(parseSiblings(raw!)).toEqual([ref]);
     });
 
-    it("fails the spawn with full rollback when a configured repo is unknown", async () => {
+    it("skips an unresolvable configured sibling and proceeds (no rollback), still mounting the valid one", async () => {
+      const workspace = pathAwareWorkspace();
+      const sourcePath = join(ctx.tmpDir, "lib-shared");
+      mkdirSync(sourcePath, { recursive: true });
+
+      const sm = makeManager(
+        workspace,
+        configWithProjectSiblings(["lib-shared", "does-not-exist"]),
+      );
+      // SKIP + WARN + SURFACE: the spawn no longer bricks on the bad sibling.
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      // The valid sibling still mounts; the unresolvable one is skipped.
+      expect(session.siblings.map((s) => s.repo)).toEqual(["lib-shared"]);
+
+      // Session is fully spawned and persisted — no rollback happened.
+      expect(readMetadataRaw(sessionsDir, session.id)).not.toBeNull();
+      expect(ctx.mockRuntime.destroy).not.toHaveBeenCalled();
+      const worktreeDir = getProjectWorktreesDir("my-app");
+      expect(existsSync(join(worktreeDir, `${session.id}__sib__lib-shared`))).toBe(true);
+    });
+
+    it("records a prominent warning naming the skipped sibling (surfaced to dashboard / ao status)", async () => {
       const workspace = pathAwareWorkspace();
       mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
 
@@ -477,15 +501,33 @@ describe("addSibling / removeSibling (#1095)", () => {
         workspace,
         configWithProjectSiblings(["lib-shared", "does-not-exist"]),
       );
-      await expect(sm.spawn({ projectId: "my-app" })).rejects.toThrow(/does-not-exist/);
+      const session = await sm.spawn({ projectId: "my-app" });
 
-      // No leaked session metadata, sibling symlink, adjacency view, worktree, or runtime.
-      expect(readMetadataRaw(sessionsDir, "app-1")).toBeNull();
-      const worktreeDir = getProjectWorktreesDir("my-app");
-      expect(existsSync(join(worktreeDir, "app-1__sib__lib-shared"))).toBe(false);
-      expect(existsSync(assembledViewDir(worktreeDir, "app-1"))).toBe(false);
-      expect(workspace.destroy).toHaveBeenCalledWith(join(worktreeDir, "app-1"));
-      expect(ctx.mockRuntime.destroy).toHaveBeenCalled();
+      const warnings = queryActivityEvents({
+        projectId: "my-app",
+        kind: "session.sibling_unresolved",
+      });
+      expect(warnings).toHaveLength(1);
+      const event = warnings[0]!;
+      expect(event.level).toBe("warn");
+      expect(event.sessionId).toBe(session.id);
+      // The offending sibling is named in both the summary and structured data.
+      expect(event.summary).toContain("does-not-exist");
+      expect(JSON.parse(event.data ?? "{}")).toMatchObject({ sibling: "does-not-exist" });
+    });
+
+    it("proceeds with NO siblings (and no warning) when the only configured sibling is unresolvable", async () => {
+      const workspace = pathAwareWorkspace();
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["does-not-exist"]));
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toEqual([]);
+      expect(session.assembledViewPath).toBeNull();
+      expect(ctx.mockRuntime.destroy).not.toHaveBeenCalled();
+      expect(
+        queryActivityEvents({ projectId: "my-app", kind: "session.sibling_unresolved" }),
+      ).toHaveLength(1);
     });
 
     it("skips self-reference entries (by project id and by repo)", async () => {
@@ -642,5 +684,203 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(parseSiblings(readMetadataRaw(sessionsDir, "app-1")!)).toEqual([ref]);
       expect(existsSync(ref.path)).toBe(false);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Global-catalog resolution (root-cause fix)
+//
+// Spawn-time sibling resolution must consult the GLOBAL registered-projects
+// catalog (~/.agent-orchestrator/config.yaml) — the same source the web
+// sidebar offers siblings from — not just the config the running AO was loaded
+// with. Otherwise a globally-registered sibling (e.g. taskmaster) added via the
+// sidebar fails to resolve when AO was started from a single-project local
+// config. setupTestContext points HOME at a tmp dir, so getGlobalConfigPath()
+// resolves under ctx.tmpDir and we can plant a global config there.
+// ---------------------------------------------------------------------------
+describe("sibling resolution against the global registered-projects catalog", () => {
+  /**
+   * Write a global config at ~/.agent-orchestrator/config.yaml registering the
+   * given projects, each under {tmpDir}/{id}. Mirrors the canonical global
+   * config shape (defaults + projects with object-form repo identity).
+   */
+  function writeGlobalConfig(ids: string[]): void {
+    const globalDir = join(ctx.tmpDir, ".agent-orchestrator");
+    mkdirSync(globalDir, { recursive: true });
+    const projectBlocks = ids
+      .map((id) =>
+        [
+          `  ${id}:`,
+          `    path: ${join(ctx.tmpDir, id)}`,
+          `    defaultBranch: main`,
+          `    repo:`,
+          `      owner: org`,
+          `      name: ${id}`,
+          `      platform: github`,
+          `      originUrl: https://github.com/org/${id}`,
+        ].join("\n"),
+      )
+      .join("\n");
+    const yaml = [
+      `defaults:`,
+      `  runtime: mock`,
+      `  agent: mock-agent`,
+      `  workspace: mock-ws`,
+      `  notifiers: [desktop]`,
+      `projects:`,
+      projectBlocks,
+      ``,
+    ].join("\n");
+    writeFileSync(join(globalDir, "config.yaml"), yaml);
+  }
+
+  /** Workspace mock that materializes worktrees on disk (see pathAwareWorkspace). */
+  function pathAwareWorkspace(): Workspace {
+    return {
+      name: "mock-ws",
+      create: vi.fn().mockImplementation(async (cfg) => {
+        const path = join(cfg.worktreeDir, cfg.sessionId);
+        mkdirSync(path, { recursive: true });
+        return { path, branch: cfg.branch, sessionId: cfg.sessionId, projectId: cfg.projectId };
+      }),
+      destroy: vi.fn().mockResolvedValue(undefined),
+      list: vi.fn().mockResolvedValue([]),
+      findManagedWorkspace: vi.fn().mockResolvedValue(null),
+    };
+  }
+
+  /** A single-project running config — only "my-app" is locally known. */
+  function localOnlyConfig(): OrchestratorConfig {
+    return { ...config, projects: { ...config.projects } };
+  }
+
+  function makeManager(workspace: Workspace, cfg: OrchestratorConfig) {
+    const registry = {
+      ...ctx.mockRegistry,
+      get: vi.fn().mockImplementation((slot: string) => {
+        if (slot === "runtime") return ctx.mockRuntime;
+        if (slot === "agent") return ctx.mockAgent;
+        if (slot === "workspace") return workspace;
+        return null;
+      }),
+    };
+    return createSessionManager({ config: cfg, registry });
+  }
+
+  function writeWorker(sessionId: string): void {
+    const worktree = join(getProjectWorktreesDir("my-app"), sessionId);
+    mkdirSync(worktree, { recursive: true });
+    writeMetadata(sessionsDir, sessionId, {
+      worktree,
+      branch: "feat/work",
+      status: "working",
+      project: "my-app",
+      runtimeHandle: makeHandle(`rt-${sessionId}`),
+    });
+  }
+
+  it("resolves a sibling registered only in the global catalog (not in config.projects)", async () => {
+    // taskmaster is globally registered but absent from the running config.
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    mkdirSync(join(ctx.tmpDir, "taskmaster"), { recursive: true });
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", "taskmaster", { mode: "readonly-symlink" });
+
+    expect(ref.repo).toBe("taskmaster");
+    expect(ref.mode).toBe("readonly-symlink");
+    // The mounted symlink targets the globally-registered project's path.
+    expect(realpathSync(ref.path)).toBe(realpathSync(join(ctx.tmpDir, "taskmaster")));
+  });
+
+  it("resolves a globally-registered sibling by owner/name repo string", async () => {
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    mkdirSync(join(ctx.tmpDir, "taskmaster"), { recursive: true });
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", "org/taskmaster", { mode: "readonly-symlink" });
+
+    // Resolved id is the registered project id, not the owner/name string.
+    expect(ref.repo).toBe("taskmaster");
+  });
+
+  it("still resolves a sibling present in the local config (local wins)", async () => {
+    // Local config carries lib-shared; the global config does not list it.
+    writeGlobalConfig(["my-app"]);
+    const sourcePath = join(ctx.tmpDir, "lib-shared");
+    mkdirSync(sourcePath, { recursive: true });
+    writeWorker("app-1");
+
+    const cfg: OrchestratorConfig = {
+      ...config,
+      projects: {
+        ...config.projects,
+        "lib-shared": {
+          name: "Lib Shared",
+          repo: "org/lib-shared",
+          path: sourcePath,
+          defaultBranch: "master",
+          sessionPrefix: "lib",
+        },
+      },
+    };
+    const sm = makeManager(pathAwareWorkspace(), cfg);
+    const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+    expect(ref.repo).toBe("lib-shared");
+  });
+
+  it("falls back to config.projects when the global config is absent", async () => {
+    // No global config written; lib-shared lives only in the running config.
+    const sourcePath = join(ctx.tmpDir, "lib-shared");
+    mkdirSync(sourcePath, { recursive: true });
+    writeWorker("app-1");
+
+    const cfg: OrchestratorConfig = {
+      ...config,
+      projects: {
+        ...config.projects,
+        "lib-shared": {
+          name: "Lib Shared",
+          repo: "org/lib-shared",
+          path: sourcePath,
+          defaultBranch: "master",
+          sessionPrefix: "lib",
+        },
+      },
+    };
+    const sm = makeManager(pathAwareWorkspace(), cfg);
+    const ref = await sm.addSibling("app-1", "lib-shared", { mode: "readonly-symlink" });
+    expect(ref.repo).toBe("lib-shared");
+  });
+
+  it("still throws for a sibling in neither the local config nor the global catalog", async () => {
+    writeGlobalConfig(["my-app", "taskmaster"]);
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    await expect(
+      sm.addSibling("app-1", "does-not-exist", { mode: "readonly-symlink" }),
+    ).rejects.toThrow(/unknown sibling/i);
+  });
+
+  // Single-source-of-truth guard (add-time ↔ spawn-time alignment): a project
+  // registered through the canonical registration path — the same
+  // registerProjectInGlobalConfig the web sidebar/CLI use to register a
+  // project — must be resolvable by the core spawn path, even though it is
+  // absent from the running single-project config. If add-time and spawn-time
+  // ever diverged on catalog or matching rule, this would fail.
+  it("resolves a sibling registered via registerProjectInGlobalConfig (as the sidebar does)", async () => {
+    const taskmasterPath = join(ctx.tmpDir, "taskmaster");
+    mkdirSync(taskmasterPath, { recursive: true });
+    const tmId = registerProjectInGlobalConfig("taskmaster", "Taskmaster", taskmasterPath);
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", tmId, { mode: "readonly-symlink" });
+
+    expect(ref.repo).toBe(tmId);
+    expect(realpathSync(ref.path)).toBe(realpathSync(taskmasterPath));
   });
 });
