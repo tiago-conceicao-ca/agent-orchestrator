@@ -199,6 +199,40 @@ export function SdlcTaskDetail({
             )}
           </Section>
 
+          {task.passes.length ? (
+            <Section title="Lens passes">
+              <ul className="flex flex-col gap-1.5">
+                {task.passes.map((pass) => (
+                  <li
+                    key={pass.role}
+                    className="flex items-center justify-between gap-2 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] px-2.5 py-1.5 text-[11px]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "inline-block h-1.5 w-1.5 shrink-0 rounded-full",
+                          pass.verdict === "pass"
+                            ? "bg-[var(--color-status-success)]"
+                            : pass.verdict === "needs_fixes"
+                              ? "bg-[var(--color-status-error)]"
+                              : "bg-[var(--color-text-tertiary)]",
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span className="text-[var(--color-text-primary)]">{pass.name}</span>
+                    </span>
+                    <span className="flex items-center gap-2 text-[var(--color-text-tertiary)]">
+                      <span>{pass.model}</span>
+                      <span>
+                        {pass.verdict ? formatStatus(pass.verdict) : "pending"}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          ) : null}
+
           <Section title="Dependencies">
             {task.dependsOn.length ? (
               <ul className="sdlc-detail__deps">

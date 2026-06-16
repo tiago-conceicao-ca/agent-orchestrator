@@ -4,6 +4,14 @@ import type { WorkflowRun } from "./types.js";
 
 export class RunStore {
   private readonly dir: string;
+  /**
+   * Serializes `update` calls so concurrent read-modify-write cycles can't lose
+   * writes. The dependency-parallel generate-backend scheduler fires many
+   * concurrent `setTaskStatus`/`setTaskProgress`/`recordVerdict` updates for one
+   * run; without this chain, two in-flight updates that both loaded the same
+   * snapshot would clobber each other on save.
+   */
+  private updateChain: Promise<unknown> = Promise.resolve();
   constructor(baseDir: string) {
     this.dir = join(baseDir, "sdlc", "runs");
   }
@@ -45,10 +53,20 @@ export class RunStore {
   }
 
   async update(id: string, patch: (r: WorkflowRun) => WorkflowRun): Promise<WorkflowRun> {
-    const cur = await this.load(id);
-    if (!cur) throw new Error(`Run '${id}' not found.`);
-    const next = patch(cur);
-    await this.save(next);
-    return next;
+    // Chain behind any in-flight update so the load→patch→save cycle is atomic
+    // w.r.t. other updates (the parallel scheduler issues many concurrently).
+    const result = this.updateChain.then(async () => {
+      const cur = await this.load(id);
+      if (!cur) throw new Error(`Run '${id}' not found.`);
+      const next = patch(cur);
+      await this.save(next);
+      return next;
+    });
+    // Keep the chain alive whether or not this update settled successfully.
+    this.updateChain = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
   }
 }

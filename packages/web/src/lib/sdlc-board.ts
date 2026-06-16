@@ -26,6 +26,19 @@ export interface LinkedSession {
   projectSessionPath: string;
 }
 
+/**
+ * One graduated lens pass of a task, with its latest verdict (if it has run).
+ * Surfaced in the task detail so the dashboard shows the initial → review-lens
+ * pass chain (taskmaster-modelled) and which passes passed / need fixes.
+ */
+export interface TaskPassView {
+  role: string;
+  name: string;
+  model: string;
+  /** "pass" | "needs_fixes" from run.verdicts, or null if the pass hasn't run. */
+  verdict: string | null;
+}
+
 /** Read-only, fully-enriched task detail consumed by the SDLC detail panel. */
 export interface SdlcTaskDetail {
   number: number; // T1..Tn in run order
@@ -47,6 +60,8 @@ export interface SdlcTaskDetail {
   attempts: number;
   /** True while this task's worker is stalled (no completion signal). */
   stalled: boolean;
+  /** Graduated lens passes (initial → review lenses) with their latest verdicts. */
+  passes: TaskPassView[];
 }
 
 export type BoardColumn = "backlog" | "ready" | "in_progress" | "in_review" | "done" | "blocked";
@@ -249,6 +264,34 @@ export function verdictSummary(verdicts: VerdictView[]): {
     }
   }
   return { passed, needsFixes, latestNeedsFixes };
+}
+
+/** The composite verdict-lens id a lens pass records, e.g. `impl:<taskId>:correctness`. */
+export function passVerdictLens(taskId: string, role: string): string {
+  return `impl:${taskId}:${role}`;
+}
+
+/** Categorize a verdict's lens for grouped display in the run view. */
+export type VerdictCategory = "plan" | "pass" | "risk" | "synthesis" | "triage";
+
+export function categorizeVerdict(lens: string): VerdictCategory {
+  if (lens.startsWith("impl:")) return "pass";
+  if (lens === "synthesis") return "synthesis";
+  if (lens === "triage") return "triage";
+  if (lens === "tactical" || lens === "architectural" || lens === "adversarial") return "plan";
+  return "risk";
+}
+
+/**
+ * The post-impl gate verdicts (risk lenses + synthesis), in order. These are the
+ * risk-review pipeline outcomes surfaced in the run view, distinct from the
+ * per-task lens-pass verdicts (which attach to their task) and the plan lenses.
+ */
+export function gateVerdicts(verdicts: VerdictView[]): VerdictView[] {
+  return verdicts.filter((v) => {
+    const cat = categorizeVerdict(v.lens);
+    return cat === "risk" || cat === "synthesis";
+  });
 }
 
 /** Total and per-bucket task counts for a board (for compact card summaries). */

@@ -23,6 +23,7 @@ function makeTask(overrides: Partial<SdlcTask> = {}): SdlcTask {
     linkedSession: null,
     attempts: 0,
     stalled: false,
+    passes: [],
     ...overrides,
   };
 }
@@ -38,6 +39,32 @@ describe("SdlcTaskDetail", () => {
     expect(screen.getByText("HIGH")).toBeInTheDocument();
     expect(screen.getByText("TDD")).toBeInTheDocument();
     expect(screen.getByText("Compute kit unit/total value from its composition.")).toBeInTheDocument();
+  });
+
+  it("renders the graduated lens passes with names, models, and verdict status", () => {
+    render(
+      <SdlcTaskDetail
+        task={makeTask({
+          passes: [
+            { role: "initial", name: "Initial Implementation", model: "sonnet", verdict: "pass" },
+            { role: "correctness", name: "Correctness Review", model: "opus", verdict: "needs_fixes" },
+            { role: "edge_cases", name: "Edge Case Review", model: "opus", verdict: null },
+          ],
+        })}
+        runId="run-1"
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("Lens passes")).toBeInTheDocument();
+    expect(screen.getByText("Initial Implementation")).toBeInTheDocument();
+    expect(screen.getByText("Correctness Review")).toBeInTheDocument();
+    expect(screen.getByText("needs fixes")).toBeInTheDocument();
+    expect(screen.getByText("pending")).toBeInTheDocument();
+  });
+
+  it("omits the Lens passes section when a task has no expanded passes", () => {
+    render(<SdlcTaskDetail task={makeTask({ passes: [] })} runId="run-1" onClose={vi.fn()} />);
+    expect(screen.queryByText("Lens passes")).not.toBeInTheDocument();
   });
 
   it("renders the acceptance-criteria checklist and dependency titles", () => {

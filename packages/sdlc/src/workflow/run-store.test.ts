@@ -48,4 +48,21 @@ describe("RunStore", () => {
     await store.update("run-1", (r) => ({ ...r, status: "completed" }));
     expect((await store.load("run-1"))?.status).toBe("completed");
   });
+
+  it("serializes concurrent updates without losing writes (parallel scheduler)", async () => {
+    const store = new RunStore(dir);
+    await store.save(sampleRun("run-1"));
+    // 50 concurrent appends to taskStatus — without serialization, the
+    // read-modify-write cycles would clobber each other and lose entries.
+    await Promise.all(
+      Array.from({ length: 50 }, (_, i) =>
+        store.update("run-1", (r) => ({
+          ...r,
+          taskStatus: { ...r.taskStatus, [`t${i}`]: "done" },
+        })),
+      ),
+    );
+    const loaded = await store.load("run-1");
+    expect(Object.keys(loaded?.taskStatus ?? {})).toHaveLength(50);
+  });
 });

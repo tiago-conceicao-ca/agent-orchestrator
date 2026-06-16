@@ -31,6 +31,7 @@ function makeTask(overrides: Partial<SdlcTaskDetail> = {}): SdlcTaskDetail {
     linkedSession: null,
     attempts: 0,
     stalled: false,
+    passes: [],
     ...overrides,
   };
 }

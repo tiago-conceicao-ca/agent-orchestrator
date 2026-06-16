@@ -72,7 +72,13 @@ describe("ca-plan-to-backend end-to-end", () => {
     await engine.resume(run.id);
     s = await engine.load(run.id);
     expect(s?.status).toBe("completed");
-    expect(spawned).toEqual(["epic-1__repo-layer", "epic-1__service-layer"]);
+    // Each logical task expands into graduated lens passes: Repo (LOW) → 3,
+    // Service (MEDIUM) → 4. Repo's passes all precede Service's (dependency order).
+    expect(spawned.filter((id) => id === "epic-1__repo-layer")).toHaveLength(3);
+    expect(spawned.filter((id) => id === "epic-1__service-layer")).toHaveLength(4);
+    expect(spawned.lastIndexOf("epic-1__repo-layer")).toBeLessThan(
+      spawned.indexOf("epic-1__service-layer"),
+    );
     expect(s?.taskStatus["epic-1__repo-layer"]).toBe("done");
   });
 

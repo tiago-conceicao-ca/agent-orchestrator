@@ -2,11 +2,46 @@
 export * from "./plan/types.js";
 export { normalizePlan, extractTaskSectionNames } from "./plan/normalizer.js";
 
+// Graduated lens-pass config (taskmaster implement.passes + complexity gating)
+export {
+  PASS_ROLES,
+  PASS_DEFS,
+  COMPLEXITY_PASSES,
+  passesForComplexity,
+  isReviewPass,
+  type PassRole,
+  type PassDef,
+} from "./passes/passes-config.js";
+export { expandTaskPasses, passId } from "./passes/expand.js";
+
 // Gates
 export * from "./gates/types.js";
-export { makeLensGate, loadLensPrompt, type AgentRunner, type LensName } from "./gates/lens-gate.js";
+export {
+  makeLensGate,
+  loadLensPrompt,
+  loadPromptTemplate,
+  type AgentRunner,
+  type LensName,
+} from "./gates/lens-gate.js";
 export { makePatternLibraryGate, type EvalCommandRunner } from "./gates/pattern-library-gate.js";
 export { smokeEvalArtifact } from "./gates/smoke-eval.js";
+export {
+  runGatePipeline,
+  CORE_RISK_LENSES,
+  QUALITY_GATES,
+  DEFAULT_MAX_FIX_TASKS,
+  type RiskLensDef,
+  type QualityGate,
+  type GatePipelineDeps,
+  type GatePipelineResult,
+  type TriageResult,
+} from "./gates/gate-pipeline.js";
+export {
+  makeGatePipelineRunner,
+  makeSessionGateAgentRunner,
+  type GateAgentRunner,
+  type QualityGateRunner,
+} from "./runner/gate-pipeline-runner.js";
 
 // Workflow engine
 export * from "./workflow/types.js";
@@ -19,13 +54,24 @@ export {
   makeGenerateBackendExecutor,
   previewTaskPrompt,
   taskCompletionDirective,
+  reviewPassCompletionDirective,
+  buildPassPrompt,
   sharedEpicBranch,
   GERAR_BACKEND_INSTRUCTION,
   TASK_MAX_ATTEMPTS,
+  DEFAULT_MAX_CONCURRENT,
+  PASS_MAX_FIX_ATTEMPTS,
   type SpawnFn,
   type SpawnConfig,
   type WaitForDoneFn,
+  type GenerateBackendDeps,
+  type ReadPassVerdictFn,
 } from "./phases/generate-backend.js";
+export {
+  readPassVerdictSentinel,
+  passVerdictSentinelInstruction,
+  PASS_VERDICT_SENTINEL,
+} from "./runner/pass-verdict.js";
 export { makeInputAdapter, type PlanWriteRunner } from "./phases/input-adapter.js";
 
 // V1 workflow definition

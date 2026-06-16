@@ -165,6 +165,7 @@ export function readMetadata(dataDir: string, sessionId: SessionId): SessionMeta
     worktree: (raw["worktree"] as string) ?? "",
     branch: (raw["branch"] as string) ?? "",
     status,
+    worktreeShared: raw["worktreeShared"] as string | undefined,
     tmuxName: raw["tmuxName"] as string | undefined,
     issue: raw["issue"] as string | undefined,
     issueTitle: raw["issueTitle"] as string | undefined,
@@ -300,6 +301,7 @@ export function writeMetadata(
     ...(metadata.lifecycle ? {} : { status: metadata.status }),
   };
 
+  if (metadata.worktreeShared) data["worktreeShared"] = metadata.worktreeShared;
   if (metadata.tmuxName) data["tmuxName"] = metadata.tmuxName;
   if (metadata.issue) data["issue"] = metadata.issue;
   if (metadata.issueTitle) data["issueTitle"] = metadata.issueTitle;

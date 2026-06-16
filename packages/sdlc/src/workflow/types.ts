@@ -70,6 +70,12 @@ export interface PhaseContext {
   setTaskStatus: (taskId: string, status: TaskStatus) => Promise<void>;
   /** persisted hook for per-task attempt/stall progress (`updatedAt` is stamped by the engine). */
   setTaskProgress: (taskId: string, progress: Omit<TaskProgress, "updatedAt">) => Promise<void>;
+  /**
+   * Optional persisted hook to append a gate/pass verdict to `run.verdicts`.
+   * Used by generate-backend to record each lens pass's verdict (and its auto
+   * re-dispatch history). Optional so existing executors/tests are unaffected.
+   */
+  recordVerdict?: (verdict: GateVerdict) => Promise<void>;
 }
 
 export interface PhaseResult {

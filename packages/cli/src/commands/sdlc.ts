@@ -26,15 +26,19 @@ import {
 import {
   CA_PLAN_TO_BACKEND,
   loadLensPrompt,
+  makeGatePipelineRunner,
   makeGenerateBackendExecutor,
   makeInputAdapter,
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
   makeSdlcRunEventHandler,
+  makeSessionGateAgentRunner,
   makeSessionLensRunner,
   makeSessionPlanRunner,
+  readPassVerdictSentinel,
   RunStore,
+  type GenerateBackendDeps,
   smokeEvalArtifact,
   waitForTaskCompletion,
   WorkflowEngine,
@@ -51,6 +55,7 @@ interface SdlcSessionManager {
     projectId: string;
     prompt: string;
     model?: string;
+    worktreeKey?: string;
   }): Promise<{ id: string; workspacePath?: string | null }>;
   get(id: string): Promise<Session | null>;
   kill(id: string): Promise<unknown>;
@@ -67,6 +72,8 @@ export interface SdlcServiceDeps {
   buildTaskPrompt?: (task: WorkflowTask) => string;
   /** Optional run-event sink (orchestrator notify + activity + notifiers). */
   onRunEvent?: (event: SdlcRunEvent) => Promise<void>;
+  /** Optional post-impl gate pipeline (risk-review → synthesis → triage → quality). */
+  runTaskGates?: GenerateBackendDeps["runTaskGates"];
 }
 
 const TASK_POLL_INTERVAL_MS = 5_000;
@@ -128,11 +135,13 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     sdlcTaskId: string;
     metadata: Record<string, string>;
     model?: string;
+    worktreeKey?: string;
   }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await deps.sessionManager.spawn({
       projectId: cfg.projectId,
       prompt: cfg.prompt,
       model: cfg.model,
+      worktreeKey: cfg.worktreeKey,
     });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };
@@ -163,6 +172,11 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
       waitForDone,
       projectId: deps.projectId,
       buildTaskPrompt: deps.buildTaskPrompt,
+      maxConcurrent: Number(process.env.AO_SDLC_MAX_CONCURRENT) || 3,
+      // Auto re-dispatch a pass whose verdict sentinel says needs_fixes (bounded).
+      readPassVerdict: async ({ workspacePath, task, pass }) =>
+        readPassVerdictSentinel(workspacePath, `impl:${task.id}:${pass.role}`),
+      runTaskGates: deps.runTaskGates,
     }),
   };
 
@@ -298,6 +312,19 @@ async function buildLiveEngine(
     buildTaskPrompt: generationInstruction
       ? genPromptFromInstruction(generationInstruction)
       : undefined,
+    // Post-impl gate pipeline: risk lenses (parallel) → synthesis → triage →
+    // quality. Skipped under --skip-lens (demo/testing). Risk/synthesis/triage
+    // run as real worker sessions; the quality gate uses the lenient smoke eval.
+    runTaskGates: skipLens
+      ? undefined
+      : makeGatePipelineRunner(makeSessionGateAgentRunner(sessionSpawn), async (_gate, artifactRef) => {
+          const out = await smokeEvalArtifact(artifactRef);
+          try {
+            return { passed: (JSON.parse(out) as { passed?: boolean }).passed === true };
+          } catch {
+            return { passed: false, detail: "smoke eval produced no parseable result" };
+          }
+        }),
   });
 }
 

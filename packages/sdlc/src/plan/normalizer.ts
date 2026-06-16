@@ -1,6 +1,7 @@
 import { extractTaskGraphYaml, parseTaskGraph } from "./parser.js";
 import { validateTaskGraph } from "./validator.js";
 import { COMPLEXITY_MODEL_DEFAULT, type Epic, type WorkflowTask, type Dependency } from "./types.js";
+import { expandTaskPasses } from "../passes/expand.js";
 
 const TASK_HEADING_RE = /^##\s+Task:\s+(.+?)\s*$/gm;
 
@@ -61,5 +62,17 @@ export function normalizePlan(planMarkdown: string, meta: EpicMeta): Epic {
         type: "blocks",
       });
 
-  return { id: meta.id, title: meta.title, description: meta.description, tasks, dependencies };
+  // Expand each logical task into its graduated, chained lens passes
+  // (taskmaster-modelled). The logical-task dependency graph is preserved; the
+  // initial pass of each task waits for the terminal passes of its upstream
+  // logical deps.
+  const tasksWithPasses = expandTaskPasses(tasks, dependencies);
+
+  return {
+    id: meta.id,
+    title: meta.title,
+    description: meta.description,
+    tasks: tasksWithPasses,
+    dependencies,
+  };
 }

@@ -397,6 +397,17 @@ export interface SessionSpawnConfig {
    * today's behavior (project model or the agent's own default).
    */
   model?: string;
+  /**
+   * SDLC-only opt-in: share ONE worktree across multiple sessions keyed by this
+   * id (a logical SDLC task's sequential lens passes). The first spawn with a
+   * given key creates the worktree; subsequent spawns ATTACH to it (same dir +
+   * branch) instead of creating a fresh one. Sessions that attached do NOT own
+   * the worktree — killing them never destroys the shared checkout.
+   *
+   * Undefined (the DEFAULT for every normal `ao spawn` worker) preserves the
+   * one-isolated-worktree-per-session behavior exactly.
+   */
+  worktreeKey?: string;
 }
 
 /** Config for creating an orchestrator session */
@@ -718,6 +729,14 @@ export interface WorkspaceCreateConfig {
   branch: string;
   /** Override the base directory for worktrees (e.g. V2 project-scoped dir). */
   worktreeDir?: string;
+  /**
+   * SDLC-only opt-in: identity for a SHARED worktree (a logical task's
+   * sequential lens passes). When set, the worktree directory + branch are keyed
+   * by this instead of `sessionId`, and an already-existing matching worktree is
+   * ATTACHED to (returned with `reused: true`) rather than recreated. Undefined
+   * (the default for every normal spawn) keeps one worktree per session.
+   */
+  worktreeKey?: string;
 }
 
 export interface WorkspaceInfo {
@@ -725,6 +744,12 @@ export interface WorkspaceInfo {
   branch: string;
   sessionId: SessionId;
   projectId: string;
+  /**
+   * True when `create` ATTACHED to a pre-existing shared worktree (via
+   * `worktreeKey`) instead of creating a new one. The attaching session does not
+   * own the checkout — the session-manager skips workspace destroy on its kill.
+   */
+  reused?: boolean;
 }
 
 // =============================================================================
@@ -1845,6 +1870,12 @@ export interface SessionMetadata {
   worktree: string;
   branch: string;
   status: string;
+  /**
+   * "true" when this session ATTACHED to a shared SDLC worktree (it did not
+   * create it). Set only for SDLC lens-pass sessions that reuse a logical task's
+   * worktree — `kill` skips workspace destroy so the shared checkout survives.
+   */
+  worktreeShared?: string;
   lifecycle?: CanonicalSessionLifecycle;
   tmuxName?: string; // Tmux session name (matches session ID, e.g. "ao-1")
   issue?: string;
