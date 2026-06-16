@@ -35,6 +35,10 @@ export interface SdlcTaskDetail {
   updatedAt: string;
   prompt: string; // the exact agent prompt (previewTaskPrompt output)
   linkedSession: LinkedSession | null; // null = not dispatched
+  /** Worker spawns for this task (1 + auto-retries); 0 when never dispatched. */
+  attempts: number;
+  /** True while this task's worker is stalled (no completion signal). */
+  stalled: boolean;
 }
 
 export type BoardColumn = "backlog" | "ready" | "in_progress" | "in_review" | "done" | "blocked";
@@ -88,6 +92,10 @@ export interface RunView {
   verdicts: VerdictView[];
   /** The normalized plan markdown the lens agents reviewed; null when not persisted. */
   planArtifact: string | null;
+  /** Last surfaced engine/gate failure (fail paths, abandon, reconcile); null when none. */
+  lastError: { phase: string; message: string } | null;
+  /** PR landing mode for this run's worker tasks (defaults to per-task). */
+  prMode: string;
 }
 
 /** Map a run's phaseStates record to an ordered, serializable view. */
@@ -112,6 +120,11 @@ export function toVerdictViews(run: WorkflowRun): VerdictView[] {
 /** The normalized plan markdown persisted on the run (null when absent). */
 export function planArtifactFromRun(run: WorkflowRun): string | null {
   return run.planMarkdown ?? null;
+}
+
+/** The last surfaced engine/gate failure on the run (null when none). */
+export function lastErrorFromRun(run: WorkflowRun): { phase: string; message: string } | null {
+  return run.lastError ?? null;
 }
 
 function emptyBoard(): Board {
@@ -164,4 +177,59 @@ export function toKanban(
 export function filterRunsByProject(runs: RunView[], projectId: string | undefined): RunView[] {
   if (!projectId) return runs;
   return runs.filter((run) => run.projectId === projectId);
+}
+
+/** Run-level recovery/gate actions, contextual to a run's status. */
+export type RunActionKind = "approve" | "resume" | "abandon";
+
+/**
+ * Which run-level actions a status exposes (per-task retry lives on the task
+ * panel). Approve gates an awaiting run; Abandon is available while the run is
+ * non-terminal; Resume re-drives a failed run.
+ */
+export function availableRunActions(status: string): RunActionKind[] {
+  switch (status) {
+    case "awaiting_approval":
+      return ["approve", "abandon"];
+    case "running":
+      return ["abandon"];
+    case "failed":
+      return ["resume"];
+    default:
+      return []; // completed (terminal) → no run-level actions
+  }
+}
+
+/** Summarize a run's lens verdicts: pass/needs-fixes counts + the latest failing one. */
+export function verdictSummary(verdicts: VerdictView[]): {
+  passed: number;
+  needsFixes: number;
+  latestNeedsFixes: VerdictView | null;
+} {
+  let passed = 0;
+  let needsFixes = 0;
+  let latestNeedsFixes: VerdictView | null = null;
+  for (const v of verdicts) {
+    if (v.verdict === "pass") passed += 1;
+    else {
+      needsFixes += 1;
+      latestNeedsFixes = v;
+    }
+  }
+  return { passed, needsFixes, latestNeedsFixes };
+}
+
+/** Total and per-bucket task counts for a board (for compact card summaries). */
+export function taskTotals(board: Board): {
+  total: number;
+  done: number;
+  inProgress: number;
+  blocked: number;
+} {
+  return {
+    total: COLUMNS.reduce((n, col) => n + board[col].length, 0),
+    done: board.done.length,
+    inProgress: board.in_progress.length,
+    blocked: board.blocked.length,
+  };
 }

@@ -7,11 +7,11 @@ import { getPRDotClass, getPRStatusLabel } from "@/lib/pr-status";
 import { cn } from "@/lib/cn";
 import type { DashboardPR } from "@/lib/types";
 
-// Read-only, rich detail panel for a single SDLC task. No mutations: no
-// comments, edit, status override, priority, or assignee — it renders the
-// enriched data the runs API supplies (T-number, status, summary, acceptance
-// criteria, dependencies, agent/model, timestamps, linked session, and the
-// exact agent prompt).
+// Rich detail panel for a single SDLC task. Read-only by default — it renders
+// the enriched data the runs API supplies (T-number, status, summary, acceptance
+// criteria, dependencies, agent/model, timestamps, linked session, and the exact
+// agent prompt). The per-run detail page may pass `onRetry` to expose a single
+// recovery action (re-spawn this task's worker) when the run has failed.
 
 // SDLC task statuses → the design system's status tones (DESIGN.md colour map).
 const STATUS_TONE: Record<string, string> = {
@@ -84,10 +84,21 @@ interface SdlcTaskDetailProps {
   runId: string;
   /** Live PR/CI of the linked worker session, when one is dispatched (incl. terminal). */
   linkedSessionPR?: DashboardPR | null;
+  /** When provided, shows a Retry button that re-spawns this task's worker. */
+  onRetry?: (taskId: string) => void;
+  /** Disables the Retry button while a retry is in flight. */
+  retrying?: boolean;
   onClose: () => void;
 }
 
-export function SdlcTaskDetail({ task, runId, linkedSessionPR, onClose }: SdlcTaskDetailProps) {
+export function SdlcTaskDetail({
+  task,
+  runId,
+  linkedSessionPR,
+  onRetry,
+  retrying = false,
+  onClose,
+}: SdlcTaskDetailProps) {
   const [promptOpen, setPromptOpen] = useState(false);
 
   useEffect(() => {
@@ -114,24 +125,36 @@ export function SdlcTaskDetail({ task, runId, linkedSessionPR, onClose }: SdlcTa
             <span className="sdlc-detail__num">T{task.number}</span>
             <h2 className="sdlc-detail__title">{task.title}</h2>
           </div>
-          <button
-            type="button"
-            className="sdlc-detail__close"
-            onClick={onClose}
-            aria-label="Close task detail"
-          >
-            <svg
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+          <div className="sdlc-detail__header-actions">
+            {onRetry ? (
+              <button
+                type="button"
+                className="dashboard-app-btn dashboard-app-btn--amber"
+                onClick={() => onRetry(task.id)}
+                disabled={retrying}
+              >
+                {retrying ? "Retrying…" : "Retry task"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="sdlc-detail__close"
+              onClick={onClose}
+              aria-label="Close task detail"
             >
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <div className="sdlc-detail__body">

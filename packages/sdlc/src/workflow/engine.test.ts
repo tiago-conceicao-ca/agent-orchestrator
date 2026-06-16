@@ -338,6 +338,70 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     expect(run.status).toBe("running");
   });
 
+  it("amendAndRerun appends the comment, resets state, and re-runs in place (same id)", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: ["tactical"], humanGate: false }],
+    };
+    // Executor echoes input as the plan so we can assert the amendment is threaded
+    // through, and seeds a fresh task to prove downstream state is reset.
+    const planExec: PhaseExecutor = {
+      id: "p1",
+      async run(ctx) {
+        await ctx.setTaskStatus("a", "backlog");
+        return { artifactRef: "art", planMarkdown: ctx.input };
+      },
+    };
+    const store = new RunStore(dir);
+    const engine = new WorkflowEngine({
+      store,
+      definitions: { w: def },
+      executors: { p1: planExec },
+      gates: { tactical: passGate },
+    });
+    await store.save({
+      id: "run-amend",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: { p1: "failed" },
+      taskStatus: { old: "blocked" },
+      verdicts: [
+        { type: "gate", lens: "tactical", issues: [{ severity: "high", title: "x", detail: "y" }], verdict: "needs_fixes" },
+      ],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      planMarkdown: "# Plan\n## Task Graph\n```yaml\n```",
+      lastError: { phase: "p1", message: "old failure" },
+    });
+    const run = await engine.amendAndRerun("run-amend", "Please add unit tests.");
+    expect(run.id).toBe("run-amend"); // same run, in place
+    expect(run.status).toBe("completed");
+    expect(run.planMarkdown).toContain("Please add unit tests.");
+    expect(run.verdicts).toHaveLength(1); // prior verdicts cleared, one fresh pass
+    expect(run.verdicts[0].verdict).toBe("pass");
+    expect(run.taskStatus).toEqual({ a: "backlog" }); // stale "old" task cleared
+    expect(run.lastError).toBeUndefined();
+  });
+
+  it("amendAndRerun throws when the run has no plan to amend", async () => {
+    const { engine, store } = engineWithGen([]);
+    await store.save({
+      id: "run-noplan",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+    });
+    await expect(engine.amendAndRerun("run-noplan", "x")).rejects.toThrow(/no plan/i);
+  });
+
   it("resumeRun re-drives advance and skips already-done tasks", async () => {
     const spawns: string[] = [];
     const { engine, store } = engineWithGen(spawns);

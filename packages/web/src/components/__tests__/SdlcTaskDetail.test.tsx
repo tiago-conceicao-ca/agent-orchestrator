@@ -21,6 +21,8 @@ function makeTask(overrides: Partial<SdlcTask> = {}): SdlcTask {
     updatedAt: "2026-06-09T14:52:16.743Z",
     prompt: "Run the /gerar-backend skill to implement this task.\n\nTask: ProductKitPriceCalculator",
     linkedSession: null,
+    attempts: 0,
+    stalled: false,
     ...overrides,
   };
 }
