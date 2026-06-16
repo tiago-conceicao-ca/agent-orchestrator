@@ -18,6 +18,10 @@ function retryKey(runId: string, taskId: string): string {
   return `${runId}|retry|${taskId}`;
 }
 
+function amendKey(runId: string): string {
+  return `${runId}|amend`;
+}
+
 export function useSdlcRunActions(onRefresh: () => void) {
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
   const [actionError, setActionError] = useState<string | null>(null);
@@ -83,6 +87,17 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [run],
   );
 
+  const amend = useCallback(
+    (runView: RunView, comment: string) =>
+      run(
+        amendKey(runView.id),
+        `/api/sdlc/runs/${encodeURIComponent(runView.id)}/amend`,
+        { project: runView.projectId, comment },
+        "amend run",
+      ),
+    [run],
+  );
+
   const busyActionsFor = useCallback(
     (runId: string): Set<RunActionKind> =>
       new Set(ALL_ACTIONS.filter((action) => busy.has(actionKey(runId, action)))),
@@ -94,5 +109,7 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [busy],
   );
 
-  return { dispatch, retryTask, busyActionsFor, isRetrying, actionError };
+  const isAmending = useCallback((runId: string): boolean => busy.has(amendKey(runId)), [busy]);
+
+  return { dispatch, retryTask, amend, busyActionsFor, isRetrying, isAmending, actionError };
 }

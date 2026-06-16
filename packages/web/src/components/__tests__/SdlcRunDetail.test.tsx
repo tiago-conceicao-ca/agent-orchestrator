@@ -203,6 +203,33 @@ describe("SdlcRunDetail", () => {
     expect(screen.queryByRole("button", { name: "Retry task" })).not.toBeInTheDocument();
   });
 
+  it("amends & re-runs a failed run in place via the amend endpoint", async () => {
+    mockFetch(makeRun({ status: "failed", pendingApproval: null }));
+    renderDetail();
+    const input = await screen.findByLabelText("Amendment instructions");
+    fireEvent.change(input, { target: { value: "Please add integration tests." } });
+    fireEvent.click(screen.getByRole("button", { name: "Re-run" }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/sdlc/runs/run-1/amend",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            project: "my-app",
+            comment: "Please add integration tests.",
+          }),
+        }),
+      ),
+    );
+  });
+
+  it("hides the amend form once the run has completed", async () => {
+    mockFetch(makeRun({ status: "completed", pendingApproval: null }));
+    renderDetail();
+    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    expect(screen.queryByLabelText("Amendment instructions")).not.toBeInTheDocument();
+  });
+
   it("shows a not-found state for an unknown run", async () => {
     mockFetch(null);
     renderDetail();

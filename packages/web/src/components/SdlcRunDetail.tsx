@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSdlcRunActions } from "@/hooks/useSdlcRunActions";
 import { MOBILE_BREAKPOINT, useMediaQuery } from "@/hooks/useMediaQuery";
 import type { ProjectInfo } from "@/lib/project-name";
-import type { RunView } from "@/lib/sdlc-board";
+import { verdictSummary, type RunView } from "@/lib/sdlc-board";
 import {
   projectDashboardPath,
   projectReviewPath,
@@ -13,6 +13,7 @@ import {
 } from "@/lib/routes";
 import type { DashboardOrchestratorLink, DashboardPR, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
+import { SdlcAmendForm } from "./SdlcAmendForm";
 import { SdlcKanbanBoard } from "./SdlcKanbanBoard";
 import { SdlcRunActionButtons } from "./SdlcRunActionButtons";
 import { SdlcRunInsights } from "./SdlcRunInsights";
@@ -95,7 +96,8 @@ export function SdlcRunDetail({
     return () => clearInterval(timer);
   }, [load]);
 
-  const { dispatch, retryTask, busyActionsFor, isRetrying, actionError } = useSdlcRunActions(load);
+  const { dispatch, retryTask, amend, busyActionsFor, isRetrying, isAmending, actionError } =
+    useSdlcRunActions(load);
 
   const sessionsById = useMemo(
     () => new Map(sidebarSessions.map((s) => [s.id, s])),
@@ -258,6 +260,15 @@ export function SdlcRunDetail({
                 ) : null}
 
                 <SdlcRunInsights run={run} />
+
+                {run.planArtifact !== null &&
+                (run.status === "failed" || run.status === "awaiting_approval") ? (
+                  <SdlcAmendForm
+                    needsFixes={verdictSummary(run.verdicts).needsFixes > 0}
+                    busy={isAmending(run.id)}
+                    onSubmit={(comment) => amend(run, comment)}
+                  />
+                ) : null}
 
                 <section className="sdlc-detail-page__board">
                   <SdlcKanbanBoard board={run.board} onSelectTask={setSelectedTaskId} />

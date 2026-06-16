@@ -55,6 +55,38 @@ export async function handleRetry(
   return { ok: true, status: 200, message: `Retrying task ${taskId}.`, run: updated };
 }
 
+/**
+ * Amend a run's plan with the user's comment and re-run normalize + lens in
+ * place. Valid while the run has settled (not running) and isn't already
+ * completed; the engine rejects a run with no plan to amend.
+ */
+export async function handleAmend(
+  engine: WorkflowEngine,
+  runId: string,
+  comment: string | undefined,
+): Promise<RunActionResult> {
+  if (!comment || !comment.trim())
+    return { ok: false, status: 400, message: "A comment is required to amend & re-run." };
+  const run = await engine.load(runId);
+  if (!run) return notFound(runId);
+  if (run.status === "running")
+    return {
+      ok: false,
+      status: 409,
+      message: "Run is currently running; wait for it to settle before amending.",
+    };
+  if (run.status === "completed")
+    return {
+      ok: false,
+      status: 409,
+      message: "Run is completed; start a new run instead of amending.",
+    };
+  if (!run.planMarkdown)
+    return { ok: false, status: 409, message: "Run has no plan to amend yet." };
+  const updated = await engine.amendAndRerun(runId, comment.trim());
+  return { ok: true, status: 200, message: "Amended; re-running normalize + lens.", run: updated };
+}
+
 /** Re-drive a failed run from a phase (or where it stalled). */
 export async function handleResume(
   engine: WorkflowEngine,

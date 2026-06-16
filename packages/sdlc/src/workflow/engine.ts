@@ -148,6 +148,33 @@ export class WorkflowEngine {
     }));
   }
 
+  /**
+   * Amend a run's plan with the user's comment and re-run normalize-plan + its
+   * lens IN PLACE (same run id) — the recovery path for a `needs_fixes` plan.
+   * Appends the comment to the persisted plan, resets the downstream run state
+   * (phases, verdicts, task status, epic) so the re-run starts clean, and
+   * re-drives `advance` from the first phase. Leaves resume/retry untouched.
+   */
+  async amendAndRerun(id: string, comment: string): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    if (!run.planMarkdown) throw new Error(`Run '${id}' has no plan to amend.`);
+    const amended = `${run.planMarkdown.trimEnd()}\n\n## Amendment\n\n${comment.trim()}\n`;
+    await this.deps.store.update(id, (r) => ({
+      ...r,
+      status: "running",
+      pendingApproval: null,
+      lastError: undefined,
+      enginePid: process.pid,
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      verdicts: [],
+      taskStatus: {},
+      epic: undefined, // re-derived by normalize-plan from the amended plan
+      planMarkdown: amended,
+    }));
+    return this.advance(id, amended);
+  }
+
   /** Drives phases from currentPhaseIndex until completion, failure, or a human gate. */
   private async advance(id: string, input: string): Promise<WorkflowRun> {
     let run = await this.require(id);
