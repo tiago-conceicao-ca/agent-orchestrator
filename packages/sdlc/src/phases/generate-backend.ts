@@ -79,6 +79,22 @@ export interface GenerateBackendDeps {
    * the worker `done` signal alone (no verdict gating).
    */
   readPassVerdict?: ReadPassVerdictFn;
+  /**
+   * Optional: after a task's terminal impl pass completes, run the post-impl gate
+   * pipeline (risk-review → synthesis → triage → build/test/lint quality gates)
+   * over the task's final diff (`artifactRef` = its worktree). `hooks` lets the
+   * pipeline record gate verdicts on the run and log progress. A throw fails the
+   * task. When omitted, no gate pipeline runs (the Task-4/5 behavior).
+   */
+  runTaskGates?: (
+    task: WorkflowTask,
+    artifactRef: string,
+    hooks: {
+      runId: string;
+      recordVerdict?: (verdict: GateVerdict) => Promise<void>;
+      log: (msg: string) => void;
+    },
+  ) => Promise<void>;
 }
 
 /** Kahn topological order over the epic's blocking edges (also rejects cycles). */
@@ -345,6 +361,8 @@ async function runLogicalTask(
         { sdlcTaskId: task.id, title: task.title, prompt: promptFor(task), model: task.model, label: `Task '${task.title}'` },
         (attempts, stalled) => ctx.setTaskProgress(task.id, { attempts, stalled }),
       );
+      if (deps.runTaskGates && workspacePath)
+        await deps.runTaskGates(task, workspacePath, { runId: ctx.run.id, recordVerdict: ctx.recordVerdict, log: ctx.log });
       await ctx.setTaskStatus(task.id, "done");
       return { workspacePath };
     } catch (e) {
@@ -362,6 +380,10 @@ async function runLogicalTask(
       const { workspacePath } = await runPassWithFixLoop(deps, ctx, task, pass, prompt);
       sharedWorkspace = workspacePath ?? sharedWorkspace;
     }
+    // After the terminal impl pass: run the post-impl gate pipeline (risk-review
+    // → synthesis → triage → quality gates) over the task's final diff.
+    if (deps.runTaskGates && sharedWorkspace)
+      await deps.runTaskGates(task, sharedWorkspace, { runId: ctx.run.id, recordVerdict: ctx.recordVerdict, log: ctx.log });
     // Record one attempt entry at the task level (passes succeeded).
     await ctx.setTaskProgress(task.id, { attempts: 1, stalled: false });
     await ctx.setTaskStatus(task.id, "done");

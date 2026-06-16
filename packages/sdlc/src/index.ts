@@ -25,6 +25,23 @@ export {
 } from "./gates/lens-gate.js";
 export { makePatternLibraryGate, type EvalCommandRunner } from "./gates/pattern-library-gate.js";
 export { smokeEvalArtifact } from "./gates/smoke-eval.js";
+export {
+  runGatePipeline,
+  CORE_RISK_LENSES,
+  QUALITY_GATES,
+  DEFAULT_MAX_FIX_TASKS,
+  type RiskLensDef,
+  type QualityGate,
+  type GatePipelineDeps,
+  type GatePipelineResult,
+  type TriageResult,
+} from "./gates/gate-pipeline.js";
+export {
+  makeGatePipelineRunner,
+  makeSessionGateAgentRunner,
+  type GateAgentRunner,
+  type QualityGateRunner,
+} from "./runner/gate-pipeline-runner.js";
 
 // Workflow engine
 export * from "./workflow/types.js";

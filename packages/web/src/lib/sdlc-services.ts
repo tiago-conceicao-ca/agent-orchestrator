@@ -14,7 +14,9 @@ import {
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
+  makeGatePipelineRunner,
   makeSdlcRunEventHandler,
+  makeSessionGateAgentRunner,
   makeSessionLensRunner,
   makeSessionPlanRunner,
   readPassVerdictSentinel,
@@ -172,6 +174,20 @@ export async function buildWebSdlcEngine(
         // a needs_fixes verdict auto re-dispatches the pass (bounded).
         readPassVerdict: async ({ workspacePath, task, pass }) =>
           readPassVerdictSentinel(workspacePath, `impl:${task.id}:${pass.role}`),
+        // Post-impl gate pipeline: risk lenses (parallel) → synthesis → triage →
+        // quality. Risk/synthesis/triage run as real worker sessions; the quality
+        // gate uses the lenient smoke eval (worktree contains files).
+        runTaskGates: makeGatePipelineRunner(
+          makeSessionGateAgentRunner(sessionSpawn),
+          async (_gate, artifactRef) => {
+            const out = await smokeEvalArtifact(artifactRef);
+            try {
+              return { passed: (JSON.parse(out) as { passed?: boolean }).passed === true };
+            } catch {
+              return { passed: false, detail: "smoke eval produced no parseable result" };
+            }
+          },
+        ),
       }),
     },
     gates: {

@@ -136,3 +136,41 @@ describe("generate-backend — bounded auto re-dispatch on needs_fixes", () => {
     expect(statuses["t"]).toBe("done");
   });
 });
+
+describe("generate-backend — post-impl gate pipeline (runTaskGates)", () => {
+  it("runs the gate pipeline AFTER a task's passes complete", async () => {
+    const events: string[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      events.push(`pass:${cfg.sdlcTaskId}`);
+      return { id: "s", workspacePath: "/wt/t" };
+    };
+    const exec = makeGenerateBackendExecutor({
+      spawn,
+      projectId: "b",
+      waitForDone: async () => "done",
+      runTaskGates: async (_task, artifactRef) => {
+        events.push(`gates:${artifactRef}`);
+      },
+    });
+    const { ctx, statuses } = harness(epicWithPasses([task("t", "LOW")]));
+    await exec.run(ctx);
+    // 3 passes, then the gate pipeline over the shared worktree.
+    expect(events).toEqual(["pass:t", "pass:t", "pass:t", "gates:/wt/t"]);
+    expect(statuses["t"]).toBe("done");
+  });
+
+  it("a failing gate pipeline blocks the task", async () => {
+    const spawn: SpawnFn = async () => ({ id: "s", workspacePath: "/wt/t" });
+    const exec = makeGenerateBackendExecutor({
+      spawn,
+      projectId: "b",
+      waitForDone: async () => "done",
+      runTaskGates: async () => {
+        throw new Error("Quality gate 'test' failed: 2 tests failed");
+      },
+    });
+    const { ctx, statuses } = harness(epicWithPasses([task("t", "LOW")]));
+    await expect(exec.run(ctx)).rejects.toThrow(/Quality gate 'test' failed/);
+    expect(statuses["t"]).toBe("blocked");
+  });
+});
