@@ -179,6 +179,26 @@ export function toKanban(
 }
 
 /**
+ * A run abandoned under the OLD pre-#12 code persists as `status:"failed"` with
+ * an abandon `lastError` (no distinct `abandoned` status existed yet). These are
+ * the engine's two abandon messages: the manual default and the dead-engine
+ * reconcile path (see `engine.abandon` / `reconcile` in @aoagents/ao-sdlc).
+ */
+const LEGACY_ABANDON_MESSAGES = [/^Run abandoned\.$/, /^Engine process .+ is no longer alive\.$/];
+
+/**
+ * Whether a run is abandoned — either the canonical `abandoned` status or a
+ * legacy run abandoned before #12 (failed + an abandon `lastError`). The runs
+ * list hides these; the deep-linked run page still loads them.
+ */
+export function isAbandoned(run: Pick<RunView, "status" | "lastError">): boolean {
+  if (run.status === "abandoned") return true;
+  if (run.status !== "failed") return false;
+  const message = run.lastError?.message;
+  return message !== undefined && LEGACY_ABANDON_MESSAGES.some((re) => re.test(message));
+}
+
+/**
  * Scope runs to a single project. `undefined` projectId is the all-projects
  * view (mirrors ReviewDashboard's `allProjectsView`) and returns every run.
  */

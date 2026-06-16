@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSdlcRunActions } from "@/hooks/useSdlcRunActions";
 import { MOBILE_BREAKPOINT, useMediaQuery } from "@/hooks/useMediaQuery";
 import type { ProjectInfo } from "@/lib/project-name";
-import { COLUMNS, filterRunsByProject, type RunView } from "@/lib/sdlc-board";
+import { COLUMNS, filterRunsByProject, isAbandoned, type RunView } from "@/lib/sdlc-board";
 import { projectDashboardPath, projectReviewPath, projectSdlcPath } from "@/lib/routes";
 import type { DashboardOrchestratorLink, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
@@ -68,8 +68,10 @@ export function SdlcDashboard({
   const { dispatch, busyActionsFor, actionError } = useSdlcRunActions(load);
 
   // Hide abandoned runs from the list (they stay deep-linkable at /sdlc/[id]).
+  // isAbandoned also catches legacy runs abandoned before #12 (failed + abandon
+  // lastError), which never got the distinct `abandoned` status.
   const visibleRuns = useMemo(
-    () => filterRunsByProject(runs, projectId).filter((run) => run.status !== "abandoned"),
+    () => filterRunsByProject(runs, projectId).filter((run) => !isAbandoned(run)),
     [runs, projectId],
   );
 
