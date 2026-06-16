@@ -16,7 +16,13 @@ export { expandTaskPasses, passId } from "./passes/expand.js";
 
 // Gates
 export * from "./gates/types.js";
-export { makeLensGate, loadLensPrompt, type AgentRunner, type LensName } from "./gates/lens-gate.js";
+export {
+  makeLensGate,
+  loadLensPrompt,
+  loadPromptTemplate,
+  type AgentRunner,
+  type LensName,
+} from "./gates/lens-gate.js";
 export { makePatternLibraryGate, type EvalCommandRunner } from "./gates/pattern-library-gate.js";
 export { smokeEvalArtifact } from "./gates/smoke-eval.js";
 

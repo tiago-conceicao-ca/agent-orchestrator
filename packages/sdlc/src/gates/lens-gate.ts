@@ -20,8 +20,18 @@ export type LensName = "tactical" | "architectural" | "adversarial";
  * contains the `{artifact}` placeholder, which `makeLensGate` substitutes.
  */
 export function loadLensPrompt(name: LensName): string {
+  return loadPromptTemplate(name);
+}
+
+/**
+ * Read any ported prompt template by its id (`prompts/<template>.md`). Resolved
+ * relative to this compiled module so it works from `src/` under vitest and from
+ * `dist/` at runtime (the build copies `src/gates/prompts` → `dist/gates/prompts`).
+ * Used by the implement-lens passes (`implement-lens-<role>`) and the plan lenses.
+ */
+export function loadPromptTemplate(template: string): string {
   const promptsDir = join(dirname(fileURLToPath(import.meta.url)), "prompts");
-  return readFileSync(join(promptsDir, `${name}.md`), "utf-8");
+  return readFileSync(join(promptsDir, `${template}.md`), "utf-8");
 }
 
 /**
