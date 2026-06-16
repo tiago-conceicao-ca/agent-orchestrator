@@ -289,7 +289,7 @@ interface PrintableRun {
   taskProgress?: Record<string, { attempts: number; stalled: boolean }>;
 }
 
-function printRun(run: PrintableRun): void {
+export function printRun(run: PrintableRun): void {
   const mode = run.prMode ? chalk.dim(` [${run.prMode}]`) : "";
   console.log(chalk.bold(`run ${run.id}`) + chalk.dim(` — ${run.status}`) + mode);
   const entries = Object.entries(run.taskStatus);
