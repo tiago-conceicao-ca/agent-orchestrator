@@ -9,16 +9,45 @@ import { Callout } from "fumadocs-ui/components/callout";
   CAHI is in active development and follows semver pre-1.0. Breaking changes are called out here with migration steps.
 </Callout>
 
-## From `@composio/agent-orchestrator` to `@contaazul/cahi`
+## From Agent Orchestrator (`ao`) to CAHI
 
-The npm scope moved to `@contaazul/cahi`. If you installed under the old name:
+CAHI is the rebrand of **Agent Orchestrator**. This is a hard rename with no in-code
+backward compatibility, so the CLI, package scope, environment variables, data
+directory, and config filename all changed:
+
+| Was | Now |
+| --- | --- |
+| `ao` CLI command | `cahi` |
+| `@aoagents/ao*` npm packages | `@contaazul/cahi*` |
+| `AO_*` env vars | `CAHI_*` |
+| `~/.agent-orchestrator/` data dir | `~/.cahi/` |
+| `~/.ao/bin` PATH wrappers | `~/.cahi/bin` |
+| `~/.config/agent-orchestrator/` | `~/.config/cahi/` |
+| `agent-orchestrator.yaml` project config | `cahi.yaml` |
+| default dashboard port `3000` | `4000` |
+
+Reinstall the CLI, then run the migration script to move your existing on-disk data:
 
 ```bash
-npm uninstall -g @composio/agent-orchestrator
+# 1. Stop any running instance first
+ao stop --all || cahi stop --all
+
+# 2. Reinstall under the new name
+npm uninstall -g @aoagents/ao 2>/dev/null || true
 npm install -g @contaazul/cahi
+
+# 3. Migrate your data (preview first, then apply)
+bash scripts/migrate-ao-to-cahi.sh --dry-run
+bash scripts/migrate-ao-to-cahi.sh
 ```
 
-Your config and data directory (`~/.cahi`) don't change — no data migration needed. GitHub org and repo URLs (`contaazul/cahi`) didn't change either.
+The script (`scripts/migrate-ao-to-cahi.sh` in the repo) is idempotent and backs up
+your data before changing anything. It moves `~/.agent-orchestrator` → `~/.cahi`,
+`~/.config/agent-orchestrator` → `~/.config/cahi`, and `~/.ao/bin` → `~/.cahi/bin`,
+rewrites old home-path references inside CAHI's config/metadata, and renames each
+registered project's `agent-orchestrator.yaml` → `cahi.yaml`. Update any `AO_*`
+environment variables you export in your shell rc to `CAHI_*` by hand (the script
+documents this but does not edit your shell config).
 
 ## `cahi spawn <project> <issue>` → `cahi spawn <issue>`
 
