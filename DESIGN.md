@@ -1,6 +1,6 @@
-# Design System — Agent Orchestrator
+# Design System — CAHI
 
-> **This document supersedes the previous "Warm Terminal" system.** AO's design
+> **This document supersedes the previous "Warm Terminal" system.** CAHI's design
 > language is **Mission Control**: a calm, high-signal control room for
 > supervising a fleet of autonomous agents. The earlier warm-neutral direction
 > (Geist Sans, amber/orange orchestrator CTA, brown-tinted surfaces) is retired.
@@ -23,7 +23,7 @@ State is glanceable, not noisy.
 **The blue/orange split.** The mascot is the Claude Code character recolored
 **blue** — the *conductor*. This drives a deliberate two-color semantic split:
 
-- **Blue = the orchestrator (AO itself / "you").** Brand, the single solid-fill
+- **Blue = the orchestrator (CAHI itself / "you").** Brand, the single solid-fill
   primary CTA (the **Orchestrator** button), active selection, focus, links.
 - **Orange = the agents being conducted.** The per-agent identity and the
   **`working`** status — the one "an agent is alive right now" signal (a gently

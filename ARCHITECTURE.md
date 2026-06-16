@@ -3,7 +3,7 @@
 ## Core Principles
 
 1. **Convention over configuration** - Auto-derive everything possible
-2. **Single source of truth** - Config file in repo, runtime data in `~/.agent-orchestrator/`
+2. **Single source of truth** - Config file in repo, runtime data in `~/.cahi/`
 3. **Zero path configuration** - All paths determined automatically
 4. **Global uniqueness** - Hash-based namespacing prevents collisions
 
@@ -14,12 +14,12 @@
 ```
 Repo (versioned):
 ~/any/path/to/agent-orchestrator/
-  agent-orchestrator.yaml              ← Config file (only this matters)
+  cahi.yaml              ← Config file (only this matters)
   packages/
   ...
 
 Runtime Data (not versioned):
-~/.agent-orchestrator/                 ← Single parent directory
+~/.cahi/                 ← Single parent directory
   a3b4c5d6e7f8-integrator/             ← {hash}-{projectId}
     sessions/
       int-1                            ← Session metadata files (no hash prefix)
@@ -51,7 +51,7 @@ const projectId = path.basename(projectPath); // integrator, backend, etc.
 const instanceId = `${hash}-${projectId}`; // a3b4c5d6e7f8-integrator
 
 // Not configurable!
-const projectBaseDir = `~/.agent-orchestrator/${instanceId}`;
+const projectBaseDir = `~/.cahi/${instanceId}`;
 const sessionsDir = `${projectBaseDir}/sessions`;
 const worktreesDir = `${projectBaseDir}/worktrees`;
 ```
@@ -63,11 +63,11 @@ const worktreesDir = `${projectBaseDir}/worktrees`;
 ## 2. Config File (Minimal)
 
 ```yaml
-# agent-orchestrator.yaml
+# cahi.yaml
 
 projects:
   - path: ~/repos/integrator # Required: where is the repo?
-    repo: ComposioHQ/integrator # Required: GitHub repo
+    repo: contaazul/integrator # Required: GitHub repo
     defaultBranch: next # Required: base branch
 
     # Optional overrides:
@@ -107,7 +107,7 @@ a3b4c5d6e7f8-ao-1
 f1e2d3c4b5a6-int-1    (different checkout, no collision!)
 ```
 
-On Unix this is the tmux session name. On Windows (where the default runtime is `process`, not `tmux`) the same string identifies the named pipe path `\\.\pipe\ao-pty-{sessionId}` and is recorded in `~/.agent-orchestrator/windows-pty-hosts.json`.
+On Unix this is the tmux session name. On Windows (where the default runtime is `process`, not `tmux`) the same string identifies the named pipe path `\\.\pipe\ao-pty-{sessionId}` and is recorded in `~/.cahi/windows-pty-hosts.json`.
 
 ### Prefix Generation (Clean Heuristic)
 
@@ -143,7 +143,7 @@ function generateSessionPrefix(projectId: string): string {
 ### File Structure (One Directory Per Project)
 
 ```
-~/.agent-orchestrator/a3b4c5d6e7f8-integrator/
+~/.cahi/a3b4c5d6e7f8-integrator/
   sessions/
     int-1      ← Metadata file (user-facing session name)
     int-2
@@ -162,9 +162,9 @@ issue=INT-100
 branch=feat/INT-100
 status=working
 tmuxName=a3b4c5d6e7f8-int-1            # Unix; on Windows the runtime handle is `pipePath=\\.\pipe\ao-pty-<sessionId>` plus `ptyHostPid`
-worktree=/Users/alice/.agent-orchestrator/a3b4c5d6e7f8-integrator/worktrees/int-1
+worktree=/Users/alice/.cahi/a3b4c5d6e7f8-integrator/worktrees/int-1
 createdAt=2026-02-17T10:30:00Z
-pr=https://github.com/ComposioHQ/integrator/pull/123
+pr=https://github.com/contaazul/integrator/pull/123
 ```
 
 **Key fields:**
@@ -181,22 +181,22 @@ pr=https://github.com/ComposioHQ/integrator/pull/123
 
 ```bash
 # List all sessions
-ao list
+cahi list
 
 # List sessions for specific project
-ao list integrator
+cahi list integrator
 
 # Spawn new session
-ao spawn integrator INT-100
+cahi spawn integrator INT-100
 
 # Attach to session (orchestrator finds the runtime handle: tmux name on Unix, named pipe on Windows)
-ao attach int-1
+cahi attach int-1
 
 # Kill session
-ao kill int-1
+cahi kill int-1
 
 # Show instance info
-ao info
+cahi info
 ```
 
 **No config paths in commands! Everything auto-discovered.**
@@ -208,7 +208,7 @@ ao info
 ### Same Config → Same Hash
 
 ```yaml
-# ~/code/my-orchestrator/agent-orchestrator.yaml
+# ~/code/my-orchestrator/cahi.yaml
 projects:
   - path: ~/repos/integrator
   - path: ~/repos/backend
@@ -217,7 +217,7 @@ projects:
 Results in:
 
 ```
-~/.agent-orchestrator/
+~/.cahi/
   a3b4c5d6e7f8-integrator/        ← Same hash (same config)
   a3b4c5d6e7f8-backend/           ← Same hash (same config)
 ```
@@ -233,7 +233,7 @@ Results in:
 Results in:
 
 ```
-~/.agent-orchestrator/
+~/.cahi/
   a3b4c5d6e7f8-integrator/        ← From ~/code/orchestrator
   f1e2d3c4b5a6-integrator/        ← From ~/code/orchestrator-v2 (different checkout!)
   9876abcd5432-safesplit/         ← From ~/splitly-orchestrator
@@ -251,14 +251,14 @@ f1e2d3c4b5a6-int-1    (v2 checkout)
 ## 7. Complete Example
 
 ```yaml
-# ~/code/my-orchestrator/agent-orchestrator.yaml
+# ~/code/my-orchestrator/cahi.yaml
 projects:
   - path: ~/repos/integrator
-    repo: ComposioHQ/integrator
+    repo: contaazul/integrator
     defaultBranch: next
 
   - path: ~/repos/backend
-    repo: ComposioHQ/backend
+    repo: contaazul/backend
     defaultBranch: main
     sessionPrefix: be # Override auto-generated "bac"
 ```
@@ -271,7 +271,7 @@ Config location:
   → Hash: a3b4c5d6e7f8
 
 Runtime data:
-  ~/.agent-orchestrator/
+  ~/.cahi/
     a3b4c5d6e7f8-integrator/      ← Project 1
       sessions/
         int-1
@@ -289,8 +289,8 @@ Session names:
   Tmux: a3b4c5d6e7f8-int-1, a3b4c5d6e7f8-be-1
 
 Commands:
-  ao spawn integrator INT-100
-  ao attach int-1
+  cahi spawn integrator INT-100
+  cahi attach int-1
 ```
 
 ---

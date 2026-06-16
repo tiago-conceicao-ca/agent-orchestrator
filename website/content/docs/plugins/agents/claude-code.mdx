@@ -1,6 +1,6 @@
 ---
 title: Claude Code
-description: Anthropic's CLI coding agent. The default agent in AO.
+description: Anthropic's CLI coding agent. The default agent in CAHI.
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -10,7 +10,7 @@ import { Callout } from "fumadocs-ui/components/callout";
   <span style={{ fontSize: "0.8125rem", color: "var(--color-fd-muted-foreground)" }}>Slot: <code>agent</code> · Name: <code>claude-code</code> · Binary: <code>claude</code></span>
 </div>
 
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code) is Anthropic's CLI coding agent. It's AO's default because it has first-class session resume, rich JSONL event logs, and a native hook system AO can register against.
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code) is Anthropic's CLI coding agent. It's CAHI's default because it has first-class session resume, rich JSONL event logs, and a native hook system CAHI can register against.
 
 <PlatformSupport macos="full" linux="full" windows="full" />
 
@@ -28,7 +28,7 @@ claude
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 agent: claude-code
 ```
 
@@ -36,20 +36,20 @@ That's it — there are no plugin-level config keys.
 
 ## How it works
 
-- **Launch:** `claude` runs inside the worktree. AO sets `CLAUDECODE=""`, `AO_SESSION_ID`, and `AO_ISSUE_ID` in the environment.
-- **Activity tracking:** AO registers a PostToolUse hook in `.claude/settings.json` on workspace setup. The hook writes an AO activity entry each time Claude calls a tool, so the dashboard's `active/ready/idle` states stay accurate.
-- **Session resume:** `claude --resume <sessionId>` rehydrates the previous chat. AO maps its session ID to Claude's via the JSONL at `~/.claude/projects/<project>/...jsonl`.
-- **Cost reporting:** AO reads Claude's per-message cost field from the JSONL — visible on the dashboard card.
+- **Launch:** `claude` runs inside the worktree. CAHI sets `CLAUDECODE=""`, `CAHI_SESSION_ID`, and `CAHI_ISSUE_ID` in the environment.
+- **Activity tracking:** CAHI registers a PostToolUse hook in `.claude/settings.json` on workspace setup. The hook writes an CAHI activity entry each time Claude calls a tool, so the dashboard's `active/ready/idle` states stay accurate.
+- **Session resume:** `claude --resume <sessionId>` rehydrates the previous chat. CAHI maps its session ID to Claude's via the JSONL at `~/.claude/projects/<project>/...jsonl`.
+- **Cost reporting:** CAHI reads Claude's per-message cost field from the JSONL — visible on the dashboard card.
 
 ## Environment variables
 
-| Variable | Set by AO | Purpose |
+| Variable | Set by CAHI | Purpose |
 |---|---|---|
-| `AO_SESSION_ID` | ✓ | Unique AO session identifier |
-| `AO_ISSUE_ID` | ✓ (when spawned from an issue) | Issue identifier |
+| `CAHI_SESSION_ID` | ✓ | Unique CAHI session identifier |
+| `CAHI_ISSUE_ID` | ✓ (when spawned from an issue) | Issue identifier |
 | `CLAUDECODE` | ✓ | Signals to Claude that it's running under a harness |
 
-Your Anthropic API key comes from wherever `claude` normally reads it — `~/.claude/`, env, etc. AO doesn't touch it.
+Your Anthropic API key comes from wherever `claude` normally reads it — `~/.claude/`, env, etc. CAHI doesn't touch it.
 
 ## Troubleshooting
 
@@ -58,7 +58,7 @@ Your Anthropic API key comes from wherever `claude` normally reads it — `~/.cl
     `npm install -g @anthropic-ai/claude-code`, then reopen your terminal so the PATH picks it up.
   </Accordion>
   <Accordion title="Dashboard shows no activity state">
-    AO registers the PostToolUse hook in `.claude/settings.json` on spawn. If the hook got removed, run `ao spawn` again — AO re-installs it idempotently.
+    CAHI registers the PostToolUse hook in `.claude/settings.json` on spawn. If the hook got removed, run `cahi spawn` again — CAHI re-installs it idempotently.
   </Accordion>
   <Accordion title="Session won't resume">
     Claude's session JSONL lives at `~/.claude/projects/<project-slug>/<sessionId>.jsonl`. If that file is gone (cleaned up, moved), resume won't work — spawn fresh.

@@ -13,14 +13,6 @@ function GithubIcon({ size = 16 }: { size?: number } = {}) {
   );
 }
 
-function XIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  );
-}
-
 function DiscordIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -30,14 +22,6 @@ function DiscordIcon() {
 }
 
 const links: LinkItemType[] = [
-  {
-    type: "icon",
-    label: "X (Twitter)",
-    icon: <XIcon />,
-    text: "X",
-    url: "https://x.com/aoagents",
-    external: true,
-  },
   {
     type: "icon",
     label: "Discord",
@@ -52,7 +36,7 @@ async function GitHubStars() {
   let stars: string | null = null;
   try {
     const res = await fetch(
-      "https://api.github.com/repos/ComposioHQ/agent-orchestrator",
+      "https://api.github.com/repos/contaazul/cahi",
       { next: { revalidate: 3600 } },
     );
     if (res.ok) {
@@ -101,7 +85,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 height={22}
                 className="h-[22px] w-[22px]"
               />
-              <span className="text-[var(--color-text-primary)]">AO</span>
+              <span className="text-[var(--color-text-primary)]">CAHI</span>
             </span>
           ),
         }}
@@ -110,13 +94,13 @@ export default function Layout({ children }: { children: ReactNode }) {
           collapsible: true,
           banner: (
             <a
-              href="https://github.com/ComposioHQ/agent-orchestrator"
+              href="https://github.com/contaazul/cahi"
               target="_blank"
               rel="noreferrer noopener"
               className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors py-1"
             >
               <GithubIcon />
-              <span>ComposioHQ/agent-orchestrator</span>
+              <span>contaazul/cahi</span>
               <GitHubStars />
             </a>
           ),

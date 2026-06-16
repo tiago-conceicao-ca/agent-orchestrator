@@ -1,11 +1,11 @@
-# Agent Orchestrator Dashboard — Design Brief
-*Research-backed design specification for the ao dashboard*
+# CAHI Dashboard — Design Brief
+*Research-backed design specification for the cahi dashboard*
 
 ---
 
 ## Product Context
 
-The Agent Orchestrator dashboard is **mission control for parallel AI coding agents**. Users are senior engineers and CTOs who routinely spawn 10–30 agents at once and need to:
+The CAHI dashboard is **mission control for parallel AI coding agents**. Users are senior engineers and CTOs who routinely spawn 10–30 agents at once and need to:
 
 1. Triage at a glance (who needs me right now?)
 2. Merge PRs that are ready
@@ -83,7 +83,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Density**: Monitoring tools require extreme density — Grafana panels pack many metrics per square centimeter. Time-series panels, gauge panels, table panels all coexist at density levels that would horrify Linear's designers.
 **Tone**: OSS pragmatism. The white background is a deliberate "we are transparent and open" statement.
 
-**Takeaway for ao**: ao should reference Grafana for density targets, not aesthetic. The ao dashboard with 30 sessions needs panel-level density discipline.
+**Takeaway for ao**: ao should reference Grafana for density targets, not aesthetic. The cahi dashboard with 30 sessions needs panel-level density discipline.
 
 ---
 
@@ -130,7 +130,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 
 ### Philosophy
 
-**Mission control, not social feed.** The ao dashboard should feel like a fighter pilot's heads-up display — dense, high-contrast, every element load-bearing. Closest visual analogues: Vercel deployment list + Grafana panel density + LangSmith trace density + Linear state dot pattern.
+**Mission control, not social feed.** The cahi dashboard should feel like a fighter pilot's heads-up display — dense, high-contrast, every element load-bearing. Closest visual analogues: Vercel deployment list + Grafana panel density + LangSmith trace density + Linear state dot pattern.
 
 **Dark mode native.** Not dark mode as a feature — dark mode as the only mode designed with conviction. Light mode can exist but shouldn't drive design decisions.
 

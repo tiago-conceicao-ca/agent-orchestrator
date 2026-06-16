@@ -7,10 +7,10 @@ interface LandingHeroProps {
 }
 
 const terminalLines = [
-  { text: "$ ao batch-spawn 42 43 44 45 46", type: "cmd" as const, delay: 0 },
+  { text: "$ cahi batch-spawn 42 43 44 45 46", type: "cmd" as const, delay: 0 },
   { text: "", type: "blank" as const, delay: 800 },
   { text: "⟡ Loaded cahi.yaml (agent: claude-code, tracker: github)", type: "info" as const, delay: 1000 },
-  { text: "⟡ Resolving 5 issues from ComposioHQ/my-saas-app", type: "info" as const, delay: 1400 },
+  { text: "⟡ Resolving 5 issues from contaazul/my-saas-app", type: "info" as const, delay: 1400 },
   { text: "⟡ Creating worktrees in ~/.cahi/a1b2c3/worktrees/", type: "info" as const, delay: 1800 },
   { text: "", type: "blank" as const, delay: 2200 },
   { text: "✓ s-001 → #42 Add user auth flow (claude-code)", type: "success" as const, delay: 2400 },
@@ -100,13 +100,13 @@ export function LandingHero({ starsLabel }: LandingHeroProps) {
           <span className="text-[var(--landing-muted)]">One dashboard.</span>
         </h1>
         <p className="landing-fade-rise-d1 text-[var(--landing-muted)] text-[0.9375rem] max-w-[38rem] mt-6 leading-[1.7]">
-          Agent Orchestrator spawns Claude Code, Codex, Cursor, Aider, and OpenCode
+          CAHI spawns Claude Code, Codex, Cursor, Aider, and OpenCode
           in isolated git worktrees. Each agent gets its own branch, creates PRs,
           fixes CI, and addresses reviews autonomously.
         </p>
         <div className="landing-fade-rise-d2 flex items-center gap-3 mt-10 flex-wrap justify-center">
           <div className="landing-card rounded-lg px-6 py-3 font-mono text-sm">
-            <span className="text-[var(--landing-muted)] opacity-40">$</span> npx @aoagents/ao start
+            <span className="text-[var(--landing-muted)] opacity-40">$</span> npx @contaazul/cahi start
           </div>
           <a
             href="/docs"
@@ -115,7 +115,7 @@ export function LandingHero({ starsLabel }: LandingHeroProps) {
             Read Docs
           </a>
           <a
-            href="https://github.com/ComposioHQ/agent-orchestrator"
+            href="https://github.com/contaazul/cahi"
             target="_blank"
             rel="noopener noreferrer"
             className="liquid-glass-solid rounded-lg px-6 py-3 text-sm no-underline transition-colors"
@@ -131,7 +131,7 @@ export function LandingHero({ starsLabel }: LandingHeroProps) {
               <div className="w-2.5 h-2.5 rounded-full bg-[rgba(255,240,220,0.08)]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[rgba(255,240,220,0.08)]" />
               <span className="ml-2 font-mono text-[0.625rem] text-[var(--landing-muted)] opacity-40">
-                agent-orchestrator — my-saas-app
+                cahi — my-saas-app
               </span>
             </div>
             <TerminalTyping />

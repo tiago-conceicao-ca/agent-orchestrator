@@ -1,6 +1,6 @@
-# Agent Orchestrator Setup Guide
+# CAHI Setup Guide
 
-Comprehensive guide to installing, configuring, and troubleshooting Agent Orchestrator.
+Comprehensive guide to installing, configuring, and troubleshooting CAHI.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ Comprehensive guide to installing, configuring, and troubleshooting Agent Orches
   sudo dnf install tmux
   ```
 
-  **On Windows:** tmux is **not** required. AO uses native ConPTY via the `runtime-process` plugin (the default on Windows). PowerShell 7+ is recommended; if you have Git Bash and prefer bash semantics for shell-out commands, set `AO_SHELL=bash` in your environment. WSL is not required.
+  **On Windows:** tmux is **not** required. CAHI uses native ConPTY via the `runtime-process` plugin (the default on Windows). PowerShell 7+ is recommended; if you have Git Bash and prefer bash semantics for shell-out commands, set `CAHI_SHELL=bash` in your environment. WSL is not required.
 
 - **GitHub CLI** (for GitHub integration) - Required for PR creation, issue management
 
@@ -59,86 +59,86 @@ Comprehensive guide to installing, configuring, and troubleshooting Agent Orches
   - Create incoming webhook: https://api.slack.com/messaging/webhooks
   - Set environment variable: `export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."`
 
-- **Public dashboard URL** - If running AO behind a reverse proxy (e.g. inside a remote dev container, on a VPS fronted by Caddy/nginx/Traefik)
-  - Set `AO_PUBLIC_URL` to the externally-reachable URL of the dashboard
-  - All console output, `ao open` browser launches, and orchestrator-prompt session links use this URL instead of `http://localhost:<port>`
-  - Example: `export AO_PUBLIC_URL="https://ao.example.com"`
+- **Public dashboard URL** - If running CAHI behind a reverse proxy (e.g. inside a remote dev container, on a VPS fronted by Caddy/nginx/Traefik)
+  - Set `CAHI_PUBLIC_URL` to the externally-reachable URL of the dashboard
+  - All console output, `cahi open` browser launches, and orchestrator-prompt session links use this URL instead of `http://localhost:<port>`
+  - Example: `export CAHI_PUBLIC_URL="https://ao.example.com"`
   - When the dashboard is served on a standard port (HTTPS 443 / HTTP 80) the dashboard JS connects the mux WebSocket to `/ao-terminal-mux` on the same hostname. Your proxy needs to forward that path to the direct terminal server (`DIRECT_TERMINAL_PORT`, default 14801) — its upgrade handler accepts both `/mux` and `/ao-terminal-mux`. For custom paths set `TERMINAL_WS_PATH=/your/path`.
-  - **`AO_PATH_BASED_MUX=1`** (opt-in) — if your proxy can only forward one hostname:port pair (e.g. Cloudflare Tunnel pointed at a single `service:` URL with no path-based ingress), set this and `ao start` will run a small bundled HTTP/WS proxy on `PORT` that demultiplexes: HTTP forwards to Next.js (shifted to `PORT + 1000`, override with `NEXT_INTERNAL_PORT`), and `wss://hostname/ao-terminal-mux` is tunneled to `DIRECT_TERMINAL_PORT/mux`. Tradeoff: an extra Node process and one extra hop per HTTP request, in exchange for a one-line proxy config on the operator side.
+  - **`CAHI_PATH_BASED_MUX=1`** (opt-in) — if your proxy can only forward one hostname:port pair (e.g. Cloudflare Tunnel pointed at a single `service:` URL with no path-based ingress), set this and `cahi start` will run a small bundled HTTP/WS proxy on `PORT` that demultiplexes: HTTP forwards to Next.js (shifted to `PORT + 1000`, override with `NEXT_INTERNAL_PORT`), and `wss://hostname/ao-terminal-mux` is tunneled to `DIRECT_TERMINAL_PORT/mux`. Tradeoff: an extra Node process and one extra hop per HTTP request, in exchange for a one-line proxy config on the operator side.
 
 ## Installation
 
 ### Install via npm (recommended)
 
 ```bash
-npm install -g @aoagents/ao
+npm install -g @contaazul/cahi
 
 # Verify
-ao --version
+cahi --version
 ```
 
-This installs the `ao` CLI globally along with all default plugins and the web dashboard.
+This installs the `cahi` CLI globally along with all default plugins and the web dashboard.
 
 **Permission denied (EACCES)?** This is common on macOS. Three options:
 
 ```bash
 # Option 1: Use sudo
-sudo npm install -g @aoagents/ao
+sudo npm install -g @contaazul/cahi
 
 # Option 2: Use npx (no global install needed)
-npx @aoagents/ao start
+npx @contaazul/cahi start
 
 # Option 3: Fix npm permissions permanently (recommended)
 mkdir -p ~/.npm-global
 npm config set prefix '~/.npm-global'
 echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.zshrc
 source ~/.zshrc
-npm install -g @aoagents/ao
+npm install -g @contaazul/cahi
 ```
 
 ### Build from Source (for contributors)
 
-If you want to develop or contribute to Agent Orchestrator:
+If you want to develop or contribute to CAHI:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ComposioHQ/agent-orchestrator
+git clone https://github.com/contaazul/cahi
 cd agent-orchestrator
 
 # Run the setup script (installs deps, builds, links CLI)
 bash scripts/setup.sh
 
 # Verify
-ao --version
+cahi --version
 ```
 
-The setup script handles pnpm installation, dependency resolution, building all packages, and linking the `ao` command globally (with automatic permission handling on macOS).
+The setup script handles pnpm installation, dependency resolution, building all packages, and linking the `cahi` command globally (with automatic permission handling on macOS).
 
 ## First-Time Setup
 
-### `ao start` — the only command you need
+### `cahi start` — the only command you need
 
-`ao start` handles everything: auto-detecting your project, generating config, and launching the dashboard + orchestrator. There are three ways to use it:
+`cahi start` handles everything: auto-detecting your project, generating config, and launching the dashboard + orchestrator. There are three ways to use it:
 
 **From a URL (fastest for any repo):**
 
 ```bash
-ao start https://github.com/your-org/your-repo
+cahi start https://github.com/your-org/your-repo
 ```
 
-This clones the repo, auto-detects language/framework/branch, generates `agent-orchestrator.yaml`, and starts everything. Supports GitHub, GitLab, and Bitbucket (HTTPS and SSH):
+This clones the repo, auto-detects language/framework/branch, generates `cahi.yaml`, and starts everything. Supports GitHub, GitLab, and Bitbucket (HTTPS and SSH):
 
 ```bash
-ao start https://github.com/owner/repo
-ao start https://gitlab.com/org/project
-ao start git@github.com:owner/repo.git
+cahi start https://github.com/owner/repo
+cahi start https://gitlab.com/org/project
+cahi start git@github.com:owner/repo.git
 ```
 
 **From a local repo (zero prompts):**
 
 ```bash
 cd ~/your-project
-ao start
+cahi start
 ```
 
 Auto-detects git remote, default branch, language, and available agent runtimes. Generates config and starts.
@@ -146,19 +146,19 @@ Auto-detects git remote, default branch, language, and available agent runtimes.
 **Adding more projects:**
 
 ```bash
-ao start ~/path/to/another-repo
+cahi start ~/path/to/another-repo
 ```
 
 If a config already exists, the new project is appended. If not, one is created first.
 
-### What `ao start` detects automatically
+### What `cahi start` detects automatically
 
 - **Git remote** — parses `owner/repo` from origin
 - **Default branch** — checks symbolic-ref, GitHub API, then common names (main/master)
 - **Project type** — language, framework, test runner, package manager
 - **Agent runtime** — which AI agents are installed (Claude Code, Codex, Aider, OpenCode)
 - **Free port** — if configured port is busy, auto-finds the next available
-- **tmux** — warns if not installed (skipped on Windows; AO uses ConPTY there and tmux is not required)
+- **tmux** — warns if not installed (skipped on Windows; CAHI uses ConPTY there and tmux is not required)
 - **GitHub CLI** — checks `gh auth status`
 
 ### Manual Configuration
@@ -166,15 +166,15 @@ If a config already exists, the new project is appended. If not, one is created 
 If you prefer to write the config by hand:
 
 ```bash
-cp agent-orchestrator.yaml.example agent-orchestrator.yaml
-nano agent-orchestrator.yaml
+cp cahi.yaml.example cahi.yaml
+nano cahi.yaml
 ```
 
 Or start from an example:
 
 ```bash
-cp examples/simple-github.yaml agent-orchestrator.yaml
-nano agent-orchestrator.yaml
+cp examples/simple-github.yaml cahi.yaml
+nano cahi.yaml
 ```
 
 ## Configuration Reference
@@ -191,15 +191,15 @@ projects:
     defaultBranch: main
 ```
 
-`ao start` generates this automatically — you only need to write it manually if you want full control.
+`cahi start` generates this automatically — you only need to write it manually if you want full control.
 
 ### Full Configuration Schema
 
-See [agent-orchestrator.yaml.example](./agent-orchestrator.yaml.example) for a fully commented example with all options.
+See [cahi.yaml.example](./cahi.yaml.example) for a fully commented example with all options.
 
 ### Plugin Slots
 
-Agent Orchestrator has 8 plugin slots. All are swappable:
+CAHI has 8 plugin slots. All are swappable:
 
 | Slot          | Purpose              | Default       | Alternatives                                    |
 | ------------- | -------------------- | ------------- | ----------------------------------------------- |
@@ -346,7 +346,7 @@ gh auth status
    - Click "Create new key" or use existing key
    - Team ID is visible in your Linear workspace URL or via API
 
-4. Configure in `agent-orchestrator.yaml`:
+4. Configure in `cahi.yaml`:
    ```yaml
    projects:
      my-app:
@@ -355,7 +355,7 @@ gh auth status
          teamId: "your-team-id"
    ```
 
-**Branch names:** On `ao spawn <issue>` with the Linear tracker, AO **prefers** Linear’s branch name (same as **Copy git branch name**, API field `branchName`). If that value is missing, it **falls back** to the previous convention: `feat/<ISSUE-ID>` (e.g. `feat/INT-123`). To change how Linear generates `branchName`, use **Linear → Settings → Integrations → GitHub → Branch format**.
+**Branch names:** On `cahi spawn <issue>` with the Linear tracker, CAHI **prefers** Linear’s branch name (same as **Copy git branch name**, API field `branchName`). If that value is missing, it **falls back** to the previous convention: `feat/<ISSUE-ID>` (e.g. `feat/INT-123`). To change how Linear generates `branchName`, use **Linear → Settings → Integrations → GitHub → Branch format**.
 
 **Verification:**
 
@@ -375,7 +375,7 @@ echo $LINEAR_API_KEY  # Should print your key
    source ~/.zshrc
    ```
 
-3. Configure in `agent-orchestrator.yaml`:
+3. Configure in `cahi.yaml`:
    ```yaml
    notifiers:
      slack:
@@ -389,7 +389,7 @@ echo $LINEAR_API_KEY  # Should print your key
 ```bash
 # Send test message
 curl -X POST -H 'Content-type: application/json' \
-  --data '{"text":"Agent Orchestrator test"}' \
+  --data '{"text":"CAHI test"}' \
   $SLACK_WEBHOOK_URL
 ```
 
@@ -398,47 +398,47 @@ curl -X POST -H 'Content-type: application/json' \
 To add a custom tracker (Jira, Asana, etc.), create a plugin:
 
 1. See plugin examples in `packages/plugins/tracker-*/`
-2. Implement the `Tracker` interface from `@aoagents/ao-core`
+2. Implement the `Tracker` interface from `@contaazul/cahi-core`
 3. Register your plugin in the config
 
 See [Development Guide](./docs/DEVELOPMENT.md) for plugin development guidelines.
 
 ## Troubleshooting
 
-### Run `ao doctor`
+### Run `cahi doctor`
 
 Use the built-in doctor before debugging a broken install by hand:
 
 ```bash
-ao doctor
-ao doctor --fix
+cahi doctor
+cahi doctor --fix
 ```
 
-`ao doctor` reports deterministic PASS/WARN/FAIL checks for PATH and launcher resolution, required binaries, terminal-runtime health (tmux on Unix; PowerShell / `runtime-process` on Windows), GitHub CLI health, stale AO temp files, config support directories, and core build/runtime sanity. It runs and is supported on Windows. `--fix` only applies safe fixes such as creating missing AO support directories, refreshing the local launcher link, and removing stale AO temp files.
+`cahi doctor` reports deterministic PASS/WARN/FAIL checks for PATH and launcher resolution, required binaries, terminal-runtime health (tmux on Unix; PowerShell / `runtime-process` on Windows), GitHub CLI health, stale CAHI temp files, config support directories, and core build/runtime sanity. It runs and is supported on Windows. `--fix` only applies safe fixes such as creating missing CAHI support directories, refreshing the local launcher link, and removing stale CAHI temp files.
 
-### Run `ao update`
+### Run `cahi update`
 
-When you installed AO from this repository and want to refresh that local install:
+When you installed CAHI from this repository and want to refresh that local install:
 
 ```bash
 git switch main
-ao update
+cahi update
 ```
 
-`ao update` is intentionally conservative: it requires a clean working tree on `main`, fast-forwards from `origin/main`, reinstalls dependencies, clean-rebuilds the critical core/CLI/web packages, refreshes the launcher with `npm link`, and runs CLI smoke tests. Works on macOS, Linux, and Windows (Windows uses the bundled `ao-update.ps1` script automatically). Use `ao update --skip-smoke` to stop after rebuild, or `ao update --smoke-only` to rerun just the smoke checks.
+`cahi update` is intentionally conservative: it requires a clean working tree on `main`, fast-forwards from `origin/main`, reinstalls dependencies, clean-rebuilds the critical core/CLI/web packages, refreshes the launcher with `npm link`, and runs CLI smoke tests. Works on macOS, Linux, and Windows (Windows uses the bundled `ao-update.ps1` script automatically). Use `cahi update --skip-smoke` to stop after rebuild, or `cahi update --smoke-only` to rerun just the smoke checks.
 
-### "No agent-orchestrator.yaml found"
+### "No cahi.yaml found"
 
 **Problem:** The orchestrator can't find your config file.
 
 **Solution:**
 
 ```bash
-# ao start auto-creates the config if none exists
-ao start
+# cahi start auto-creates the config if none exists
+cahi start
 
 # Or copy an example and edit manually
-cp examples/simple-github.yaml agent-orchestrator.yaml
+cp examples/simple-github.yaml cahi.yaml
 ```
 
 ### "tmux not found"
@@ -458,7 +458,7 @@ sudo apt install tmux
 sudo dnf install tmux
 ```
 
-**On Windows:** this error should not appear in normal use. If it does, your config has `runtime: tmux` set explicitly. Switch to `runtime: process` (or remove the override — `process` is the Windows default), and AO will use ConPTY natively without tmux.
+**On Windows:** this error should not appear in normal use. If it does, your config has `runtime: tmux` set explicitly. Switch to `runtime: process` (or remove the override — `process` is the Windows default), and CAHI will use ConPTY natively without tmux.
 
 ### "gh auth failed"
 
@@ -503,10 +503,10 @@ echo $LINEAR_API_KEY
 
 **Problem:** Another service is using the dashboard port (default 3000).
 
-**Note:** `ao start` automatically finds the next free port if the configured port is busy. You'll see a message like "Port 3000 is busy — using 3001 instead." If you still need to fix it manually:
+**Note:** `cahi start` automatically finds the next free port if the configured port is busy. You'll see a message like "Port 3000 is busy — using 3001 instead." If you still need to fix it manually:
 
 ```bash
-# Option 1: Change port in agent-orchestrator.yaml
+# Option 1: Change port in cahi.yaml
 port: 3001
 
 # Option 2: Find and kill the process using the port
@@ -520,11 +520,11 @@ lsof -ti:3000 | xargs kill
 **Solution:**
 
 ```bash
-# AO stores runtime data under ~/.agent-orchestrator/
-ls -la ~/.agent-orchestrator
+# CAHI stores runtime data under ~/.cahi/
+ls -la ~/.cahi
 
 # Create the base directory if missing
-mkdir -p ~/.agent-orchestrator
+mkdir -p ~/.cahi
 
 # Check disk space
 df -h
@@ -538,10 +538,10 @@ df -h
 
 ```bash
 # List active sessions
-ao session ls
+cahi session ls
 
 # Check status dashboard
-ao status
+cahi status
 ```
 
 ### "Agent not responding"
@@ -552,17 +552,17 @@ ao status
 
 ```bash
 # Check session status
-ao status
+cahi status
 
 # Attach to session to investigate
-ao open <session-name>
+cahi open <session-name>
 
 # Send message to agent
-ao send <session-name> "Please report your current status"
+cahi send <session-name> "Please report your current status"
 
 # Kill and respawn if necessary
-ao session kill <session-name>
-ao spawn <issue-id>
+cahi session kill <session-name>
+cahi spawn <issue-id>
 ```
 
 ### "Permission denied" when spawning
@@ -584,7 +584,7 @@ gh auth login
 
 ### "YAML parse error"
 
-**Problem:** Syntax error in `agent-orchestrator.yaml`.
+**Problem:** Syntax error in `cahi.yaml`.
 
 **Solution:**
 
@@ -792,25 +792,25 @@ projects:
 
 Three ways:
 
-1. **Dashboard** - `ao start` then visit http://localhost:3000 (or your configured `port:`)
-2. **CLI status** - `ao status` (text-based dashboard)
-3. **Attach to session** - `ao open <session-name>` (live terminal)
+1. **Dashboard** - `cahi start` then visit http://localhost:4000 (or your configured `port:`)
+2. **CLI status** - `cahi status` (text-based dashboard)
+3. **Attach to session** - `cahi open <session-name>` (live terminal)
 
 ### What if an agent gets stuck?
 
 ```bash
 # Check status
-ao status
+cahi status
 
 # Send message
-ao send <session-name> "What's your current status?"
+cahi send <session-name> "What's your current status?"
 
 # Attach to investigate
-ao open <session-name>
+cahi open <session-name>
 
 # Kill and respawn if necessary
-ao session kill <session-name>
-ao spawn <issue-id>
+cahi session kill <session-name>
+cahi spawn <issue-id>
 ```
 
 Agents also send "stuck" notifications automatically after inactivity threshold.
@@ -819,16 +819,16 @@ Agents also send "stuck" notifications automatically after inactivity threshold.
 
 ```bash
 # List all sessions
-ao session ls
+cahi session ls
 
 # Kill specific session
-ao session kill <session-name>
+cahi session kill <session-name>
 
 # Cleanup script (example)
-ao session ls --json --include-terminated | jq -r '.data[] | select(.status == "merged") | .id' | xargs -I{} ao session kill {}
+cahi session ls --json --include-terminated | jq -r '.data[] | select(.status == "merged") | .id' | xargs -I{} ao session kill {}
 ```
 
-> **Note:** `ao session ls --json` and `ao status --json` emit `{ data: [...], meta: { hiddenTerminatedCount } }`. By default terminated sessions (`killed`, `terminated`, `done`, `merged`, `errored`, `cleanup`) are hidden — pass `--include-terminated` to include them in `data`.
+> **Note:** `cahi session ls --json` and `cahi status --json` emit `{ data: [...], meta: { hiddenTerminatedCount } }`. By default terminated sessions (`killed`, `terminated`, `done`, `merged`, `errored`, `cleanup`) are hidden — pass `--include-terminated` to include them in `data`.
 
 ### Can I run multiple orchestrators?
 
@@ -837,7 +837,7 @@ Yes! Each orchestrator instance should have:
 - Different dashboard port (`port`) — e.g., 3000 for project A, 3001 for project B
 - Different config location or project paths
 
-AO derives runtime directories from the config location, so separate config locations already produce separate hash-scoped runtime paths under `~/.agent-orchestrator/`. Terminal WebSocket ports are auto-detected by default, so you typically only need to set `port:` differently. If you need explicit control, you can also set `terminalPort:` and `directTerminalPort:` per config.
+CAHI derives runtime directories from the config location, so separate config locations already produce separate hash-scoped runtime paths under `~/.cahi/`. Terminal WebSocket ports are auto-detected by default, so you typically only need to set `port:` differently. If you need explicit control, you can also set `terminalPort:` and `directTerminalPort:` per config.
 
 Useful for:
 
@@ -847,13 +847,13 @@ Useful for:
 
 ## Next Steps
 
-1. **Start the orchestrator** — `ao start` (auto-creates config on first run)
-2. **Spawn an agent** — `ao spawn 123` (project auto-detected from cwd)
-3. **Monitor progress** — `ao status` or dashboard at http://localhost:3000
+1. **Start the orchestrator** — `cahi start` (auto-creates config on first run)
+2. **Spawn an agent** — `cahi spawn 123` (project auto-detected from cwd)
+3. **Monitor progress** — `cahi status` or dashboard at http://localhost:4000
 4. **Read [Development Guide](./docs/DEVELOPMENT.md)** — Code conventions and architecture
 5. **Explore examples** — See [examples/](./examples/) for more configs
 6. **Join the community** — Report issues, share configs, contribute plugins
 
 ---
 
-**Need help?** Open an issue at: https://github.com/ComposioHQ/agent-orchestrator/issues
+**Need help?** Open an issue at: https://github.com/contaazul/cahi/issues

@@ -1,6 +1,6 @@
 # SDLC Orchestrator — Discovery Spike (Task 0)
 
-Live AO integration APIs, confirmed against this worktree's `@aoagents/ao-core`
+Live AO integration APIs, confirmed against this worktree's `@contaazul/cahi-core`
 (the actual compile target — not `/tmp/ao-ref`, though they match). This locks the
 seams Track E builds on so integration code doesn't drift.
 
@@ -10,10 +10,10 @@ The plan uses `@ao/*` placeholders. The real specifiers in this monorepo are:
 
 | Plan placeholder | Real specifier |
 |---|---|
-| `@ao/sdlc` | `@aoagents/ao-sdlc` |
-| `@ao/core` | `@aoagents/ao-core` |
-| `@ao/cli`  | `@aoagents/ao-cli` |
-| `@ao/web`  | `@aoagents/ao-web` |
+| `@ao/sdlc` | `@contaazul/cahi-sdlc` |
+| `@ao/core` | `@contaazul/cahi-core` |
+| `@ao/cli`  | `@contaazul/cahi-cli` |
+| `@ao/web`  | `@contaazul/cahi-web` |
 
 Used everywhere below and in all package.json / imports / test filters.
 
@@ -37,8 +37,8 @@ Used everywhere below and in all package.json / imports / test filters.
 - Obtaining a SessionManager:
   - CLI: `getSessionManager(config)` → `Promise<OpenCodeSessionManager>` from
     `packages/cli/src/lib/create-session-manager.ts`, which calls
-    `createSessionManager({ config, registry })` from `@aoagents/ao-core`.
-  - Config: `loadConfig()` from `@aoagents/ao-core` returns `OrchestratorConfig`/`LoadedConfig`.
+    `createSessionManager({ config, registry })` from `@contaazul/cahi-core`.
+  - Config: `loadConfig()` from `@contaazul/cahi-core` returns `OrchestratorConfig`/`LoadedConfig`.
 - `Session` (`types.ts:280`) carries `id`, `projectId`, `status: SessionStatus`,
   `activity`, `lifecycle`.
 - Terminal status mapping for `waitForDone` (`types.ts:228`):
@@ -55,7 +55,7 @@ Used everywhere below and in all package.json / imports / test filters.
   `listMetadata`, `deleteMetadata`. Metadata values are STRINGS — the SDLC fields
   (`sdlcRunId`/`sdlcTaskId`/`sdlcPhase`) fit naturally.
 - Paths (`packages/core/src/paths.ts`):
-  - `getAoBaseDir()` → `~/.agent-orchestrator` (storage root).
+  - `getAoBaseDir()` → `~/.cahi` (storage root).
   - `getProjectDir(projectId)` → `{aoBaseDir}/projects/{projectId}`.
   - `getProjectSessionsDir(projectId)` → `{projectDir}/sessions` (this is the `dataDir`
     passed to `updateMetadata`).
@@ -91,7 +91,7 @@ Used everywhere below and in all package.json / imports / test filters.
 
 The plan imports e.g. `@ao/sdlc/workflow/engine`. The sdlc `package.json` has
 `main: ./dist/index.js` and no `exports` subpath map. **Decision: import everything from
-the `@aoagents/ao-sdlc` barrel** (cleaner, no exports map, consistent). The barrel
+the `@contaazul/cahi-sdlc` barrel** (cleaner, no exports map, consistent). The barrel
 (`src/index.ts`) re-exports all symbols CLI/web need: `WorkflowEngine`, `RunStore`,
 workflow types (`WorkflowRun`, `WorkflowDefinition`, …), `CA_PLAN_TO_BACKEND`, the phase
 executor factories, the gate factories, and plan types. Test files that the plan wrote
@@ -113,12 +113,12 @@ Root cause:
   (`/tmp/netskope-contaazul-ca.pem`), so no prebuilt binary is fetched either.
 
 This is a **pre-existing sandbox/environment artifact**, fully orthogonal to
-`@aoagents/ao-sdlc` (pure TS + `js-yaml` + `node:fs`, zero sqlite dependency) and to the
+`@contaazul/cahi-sdlc` (pure TS + `js-yaml` + `node:fs`, zero sqlite dependency) and to the
 3 optional `SessionMetadata` fields (type-only, tested without sqlite). The
 "never build on a broken base" gate is about broken CODE, not a sandbox native-binding gap.
 
 **Per-task verification gate used by this build:**
-`pnpm --filter @aoagents/ao-sdlc test` (+ the targeted core test for the 3 metadata
+`pnpm --filter @contaazul/cahi-sdlc test` (+ the targeted core test for the 3 metadata
 fields). At wrap-up, `pnpm -r test` is EXPECTED to show exactly those 6 sqlite failures;
 any NEW failure, or ANY failure outside that one file, is a regression.
 
@@ -149,7 +149,7 @@ below.
 `makeGenerateBackendExecutor`'s `GenerateBackendDeps.buildTaskPrompt?` overrides the
 per-task prompt; it **defaults** to the canonical `/gerar-backend` wording (so the
 canonical `ca-plan-to-backend` workflow + its tests are unchanged). The CLI exposes it
-as `ao sdlc start --generation-instruction <text>` (and the same flag on `ao sdlc
+as `cahi sdlc start --generation-instruction <text>` (and the same flag on `cahi sdlc
 approve`, since approve resumes into generate-backend — pass the same value to both).
 The Node-CRUD smoke passes a generic instruction like *"Implement this task as plain
 Node.js. Write the code files…"* — no ContaAzul skill, no prereq gate.
@@ -166,8 +166,8 @@ Node.js. Write the code files…"* — no ContaAzul skill, no prereq gate.
 ### Lenient smoke-eval (`smokeEvalArtifact`) + how to swap in the real eval
 
 `smokeEvalArtifact(artifactRef)` is an `EvalCommandRunner` exported from
-`@aoagents/ao-sdlc`. It splits `artifactRef` on newlines and passes **only** if at least
-one path contains generated files (recursive; ignoring `.git`/`node_modules`/`.ao`);
+`@contaazul/cahi-sdlc`. It splits `artifactRef` on newlines and passes **only** if at least
+one path contains generated files (recursive; ignoring `.git`/`node_modules`/`.cahi`);
 otherwise it returns `{passed:false}` **with a finding**. It is NOT a silent pass.
 Both factories (`buildSdlcServices` in cli, `buildWebSdlcEngine` in web) inject it as
 `runEvalCommand`. To use the real ContaAzul eval on a `ca-*` repo, swap the injected
@@ -188,13 +188,13 @@ generator can't run on a non-ContaAzul repo.
 
 `loadLensPrompt(name)` reads `gates/prompts/<name>.md` relative to its compiled module
 (`import.meta.url`) — `src/gates/prompts` under vitest, `dist/gates/prompts` at runtime
-(the build copies them via `cpSync`). The web keeps `@aoagents/ao-sdlc` in
+(the build copies them via `cpSync`). The web keeps `@contaazul/cahi-sdlc` in
 `next.config.js` `serverExternalPackages` so Next does not bundle it (bundling would
 rewrite `import.meta.url` and break the prompt path).
 
 ### Smoke target — repo-agnostic
 
-The orchestrator wiring hardcodes no target. `ao sdlc start --project <id>` parameterizes
+The orchestrator wiring hardcodes no target. `cahi sdlc start --project <id>` parameterizes
 the spawn target; at live-smoke time the target is a FRESH THROWAWAY dir so the generated
 Node CRUD lands there, not in agent-orchestrator. `examples/sample-plan.md` is the 2-task
 Node Users CRUD plan (`User store` → `HTTP CRUD API`).

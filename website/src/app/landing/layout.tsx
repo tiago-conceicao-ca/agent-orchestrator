@@ -1,26 +1,17 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Agent Orchestrator",
+  title: "CAHI — Conta Azul Hub for Intelligence",
   description:
-    "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
+    "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
   openGraph: {
     type: "website",
     url: "https://aoagents.dev/landing",
-    siteName: "Agent Orchestrator",
-    title: "Agent Orchestrator",
+    siteName: "CAHI",
+    title: "CAHI — Conta Azul Hub for Intelligence",
     description:
-      "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
-    images: [{ url: "/og-image.png", width: 1024, height: 1024, alt: "Agent Orchestrator" }],
-  },
-  twitter: {
-    card: "summary",
-    site: "@aoagents",
-    creator: "@aoagents",
-    title: "Agent Orchestrator",
-    description:
-      "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
-    images: ["/og-image.png"],
+      "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
+    images: [{ url: "/og-image.png", width: 1024, height: 1024, alt: "CAHI" }],
   },
   alternates: {
     canonical: "https://aoagents.dev/",

@@ -4,9 +4,9 @@
 
 **Separate feature from PR claiming. Not implemented.**
 
-The new `claim-pr` flow solves one problem: explicitly attaching an existing PR to a running AO session.
+The new `claim-pr` flow solves one problem: explicitly attaching an existing PR to a running CAHI session.
 
-This document covers a different problem: **when the original owner session is no longer the right place to continue work, how should AO replace that session, transfer PR ownership, and preserve enough context for the new session to continue effectively?**
+This document covers a different problem: **when the original owner session is no longer the right place to continue work, how should CAHI replace that session, transfer PR ownership, and preserve enough context for the new session to continue effectively?**
 
 ---
 
@@ -16,7 +16,7 @@ This document covers a different problem: **when the original owner session is n
 
 Session replacement / handoff adds two more concerns that are not solved by `claim-pr` alone:
 
-1. **Successor semantics** — how AO knows that session `app-12` is replacing `app-7`.
+1. **Successor semantics** — how CAHI knows that session `app-12` is replacing `app-7`.
 2. **Context continuity** — how the replacement session gets enough prior context to continue work without starting cold.
 
 These are workflow and product questions, not just plumbing.
@@ -25,7 +25,7 @@ These are workflow and product questions, not just plumbing.
 
 ## Existing Capability
 
-AO already has two adjacent primitives:
+CAHI already has two adjacent primitives:
 
 - **In-place restore**: restore the same session ID using existing metadata/workspace/runtime recovery.
 - **PR claiming**: attach an existing PR to a session and optionally take it over from another session.
@@ -48,9 +48,9 @@ Example:
 - `app-7` owns PR `#123`
 - CI fails or review changes arrive
 - `app-7` is stuck, crashed, too confused, or otherwise not the right worker anymore
-- AO wants to continue work in a fresh session `app-12`
+- CAHI wants to continue work in a fresh session `app-12`
 
-Today, AO does not have a first-class notion that:
+Today, CAHI does not have a first-class notion that:
 
 - `app-12` is the successor of `app-7`
 - `app-12` should inherit the PR
@@ -62,7 +62,7 @@ That should be its own feature.
 
 ## Goal
 
-Add a safe, explicit **session replacement + handoff** workflow that lets AO:
+Add a safe, explicit **session replacement + handoff** workflow that lets CAHI:
 
 1. Create a replacement session for an existing worker.
 2. Mark the new session as the successor of the old one.
@@ -92,15 +92,15 @@ For MVP, explicit replacement is better than clever inference.
 Introduce a replacement-oriented command or API, such as:
 
 ```bash
-ao session replace app-7
+cahi session replace app-7
 ```
 
 Potential options later:
 
 ```bash
-ao session replace app-7 --reason stuck
-ao session replace app-7 --claim-pr
-ao session replace app-7 --carry-context
+cahi session replace app-7 --reason stuck
+cahi session replace app-7 --claim-pr
+cahi session replace app-7 --carry-context
 ```
 
 ### Internal behavior
@@ -121,7 +121,7 @@ High-level flow:
 
 **Replacement must be explicit.**
 
-AO should not assume that a fresh session is the successor of an older session unless:
+CAHI should not assume that a fresh session is the successor of an older session unless:
 
 - the orchestrator explicitly created it as a replacement, or
 - metadata explicitly links the two sessions.
@@ -175,7 +175,7 @@ Expected result:
 - old session loses PR ownership
 - old session has PR auto-detect disabled so lifecycle does not reattach it by branch
 
-This gives AO a clean single-owner model.
+This gives CAHI a clean single-owner model.
 
 ---
 
@@ -187,7 +187,7 @@ There are several possible levels of context carry-over.
 
 ### Option 1 — No transfer, just replace the worker
 
-AO spawns a fresh session and only tells it what PR/issue to work on.
+CAHI spawns a fresh session and only tells it what PR/issue to work on.
 
 **Pros**
 - simplest implementation
@@ -202,9 +202,9 @@ This is probably too weak for a good user experience.
 
 ---
 
-### Option 2 — AO-generated handoff summary (recommended MVP)
+### Option 2 — CAHI-generated handoff summary (recommended MVP)
 
-AO constructs a structured handoff package from existing session state and gives that to the replacement session.
+CAHI constructs a structured handoff package from existing session state and gives that to the replacement session.
 
 Example contents:
 
@@ -257,11 +257,11 @@ Examples in the current codebase:
 - Codex agent supports a native `resume` flow.
 - Claude Code agent supports a native `--resume` flow.
 
-However, these are currently used for **restoring the same session**, not necessarily transferring work to a brand-new successor session with a different AO identity.
+However, these are currently used for **restoring the same session**, not necessarily transferring work to a brand-new successor session with a different CAHI identity.
 
 Open questions:
 
-- Can a new AO session safely wrap an old agent thread?
+- Can a new CAHI session safely wrap an old agent thread?
 - Does the agent assume the same workspace path?
 - Does resuming a thread into a new worktree cause confusion or hidden state mismatch?
 - Can the runtime/plugin reliably expose the old thread ID for successor use?
@@ -281,7 +281,7 @@ Recommendation: treat native resume as an **optional enhancement**, not the MVP 
 
 ### Option 4 — Full transcript migration
 
-AO could theoretically extract the old transcript and replay or summarize it into the new session.
+CAHI could theoretically extract the old transcript and replay or summarize it into the new session.
 
 This should **not** be the MVP.
 
@@ -305,14 +305,14 @@ Build a **manual, explicit replacement workflow** with **summary-based context h
 ### Suggested flow
 
 1. User or orchestrator chooses to replace `app-7`.
-2. AO spawns replacement session `app-12`.
-3. AO records:
+2. CAHI spawns replacement session `app-12`.
+3. CAHI records:
    - `app-12 supersedes app-7`
    - `app-7 replacedBy app-12`
-4. AO transfers PR ownership via `claimPR(..., { takeover: true })`.
-5. AO builds a structured handoff summary.
-6. AO sends the summary to `app-12` immediately.
-7. AO marks future lifecycle/reaction routing to `app-12`.
+4. CAHI transfers PR ownership via `claimPR(..., { takeover: true })`.
+5. CAHI builds a structured handoff summary.
+6. CAHI sends the summary to `app-12` immediately.
+7. CAHI marks future lifecycle/reaction routing to `app-12`.
 
 ### Why this is the right MVP
 
@@ -360,7 +360,7 @@ Output could be structured JSON or a formatted prompt block.
 
 ## Handoff Context Sources
 
-The summary-based MVP can pull from existing AO state:
+The summary-based MVP can pull from existing CAHI state:
 
 - session metadata
 - agent summary (`summary`)
@@ -382,7 +382,7 @@ After replacement:
 - the replacement session should be the only active PR owner
 - CI/review reactions should target the replacement session
 - old session should not receive future automated PR-routing work
-- dashboard / `ao session ls` should show the lineage clearly
+- dashboard / `cahi session ls` should show the lineage clearly
 
 This is where explicit lineage metadata matters.
 
@@ -425,7 +425,7 @@ A future implementation should satisfy:
 - If the old session owned a PR, the new session can take it over cleanly.
 - Future CI/review reactions route only to the replacement session.
 - The replacement session receives a usable handoff context package.
-- The user can see replacement lineage in AO metadata / UX.
+- The user can see replacement lineage in CAHI metadata / UX.
 - The workflow is explicit and inspectable, not heuristic magic.
 
 ---

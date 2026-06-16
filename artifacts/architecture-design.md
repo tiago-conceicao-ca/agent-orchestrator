@@ -1,4 +1,4 @@
-# Architecture Design — Agent Orchestrator
+# Architecture Design — CAHI
 
 _Compiled: 2026-02-13_
 
@@ -32,7 +32,7 @@ Human only intervenes when notified. Everything else is handled.
 ### Design Principles
 
 1. **Push, not pull**: Notifications are the primary interface. Dashboard is secondary drill-down.
-2. **Server-centric**: One central daemon (`ao start`) manages every registered project, and all agents report to it. Each project gets its own orchestrator agent — one orchestrator per project, never a single orchestrator spanning all projects.
+2. **Server-centric**: One central daemon (`cahi start`) manages every registered project, and all agents report to it. Each project gets its own orchestrator agent — one orchestrator per project, never a single orchestrator spanning all projects.
 3. **Plugin everything**: 8 pluggable abstraction slots. Swap any component.
 4. **Works out of the box**: Default config (tmux + claude-code + worktree + github) requires zero setup beyond `npx agent-orchestrator init`.
 5. **Silence by default, loud when needed**: Auto-handle routine issues (CI failures, review comments). Only notify the human when their judgment or action is truly required.
@@ -44,7 +44,7 @@ Human only intervenes when notified. Everything else is handled.
 
 | Term             | Definition                                 | Examples                         |
 | ---------------- | ------------------------------------------ | -------------------------------- |
-| **Orchestrator (daemon)** | The central server process that manages **all** registered projects | `ao start` + the Next.js app |
+| **Orchestrator (daemon)** | The central server process that manages **all** registered projects | `cahi start` + the Next.js app |
 | **Orchestrator agent**    | A per-project agent session that spawns and supervises workers — **one per project** | `my-app-orchestrator`, `backend-api-orchestrator` |
 | **Project**      | A configured repository to work on         | `my-app`, `backend-api`          |
 | **Session**      | A running agent instance working on a task | `my-app-1`, `my-app-2`           |
@@ -458,7 +458,7 @@ notifications:
 ### Reactions (configurable auto-responses)
 
 ```yaml
-# agent-orchestrator.yaml
+# cahi.yaml
 reactions:
   ci-failed:
     auto: true
@@ -537,7 +537,7 @@ Clicking a notification deep-links directly to the relevant session/PR in the da
 ### Minimal Config (works out of the box)
 
 ```yaml
-# agent-orchestrator.yaml
+# cahi.yaml
 projects:
   my-app:
     repo: org/repo
@@ -557,8 +557,8 @@ Everything else uses sensible defaults:
 ### Full Config
 
 ```yaml
-# agent-orchestrator.yaml
-dataDir: ~/.agent-orchestrator # metadata storage
+# cahi.yaml
+dataDir: ~/.cahi # metadata storage
 worktreeDir: ~/.worktrees # workspace root
 port: 3000 # web dashboard port
 
@@ -667,10 +667,10 @@ agent-orchestrator/
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
-├── agent-orchestrator.yaml.example
+├── cahi.yaml.example
 │
 ├── packages/
-│   ├── core/                          # @aoagents/ao-core
+│   ├── core/                          # @contaazul/cahi-core
 │   │   └── src/
 │   │       ├── types.ts               # All interfaces + types
 │   │       ├── config.ts              # YAML config loader + Zod validation
@@ -681,21 +681,21 @@ agent-orchestrator/
 │   │       ├── metadata.ts            # Flat-file read/write
 │   │       └── index.ts
 │   │
-│   ├── cli/                           # @aoagents/ao-cli → `ao` binary
+│   ├── cli/                           # @contaazul/cahi-cli → `cahi` binary
 │   │   └── src/
 │   │       ├── index.ts               # Commander.js setup
 │   │       └── commands/
-│   │           ├── init.ts            # ao init
-│   │           ├── status.ts          # ao status
-│   │           ├── spawn.ts           # ao spawn <project> [issue]
-│   │           ├── batch-spawn.ts     # ao batch-spawn <project> <issues...>
+│   │           ├── init.ts            # cahi init
+│   │           ├── status.ts          # cahi status
+│   │           ├── spawn.ts           # cahi spawn <project> [issue]
+│   │           ├── batch-spawn.ts     # cahi batch-spawn <project> <issues...>
 │   │           ├── session.ts         # ao session [ls|kill|cleanup]
-│   │           ├── send.ts            # ao send <session> <message>
-│   │           ├── review-check.ts    # ao review-check [project]
-│   │           ├── dashboard.ts       # ao dashboard (starts web)
-│   │           └── open.ts            # ao open [session|all]
+│   │           ├── send.ts            # cahi send <session> <message>
+│   │           ├── review-check.ts    # cahi review-check [project]
+│   │           ├── dashboard.ts       # cahi dashboard (starts web)
+│   │           └── open.ts            # cahi open [session|all]
 │   │
-│   ├── web/                           # @aoagents/ao-web
+│   ├── web/                           # @contaazul/cahi-web
 │   │   ├── next.config.ts
 │   │   └── src/
 │   │       ├── app/

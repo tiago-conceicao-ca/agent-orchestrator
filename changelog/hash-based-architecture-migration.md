@@ -6,14 +6,14 @@
 
 ## What Changed
 
-Agent Orchestrator has migrated from flat, configurable directories (`dataDir` and `worktreeDir`) to a **hash-based project isolation** architecture. This change eliminates configuration overhead and prevents collisions when running multiple orchestrator instances from different directories.
+CAHI has migrated from flat, configurable directories (`dataDir` and `worktreeDir`) to a **hash-based project isolation** architecture. This change eliminates configuration overhead and prevents collisions when running multiple orchestrator instances from different directories.
 
 ### Before (Flat Architecture)
 
 ```yaml
-# agent-orchestrator.yaml
-dataDir: ~/.ao-sessions
-worktreeDir: ~/.ao-worktrees
+# cahi.yaml
+dataDir: ~/.cahi-sessions
+worktreeDir: ~/.cahi-worktrees
 
 projects:
   my-app:
@@ -30,7 +30,7 @@ projects:
 ### After (Hash-Based Architecture)
 
 ```yaml
-# agent-orchestrator.yaml
+# cahi.yaml
 # No dataDir or worktreeDir needed!
 
 projects:
@@ -49,10 +49,10 @@ projects:
 
 ### Directory Structure
 
-All orchestrator data now lives under `~/.agent-orchestrator/`:
+All orchestrator data now lives under `~/.cahi/`:
 
 ```
-~/.agent-orchestrator/
+~/.cahi/
 ├── {hash}-{projectId}/        # Unique per config+project
 │   ├── .origin                # Stores config path (collision detection)
 │   ├── sessions/              # Session metadata
@@ -69,11 +69,11 @@ All orchestrator data now lives under `~/.agent-orchestrator/`:
 The hash is the first 12 characters of `SHA256(realpath(dirname(configPath)))`:
 
 ```typescript
-// Config at: ~/projects/acme/agent-orchestrator.yaml
+// Config at: ~/projects/acme/cahi.yaml
 // Hash of:   /Users/you/projects/acme
 // Result:    a3b4c5d6e7f8
 
-// Final path: ~/.agent-orchestrator/a3b4c5d6e7f8-my-app/
+// Final path: ~/.cahi/a3b4c5d6e7f8-my-app/
 ```
 
 **Why 12 chars?** Balance between uniqueness (collision probability ~1 in 16 billion) and path length.
@@ -102,9 +102,9 @@ Three levels of naming for compatibility:
 **Migration**:
 
 ```diff
-# agent-orchestrator.yaml
-- dataDir: ~/.ao-sessions
-- worktreeDir: ~/.ao-worktrees
+# cahi.yaml
+- dataDir: ~/.cahi-sessions
+- worktreeDir: ~/.cahi-worktrees
 
 projects:
   my-app:
@@ -116,7 +116,7 @@ projects:
 **Before**:
 
 ```
-~/.ao-sessions/
+~/.cahi-sessions/
 ├── int-1          # Flat directory, all projects mixed
 ├── int-2
 ├── ao-1
@@ -126,7 +126,7 @@ projects:
 **After**:
 
 ```
-~/.agent-orchestrator/
+~/.cahi/
 ├── a3b4c5d6e7f8-integrator/sessions/
 │   ├── int-1      # Integrator project sessions
 │   └── int-2
@@ -142,7 +142,7 @@ projects:
 **Before**:
 
 ```
-~/.ao-worktrees/
+~/.cahi-worktrees/
 ├── integrator/
 │   ├── int-1
 │   └── int-2
@@ -154,7 +154,7 @@ projects:
 **After**:
 
 ```
-~/.agent-orchestrator/
+~/.cahi/
 ├── a3b4c5d6e7f8-integrator/worktrees/
 │   ├── int-1
 │   └── int-2
@@ -170,16 +170,16 @@ projects:
 **Before**:
 
 ```bash
-AO_DATA_DIR=~/.ao-sessions          # Flat path
+CAHI_DATA_DIR=~/.cahi-sessions          # Flat path
 ```
 
 **After**:
 
 ```bash
-AO_DATA_DIR=~/.agent-orchestrator/a3b4c5d6e7f8-integrator/sessions/
+CAHI_DATA_DIR=~/.cahi/a3b4c5d6e7f8-integrator/sessions/
 ```
 
-**Impact**: Scripts or hooks relying on `AO_DATA_DIR` pointing to a flat directory will break.
+**Impact**: Scripts or hooks relying on `CAHI_DATA_DIR` pointing to a flat directory will break.
 
 ### 5. API Changes (For Plugin Developers)
 
@@ -203,7 +203,7 @@ import {
   generateConfigHash,
   generateInstanceId,
   validateAndStoreOrigin,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Calculate paths dynamically
 const sessionsDir = getSessionsDir(configPath, projectPath);
@@ -217,15 +217,15 @@ const worktreesDir = getWorktreesDir(configPath, projectPath);
 Remove `dataDir` and `worktreeDir` from your config:
 
 ```bash
-# Edit your agent-orchestrator.yaml
-vim ~/path/to/agent-orchestrator.yaml
+# Edit your cahi.yaml
+vim ~/path/to/cahi.yaml
 ```
 
 Remove these lines:
 
 ```yaml
-dataDir: ~/.ao-sessions
-worktreeDir: ~/.ao-worktrees
+dataDir: ~/.cahi-sessions
+worktreeDir: ~/.cahi-worktrees
 ```
 
 ### Step 2: Kill Existing Sessions
@@ -255,8 +255,8 @@ cd ~/repos/integrator
 git worktree list
 
 # Remove each old worktree
-git worktree remove ~/.ao-worktrees/integrator/int-1 --force
-git worktree remove ~/.ao-worktrees/integrator/int-2 --force
+git worktree remove ~/.cahi-worktrees/integrator/int-1 --force
+git worktree remove ~/.cahi-worktrees/integrator/int-2 --force
 # ... repeat for all
 
 # Prune stale references
@@ -267,17 +267,17 @@ git worktree prune
 
 ```bash
 # Archive old metadata (optional)
-mv ~/.ao-sessions ~/.ao-sessions-backup-$(date +%Y%m%d)
+mv ~/.cahi-sessions ~/.cahi-sessions-backup-$(date +%Y%m%d)
 
 # Or delete if you don't need it
-rm -rf ~/.ao-sessions
+rm -rf ~/.cahi-sessions
 ```
 
 **Worktree directory** can be removed after cleaning up git references:
 
 ```bash
 # Remove old worktree directory (after git worktree remove)
-rm -rf ~/.ao-worktrees
+rm -rf ~/.cahi-worktrees
 ```
 
 ### Step 4: Update to Latest Version
@@ -297,17 +297,17 @@ pnpm build
 
 ```bash
 # Start orchestrator (creates new directory structure)
-ao start
+cahi start
 
 # Spawn new sessions (uses hash-based paths)
-ao spawn my-app INT-1234
+cahi spawn my-app INT-1234
 ```
 
 ### Step 6: Verify New Structure
 
 ```bash
 # Check that new directories were created
-ls -la ~/.agent-orchestrator/
+ls -la ~/.cahi/
 
 # You should see directories like:
 # a3b4c5d6e7f8-my-app/
@@ -335,15 +335,15 @@ If you need to rollback to the old architecture:
 2. **Restore old config**:
 
    ```bash
-   # Add back to agent-orchestrator.yaml
-   dataDir: ~/.ao-sessions
-   worktreeDir: ~/.ao-worktrees
+   # Add back to cahi.yaml
+   dataDir: ~/.cahi-sessions
+   worktreeDir: ~/.cahi-worktrees
    ```
 
 3. **Restore old metadata** (if archived):
 
    ```bash
-   mv ~/.ao-sessions-backup-20260217 ~/.ao-sessions
+   mv ~/.cahi-sessions-backup-20260217 ~/.cahi-sessions
    ```
 
 4. **Kill new hash-based sessions**:
@@ -355,14 +355,14 @@ If you need to rollback to the old architecture:
 
 ### Q: Why can't I use my old sessions?
 
-**A**: The metadata file structure changed. Old sessions point to flat directories (`~/.ao-sessions/int-1`) but the new code expects hash-based paths (`~/.agent-orchestrator/a3b4c5d6e7f8-integrator/sessions/int-1`). You must kill old sessions and spawn new ones.
+**A**: The metadata file structure changed. Old sessions point to flat directories (`~/.cahi-sessions/int-1`) but the new code expects hash-based paths (`~/.cahi/a3b4c5d6e7f8-integrator/sessions/int-1`). You must kill old sessions and spawn new ones.
 
 ### Q: Will my PRs be lost?
 
 **A**: No! PRs are on GitHub, not in local sessions. You can:
 
 1. Check `gh pr list` to see all open PRs
-2. Spawn new sessions for PRs that need work: `ao spawn integrator --branch feat/existing-branch`
+2. Spawn new sessions for PRs that need work: `cahi spawn integrator --branch feat/existing-branch`
 
 ### Q: What about in-progress work?
 
@@ -378,8 +378,8 @@ If you need to rollback to the old architecture:
 
 ```bash
 # For each project
-OLD_DIR=~/.ao-sessions
-NEW_DIR=~/.agent-orchestrator/$(python3 -c "import hashlib; print(hashlib.sha256(b'/Users/you/path/to/config/dir').hexdigest()[:12])")-integrator/sessions
+OLD_DIR=~/.cahi-sessions
+NEW_DIR=~/.cahi/$(python3 -c "import hashlib; print(hashlib.sha256(b'/Users/you/path/to/config/dir').hexdigest()[:12])")-integrator/sessions
 
 mkdir -p "$NEW_DIR"
 
@@ -388,7 +388,7 @@ cp "$OLD_DIR"/int-* "$NEW_DIR/"
 
 # Update worktree paths in each file (required!)
 for file in "$NEW_DIR"/*; do
-  sed -i '' 's|worktree=~/.ao-worktrees/integrator/|worktree=~/.agent-orchestrator/HASH-integrator/worktrees/|g' "$file"
+  sed -i '' 's|worktree=~/.cahi-worktrees/integrator/|worktree=~/.cahi/HASH-integrator/worktrees/|g' "$file"
 done
 ```
 
@@ -399,13 +399,13 @@ This is error-prone. **Recommended**: Kill old sessions and spawn fresh ones.
 **A**: Each config gets a unique hash! This is the **main benefit** of the new architecture:
 
 ```bash
-# Config 1: ~/projects/acme/agent-orchestrator.yaml
+# Config 1: ~/projects/acme/cahi.yaml
 # Hash: a3b4c5d6e7f8
-# Sessions: ~/.agent-orchestrator/a3b4c5d6e7f8-my-app/
+# Sessions: ~/.cahi/a3b4c5d6e7f8-my-app/
 
-# Config 2: ~/experiments/test/agent-orchestrator.yaml
+# Config 2: ~/experiments/test/cahi.yaml
 # Hash: 1f2e3d4c5b6a
-# Sessions: ~/.agent-orchestrator/1f2e3d4c5b6a-my-app/
+# Sessions: ~/.cahi/1f2e3d4c5b6a-my-app/
 ```
 
 No conflicts, complete isolation!
@@ -419,9 +419,9 @@ No conflicts, complete isolation!
 echo -n "/path/to/your/config/dir" | sha256sum | cut -c1-12
 
 # Or let ao print it
-ao status
+cahi status
 # Output shows: Config: /path/to/config.yaml
-# Hash will be in directory names: ~/.agent-orchestrator/{hash}-{project}/
+# Hash will be in directory names: ~/.cahi/{hash}-{project}/
 ```
 
 ### Q: What if two configs have the same hash (collision)?
@@ -430,9 +430,9 @@ ao status
 
 ```
 Hash collision detected!
-Directory: ~/.agent-orchestrator/a3b4c5d6e7f8-my-app
-Expected config: /Users/you/config1/agent-orchestrator.yaml
-Actual config: /Users/you/config2/agent-orchestrator.yaml
+Directory: ~/.cahi/a3b4c5d6e7f8-my-app
+Expected config: /Users/you/config1/cahi.yaml
+Actual config: /Users/you/config2/cahi.yaml
 This is a rare hash collision. Please move one of the configs to a different directory.
 ```
 
@@ -443,12 +443,12 @@ This is a rare hash collision. Please move one of the configs to a different dir
 If you encounter issues during migration:
 
 1. Check existing sessions: `tmux ls`
-2. Check new directory structure: `ls -la ~/.agent-orchestrator/`
-3. Check config validation: `ao status`
+2. Check new directory structure: `ls -la ~/.cahi/`
+3. Check config validation: `cahi status`
 4. Review git worktrees: `git worktree list` (from project directory)
 5. Check logs: `journalctl -u ao-orchestrator` or tmux session output
 
-For bugs or questions, file an issue: https://github.com/composiohq/agent-orchestrator/issues
+For bugs or questions, file an issue: https://github.com/contaazul/cahi/issues
 
 ## Summary
 
@@ -457,9 +457,9 @@ For bugs or questions, file an issue: https://github.com/composiohq/agent-orches
 1. ✅ Remove `dataDir` and `worktreeDir` from config
 2. ✅ Kill all existing sessions (`tmux kill-server`)
 3. ✅ Clean up old git worktrees (`git worktree remove --force`)
-4. ✅ Remove old directories (`~/.ao-sessions`, `~/.ao-worktrees`)
+4. ✅ Remove old directories (`~/.cahi-sessions`, `~/.cahi-worktrees`)
 5. ✅ Update to latest version (`pnpm install && pnpm build`)
-6. ✅ Start fresh (`ao start`, `ao spawn`)
+6. ✅ Start fresh (`cahi start`, `cahi spawn`)
 
 **Expected Downtime**: ~10 minutes (time to kill sessions, clean worktrees, respawn)
 

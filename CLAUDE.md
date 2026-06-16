@@ -2,10 +2,12 @@
 
 ## What is this project?
 
-Agent Orchestrator (AO) is a platform for spawning and managing parallel AI coding agents across distributed systems. It runs multiple agents (Claude Code, Codex, Aider, OpenCode) simultaneously — each in an isolated git worktree with its own PR — and provides a single dashboard to supervise them all. Agents autonomously fix CI failures, address review comments, and manage PRs.
+**CAHI (Conta Azul Hub for Intelligence)** is a platform for spawning and managing parallel AI coding agents across distributed systems. It runs multiple agents (Claude Code, Codex, Aider, OpenCode) simultaneously — each in an isolated git worktree with its own PR — and provides a single dashboard to supervise them all. Agents autonomously fix CI failures, address review comments, and manage PRs.
 
-**Org:** ComposioHQ
-**Repo:** `github.com/ComposioHQ/agent-orchestrator`
+CAHI combines **Agent Orchestrator** (the orchestration engine), **Taskmaster**-style structured task planning, and **Conta Azul's AI-native initiative & principles** into one platform. _Formerly Agent Orchestrator (AO); the `cahi` CLI replaces the old `ao` command._
+
+**Org:** Conta Azul
+**Repo:** `github.com/contaazul/cahi`
 **License:** MIT
 
 ## Monorepo Structure
@@ -15,7 +17,7 @@ pnpm workspace (v9.15.4) with ~30 packages:
 ```
 packages/
   core/           # Engine: types, config, session manager, lifecycle, plugin registry
-  cli/            # CLI tool (`ao` command) — depends on all plugins
+  cli/            # CLI tool (`cahi` command) — depends on all plugins
   web/            # Next.js 15 dashboard (App Router, React 19, Tailwind v4)
   ao/             # Global CLI wrapper (thin shim around cli)
   plugins/
@@ -62,12 +64,12 @@ pnpm dev                                    # Web dashboard (Next.js + 2 WS serv
 
 # Type checking
 pnpm typecheck                              # All packages
-pnpm --filter @aoagents/ao-web typecheck    # Web only
+pnpm --filter @contaazul/cahi-web typecheck    # Web only
 
 # Testing
 pnpm test                                   # All packages (excludes web)
-pnpm --filter @aoagents/ao-web test         # Web tests
-pnpm --filter @aoagents/ao-web test:watch   # Web watch mode
+pnpm --filter @contaazul/cahi-web test         # Web tests
+pnpm --filter @contaazul/cahi-web test:watch   # Web watch mode
 pnpm test:integration                       # Integration tests
 
 # Lint & format
@@ -116,7 +118,7 @@ spawning -> working -> pr_open -> ci_failed / review_pending
 ### Data Flow
 
 ```
-agent-orchestrator.yaml -> Config Loader (Zod) -> Plugin Registry
+cahi.yaml -> Config Loader (Zod) -> Plugin Registry
   -> Session Manager -> Lifecycle Manager (polling loop, state machine)
   -> Events -> Notifiers
   -> Web API Routes (Next.js) -> SSE (5s interval) + WebSocket (terminal)
@@ -127,17 +129,17 @@ agent-orchestrator.yaml -> Config Loader (Zod) -> Plugin Registry
 
 No database. Flat files + memory:
 
-- **Config:** `agent-orchestrator.yaml` (Zod-validated)
-- **Global config:** `~/.agent-orchestrator/config.yaml` (all registered projects)
-- **Session metadata:** `~/.agent-orchestrator/{hash}-{projectId}/sessions/{sessionId}` (key-value pairs)
-- **Worktrees:** `~/.agent-orchestrator/{hash}-{projectId}/worktrees/{sessionId}/`
-- **Archives:** `~/.agent-orchestrator/{hash}-{projectId}/archive/{sessionId}_{timestamp}`
-- **Running state:** `~/.agent-orchestrator/running.json` (current ao start PID, port, projects)
-- **Last-stop state:** `~/.agent-orchestrator/last-stop.json` (sessions killed by ao stop / Ctrl+C, includes `otherProjects` for cross-project sessions — used by ao start to offer session restore)
+- **Config:** `cahi.yaml` (Zod-validated)
+- **Global config:** `~/.cahi/config.yaml` (all registered projects)
+- **Session metadata:** `~/.cahi/{hash}-{projectId}/sessions/{sessionId}` (key-value pairs)
+- **Worktrees:** `~/.cahi/{hash}-{projectId}/worktrees/{sessionId}/`
+- **Archives:** `~/.cahi/{hash}-{projectId}/archive/{sessionId}_{timestamp}`
+- **Running state:** `~/.cahi/running.json` (current cahi start PID, port, projects)
+- **Last-stop state:** `~/.cahi/last-stop.json` (sessions killed by cahi stop / Ctrl+C, includes `otherProjects` for cross-project sessions — used by cahi start to offer session restore)
 
 Hash = SHA-256 of config directory (first 12 chars). Prevents collision across multiple checkouts.
 
-**Config resolution:** `loadConfig()` searches up from cwd and finds the nearest `agent-orchestrator.yaml` (typically 1 project). The global config at `~/.agent-orchestrator/config.yaml` contains all registered projects. CLI commands that need cross-project visibility (ao stop, tab completions) fall back to the global config.
+**Config resolution:** `loadConfig()` searches up from cwd and finds the nearest `cahi.yaml` (typically 1 project). The global config at `~/.cahi/config.yaml` contains all registered projects. CLI commands that need cross-project visibility (cahi stop, tab completions) fall back to the global config.
 
 ### Prompt Assembly (3 Layers)
 
@@ -151,7 +153,7 @@ A project can declare other registered projects as **siblings** so their code is
 
 - **Config:** `project.siblings?: string[]` (`packages/core/src/types.ts` — `ProjectConfig.siblings`). Each entry is a registered project id or `owner/name` repo. Mounted refs are tracked per-session as `SiblingRef[]` (same file, `mode: "readonly-symlink"`).
 - **Auto-mount:** on spawn, `session-manager.ts` resolves each entry via `resolveSiblingSource` (`id === entry || project.repo === entry`), skips self-references, and calls `addSibling(..., { mode: "readonly-symlink" })` to create a read-only symlink. Mounts roll back with the spawn on failure.
-- **Adjacency:** a sibling is reachable at `../{name}` next to the worker's checkout, where `{name}` is the basename of the resolved project's on-disk `path` — **not** the raw config string. Use the shared `resolveSiblingAdjacency(projects, entries, selfProjectId)` helper (`packages/core/src/utils/siblings.ts`, exported from `@aoagents/ao-core`) to render the correct `../{name}` everywhere — it is the single source of truth used by the orchestrator prompt, the worker prompt, and `ao status`.
+- **Adjacency:** a sibling is reachable at `../{name}` next to the worker's checkout, where `{name}` is the basename of the resolved project's on-disk `path` — **not** the raw config string. Use the shared `resolveSiblingAdjacency(projects, entries, selfProjectId)` helper (`packages/core/src/utils/siblings.ts`, exported from `@contaazul/cahi-core`) to render the correct `../{name}` everywhere — it is the single source of truth used by the orchestrator prompt, the worker prompt, and `cahi status`.
 - **The write-into-a-sibling rule:** siblings are read-only — never edit a `../{name}` mount in place. To *write* into a sibling repo, spawn the worker under **that sibling's own project**; the original project then mounts read-only for it.
 
 Key files: `packages/core/src/types.ts` (`SiblingRef`, `ProjectConfig.siblings`), `packages/core/src/session-manager.ts` (`addSibling`/`resolveSiblingSource`), `packages/core/src/utils/siblings.ts` (`resolveSiblingAdjacency`), `packages/core/src/orchestrator-prompt.ts` (sibling prompt section), `packages/web/src/components/ProjectSiblingsEditor.tsx` (sidebar config UI).
@@ -216,22 +218,22 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## CLI Behavior (ao start / ao stop)
+## CLI Behavior (cahi start / cahi stop)
 
-### ao start
+### cahi start
 - Registers in `running.json` (PID, port, projects)
 - Offers to restore sessions from `last-stop.json` — includes cross-project sessions via `otherProjects` field
-- `ao start --restore` restores `last-stop.json` without prompting; `ao start --no-restore` skips restore
-- **Ctrl+C performs full graceful shutdown** (same as ao stop): kills all sessions, writes last-stop state, unregisters from running.json. 10s hard timeout guarantees exit.
+- `cahi start --restore` restores `last-stop.json` without prompting; `cahi start --no-restore` skips restore
+- **Ctrl+C performs full graceful shutdown** (same as cahi stop): kills all sessions, writes last-stop state, unregisters from running.json. 10s hard timeout guarantees exit.
 
-### ao stop
-- `ao stop` (no args): kills ALL sessions across ALL projects, sends SIGTERM to parent ao start process, stops dashboard, unregisters
-- `ao stop <project>`: kills only that project's sessions, does NOT kill parent process or dashboard (they serve all projects)
-- Always loads global config (`~/.agent-orchestrator/config.yaml`) to see all projects — local config only has the cwd project
+### cahi stop
+- `cahi stop` (no args): kills ALL sessions across ALL projects, sends SIGTERM to parent cahi start process, stops dashboard, unregisters
+- `cahi stop <project>`: kills only that project's sessions, does NOT kill parent process or dashboard (they serve all projects)
+- Always loads global config (`~/.cahi/config.yaml`) to see all projects — local config only has the cwd project
 - Records `LastStopState` with `otherProjects` field for cross-project session restore
 
-### ao update
-- For package-manager installs, `ao update` pauses a running AO via `ao stop --yes`, runs the global package update, verifies `ao --version`, then restarts with `ao start --restore` (or `--no-restore` if requested)
+### cahi update
+- For package-manager installs, `cahi update` pauses a running AO via `cahi stop --yes`, runs the global package update, verifies `cahi --version`, then restarts with `cahi start --restore` (or `--no-restore` if requested)
 - Failed package-manager updates must report that AO was not updated, include actionable remediation, and restart the previous installation if AO was paused
 
 ### Dashboard sidebar
@@ -250,7 +252,7 @@ AO ships on macOS, Linux, **and Windows**. All three are first-class.
 
 ### The Golden Rule
 
-> **Never write `process.platform === "win32"` in new code. Use `isWindows()` from `@aoagents/ao-core`. If you need branching the helpers don't cover, add it to `packages/core/src/platform.ts` (or one of the targeted helper modules below) — never inline at the call site.**
+> **Never write `process.platform === "win32"` in new code. Use `isWindows()` from `@contaazul/cahi-core`. If you need branching the helpers don't cover, add it to `packages/core/src/platform.ts` (or one of the targeted helper modules below) — never inline at the call site.**
 
 The codebase has a deliberate set of cross-platform abstractions. Every platform helper is centrally tested by mocking `process.platform`; inline checks bypass those tests and become silent regressions. Whenever you'd type `process.platform`, stop and check the helper inventory in `docs/CROSS_PLATFORM.md` first.
 
@@ -268,7 +270,7 @@ The codebase has a deliberate set of cross-platform abstractions. Every platform
 
 ### Quick reference: helpers to use instead of raw platform checks
 
-All importable from `@aoagents/ao-core` unless noted:
+All importable from `@contaazul/cahi-core` unless noted:
 
 | Need | Use |
 |------|-----|
@@ -281,12 +283,12 @@ All importable from `@aoagents/ao-core` unless noted:
 | Compare paths (case-insensitive on NTFS/APFS) | `pathsEqual()` / `canonicalCompareKey()` from `cli/src/lib/path-equality.ts` |
 | Escape shell args | `shellEscape()` |
 | Install agent PATH wrappers (`gh`/`git`) | `setupPathWrapperWorkspace(workspacePath)` |
-| Build env PATH with `~/.ao/bin` prepended | `buildAgentPath(basePath?)` |
+| Build env PATH with `~/.cahi/bin` prepended | `buildAgentPath(basePath?)` |
 | Tail JSONL | `readLastJsonlEntry` / `readLastActivityEntry` |
 | Activity-state contract helpers | `checkActivityLogState`, `getActivityFallbackState`, `classifyTerminalActivity`, `recordTerminalActivity`, `appendActivityEntry` |
-| Windows pty-host registry (used by `ao stop`) | `registerWindowsPtyHost`, `getWindowsPtyHosts`, `unregisterWindowsPtyHost`, `clearWindowsPtyHostRegistry` |
-| Reap orphan pty-hosts on `ao stop` | `sweepWindowsPtyHosts()` from `@aoagents/ao-plugin-runtime-process` |
-| Talk to a Windows pty-host over its named pipe | `getPipePath`, `connectPtyHost`, `ptyHostSendMessage`, `ptyHostGetOutput`, `ptyHostIsAlive`, `ptyHostKill` from `@aoagents/ao-plugin-runtime-process` |
+| Windows pty-host registry (used by `cahi stop`) | `registerWindowsPtyHost`, `getWindowsPtyHosts`, `unregisterWindowsPtyHost`, `clearWindowsPtyHostRegistry` |
+| Reap orphan pty-hosts on `cahi stop` | `sweepWindowsPtyHosts()` from `@contaazul/cahi-plugin-runtime-process` |
+| Talk to a Windows pty-host over its named pipe | `getPipePath`, `connectPtyHost`, `ptyHostSendMessage`, `ptyHostGetOutput`, `ptyHostIsAlive`, `ptyHostKill` from `@contaazul/cahi-plugin-runtime-process` |
 | Validate user-supplied session ID before pipe/shell use | `validateSessionId()` from `@/server/tmux-utils` |
 | Resolve a session's Windows pipe path | `resolvePipePath()` from `@/server/tmux-utils` |
 | POSIX-only Ctrl+C signal forwarding | `forwardSignalsToChild()` from `cli/src/lib/shell.ts` (guard with `!isWindows()`) |
@@ -296,8 +298,8 @@ All importable from `@aoagents/ao-core` unless noted:
 
 ### Environment variables to know about
 
-- `AO_SHELL` — overrides `getShell()` resolution (escape hatch for Git Bash users on Windows). Args inferred from basename: `cmd` → `/c`, `bash`/`sh`/`zsh` → `-c`, anything else → `-Command`.
-- `AO_BASH_PATH` — used by `script-runner.ts` on Windows to locate bash before falling back to Git Bash auto-detection. WSL bash is excluded (it sees Linux paths from a Windows cwd, breaking script semantics).
+- `CAHI_SHELL` — overrides `getShell()` resolution (escape hatch for Git Bash users on Windows). Args inferred from basename: `cmd` → `/c`, `bash`/`sh`/`zsh` → `-c`, anything else → `-Command`.
+- `CAHI_BASH_PATH` — used by `script-runner.ts` on Windows to locate bash before falling back to Git Bash auto-detection. WSL bash is excluded (it sees Linux paths from a Windows cwd, breaking script semantics).
 
 ## Conventions
 
@@ -327,7 +329,7 @@ All importable from `@aoagents/ao-core` unless noted:
 ### Imports
 
 - `@/` alias -> `packages/web/src/`
-- `@aoagents/ao-core` for core imports
+- `@contaazul/cahi-core` for core imports
 - `workspace:*` for cross-package
 
 ### Web / Styling
@@ -372,10 +374,10 @@ All importable from `@aoagents/ao-core` unless noted:
 | `packages/web/src/lib/types.ts` | Dashboard types |
 | `packages/web/src/app/globals.css` | Design tokens and base styles (full token definitions) |
 | `DESIGN.md` | **Design system reference** — design principles, token mapping, component patterns, anti-patterns (read this before writing any web UI) |
-| `agent-orchestrator.yaml` | Project-level config (user-created) |
+| `cahi.yaml` | Project-level config (user-created) |
 | `eslint.config.js` | ESLint flat config |
 | `tsconfig.base.json` | Shared TypeScript base config |
-| `packages/cli/src/commands/start.ts` | ao start/stop commands + Ctrl+C graceful shutdown |
+| `packages/cli/src/commands/start.ts` | cahi start/stop commands + Ctrl+C graceful shutdown |
 | `packages/cli/src/lib/running-state.ts` | RunningState + LastStopState management (register/unregister, last-stop read/write) |
 | `packages/web/src/components/ProjectSidebar.tsx` | Sidebar — always shows all projects' sessions |
 
@@ -398,7 +400,7 @@ See [`skills/README.md`](skills/README.md) for how to install skills into other 
 
 ```
 packages/plugins/{slot}-{name}/
-├── package.json          # @aoagents/ao-plugin-{slot}-{name}
+├── package.json          # @contaazul/cahi-plugin-{slot}-{name}
 ├── tsconfig.json         # extends ../../../tsconfig.base.json
 ├── src/
 │   ├── index.ts          # manifest + create + detect (default export)
@@ -407,7 +409,7 @@ packages/plugins/{slot}-{name}/
 
 ### Naming
 
-- Package: `@aoagents/ao-plugin-{slot}-{name}` (lowercase, hyphenated)
+- Package: `@contaazul/cahi-plugin-{slot}-{name}` (lowercase, hyphenated)
 - `manifest.name` must match the `{name}` suffix (e.g. package `...-runtime-tmux` -> name: `"tmux"`)
 - `manifest.slot` must use `as const` to preserve the literal type
 
@@ -416,7 +418,7 @@ packages/plugins/{slot}-{name}/
 Every plugin default-exports a `PluginModule<T>`:
 
 ```typescript
-import type { PluginModule, Runtime } from "@aoagents/ao-core";
+import type { PluginModule, Runtime } from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "tmux",
@@ -471,8 +473,8 @@ import {
   recordTerminalActivity,       // Shared recordActivity impl (classify + dedup + append)
   classifyTerminalActivity,     // Classify terminal output via detectActivity
   appendActivityEntry,          // Low-level JSONL append
-  setupPathWrapperWorkspace,    // Install ~/.ao/bin wrappers + .ao/AGENTS.md
-  buildAgentPath,               // Prepend ~/.ao/bin to PATH
+  setupPathWrapperWorkspace,    // Install ~/.cahi/bin wrappers + .cahi/AGENTS.md
+  buildAgentPath,               // Prepend ~/.cahi/bin to PATH
   normalizeAgentPermissionMode, // Normalize permission mode strings
   DEFAULT_READY_THRESHOLD_MS,   // 5 min — ready→idle threshold
   DEFAULT_ACTIVE_WINDOW_MS,     // 30s — active→ready window
@@ -480,7 +482,7 @@ import {
   PREFERRED_GH_PATH,            // /usr/local/bin/gh
   CI_STATUS, ACTIVITY_STATE, SESSION_STATUS,  // Constants
   type Session, type ProjectConfig, type RuntimeHandle,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 ```
 
 ### Testing
@@ -506,7 +508,7 @@ All agent plugins (claude-code, codex, aider, opencode, etc.) must implement the
 | Method | Purpose | Return `null` OK? |
 |--------|---------|-------------------|
 | `getLaunchCommand` | Shell command to start the agent | No |
-| `getEnvironment` | Env vars for agent process (must include `~/.ao/bin` in PATH) | No |
+| `getEnvironment` | Env vars for agent process (must include `~/.cahi/bin` in PATH) | No |
 | `detectActivity` | Terminal output classification (deprecated, but required) | No |
 | `getActivityState` | JSONL/API-based activity detection (min 3 states: active/ready/idle) | Yes (if no data) |
 | `isProcessRunning` | Check process alive via tmux TTY or PID | No |
@@ -523,12 +525,12 @@ All agent plugins (claude-code, codex, aider, opencode, etc.) must implement the
 
 **Metadata hooks are critical.** Without `setupWorkspaceHooks`, PRs created by agents won't appear in the dashboard. Two patterns exist:
 - **Agent-native hooks** (Claude Code): PostToolUse hooks in `.claude/settings.json`
-- **PATH wrappers** (Codex, Aider, OpenCode): `~/.ao/bin/gh` and `~/.ao/bin/git` intercept commands. Call `setupPathWrapperWorkspace(workspacePath)` — it installs wrappers to `~/.ao/bin/` and writes session context to `.ao/AGENTS.md` (gitignored, does not modify tracked files).
+- **PATH wrappers** (Codex, Aider, OpenCode): `~/.cahi/bin/gh` and `~/.cahi/bin/git` intercept commands. Call `setupPathWrapperWorkspace(workspacePath)` — it installs wrappers to `~/.cahi/bin/` and writes session context to `.cahi/AGENTS.md` (gitignored, does not modify tracked files).
 
 **Environment requirements:**
-- All agents must set `AO_SESSION_ID` and optionally `AO_ISSUE_ID`
-- All agents using PATH wrappers must prepend `~/.ao/bin` to PATH
-- Use `normalizeAgentPermissionMode` from `@aoagents/ao-core` (not a local duplicate)
+- All agents must set `CAHI_SESSION_ID` and optionally `CAHI_ISSUE_ID`
+- All agents using PATH wrappers must prepend `~/.cahi/bin` to PATH
+- Use `normalizeAgentPermissionMode` from `@contaazul/cahi-core` (not a local duplicate)
 
 **Activity detection architecture:**
 
@@ -583,7 +585,7 @@ async getActivityState(session, readyThresholdMs?): Promise<ActivityDetection | 
 | Pattern | Used by | How it works |
 |---------|---------|-------------|
 | **Native JSONL** | Claude Code, Codex | Agent writes its own JSONL with rich state (`permission_request`, `tool_call`, `error`, etc.). `getActivityState` reads the last entry and maps it to activity states. |
-| **AO Activity JSONL** | Aider, OpenCode, new agents | Agent implements `recordActivity`. Lifecycle manager calls it each poll cycle with terminal output. It calls `classifyTerminalActivity()` → `appendActivityEntry()` to write to `{workspacePath}/.ao/activity.jsonl`. `getActivityState` reads from this file. |
+| **AO Activity JSONL** | Aider, OpenCode, new agents | Agent implements `recordActivity`. Lifecycle manager calls it each poll cycle with terminal output. It calls `classifyTerminalActivity()` → `appendActivityEntry()` to write to `{workspacePath}/.cahi/activity.jsonl`. `getActivityState` reads from this file. |
 
 **For agents using AO Activity JSONL (the common case for new plugins):**
 

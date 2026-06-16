@@ -10,7 +10,7 @@ This PR has been through **11+ review rounds** across multiple reviewers (humans
 
 **Reviewer focus areas, in descending order of attention:**
 1. `migrate-storage/` — the migration + rollback machinery. Most reviewed; most edge cases filed.
-2. Cross-project CLI semantics (`ao stop` / `ao start` / Ctrl+C) — behavioral correctness around `last-stop.json`.
+2. Cross-project CLI semantics (`cahi stop` / `cahi start` / Ctrl+C) — behavioral correctness around `last-stop.json`.
 3. Status / lifecycle dual-truth elimination — making sure no consumer still reads `previousStatus`.
 4. Worktree path safety during migration — git config rewriting.
 5. Dashboard sidebar scoping regression.
@@ -32,15 +32,15 @@ The migration machinery survived a brutal review pass. The PR has explicit handl
 | EC-27 | Rollback after partial success — preserve already-migrated worktrees | `fd4f969f` |
 | — | Stray worktree recursion (worktree containing worktree path) | `ff61ee97` |
 | — | Empty / orphaned archive directories | Archive removal commits (group C) |
-| — | Stale `running.json` from previous crashed `ao start` | Auto-pruned on next read (pre-existing, kept) |
+| — | Stale `running.json` from previous crashed `cahi start` | Auto-pruned on next read (pre-existing, kept) |
 | — | High-entropy test placeholders triggering gitleaks | `31b20ed2`, `3e23c8db` (targeted regex) |
-| — | Two `ao migrate-storage` runs racing | File-locked global config writes (`bb4c68fc`) |
+| — | Two `cahi migrate-storage` runs racing | File-locked global config writes (`bb4c68fc`) |
 | — | Partial failure in one project — others succeed | Per-project transaction isolation |
-| — | `ao start <project>` after `ao stop <project>` hits "already running" | `removeProjectFromRunning()` + `projectNeedsRestart` gate |
+| — | `cahi start <project>` after `cahi stop <project>` hits "already running" | `removeProjectFromRunning()` + `projectNeedsRestart` gate |
 | — | `projectNeedsRestart` false-triggers on path/URL args | `isProjectId` guard: `!isRepoUrl(arg) && !isLocalPath(arg)` |
-| — | Ctrl+C leaves tmux orphans | Signal handler mirrors full `ao stop` cleanup (`b4feda79`) |
+| — | Ctrl+C leaves tmux orphans | Signal handler mirrors full `cahi stop` cleanup (`b4feda79`) |
 
-Each of these has at least one test. **If you change `migrate-storage/`, run** `pnpm --filter @aoagents/ao-core test` **and read the failures carefully** — they're load-bearing.
+Each of these has at least one test. **If you change `migrate-storage/`, run** `pnpm --filter @contaazul/cahi-core test` **and read the failures carefully** — they're load-bearing.
 
 ---
 
@@ -65,8 +65,8 @@ These files have subtle invariants and high blast radius. State which invariants
 
 ### `packages/cli/src/commands/start.ts` (includes stop logic — there is no `stop.ts`)
 - `last-stop.json` schema includes `otherProjects` for cross-project restore. Adding fields → bump schema, write a migration test.
-- `ao stop <project>` (with arg) **must not** kill the parent process or the dashboard. There's a regression test for this; it caught a real bug (`95cf979d`).
-- `ao stop <project>` calls `removeProjectFromRunning(projectId)` — removing the project from `running.json` so that `ao start <project>` can restart. The `projectNeedsRestart` gate in `ao start` depends on this.
+- `cahi stop <project>` (with arg) **must not** kill the parent process or the dashboard. There's a regression test for this; it caught a real bug (`95cf979d`).
+- `cahi stop <project>` calls `removeProjectFromRunning(projectId)` — removing the project from `running.json` so that `cahi start <project>` can restart. The `projectNeedsRestart` gate in `cahi start` depends on this.
 - Ctrl+C handler has a **10s hard timeout**. Don't remove — cleanup hangs are real.
 - The `projectNeedsRestart` gate uses an `isProjectId` guard (`!isRepoUrl && !isLocalPath`) to avoid false triggers when `projectArg` is a filesystem path or URL.
 
@@ -85,9 +85,9 @@ These files have subtle invariants and high blast radius. State which invariants
 Things to verify still hold when you pick this up:
 
 1. **Upstream drift.** This PR has been merged with `upstream/main` multiple times. Run `git fetch upstream && git log --oneline upstream/main ^storage-redesign` — if the result is non-empty, plan a merge before pushing.
-2. **Migration on real user data.** All migration tests use synthetic fixtures. Before merge, the author validated against personal `~/.agent-orchestrator/` once. Worth re-verifying on any reviewer's machine.
-3. **The `last-stop.json` ↔ `running.json` interaction.** If `ao start` crashes between writing `running.json` and the restore prompt, the next `ao start` will see both files. Current behavior: prompt restore, then proceed. Verify this is still the case.
-4. **Dashboard during migration.** If the user has the dashboard open while running `ao migrate-storage`, the SSE stream may briefly 404 on a session whose path moved. Pre-existing tolerance handles it; don't tighten the error UI.
+2. **Migration on real user data.** All migration tests use synthetic fixtures. Before merge, the author validated against personal `~/.cahi/` once. Worth re-verifying on any reviewer's machine.
+3. **The `last-stop.json` ↔ `running.json` interaction.** If `cahi start` crashes between writing `running.json` and the restore prompt, the next `cahi start` will see both files. Current behavior: prompt restore, then proceed. Verify this is still the case.
+4. **Dashboard during migration.** If the user has the dashboard open while running `cahi migrate-storage`, the SSE stream may briefly 404 on a session whose path moved. Pre-existing tolerance handles it; don't tighten the error UI.
 5. **Plugin authors with hardcoded `storageKey`.** External plugins that built against the old type may break. Search consumer plugins for `storageKey` references. Within this monorepo, all plugins are clean.
 
 ---
@@ -104,24 +104,24 @@ pnpm lint
 pnpm format:check
 pnpm typecheck
 pnpm test
-pnpm --filter @aoagents/ao-web test
+pnpm --filter @contaazul/cahi-web test
 pnpm test:integration   # only if your change touches CLI / lifecycle / migration
 ```
 
 **Manual smoke tests (do not skip if you touched CLI or migration):**
 
-1. Fresh `~/.agent-orchestrator/`:
-   - `ao start` → spawn a session → `ao stop` → `ao start` → confirm restore prompt → accept → session resumes.
+1. Fresh `~/.cahi/`:
+   - `cahi start` → spawn a session → `cahi stop` → `cahi start` → confirm restore prompt → accept → session resumes.
 2. Cross-project:
    - Register two projects in global config.
    - Spawn a session in each.
-   - `ao stop` (no args) — both die. `last-stop.json` has both.
-   - `ao start` from project A — restore prompt offers both, including project B's.
-3. `ao stop <projectB>` from inside project A — only project B's sessions die. Dashboard + parent process untouched.
-4. Ctrl+C in `ao start` — sessions die, `last-stop.json` written, no tmux orphans (`tmux ls` is empty).
+   - `cahi stop` (no args) — both die. `last-stop.json` has both.
+   - `cahi start` from project A — restore prompt offers both, including project B's.
+3. `cahi stop <projectB>` from inside project A — only project B's sessions die. Dashboard + parent process untouched.
+4. Ctrl+C in `cahi start` — sessions die, `last-stop.json` written, no tmux orphans (`tmux ls` is empty).
 5. Migration on a V1 layout snapshot:
-   - `ao migrate-storage --dry-run` → review plan.
-   - `ao migrate-storage` → V2 layout exists, archive content folded into `sessions/`, no orphan files.
+   - `cahi migrate-storage --dry-run` → review plan.
+   - `cahi migrate-storage` → V2 layout exists, archive content folded into `sessions/`, no orphan files.
 6. Dashboard:
    - Multi-project sidebar shows all projects' sessions when filter changes.
    - Restore button works on a terminated session.
@@ -144,5 +144,5 @@ If you're tempted to do any of these, *don't* — they were proposed in earlier 
 
 1. Re-read `CLAUDE.md` "Working Principles."
 2. Read the relevant commit message — they're detailed for this PR.
-3. Search the PR conversation on GitHub: https://github.com/ComposioHQ/agent-orchestrator/pull/1466
+3. Search the PR conversation on GitHub: https://github.com/contaazul/cahi/pull/1466
 4. Bias toward simplification (per `feedback_simplify_backend` memory). The backend is already lean after this PR; keep it that way.

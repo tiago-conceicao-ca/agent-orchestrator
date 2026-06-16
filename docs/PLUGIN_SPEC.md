@@ -1,6 +1,6 @@
-# AO Plugin Spec
+# CAHI Plugin Spec
 
-This document defines the runtime contract and packaging requirements for Agent Orchestrator plugins.
+This document defines the runtime contract and packaging requirements for CAHI plugins.
 
 ## Runtime Contract
 
@@ -25,7 +25,7 @@ export interface PluginManifest {
 }
 ```
 
-AO accepts either a direct named export or a default export that satisfies this shape.
+CAHI accepts either a direct named export or a default export that satisfies this shape.
 
 ## Supported Slots
 
@@ -39,7 +39,7 @@ Current core slot types:
 - `notifier`
 - `terminal`
 
-The manifest `slot` determines where AO registers the plugin and which config surface can reference it.
+The manifest `slot` determines where CAHI registers the plugin and which config surface can reference it.
 
 ## Packaging Requirements
 
@@ -47,14 +47,14 @@ Published plugins should:
 
 - ship built JavaScript, not raw TypeScript-only entrypoints
 - export an ESM entrypoint through `exports` or `main`
-- declare a semver dependency on `@aoagents/ao-core`
+- declare a semver dependency on `@contaazul/cahi-core`
 - keep side effects out of module top-level code where possible
 
 Recommended package shape:
 
 ```json
 {
-  "name": "@aoagents/ao-plugin-example",
+  "name": "@contaazul/cahi-plugin-example",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -76,7 +76,7 @@ Project config enables plugins through `plugins:` entries:
 plugins:
   - name: openclaw
     source: registry
-    package: "@aoagents/ao-plugin-notifier-openclaw"
+    package: "@contaazul/cahi-plugin-notifier-openclaw"
     version: "0.1.1"
 ```
 
@@ -91,11 +91,11 @@ Descriptor fields:
 
 ## Marketplace Registry
 
-AO’s bundled marketplace catalog lives at:
+CAHI’s bundled marketplace catalog lives at:
 
 - `packages/cli/src/assets/plugin-registry.json`
 
-Registry entries provide AO-specific metadata on top of the runtime contract:
+Registry entries provide CAHI-specific metadata on top of the runtime contract:
 
 - `id`
 - `package`
@@ -107,8 +107,8 @@ Registry entries provide AO-specific metadata on top of the runtime contract:
 
 ## Installation Model
 
-Registry and npm plugins install into the AO-managed store:
+Registry and npm plugins install into the CAHI-managed store:
 
-- `~/.agent-orchestrator/plugins/`
+- `~/.cahi/plugins/`
 
-That store is shared across projects. `agent-orchestrator.yaml` remains the source of truth for whether a plugin is enabled in a given repo.
+That store is shared across projects. `cahi.yaml` remains the source of truth for whether a plugin is enabled in a given repo.

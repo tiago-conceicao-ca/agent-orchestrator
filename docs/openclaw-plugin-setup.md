@@ -1,12 +1,12 @@
 # OpenClaw Plugin Setup Guide
 
-How to set up the Agent Orchestrator (AO) plugin for OpenClaw so the AI bot delegates all coding work to AO agents.
+How to set up the CAHI plugin for OpenClaw so the AI bot delegates all coding work to CAHI agents.
 
 ## Prerequisites
 
 - [OpenClaw](https://openclaw.ai) installed and running
-- [Agent Orchestrator](https://github.com/ComposioHQ/agent-orchestrator) installed with `ao start` completed in your repo
-- `ao`, `gh`, `tmux`, and `node` available in PATH
+- [CAHI](https://github.com/contaazul/cahi) installed with `cahi start` completed in your repo
+- `cahi`, `gh`, `tmux`, and `node` available in PATH
 - GitHub CLI (`gh`) authenticated
 
 ## 1. Install the Plugin
@@ -36,7 +36,7 @@ cp -r skills/agent-orchestrator/references ~/.openclaw/extensions/skills/agent-o
 
 ## 3. Configure OpenClaw
 
-Run `/ao setup` in any OpenClaw channel to auto-configure, or run these commands manually:
+Run `/cahi setup` in any OpenClaw channel to auto-configure, or run these commands manually:
 
 ### Required Settings
 
@@ -54,16 +54,16 @@ openclaw config set plugins.allow '["agent-orchestrator"]'
 
 ### Required: Disable Conflicting Built-in Skills
 
-**Without these, the bot may ignore AO and write code directly.** Run once after setup:
+**Without these, the bot may ignore CAHI and write code directly.** Run once after setup:
 
 ```bash
-# Prevent the bot from writing code directly — it should delegate to AO instead
+# Prevent the bot from writing code directly — it should delegate to CAHI instead
 openclaw config set tools.deny '["exec", "write", "str_replace_based_edit_tool", "create_file", "str_replace_editor"]'
 
-# Disable the built-in coding skill (it tells the bot to use Codex/Claude Code directly, overriding AO)
+# Disable the built-in coding skill (it tells the bot to use Codex/Claude Code directly, overriding CAHI)
 openclaw config set skills.entries.coding-agent.enabled false
 
-# Disable the built-in GitHub issues skill (it spawns OpenClaw sub-agents, bypassing AO)
+# Disable the built-in GitHub issues skill (it spawns OpenClaw sub-agents, bypassing CAHI)
 openclaw config set skills.entries.gh-issues.enabled false
 ```
 
@@ -76,17 +76,17 @@ openclaw config set channels.discord.groupPolicy "open"
 openclaw config set messages.groupChat.historyLimit 100
 ```
 
-### Plugin Config (if `ao` isn't in PATH or repo isn't in default location)
+### Plugin Config (if `cahi` isn't in PATH or repo isn't in default location)
 
 ```bash
 # Set the path to the ao binary
-openclaw config set plugins.entries.agent-orchestrator.config.aoPath "/path/to/ao"
+openclaw config set plugins.entries.cahi.config.aoPath "/path/to/ao"
 
-# Set the working directory (must contain agent-orchestrator.yaml)
-openclaw config set plugins.entries.agent-orchestrator.config.aoCwd "/path/to/your/repo"
+# Set the working directory (must contain cahi.yaml)
+openclaw config set plugins.entries.cahi.config.aoCwd "/path/to/your/repo"
 
 # Set the path to gh binary (if not in PATH)
-openclaw config set plugins.entries.agent-orchestrator.config.ghPath "/path/to/gh"
+openclaw config set plugins.entries.cahi.config.ghPath "/path/to/gh"
 ```
 
 ## 4. Set Up Identity Files
@@ -98,7 +98,7 @@ Create these files in `~/.openclaw/workspace/` to give the bot its personality a
 ```markdown
 # IDENTITY.md
 
-- **Name:** AO
+- **Name:** CAHI
 - **Creature:** AI Engineering Manager
 - **Vibe:** Sharp, concise, proactive
 - **Emoji:** ⚡
@@ -107,12 +107,12 @@ Create these files in `~/.openclaw/workspace/` to give the bot its personality a
 
 - **GitHub account:** <your-github-username>
 - **Primary repo:** <owner/repo>
-- **AO project ID:** <project-id-from-agent-orchestrator.yaml>
+- **CAHI project ID:** <project-id-from-cahi.yaml>
 - **Owner:** <your-name>
 
 ## How You Operate
 
-You are a MANAGER. You never write code yourself. You delegate ALL coding work to Agent Orchestrator.
+You are a MANAGER. You never write code yourself. You delegate ALL coding work to CAHI.
 
 When asked about work → use `ao_issues` tool
 When asked about status → use `ao_sessions` or `ao_status` tool
@@ -121,7 +121,7 @@ When asked to start multiple → use `ao_batch_spawn` tool
 When talking to an agent → use `ao_send` tool
 When stopping an agent → use `ao_kill` tool (confirm first)
 
-If an AO tool fails, report the error. Do NOT fall back to coding directly.
+If an CAHI tool fails, report the error. Do NOT fall back to coding directly.
 ```
 
 ### SOUL.md
@@ -129,9 +129,9 @@ If an AO tool fails, report the error. Do NOT fall back to coding directly.
 ```markdown
 # SOUL.md
 
-You are AO — an AI engineering manager. You manage coding agents through Agent Orchestrator.
+You are CAHI — an AI engineering manager. You manage coding agents through CAHI.
 
-You NEVER write code directly. You delegate ALL coding to AO agents via ao_spawn.
+You NEVER write code directly. You delegate ALL coding to CAHI agents via ao_spawn.
 Even if spawning fails, you report the failure — you don't code directly.
 
 Always include full PR URLs when reporting: https://github.com/<owner>/<repo>/pull/<number>
@@ -151,8 +151,8 @@ openclaw plugins list | grep agent-orchestrator
 openclaw agent --agent main -m "List your tools"
 # Should show ao_sessions, ao_issues, ao_spawn, etc.
 
-# Verify AO works
-/ao doctor
+# Verify CAHI works
+/cahi doctor
 ```
 
 ## Why These Settings Matter
@@ -161,36 +161,36 @@ openclaw agent --agent main -m "List your tools"
 |---------|-----|
 | `tools.profile: "full"` | The `coding` profile only includes built-in tools. Plugin tools require `full`. |
 | `tools.allow: ["group:plugins"]` | OpenClaw treats ALL plugin tools as optional. Without this, they're invisible to the AI. |
-| `tools.deny: [exec, write, ...]` | Without this, the bot will write code directly instead of delegating to AO. |
-| `skills.entries.coding-agent.enabled: false` | This built-in skill tells the bot to use Codex/Claude Code. It overrides AO. |
-| `skills.entries.gh-issues.enabled: false` | This built-in skill spawns OpenClaw sub-agents. It bypasses AO. |
-| `aoCwd` | `ao spawn` must run from the directory containing `agent-orchestrator.yaml`. |
+| `tools.deny: [exec, write, ...]` | Without this, the bot will write code directly instead of delegating to CAHI. |
+| `skills.entries.coding-agent.enabled: false` | This built-in skill tells the bot to use Codex/Claude Code. It overrides CAHI. |
+| `skills.entries.gh-issues.enabled: false` | This built-in skill spawns OpenClaw sub-agents. It bypasses CAHI. |
+| `aoCwd` | `cahi spawn` must run from the directory containing `cahi.yaml`. |
 
 ## Troubleshooting
 
 | Problem | Cause | Fix |
 |---------|-------|-----|
-| Bot says "no ao_* tools available" | `tools.profile` is not `full` or `tools.allow` missing `group:plugins` | Run `/ao setup` |
-| Bot writes code directly | `coding-agent` skill is active or `exec`/`write` not denied | Run `/ao setup` |
-| `ao spawn` returns "No config found" | `aoCwd` not set or wrong path | Set `plugins.entries.agent-orchestrator.config.aoCwd` |
-| `ao: not found` | `ao` not in PATH | Create symlink or set `aoPath` in plugin config |
+| Bot says "no ao_* tools available" | `tools.profile` is not `full` or `tools.allow` missing `group:plugins` | Run `/cahi setup` |
+| Bot writes code directly | `coding-agent` skill is active or `exec`/`write` not denied | Run `/cahi setup` |
+| `cahi spawn` returns "No config found" | `aoCwd` not set or wrong path | Set `plugins.entries.cahi.config.aoCwd` |
+| `ao: not found` | `cahi` not in PATH | Create symlink or set `aoPath` in plugin config |
 | Only 2-3 issues shown (not all) | Bot answering from stale session memory | Clear sessions: `rm ~/.openclaw/agents/main/sessions/sessions.json` |
 | Bot only responds in DMs | `groupPolicy` is `allowlist` | Set `channels.discord.groupPolicy` to `open` |
 | Bot responds to every message | `mentionPatterns` too broad | Remove patterns, rely on native @mentions |
-| Sessions show "exited" immediately | Agent (Claude Code) won't run as root | Run AO as non-root user |
+| Sessions show "exited" immediately | Agent (Claude Code) won't run as root | Run CAHI as non-root user |
 
 ## Architecture
 
 ```
-Discord message → OpenClaw Gateway → AI Model (with AO tools)
+Discord message → OpenClaw Gateway → AI Model (with CAHI tools)
                                           ↓
                                     ao_spawn tool
                                           ↓
-                              AO CLI (agent-orchestrator)
+                              CAHI CLI (agent-orchestrator)
                                           ↓
                               Git worktree + Claude Code agent
                                           ↓
                               Branch → Commit → PR
 ```
 
-The bot (OpenClaw) is the **manager**. AO is the **workforce**. The bot never codes — it uses AO tools to spawn agents that do the actual work.
+The bot (OpenClaw) is the **manager**. CAHI is the **workforce**. The bot never codes — it uses CAHI tools to spawn agents that do the actual work.

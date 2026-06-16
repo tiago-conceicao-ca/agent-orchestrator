@@ -1,6 +1,6 @@
-# @aoagents/ao-core
+# @contaazul/cahi-core
 
-Core services, types, and configuration for the Agent Orchestrator system.
+Core services, types, and configuration for the CAHI system.
 
 ## What's Here
 
@@ -105,11 +105,11 @@ Loads plugins and provides access to them:
 
 ### `src/config.ts` — Configuration Loading
 
-Loads and validates `agent-orchestrator.yaml`:
+Loads and validates `cahi.yaml`:
 
 **Main config sections:**
 
-- Runtime data paths are auto-derived from the config location under `~/.agent-orchestrator/{hash}-{projectId}/`
+- Runtime data paths are auto-derived from the config location under `~/.cahi/{hash}-{projectId}/`
 - `port` — web dashboard port (default 3000, set different values for multiple projects)
 - `terminalPort` — terminal WebSocket port (auto-detected if not set)
 - `directTerminalPort` — direct terminal WebSocket port (auto-detected if not set)
@@ -128,7 +128,7 @@ Loads and validates `agent-orchestrator.yaml`:
 
 1. Edit `src/types.ts` → `Session` interface
 2. Edit `src/services/session-manager.ts` → initialize field in `spawn()`
-3. Rebuild: `pnpm --filter @aoagents/ao-core build`
+3. Rebuild: `pnpm --filter @contaazul/cahi-core build`
 
 ### Adding an Event Type
 
@@ -144,7 +144,7 @@ Loads and validates `agent-orchestrator.yaml`:
 
 ### Feedback Tools (v1)
 
-`@aoagents/ao-core` exports two structured feedback tool contracts:
+`@contaazul/cahi-core` exports two structured feedback tool contracts:
 
 - `bug_report`
 - `improvement_suggestion`
@@ -161,7 +161,7 @@ Both share the same required input fields:
 Example:
 
 ```ts
-import { FEEDBACK_TOOL_NAMES, FeedbackReportStore, getFeedbackReportsDir } from "@aoagents/ao-core";
+import { FEEDBACK_TOOL_NAMES, FeedbackReportStore, getFeedbackReportsDir } from "@contaazul/cahi-core";
 
 const reportsDir = getFeedbackReportsDir(configPath, projectPath);
 const store = new FeedbackReportStore(reportsDir);
@@ -178,26 +178,26 @@ const saved = store.persist(FEEDBACK_TOOL_NAMES.BUG_REPORT, {
 
 Storage format:
 
-- Reports are persisted under `~/.agent-orchestrator/{hash}-{projectId}/feedback-reports`
+- Reports are persisted under `~/.cahi/{hash}-{projectId}/feedback-reports`
 - Each report is a typed key=value file (`report_<timestamp>_<id>.kv`) for easy inspection
 - A deterministic dedupe key (`sha256`, 16 hex chars) is generated from normalized tool+content
 
 Migration notes:
 
-- No migration needed for existing AO installs
+- No migration needed for existing CAHI installs
 - The `feedback-reports` directory is created lazily on first persisted report
 
 ## Testing
 
 ```bash
 # Run all core tests
-pnpm --filter @aoagents/ao-core test
+pnpm --filter @contaazul/cahi-core test
 
 # Run in watch mode
-pnpm --filter @aoagents/ao-core test -- --watch
+pnpm --filter @contaazul/cahi-core test -- --watch
 
 # Run specific test
-pnpm --filter @aoagents/ao-core test -- session-manager.test.ts
+pnpm --filter @contaazul/cahi-core test -- session-manager.test.ts
 ```
 
 Tests are in `src/__tests__/`:
@@ -212,10 +212,10 @@ Tests are in `src/__tests__/`:
 
 ```bash
 # Build core
-pnpm --filter @aoagents/ao-core build
+pnpm --filter @contaazul/cahi-core build
 
 # Typecheck
-pnpm --filter @aoagents/ao-core typecheck
+pnpm --filter @contaazul/cahi-core typecheck
 ```
 
 This package is a dependency of all other packages. Build it first if working on the codebase.
@@ -224,7 +224,7 @@ This package is a dependency of all other packages. Build it first if working on
 
 **Why flat metadata files?**
 
-- Debuggability: `cat ~/.agent-orchestrator/<hash>-my-app/sessions/app-3` shows full state
+- Debuggability: `cat ~/.cahi/<hash>-my-app/sessions/app-3` shows full state
 - No database dependency (survives crashes, easy to inspect)
 - Backwards-compatible with bash script orchestrator
 

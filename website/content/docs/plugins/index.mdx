@@ -1,9 +1,9 @@
 ---
 title: Plugin catalog
-description: Every plugin that ships with AO, grouped by slot. Mix and match in your `agent-orchestrator.yaml`.
+description: Every plugin that ships with CAHI, grouped by slot. Mix and match in your `cahi.yaml`.
 ---
 
-AO has **eight plugin slots**. Only one plugin per slot is active at a time, and every slot has a sensible default — you don't have to configure anything unless you want to.
+CAHI has **eight plugin slots**. Only one plugin per slot is active at a time, and every slot has a sensible default — you don't have to configure anything unless you want to.
 
 ## Slots at a glance
 
@@ -60,7 +60,7 @@ AO has **eight plugin slots**. Only one plugin per slot is active at a time, and
 ## Notifiers
 
 <PluginGrid>
-  <PluginCard name="Dashboard" logo="web" href="/docs/plugins/notifiers/dashboard" description="Retained notifications inside the AO dashboard." />
+  <PluginCard name="Dashboard" logo="web" href="/docs/plugins/notifiers/dashboard" description="Retained notifications inside the CAHI dashboard." />
   <PluginCard name="Desktop" logo="apple" href="/docs/plugins/notifiers/desktop" description="Native macOS/Linux notifications. No-op on Windows." />
   <PluginCard name="Discord" logo="discord" href="/docs/plugins/notifiers/discord" description="Webhook-based Discord messages with rich embeds." />
   <PluginCard name="Slack" logo="slack" href="/docs/plugins/notifiers/slack" description="Slack incoming webhooks." />
@@ -80,8 +80,8 @@ AO has **eight plugin slots**. Only one plugin per slot is active at a time, and
 
 Every plugin is a small Node package that exports a `manifest` + `create()` function. See **[Authoring a plugin](/docs/plugins/authoring)** for the full contract, loading paths, and the core utilities available to plugins.
 
-The fastest path is `ao plugin create` — it scaffolds a working starter:
+The fastest path is `cahi plugin create` — it scaffolds a working starter:
 
 ```bash
-ao plugin create --slot notifier --name pagerduty
+cahi plugin create --slot notifier --name pagerduty
 ```

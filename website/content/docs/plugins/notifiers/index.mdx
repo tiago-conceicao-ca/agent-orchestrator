@@ -3,10 +3,10 @@ title: Notifiers overview
 description: Who gets pinged when an agent needs you. Seven notifiers ship; pick one or stack several.
 ---
 
-Notifiers deliver AO events — session stuck, PR opened, review requested, CI failed — to wherever you actually pay attention.
+Notifiers deliver CAHI events — session stuck, PR opened, review requested, CI failed — to wherever you actually pay attention.
 
 <PluginGrid>
-  <PluginCard name="Dashboard" logo="web" href="/docs/plugins/notifiers/dashboard" description="Retained notifications inside the AO dashboard." />
+  <PluginCard name="Dashboard" logo="web" href="/docs/plugins/notifiers/dashboard" description="Retained notifications inside the CAHI dashboard." />
   <PluginCard name="Desktop" logo="apple" href="/docs/plugins/notifiers/desktop" description="Native macOS/Linux notifications. No-op on Windows." />
   <PluginCard name="Discord" logo="discord" href="/docs/plugins/notifiers/discord" description="Discord webhook with rich embeds." />
   <PluginCard name="Slack" logo="slack" href="/docs/plugins/notifiers/slack" description="Slack incoming webhook." />
@@ -39,15 +39,15 @@ notificationRouting:
 ```
 
 Setup commands can write this routing for you with `--routing-preset
-urgent-only`, `urgent-action`, or `all`. AO does not dedupe across channels, so
+urgent-only`, `urgent-action`, or `all`. CAHI does not dedupe across channels, so
 route only the priorities each destination should receive.
 
 ## Testing
 
 ```bash
-ao notify test --to slack --template basic
-ao notify test --route urgent
-ao notify test --all --dry-run
+cahi notify test --to slack --template basic
+cahi notify test --route urgent
+cahi notify test --all --dry-run
 ```
 
 Use `--to` for one target, `--route` for a priority route, or `--all` for every
@@ -58,7 +58,7 @@ a real test message.
 
 | Event | When |
 |---|---|
-| `session.spawned` | `ao spawn` succeeds |
+| `session.spawned` | `cahi spawn` succeeds |
 | `session.working` | Agent is actively editing code |
 | `pr.opened` | Agent pushed a branch and opened a PR |
 | `ci.failed` | Required check fails |

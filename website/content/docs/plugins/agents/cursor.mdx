@@ -10,7 +10,7 @@ import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
   <span style={{ fontSize: "0.8125rem", color: "var(--color-fd-muted-foreground)" }}>Slot: <code>agent</code> · Name: <code>cursor</code> · Binary: <code>agent</code></span>
 </div>
 
-The [Cursor Agent CLI](https://cursor.com/docs) brings Cursor's editing model to a terminal. AO spawns it per session, wraps `gh`/`git`, and tracks activity via the AO activity log.
+The [Cursor Agent CLI](https://cursor.com/docs) brings Cursor's editing model to a terminal. CAHI spawns it per session, wraps `gh`/`git`, and tracks activity via the CAHI activity log.
 
 <PlatformSupport macos="full" linux="full" windows="full" />
 
@@ -30,7 +30,7 @@ You should see "Cursor Agent" in the output. If you don't, the `agent` binary in
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 agent: cursor
 ```
 
@@ -38,9 +38,9 @@ No plugin-level config.
 
 ## How it works
 
-- **Launch:** AO runs `agent` inside the worktree.
-- **Activity tracking:** AO writes a JSONL to `{workspace}/.ao/activity.jsonl` each poll cycle based on terminal output classification. The dashboard reads from there.
-- **PR + git tracking:** PATH wrappers at `~/.ao/bin/gh` / `~/.ao/bin/git` intercept calls to record PR metadata.
+- **Launch:** CAHI runs `agent` inside the worktree.
+- **Activity tracking:** CAHI writes a JSONL to `{workspace}/.cahi/activity.jsonl` each poll cycle based on terminal output classification. The dashboard reads from there.
+- **PR + git tracking:** PATH wrappers at `~/.cahi/bin/gh` / `~/.cahi/bin/git` intercept calls to record PR metadata.
 - **Session resume:** Not supported — every spawn is a fresh Cursor session.
 
 ## Detection
@@ -49,20 +49,20 @@ The plugin's `detect()` checks `agent --help` output for the strings `Cursor Age
 
 ## Environment variables
 
-| Variable | Set by AO | Purpose |
+| Variable | Set by CAHI | Purpose |
 |---|---|---|
-| `AO_SESSION_ID` | ✓ | AO session id |
-| `AO_ISSUE_ID` | ✓ | Issue identifier |
-| `PATH` | ✓ | Prepends `~/.ao/bin` |
+| `CAHI_SESSION_ID` | ✓ | CAHI session id |
+| `CAHI_ISSUE_ID` | ✓ | Issue identifier |
+| `PATH` | ✓ | Prepends `~/.cahi/bin` |
 | `GH_PATH` | ✓ | Absolute path to real `gh` |
 
 ## Troubleshooting
 
 <Accordions>
-  <Accordion title="AO says Cursor Agent isn't detected">
+  <Accordion title="CAHI says Cursor Agent isn't detected">
     The plugin only recognises the real Cursor binary by its help output. Run `agent --help` — if you see a different tool's help, remove or shadow it, or reinstall Cursor Agent.
   </Accordion>
   <Accordion title="Dashboard never leaves `active`">
-    Cursor doesn't emit its own session JSONL. AO classifies based on terminal output — if your terminal is being captured by another tool, the classification can drift. `ao doctor` will flag this.
+    Cursor doesn't emit its own session JSONL. CAHI classifies based on terminal output — if your terminal is being captured by another tool, the classification can drift. `cahi doctor` will flag this.
   </Accordion>
 </Accordions>

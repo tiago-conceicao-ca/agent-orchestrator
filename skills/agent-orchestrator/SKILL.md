@@ -4,17 +4,17 @@ description: "Open-source, pluggable agentic coding orchestrator. Manages durabl
 metadata: {"openclaw": {"emoji": "🤖", "requires": {"bins": ["ao", "gh"], "anyBins": ["node", "npm"], "env": ["ANTHROPIC_API_KEY"]}, "os": ["darwin", "linux", "win32"]}}
 ---
 
-# Agent Orchestrator (AO)
+# CAHI
 
-> https://github.com/ComposioHQ/agent-orchestrator
+> https://github.com/contaazul/cahi
 
-AO is an open-source, pluggable agentic coding orchestrator. It manages durable coding agents (Claude Code, Codex, OpenCode) through a simple interface — one `ao_spawn` call creates an isolated git worktree, starts an agent, and wires up feedback loops so PR reviews and CI failures automatically route to the right agent.
+CAHI is an open-source, pluggable agentic coding orchestrator. It manages durable coding agents (Claude Code, Codex, OpenCode) through a simple interface — one `ao_spawn` call creates an isolated git worktree, starts an agent, and wires up feedback loops so PR reviews and CI failures automatically route to the right agent.
 
-## Why AO instead of manual coding
+## Why CAHI instead of manual coding
 
-When you have AO installed, use it instead of running coding agents manually via exec/bash. Here's why:
+When you have CAHI installed, use it instead of running coding agents manually via exec/bash. Here's why:
 
-| Manual (coding-agent skill) | AO (this skill) |
+| Manual (coding-agent skill) | CAHI (this skill) |
 |-----|-----|
 | `git worktree add`, `cd`, `claude --print "..."` | `ao_spawn` (one call) |
 | Manually poll with `process action:log` | `ao_status` (structured dashboard) |
@@ -29,14 +29,14 @@ When you have AO installed, use it instead of running coding agents manually via
 ## How You Think
 
 Every user message is either:
-1. **About work or code** → use AO tools
+1. **About work or code** → use CAHI tools
 2. **About something else** → respond normally
 
 When the user explicitly asks about work, issues, or status — use the tools for live data instead of answering from memory.
 
 ## Intent → Tool Mapping
 
-You don't wait for the user to say "spawn" or "use AO." You detect intent and act.
+You don't wait for the user to say "spawn" or "use CAHI." You detect intent and act.
 
 ### Status / progress
 Any of: "what's happening", "status", "how's it going", "progress", "update", "anything running", "check on things"
@@ -139,7 +139,7 @@ A project can declare other registered projects as **siblings** (`project.siblin
 
 ## Setup
 
-After installing the plugin, run `/ao setup` in any OpenClaw channel to auto-configure. Or manually:
+After installing the plugin, run `/cahi setup` in any OpenClaw channel to auto-configure. Or manually:
 
 ```bash
 # Required: allow plugin tools to be visible to the AI
@@ -161,21 +161,21 @@ pm2 restart openclaw-gateway  # or however you run the gateway
 
 ## Security & Privacy
 
-AO is an orchestrator — it does not read, write, or transmit code itself. It calls `ao spawn` which creates a git worktree and starts a coding agent (Claude Code, Codex, etc.). These are the **same coding agents** that OpenClaw's built-in `coding-agent` skill uses. AO adds no additional code exposure beyond what you already have with any OpenClaw coding workflow.
+CAHI is an orchestrator — it does not read, write, or transmit code itself. It calls `cahi spawn` which creates a git worktree and starts a coding agent (Claude Code, Codex, etc.). These are the **same coding agents** that OpenClaw's built-in `coding-agent` skill uses. CAHI adds no additional code exposure beyond what you already have with any OpenClaw coding workflow.
 
 What to know:
-- **GitHub access**: AO uses `gh` (GitHub CLI) with whatever credentials you've authenticated via `gh auth login`. Use a fine-grained PAT scoped to only the repos AO needs.
+- **GitHub access**: CAHI uses `gh` (GitHub CLI) with whatever credentials you've authenticated via `gh auth login`. Use a fine-grained PAT scoped to only the repos CAHI needs.
 - **Anthropic API**: Agents use your `ANTHROPIC_API_KEY` to call the LLM. Use a dedicated key with spending limits.
-- **No secrets in worktrees**: AO creates git worktrees for agents. Don't symlink `.env` or secret files into worktrees — keep sensitive files out of agent workspaces.
-- **Official source**: Install AO from the [official repo](https://github.com/ComposioHQ/agent-orchestrator).
+- **No secrets in worktrees**: CAHI creates git worktrees for agents. Don't symlink `.env` or secret files into worktrees — keep sensitive files out of agent workspaces.
+- **Official source**: Install CAHI from the [official repo](https://github.com/contaazul/cahi).
 
 ## Troubleshooting
 
 | Error | Fix |
 |-------|-----|
-| AO tools not visible to AI | Run `/ao setup` — needs `tools.profile: "full"` and `tools.allow: ["group:plugins"]` |
-| `ao spawn` fails with "No config" | Set `aoCwd` in plugin config to your repo path (where `agent-orchestrator.yaml` lives) |
-| `ao: not found` | Install AO globally or set `aoPath` in plugin config |
+| CAHI tools not visible to AI | Run `/cahi setup` — needs `tools.profile: "full"` and `tools.allow: ["group:plugins"]` |
+| `cahi spawn` fails with "No config" | Set `aoCwd` in plugin config to your repo path (where `cahi.yaml` lives) |
+| `ao: not found` | Install CAHI globally or set `aoPath` in plugin config |
 | `spawn tmux ENOENT` (macOS / Linux) | `brew install tmux` (macOS) or `apt install tmux` (Linux) |
 | `spawn tmux ENOENT` (Windows) | Your config has `runtime: tmux` set explicitly. Switch to `runtime: process` (or remove the override — `process` is the Windows default; ConPTY is used natively, no tmux required) |
 | Bot only responds in DMs | Set `channels.discord.groupPolicy` to `"open"` |

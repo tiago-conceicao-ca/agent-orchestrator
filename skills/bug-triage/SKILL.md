@@ -11,7 +11,7 @@ Triage bugs into well-structured GitHub issues on the correct upstream repo.
 ## 1. Pre-flight
 
 - **Pull latest code:** `git pull origin main`. Stale code = bad triage.
-- **Target repo:** Always file on the **upstream org** (`ComposioHQ/agent-orchestrator`), not forks.
+- **Target repo:** Always file on the **upstream org** (`contaazul/cahi`), not forks.
 - **Record source:** chat URL, reporter name, attachments.
 
 ## 2. Gather Context
@@ -30,7 +30,7 @@ Before tracing code, verify the report has enough substance:
 
 **Required (ALL):** what happened, where (page/command/feature), when (after upgrade? first time?)
 
-**Required (2 of 4):** OS/shell/runtime, AO version (`ao --version`), reproducibility (consistent vs intermittent), reproduction steps
+**Required (2 of 4):** OS/shell/runtime, CAHI version (`cahi --version`), reproducibility (consistent vs intermittent), reproduction steps
 
 If insufficient, ask:
 > "I'd like to triage this but need more info: (1) **What happened?** (error/behavior), (2) **Where?** (page/command), (3) **When did it start?**, (4) **How to reproduce?**"
@@ -41,24 +41,24 @@ Gather everything yourself before asking the reporter:
 
 ```bash
 # Environment
-ao --version && node --version && echo $SHELL && uname -a
-cat agent-orchestrator.yaml
-cat ~/.agent-orchestrator/running.json
+cahi --version && node --version && echo $SHELL && uname -a
+cat cahi.yaml
+cat ~/.cahi/running.json
 
 # Process health
 pm2 status
 tmux list-sessions
 lsof -i :3000
 
-# AO event log — structured timeline
-ao events list --limit 50                          # recent events
-ao events list --session ao-5 --limit 100          # filter by session
-ao events list --log-level error --since 1h        # errors only
-ao events search "spawn failed"                    # full-text search
-ao events stats                                    # counts by kind/source
+# CAHI event log — structured timeline
+cahi events list --limit 50                          # recent events
+cahi events list --session ao-5 --limit 100          # filter by session
+cahi events list --log-level error --since 1h        # errors only
+cahi events search "spawn failed"                    # full-text search
+cahi events stats                                    # counts by kind/source
 
 # Session state files
-cat ~/.agent-orchestrator/projects/*/sessions/*.json | python3 -m json.tool
+cat ~/.cahi/projects/*/sessions/*.json | python3 -m json.tool
 ```
 
 Event kinds: `session.spawned`, `session.spawn_failed`, `session.killed`, `lifecycle.transition`, `ci.failing`, `review.pending`, `runtime.probe_failed`, `agent.process_probe_failed`, `reaction.escalated`, `lifecycle.poll_failed`. Sources: `lifecycle`, `session-manager`, `api`, `runtime`, `agent`, `reaction`.
@@ -69,7 +69,7 @@ Event kinds: `session.spawned`, `session.spawn_failed`, `session.killed`, `lifec
 
 ### 3a. Trace the code path
 
-**Always trace the actual code** — don't surface-level diagnose. [#1129](https://github.com/ComposioHQ/agent-orchestrator/issues/1129) looked like a simple `ao stop` issue but was actually a session lineage/cascade problem.
+**Always trace the actual code** — don't surface-level diagnose. [#1129](https://github.com/contaazul/cahi/issues/1129) looked like a simple `cahi stop` issue but was actually a session lineage/cascade problem.
 
 ```bash
 git fetch origin main && git log --oneline origin/main -5   # current HEAD
@@ -81,17 +81,17 @@ git fetch origin main && git log --oneline origin/main -5   # current HEAD
 git log --oneline -S 'exact-string' -- <file>
 git show <sha> -- <file> | grep -B 5 -A 10 'pattern'
 ```
-Example: [#1391](https://github.com/ComposioHQ/agent-orchestrator/issues/1391) traced a mobile layout break to a `display: flex` → `display: grid` change.
+Example: [#1391](https://github.com/contaazul/cahi/issues/1391) traced a mobile layout break to a `display: flex` → `display: grid` change.
 
 **Research upstream dependencies** (xterm, node-pty, React, etc.) — check installed vs latest version, search their GitHub issues, check changelogs. Root cause is often upstream.
 
 ### 3b. Cross-platform check
 
-AO runs on **Windows, macOS, Linux** as first-class targets. If env info indicates Windows (or is unknown), check for these patterns:
+CAHI runs on **Windows, macOS, Linux** as first-class targets. If env info indicates Windows (or is unknown), check for these patterns:
 
 - **Path separators** — hardcoded `/` or `\` breaks cross-platform
 - **Shell syntax** — PowerShell lacks `&&`, `$VAR`, `$(cat ...)`, `/dev/null`, here-docs
-- **`process.platform === "win32"` inline** — must use `isWindows()` from `@aoagents/ao-core`
+- **`process.platform === "win32"` inline** — must use `isWindows()` from `@contaazul/cahi-core`
 - **`process.kill(-pid)`** — POSIX-only; use `killProcessTree()`
 - **Named pipes vs Unix sockets** — Windows uses `\\.\pipe\ao-pty-<id>`
 - **`localhost`** — Windows resolves to `::1` first, causing ~21s stalls on IPv4-only servers
@@ -140,7 +140,7 @@ EOF
 
 - [ ] Reporter attribution correct (original reporter, not who tagged you)
 - [ ] Commit hash recorded
-- [ ] AO version recorded
+- [ ] CAHI version recorded
 - [ ] Root cause confidence scored (see 5c)
 - [ ] Related issues cross-linked
 - [ ] Reproduction steps are concrete
@@ -148,7 +148,7 @@ EOF
 
 ### 5b. Upload screenshots
 
-**⛔ NEVER use placeholder URLs.** Upload BEFORE creating the issue. ([#1151](https://github.com/ComposioHQ/agent-orchestrator/issues/1151) RCA on this pattern.)
+**⛔ NEVER use placeholder URLs.** Upload BEFORE creating the issue. ([#1151](https://github.com/contaazul/cahi/issues/1151) RCA on this pattern.)
 
 ```bash
 SLUG="descriptive-slug"
@@ -212,7 +212,7 @@ gh issue edit <number> --repo <repo> --add-label "bug"
 | **Medium** | Strong hypothesis but unconfirmed | `bug`, `to-explore` |
 | **Low** | Can't trace, multiple conflicting theories | `bug`, `to-reproduce` |
 
-Example: [PR #1608](https://github.com/ComposioHQ/agent-orchestrator/pull/1608) was diagnosed High as xterm v6 issue — real cause was a `=` prefix on tmux `set-option`. Should have been Medium.
+Example: [PR #1608](https://github.com/contaazul/cahi/pull/1608) was diagnosed High as xterm v6 issue — real cause was a `=` prefix on tmux `set-option`. Should have been Medium.
 
 **All available labels:** `priority: critical/high/medium/low`, `bug`, `enhancement`, `good-first-issue`, `to-reproduce`, `to-explore`. No others (no `p0`, `p1`, etc.).
 
@@ -221,7 +221,7 @@ Example: [PR #1608](https://github.com/ComposioHQ/agent-orchestrator/pull/1608) 
 Search by subsystem and add a `## Related` section to the issue body:
 ```
 ## Related
-- [#1020](url) — stale session blocking ao start (same subsystem)
+- [#1020](url) — stale session blocking cahi start (same subsystem)
 - [#1035](url) — same race condition
 ```
 
@@ -261,7 +261,7 @@ Issue URL, PR URL (if created), labels, root cause summary, whether fix agent wa
 
 | Subsystem | Collect | Key files |
 |-----------|---------|-----------|
-| **CLI** (`ao start/stop/spawn`) | Config YAML, install method, version, OS | `packages/cli/src/commands/` |
+| **CLI** (`cahi start/stop/spawn`) | Config YAML, install method, version, OS | `packages/cli/src/commands/` |
 | **Web UI** | Screenshot, browser, viewport | `packages/web/src/components/`, `globals.css` |
 | **Terminal** | Runtime type, tmux version, shell | `DirectTerminal.tsx`, `useXtermTerminal.ts` |
 | **Lifecycle** | State transitions, session IDs | `core/src/lifecycle-manager.ts`, `core/src/lifecycle-state.ts` |
@@ -294,11 +294,11 @@ curl -sL https://registry.npmjs.org/@scope/pkg/-/pkg-NEW.tgz | tar xz -C /tmp/ao
 diff -rq /tmp/ao-diff/v1/package/ /tmp/ao-diff/v2/package/
 ```
 
-Example: [PR #1608](https://github.com/ComposioHQ/agent-orchestrator/pull/1608) — source analysis led to wrong theories, npm diff showed the only change was a `=` prefix on tmux `set-option`.
+Example: [PR #1608](https://github.com/contaazul/cahi/pull/1608) — source analysis led to wrong theories, npm diff showed the only change was a `=` prefix on tmux `set-option`.
 
 ## Formatting Rules
 
-- **Linkify all issue/PR refs:** `[#123](https://github.com/ComposioHQ/agent-orchestrator/issues/123)`, `[PR #456](url)`. Never bare `#123`.
+- **Linkify all issue/PR refs:** `[#123](https://github.com/contaazul/cahi/issues/123)`, `[PR #456](url)`. Never bare `#123`.
 
 ## Pitfalls
 
@@ -308,4 +308,4 @@ Example: [PR #1608](https://github.com/ComposioHQ/agent-orchestrator/pull/1608) 
 - **`gh api --jq .content` truncates large files** (>~100KB). Use local git instead.
 - **Push script arg limits** — long commit messages hit `OSError: Argument list too long`. Use a Python script with JSON payloads instead.
 - **`OLD_STRING` must match GitHub byte-for-byte** — local code may differ from `origin/main`.
-- **New fields on shared TS interfaces MUST be optional** (`field?: Type`). Downstream `Partial<X>` spreads break on required fields. Example: [PR #1523](https://github.com/ComposioHQ/agent-orchestrator/pull/1523).
+- **New fields on shared TS interfaces MUST be optional** (`field?: Type`). Downstream `Partial<X>` spreads break on required fields. Example: [PR #1523](https://github.com/contaazul/cahi/pull/1523).

@@ -1,6 +1,6 @@
-# Agent Orchestrator Config Reference
+# CAHI Config Reference
 
-File: `agent-orchestrator.yaml` (in project root)
+File: `cahi.yaml` (in project root)
 
 ## Top-level settings
 
@@ -50,7 +50,7 @@ projects:
     agentRules: |
       Always run tests before committing.
       Use conventional commits.
-    agentRulesFile: .ao-rules  # Or point to a file
+    agentRulesFile: .cahi-rules  # Or point to a file
     orchestratorRules: |       # Rules for the orchestrator agent
 
     # Orchestrator session strategy (optional)
@@ -74,7 +74,7 @@ projects:
 
 ## Notifier channels
 
-These are **optional** — only configure notifiers you actually use. None are required for core AO functionality. See the [AO documentation](https://github.com/ComposioHQ/agent-orchestrator) for notifier setup details.
+These are **optional** — only configure notifiers you actually use. None are required for core CAHI functionality. See the [CAHI documentation](https://github.com/contaazul/cahi) for notifier setup details.
 
 ```yaml
 notifiers:

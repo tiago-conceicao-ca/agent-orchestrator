@@ -20,31 +20,22 @@ const siteUrl = "https://aoagents.dev";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    template: "%s | Agent Orchestrator",
-    default: "Agent Orchestrator",
+    template: "%s | CAHI",
+    default: "CAHI — Conta Azul Hub for Intelligence",
   },
   description:
-    "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
+    "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
   keywords: ["AI agents", "coding agents", "Claude Code", "agent orchestration", "parallel agents", "open source"],
-  authors: [{ name: "ComposioHQ", url: "https://github.com/ComposioHQ" }],
-  creator: "ComposioHQ",
+  authors: [{ name: "Conta Azul", url: "https://github.com/contaazul" }],
+  creator: "Conta Azul",
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Agent Orchestrator",
-    title: "Agent Orchestrator",
+    siteName: "CAHI",
+    title: "CAHI — Conta Azul Hub for Intelligence",
     description:
-      "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
-    images: [{ url: "/og-image.png", width: 1024, height: 1024, alt: "Agent Orchestrator" }],
-  },
-  twitter: {
-    card: "summary",
-    site: "@aoagents",
-    creator: "@aoagents",
-    title: "Agent Orchestrator",
-    description:
-      "Open-source platform for running parallel AI coding agents. Spawn Claude Code, Codex, Aider, and more in isolated worktrees — all managed from one dashboard.",
-    images: ["/og-image.png"],
+      "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
+    images: [{ url: "/og-image.png", width: 1024, height: 1024, alt: "CAHI" }],
   },
   robots: {
     index: true,

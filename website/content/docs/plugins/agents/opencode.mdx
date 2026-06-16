@@ -10,7 +10,7 @@ import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
   <span style={{ fontSize: "0.8125rem", color: "var(--color-fd-muted-foreground)" }}>Slot: <code>agent</code> · Name: <code>opencode</code> · Binary: <code>opencode</code></span>
 </div>
 
-[OpenCode](https://opencode.ai) is an open-source terminal coding agent. It has a structured session API, which means AO can discover, resume, and track its sessions reliably.
+[OpenCode](https://opencode.ai) is an open-source terminal coding agent. It has a structured session API, which means CAHI can discover, resume, and track its sessions reliably.
 
 <PlatformSupport macos="full" linux="full" windows="full" />
 
@@ -22,7 +22,7 @@ npm install -g opencode-ai
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 agent: opencode
 ```
 
@@ -30,28 +30,28 @@ No plugin-level config.
 
 ## How it works
 
-- **Launch:** `opencode` starts in the worktree with `AO:<sessionId>` as the session title — this is how AO finds it back later.
-- **Session discovery:** `opencode session list --format json` returns the list; AO matches on the title prefix.
+- **Launch:** `opencode` starts in the worktree with `CAHI:<sessionId>` as the session title — this is how CAHI finds it back later.
+- **Session discovery:** `opencode session list --format json` returns the list; CAHI matches on the title prefix.
 - **Resume:** `opencode --session <id>` rehydrates the state.
-- **Activity tracking:** Primary signal is the OpenCode session's `updatedAt`. AO falls back to its own activity JSONL if the session API doesn't answer.
+- **Activity tracking:** Primary signal is the OpenCode session's `updatedAt`. CAHI falls back to its own activity JSONL if the session API doesn't answer.
 - **PR + git tracking:** PATH wrappers for `gh` / `git`.
 
 ## Environment variables
 
-| Variable | Set by AO | Purpose |
+| Variable | Set by CAHI | Purpose |
 |---|---|---|
-| `AO_SESSION_ID` | ✓ | AO session id |
-| `AO_ISSUE_ID` | ✓ | Issue identifier |
-| `PATH` | ✓ | Prepends `~/.ao/bin` |
+| `CAHI_SESSION_ID` | ✓ | CAHI session id |
+| `CAHI_ISSUE_ID` | ✓ | Issue identifier |
+| `PATH` | ✓ | Prepends `~/.cahi/bin` |
 | `GH_PATH` | ✓ | Absolute path to real `gh` |
 
 ## Troubleshooting
 
 <Accordions>
   <Accordion title="Session can't be found when resuming">
-    `ao session remap <sessionId>` re-discovers and persists the OpenCode session mapping. Use `--force` to override a stale mapping.
+    `cahi session remap <sessionId>` re-discovers and persists the OpenCode session mapping. Use `--force` to override a stale mapping.
   </Accordion>
   <Accordion title="Activity stuck on `idle`">
-    If the OpenCode session API doesn't respond, AO falls back to the activity JSONL, which uses age-based decay. If even that returns `idle` forever, check that `opencode session list` works on its own.
+    If the OpenCode session API doesn't respond, CAHI falls back to the activity JSONL, which uses age-based decay. If even that returns `idle` forever, check that `opencode session list` works on its own.
   </Accordion>
 </Accordions>

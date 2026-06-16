@@ -1,4 +1,4 @@
-# @aoagents/ao-notifier-macos
+# @contaazul/cahi-notifier-macos
 
 ## 0.9.1
 

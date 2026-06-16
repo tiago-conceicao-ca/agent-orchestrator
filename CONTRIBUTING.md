@@ -1,4 +1,4 @@
-# Contributing to Agent Orchestrator
+# Contributing to CAHI
 
 Thanks for your interest in contributing. This guide covers how to report bugs, submit PRs, and build new plugins.
 
@@ -13,15 +13,15 @@ Thanks for your interest in contributing. This guide covers how to report bugs, 
 
 ## Reporting Bugs
 
-Open an issue at [github.com/ComposioHQ/agent-orchestrator/issues](https://github.com/ComposioHQ/agent-orchestrator/issues).
+Open an issue at [github.com/contaazul/cahi/issues](https://github.com/contaazul/cahi/issues).
 
 Include:
 
-- `ao --version` output
+- `cahi --version` output
 - OS and Node.js version (`node --version`)
 - Steps to reproduce
 - What you expected vs. what happened
-- Relevant output from `ao doctor`
+- Relevant output from `cahi doctor`
 
 ---
 
@@ -33,42 +33,42 @@ Include:
 - **Windows**: tmux is **not** required. The default runtime on Windows is `process` (ConPTY via `node-pty`), and PowerShell is the default shell. See [docs/CROSS_PLATFORM.md](docs/CROSS_PLATFORM.md) for what's different on Windows when contributing.
 
 ```bash
-git clone https://github.com/ComposioHQ/agent-orchestrator.git
+git clone https://github.com/contaazul/cahi.git
 cd agent-orchestrator
 pnpm install
 pnpm build
 ```
 
-Build order matters — `@aoagents/ao-core` must be built before the CLI, web, or plugins can run. `pnpm build` at the root handles this automatically.
+Build order matters — `@contaazul/cahi-core` must be built before the CLI, web, or plugins can run. `pnpm build` at the root handles this automatically.
 
 ### Running tests
 
 ```bash
 pnpm test                                         # all packages
-pnpm --filter @aoagents/ao-core test              # core only
-pnpm --filter @aoagents/ao-core test -- --watch   # watch mode
+pnpm --filter @contaazul/cahi-core test              # core only
+pnpm --filter @contaazul/cahi-core test -- --watch   # watch mode
 pnpm test:integration                             # integration tests
 ```
 
 ### Running the dashboard locally
 
 ```bash
-cp agent-orchestrator.yaml.example agent-orchestrator.yaml
-# edit agent-orchestrator.yaml for your setup
-pnpm --filter @aoagents/ao-web dev
+cp cahi.yaml.example cahi.yaml
+# edit cahi.yaml for your setup
+pnpm --filter @contaazul/cahi-web dev
 ```
 
 ### Refreshing a local AO install
 
-If your local `ao` launcher or built packages seem stale, refresh the install from a clean `main` checkout:
+If your local `cahi` launcher or built packages seem stale, refresh the install from a clean `main` checkout:
 
 ```bash
 git switch main
 git status --short --branch   # confirm the install repo is clean
-ao update
+cahi update
 ```
 
-`ao update` fast-forwards the local install repo, reinstalls dependencies, clean-rebuilds `@aoagents/ao-core`, `@aoagents/ao-cli`, and `@aoagents/ao-web`, refreshes the global launcher with `npm link`, and finishes with CLI smoke tests. Use `ao update --skip-smoke` when you only need the rebuild step, or `ao update --smoke-only` when validating an existing install.
+`cahi update` fast-forwards the local install repo, reinstalls dependencies, clean-rebuilds `@contaazul/cahi-core`, `@contaazul/cahi-cli`, and `@contaazul/cahi-web`, refreshes the global launcher with `npm link`, and finishes with CLI smoke tests. Use `cahi update --skip-smoke` when you only need the rebuild step, or `cahi update --smoke-only` when validating an existing install.
 
 ## Release Architecture (maintainers only)
 
@@ -127,7 +127,7 @@ If the AO cron fails to publish, it will retry on the next poll cycle (every 15 
 ### Latest main at any time
 
 ```bash
-npm install -g @aoagents/ao@nightly
+npm install -g @contaazul/cahi@nightly
 ```
 
 The nightly cron publishes from `main` daily at 23:30 IST (Fri–Tue). The bake window (Wed–Thu) pauses scheduled nightlies; release captains can re-cut a nightly via `workflow_dispatch` if a fix lands during bake.
@@ -163,7 +163,7 @@ cd packages/plugins/runtime-myplugin
 
 ```json
 {
-  "name": "@aoagents/ao-runtime-myplugin",
+  "name": "@contaazul/cahi-runtime-myplugin",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -174,7 +174,7 @@ cd packages/plugins/runtime-myplugin
     "test": "vitest"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   }
 }
 ```
@@ -185,7 +185,7 @@ cd packages/plugins/runtime-myplugin
 
 ```typescript
 // src/index.ts
-import type { PluginModule, Runtime } from "@aoagents/ao-core";
+import type { PluginModule, Runtime } from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "myplugin",
@@ -220,7 +220,7 @@ export default { manifest, create } satisfies PluginModule<Runtime>;
 Add it to the CLI's dependencies in `packages/cli/package.json`:
 
 ```json
-"@aoagents/ao-runtime-myplugin": "workspace:*"
+"@contaazul/cahi-runtime-myplugin": "workspace:*"
 ```
 
 Then register it in `packages/core/src/plugin-registry.ts` inside `loadBuiltins()`.
@@ -243,13 +243,13 @@ describe("myplugin runtime", () => {
 ### 6. Build and test
 
 ```bash
-pnpm --filter @aoagents/ao-runtime-myplugin build
-pnpm --filter @aoagents/ao-runtime-myplugin test
+pnpm --filter @contaazul/cahi-runtime-myplugin build
+pnpm --filter @contaazul/cahi-runtime-myplugin test
 ```
 
 ### Publishing to the Marketplace Registry
 
-To list your plugin in the AO marketplace so others can install it with `ao plugin install`, submit a PR that adds an entry to `packages/cli/src/assets/plugin-registry.json`.
+To list your plugin in the AO marketplace so others can install it with `cahi plugin install`, submit a PR that adds an entry to `packages/cli/src/assets/plugin-registry.json`.
 
 Each entry requires:
 
@@ -262,7 +262,7 @@ Each entry requires:
 
 Optionally include `setupAction` if post-install configuration is needed (e.g. `"openclaw-setup"`).
 
-Your plugin package must satisfy the contract in [`docs/PLUGIN_SPEC.md`](docs/PLUGIN_SPEC.md) — export a `PluginModule` with a valid manifest and `create()` function. The package must be published to npm before your registry PR is merged so `ao plugin install` can fetch it.
+Your plugin package must satisfy the contract in [`docs/PLUGIN_SPEC.md`](docs/PLUGIN_SPEC.md) — export a `PluginModule` with a valid manifest and `create()` function. The package must be published to npm before your registry PR is merged so `cahi plugin install` can fetch it.
 
 ---
 

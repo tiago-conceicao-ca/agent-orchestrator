@@ -3,7 +3,6 @@ import { LandingHero } from "@/components/LandingHero";
 import { LandingAbout } from "@/components/LandingAbout";
 import { LandingAgentsBar } from "@/components/LandingAgentsBar";
 import { LandingStats } from "@/components/LandingStats";
-import { LandingVideo } from "@/components/LandingVideo";
 import { LandingFeatures } from "@/components/LandingFeatures";
 import { LandingWorkflow } from "@/components/LandingWorkflow";
 import { LandingUseCases } from "@/components/LandingUseCases";
@@ -29,7 +28,6 @@ export default async function LandingPage() {
       <LandingUseCases />
       <LandingHowItWorks />
       <LandingDifferentiators />
-      <LandingVideo />
       <LandingStats stats={githubStats} />
       <LandingTestimonials />
       <LandingQuickStart />

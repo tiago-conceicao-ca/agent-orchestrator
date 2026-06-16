@@ -47,7 +47,7 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 5. `packages/core/package.json` + `tsconfig.json`
 6. All plugin package scaffolds (package.json + tsconfig + src/index.ts stub)
 7. `packages/cli/package.json` + `packages/web/package.json` scaffolds
-8. `agent-orchestrator.yaml.example`
+8. `cahi.yaml.example`
 
 **Estimated effort**: Medium. ~500-800 lines of types + config.
 
@@ -143,17 +143,17 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 
 | Command                                | What                                                 | Reference Script                    |
 | -------------------------------------- | ---------------------------------------------------- | ----------------------------------- |
-| `ao init`                              | Interactive setup wizard → `agent-orchestrator.yaml` | New                                 |
-| `ao status`                            | Colored terminal table of all sessions               | `claude-status`                     |
-| `ao spawn <project> [issue]`           | Spawn single session                                 | `claude-spawn`                      |
-| `ao batch-spawn <project> <issues...>` | Batch spawn with dedup                               | `claude-batch-spawn`                |
-| `ao session ls\|kill\|cleanup`         | Session management                                   | `claude-ao-session` ls/kill/cleanup |
-| `ao send <session> <message>`          | Smart message delivery                               | `send-to-session`                   |
-| `ao review-check [project]`            | Trigger PR review fixes                              | `claude-review-check`               |
-| `ao dashboard`                         | Start web server                                     | `claude-dashboard`                  |
-| `ao open [session\|all]`               | Open terminal tabs                                   | `claude-open-all`, `open-iterm-tab` |
+| `cahi init`                              | Interactive setup wizard → `cahi.yaml` | New                                 |
+| `cahi status`                            | Colored terminal table of all sessions               | `claude-status`                     |
+| `cahi spawn <project> [issue]`           | Spawn single session                                 | `claude-spawn`                      |
+| `cahi batch-spawn <project> <issues...>` | Batch spawn with dedup                               | `claude-batch-spawn`                |
+| `cahi session ls\|kill\|cleanup`         | Session management                                   | `claude-ao-session` ls/kill/cleanup |
+| `cahi send <session> <message>`          | Smart message delivery                               | `send-to-session`                   |
+| `cahi review-check [project]`            | Trigger PR review fixes                              | `claude-review-check`               |
+| `cahi dashboard`                         | Start web server                                     | `claude-dashboard`                  |
+| `cahi open [session\|all]`               | Open terminal tabs                                   | `claude-open-all`, `open-iterm-tab` |
 
-**Key complexity**: `ao status` needs rich terminal output (colors, columns, live data). `ao batch-spawn` needs duplicate detection.
+**Key complexity**: `cahi status` needs rich terminal output (colors, columns, live data). `cahi batch-spawn` needs duplicate detection.
 
 **Can start immediately** by coding against core interfaces. Wire up real implementations when Agent 1 finishes.
 
@@ -257,7 +257,7 @@ If core services are delayed, CLI and Web can't fully test. Mitigations:
 | AO-11  | Implement runtime + workspace plugins (tmux, process, worktree, clone)                | 2     |
 | AO-12  | Implement agent plugins (claude-code, codex, aider)                                   | 3     |
 | AO-13  | Implement SCM + tracker plugins (github SCM, github tracker, linear tracker)          | 4     |
-| AO-14  | Implement CLI (ao init, status, spawn, session, send, review-check, dashboard, open)  | 5     |
+| AO-14  | Implement CLI (cahi init, status, spawn, session, send, review-check, dashboard, open)  | 5     |
 | AO-15  | Implement web dashboard (Next.js, API routes, SSE, attention-zone UI, session detail) | 6     |
 | AO-16  | Implement notifier + terminal plugins (desktop, slack, webhook, iterm2, web)          | 7     |
 

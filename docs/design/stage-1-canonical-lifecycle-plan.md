@@ -434,7 +434,7 @@ Add tests proving:
 
 These are out of scope for Stage 1:
 
-1. agent-driven explicit acknowledgement commands such as `ao acknowledge`
+1. agent-driven explicit acknowledgement commands such as `cahi acknowledge`
 2. new user notifications and UX flows for merged-but-still-running sessions
 3. CI polling cadence redesign
 4. review-comment file persistence and handoff automation

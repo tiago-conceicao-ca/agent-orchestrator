@@ -52,10 +52,10 @@ npx node-gyp rebuild
 
 ### Config file not found
 
-**Symptom**: API returns 500 with "No agent-orchestrator.yaml found"
+**Symptom**: API returns 500 with "No cahi.yaml found"
 
-**Fix**: Ensure config exists in the directory where you run `ao start`, or symlink it:
+**Fix**: Ensure config exists in the directory where you run `cahi start`, or symlink it:
 
 ```bash
-ln -s /path/to/agent-orchestrator.yaml packages/web/agent-orchestrator.yaml
+ln -s /path/to/cahi.yaml packages/web/cahi.yaml
 ```

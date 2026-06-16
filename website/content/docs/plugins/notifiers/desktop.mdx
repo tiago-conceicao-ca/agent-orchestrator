@@ -15,21 +15,21 @@ description: Native macOS / Linux notifications. Silent no-op on Windows.
 Run the setup command on macOS:
 
 ```bash
-ao setup desktop
+cahi setup desktop
 ```
 
-AO asks which desktop backend to use and which notification priorities desktop
+CAHI asks which desktop backend to use and which notification priorities desktop
 should receive: `urgent-only`, `urgent-action`, or `all`. For scriptable setup,
 pass `--routing-preset <preset>`.
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 notifiers:
   desktop:
     plugin: desktop
     backend: ao-app
-    dashboardUrl: http://localhost:3000
+    dashboardUrl: http://localhost:4000
 
 notificationRouting:
   urgent: [desktop]
@@ -40,7 +40,7 @@ notificationRouting:
 |---|---|---|
 | `backend` | `auto` | `ao-app`, `terminal-notifier`, `osascript`, or auto fallback |
 | `dashboardUrl` | dashboard port | URL opened from desktop notification actions |
-| `appPath` | macOS app install path | Custom AO Notifier.app path |
+| `appPath` | macOS app install path | Custom CAHI Notifier.app path |
 
 ## How it works
 

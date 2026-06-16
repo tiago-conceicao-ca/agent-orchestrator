@@ -1,4 +1,4 @@
-# @aoagents/ao-plugin-tracker-gitlab
+# @contaazul/cahi-plugin-tracker-gitlab
 
 ## 0.9.1
 
@@ -6,8 +6,8 @@
 
 - 2d4c457: Fix canary nightly to include all publishable packages and fix Next.js import.meta.url build path issue
 - Updated dependencies [2d4c457]
-  - @aoagents/ao-core@0.9.1
-  - @aoagents/ao-plugin-scm-gitlab@0.9.1
+  - @contaazul/cahi-core@0.9.1
+  - @contaazul/cahi-plugin-scm-gitlab@0.9.1
 
 ## 0.9.0
 
@@ -21,16 +21,16 @@
 - Updated dependencies [94981dc]
 - Updated dependencies [2980570]
 - Updated dependencies [d5d0f07]
-  - @aoagents/ao-core@0.9.0
-  - @aoagents/ao-plugin-scm-gitlab@0.9.0
+  - @contaazul/cahi-core@0.9.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.9.0
 
 ## 0.8.0
 
 ### Patch Changes
 
 - Updated dependencies
-  - @aoagents/ao-core@0.8.0
-  - @aoagents/ao-plugin-scm-gitlab@0.8.0
+  - @contaazul/cahi-core@0.8.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.8.0
 
 ## 0.7.0
 
@@ -39,8 +39,8 @@
 - Updated dependencies [0f5ae0b]
 - Updated dependencies [fe33bb7]
 - Updated dependencies [7c46dc9]
-  - @aoagents/ao-core@0.7.0
-  - @aoagents/ao-plugin-scm-gitlab@0.7.0
+  - @contaazul/cahi-core@0.7.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.7.0
 
 ## 0.2.9
 
@@ -50,16 +50,16 @@
 - Updated dependencies [40aeb78]
 - Updated dependencies
 - Updated dependencies
-  - @aoagents/ao-core@0.6.0
-  - @aoagents/ao-plugin-scm-gitlab@0.2.9
+  - @contaazul/cahi-core@0.6.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.2.9
 
 ## 0.2.8
 
 ### Patch Changes
 
 - Updated dependencies [dd07b6b]
-  - @aoagents/ao-core@0.5.0
-  - @aoagents/ao-plugin-scm-gitlab@0.2.8
+  - @contaazul/cahi-core@0.5.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.2.8
 
 ## 0.2.7
 
@@ -92,8 +92,8 @@
 - Updated dependencies [a45eb32]
 - Updated dependencies [7072143]
 - Updated dependencies [ed2dcea]
-  - @aoagents/ao-core@0.4.0
-  - @aoagents/ao-plugin-scm-gitlab@0.2.7
+  - @contaazul/cahi-core@0.4.0
+  - @contaazul/cahi-plugin-scm-gitlab@0.2.7
 
 ## 0.1.1
 

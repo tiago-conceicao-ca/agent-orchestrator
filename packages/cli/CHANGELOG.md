@@ -1,4 +1,4 @@
-# @aoagents/ao-cli
+# @contaazul/cahi-cli
 
 ## 0.9.2
 
@@ -6,8 +6,8 @@
 
 - 2f9717f: Load agent-grok package metadata through JSON import attributes so packaged web and CLI runtimes do not keep a publish-host package.json lookup. This also raises the Node.js engine floor to 20.18.3+, where JSON modules with import attributes are non-experimental.
 - Updated dependencies [2f9717f]
-  - @aoagents/ao-web@0.9.2
-  - @aoagents/ao-plugin-agent-grok@0.1.3
+  - @contaazul/cahi-web@0.9.2
+  - @contaazul/cahi-plugin-agent-grok@0.1.3
 
 ## 0.9.1
 
@@ -15,45 +15,45 @@
 
 - 2d4c457: Fix canary nightly to include all publishable packages and fix Next.js import.meta.url build path issue
 - Updated dependencies [2d4c457]
-  - @aoagents/ao-core@0.9.1
-  - @aoagents/ao-web@0.9.1
-  - @aoagents/ao-notifier-macos@0.9.1
-  - @aoagents/ao-plugin-agent-aider@0.9.1
-  - @aoagents/ao-plugin-agent-claude-code@0.9.1
-  - @aoagents/ao-plugin-agent-codex@0.9.1
-  - @aoagents/ao-plugin-agent-cursor@0.9.1
-  - @aoagents/ao-plugin-agent-grok@0.1.2
-  - @aoagents/ao-plugin-agent-kimicode@0.9.1
-  - @aoagents/ao-plugin-agent-opencode@0.9.1
-  - @aoagents/ao-plugin-notifier-composio@0.9.1
-  - @aoagents/ao-plugin-notifier-dashboard@0.9.1
-  - @aoagents/ao-plugin-notifier-desktop@0.9.1
-  - @aoagents/ao-plugin-notifier-discord@0.9.1
-  - @aoagents/ao-plugin-notifier-openclaw@0.9.1
-  - @aoagents/ao-plugin-notifier-slack@0.9.1
-  - @aoagents/ao-plugin-notifier-webhook@0.9.1
-  - @aoagents/ao-plugin-runtime-process@0.9.1
-  - @aoagents/ao-plugin-runtime-tmux@0.9.1
-  - @aoagents/ao-plugin-scm-github@0.9.1
-  - @aoagents/ao-plugin-terminal-iterm2@0.9.1
-  - @aoagents/ao-plugin-terminal-web@0.9.1
-  - @aoagents/ao-plugin-tracker-github@0.9.1
-  - @aoagents/ao-plugin-tracker-linear@0.9.1
-  - @aoagents/ao-plugin-workspace-clone@0.9.1
-  - @aoagents/ao-plugin-workspace-worktree@0.9.1
+  - @contaazul/cahi-core@0.9.1
+  - @contaazul/cahi-web@0.9.1
+  - @contaazul/cahi-notifier-macos@0.9.1
+  - @contaazul/cahi-plugin-agent-aider@0.9.1
+  - @contaazul/cahi-plugin-agent-claude-code@0.9.1
+  - @contaazul/cahi-plugin-agent-codex@0.9.1
+  - @contaazul/cahi-plugin-agent-cursor@0.9.1
+  - @contaazul/cahi-plugin-agent-grok@0.1.2
+  - @contaazul/cahi-plugin-agent-kimicode@0.9.1
+  - @contaazul/cahi-plugin-agent-opencode@0.9.1
+  - @contaazul/cahi-plugin-notifier-composio@0.9.1
+  - @contaazul/cahi-plugin-notifier-dashboard@0.9.1
+  - @contaazul/cahi-plugin-notifier-desktop@0.9.1
+  - @contaazul/cahi-plugin-notifier-discord@0.9.1
+  - @contaazul/cahi-plugin-notifier-openclaw@0.9.1
+  - @contaazul/cahi-plugin-notifier-slack@0.9.1
+  - @contaazul/cahi-plugin-notifier-webhook@0.9.1
+  - @contaazul/cahi-plugin-runtime-process@0.9.1
+  - @contaazul/cahi-plugin-runtime-tmux@0.9.1
+  - @contaazul/cahi-plugin-scm-github@0.9.1
+  - @contaazul/cahi-plugin-terminal-iterm2@0.9.1
+  - @contaazul/cahi-plugin-terminal-web@0.9.1
+  - @contaazul/cahi-plugin-tracker-github@0.9.1
+  - @contaazul/cahi-plugin-tracker-linear@0.9.1
+  - @contaazul/cahi-plugin-workspace-clone@0.9.1
+  - @contaazul/cahi-plugin-workspace-worktree@0.9.1
 
 ## 0.9.0
 
 ### Minor Changes
 
-- 6d48022: Wire CLI activity events into `ao start`, `ao stop`, `ao spawn`, `ao update`, `ao setup`, `ao migrate-storage`, and shared CLI helpers. `ao events list --source cli` now answers RCA questions like "did AO start cleanly?", "was AO killed or did it crash?", and "did `ao spawn`/`ao stop` fail and why?". Adds `"cli"` to the `ActivityEventSource` union and 30+ event-emit sites covering startup, graceful and forced shutdown, restore, project resolution, config recovery, and migration paths.
-- ecdf0c7: Add `AO_PUBLIC_URL` environment variable for users running AO behind a reverse proxy (remote dev containers, VPS deployments, internal tooling). When set, all user-facing dashboard URLs — `ao start` / `ao dashboard` console output, `ao open` browser launches, and `projectSessionUrl()` links surfaced to the orchestrator agent — use the public URL instead of `http://localhost:<port>`. Internal IPC (`daemon.ts` reload calls) still uses localhost since that traffic stays on the host.
+- 6d48022: Wire CLI activity events into `cahi start`, `cahi stop`, `cahi spawn`, `cahi update`, `cahi setup`, `cahi migrate-storage`, and shared CLI helpers. `cahi events list --source cli` now answers RCA questions like "did AO start cleanly?", "was AO killed or did it crash?", and "did `cahi spawn`/`cahi stop` fail and why?". Adds `"cli"` to the `ActivityEventSource` union and 30+ event-emit sites covering startup, graceful and forced shutdown, restore, project resolution, config recovery, and migration paths.
+- ecdf0c7: Add `CAHI_PUBLIC_URL` environment variable for users running AO behind a reverse proxy (remote dev containers, VPS deployments, internal tooling). When set, all user-facing dashboard URLs — `cahi start` / `cahi dashboard` console output, `cahi open` browser launches, and `projectSessionUrl()` links surfaced to the orchestrator agent — use the public URL instead of `http://localhost:<port>`. Internal IPC (`daemon.ts` reload calls) still uses localhost since that traffic stays on the host.
 
   Also documents the existing `TERMINAL_WS_PATH` env var and the dashboard's automatic path-based mux WebSocket routing for standard-port (HTTPS / HTTP) deployments — these together let users front AO with a single hostname and one reverse-proxy rule, no extra ports or subdomains.
 
 ### Patch Changes
 
-- fcedb25: Wire activity events for the recovery subsystem, metadata-corruption detection, and agent-report apply path. New event kinds: `recovery.session_failed`, `recovery.action_failed`, `metadata.corrupt_detected`, `api.agent_report.session_not_found`, `api.agent_report.transition_rejected`. Adds `"recovery"` to the `ActivityEventSource` union. Lets RCA reconstruct `ao recover` invocations, find every silent metadata overwrite, and audit rejected agent transitions. Adds `ao events list --source` and `--kind` so these forensic event queries are available from the CLI.
+- fcedb25: Wire activity events for the recovery subsystem, metadata-corruption detection, and agent-report apply path. New event kinds: `recovery.session_failed`, `recovery.action_failed`, `metadata.corrupt_detected`, `api.agent_report.session_not_found`, `api.agent_report.transition_rejected`. Adds `"recovery"` to the `ActivityEventSource` union. Lets RCA reconstruct `cahi recover` invocations, find every silent metadata overwrite, and audit rejected agent transitions. Adds `cahi events list --source` and `--kind` so these forensic event queries are available from the CLI.
 - 2980570: Add the notifier test harness, dashboard notifications, and desktop notifier setup.
 - d5d0f07: Rebuild missing better-sqlite3 native bindings during ao postinstall and replace noisy activity-events native-binding failures with a one-line diagnostic.
 - Updated dependencies [73bed33]
@@ -68,61 +68,61 @@
 - Updated dependencies [2980570]
 - Updated dependencies [d5d0f07]
 - Updated dependencies [07c9099]
-  - @aoagents/ao-core@0.9.0
-  - @aoagents/ao-web@0.9.0
-  - @aoagents/ao-plugin-agent-claude-code@0.9.0
-  - @aoagents/ao-plugin-tracker-linear@0.9.0
-  - @aoagents/ao-notifier-macos@0.9.0
-  - @aoagents/ao-plugin-notifier-composio@0.9.0
-  - @aoagents/ao-plugin-notifier-dashboard@0.9.0
-  - @aoagents/ao-plugin-notifier-desktop@0.9.0
-  - @aoagents/ao-plugin-notifier-discord@0.9.0
-  - @aoagents/ao-plugin-notifier-openclaw@0.9.0
-  - @aoagents/ao-plugin-notifier-slack@0.9.0
-  - @aoagents/ao-plugin-agent-aider@0.9.0
-  - @aoagents/ao-plugin-agent-codex@0.9.0
-  - @aoagents/ao-plugin-agent-cursor@0.9.0
-  - @aoagents/ao-plugin-agent-grok@0.1.1
-  - @aoagents/ao-plugin-agent-kimicode@0.9.0
-  - @aoagents/ao-plugin-agent-opencode@0.9.0
-  - @aoagents/ao-plugin-notifier-webhook@0.9.0
-  - @aoagents/ao-plugin-runtime-process@0.9.0
-  - @aoagents/ao-plugin-runtime-tmux@0.9.0
-  - @aoagents/ao-plugin-scm-github@0.9.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.9.0
-  - @aoagents/ao-plugin-terminal-web@0.9.0
-  - @aoagents/ao-plugin-tracker-github@0.9.0
-  - @aoagents/ao-plugin-workspace-clone@0.9.0
-  - @aoagents/ao-plugin-workspace-worktree@0.9.0
+  - @contaazul/cahi-core@0.9.0
+  - @contaazul/cahi-web@0.9.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.9.0
+  - @contaazul/cahi-plugin-tracker-linear@0.9.0
+  - @contaazul/cahi-notifier-macos@0.9.0
+  - @contaazul/cahi-plugin-notifier-composio@0.9.0
+  - @contaazul/cahi-plugin-notifier-dashboard@0.9.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.9.0
+  - @contaazul/cahi-plugin-notifier-discord@0.9.0
+  - @contaazul/cahi-plugin-notifier-openclaw@0.9.0
+  - @contaazul/cahi-plugin-notifier-slack@0.9.0
+  - @contaazul/cahi-plugin-agent-aider@0.9.0
+  - @contaazul/cahi-plugin-agent-codex@0.9.0
+  - @contaazul/cahi-plugin-agent-cursor@0.9.0
+  - @contaazul/cahi-plugin-agent-grok@0.1.1
+  - @contaazul/cahi-plugin-agent-kimicode@0.9.0
+  - @contaazul/cahi-plugin-agent-opencode@0.9.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.9.0
+  - @contaazul/cahi-plugin-runtime-process@0.9.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.9.0
+  - @contaazul/cahi-plugin-scm-github@0.9.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.9.0
+  - @contaazul/cahi-plugin-terminal-web@0.9.0
+  - @contaazul/cahi-plugin-tracker-github@0.9.0
+  - @contaazul/cahi-plugin-workspace-clone@0.9.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.9.0
 
 ## 0.8.0
 
 ### Patch Changes
 
 - Updated dependencies
-  - @aoagents/ao-core@0.8.0
-  - @aoagents/ao-plugin-agent-claude-code@0.8.0
-  - @aoagents/ao-plugin-agent-codex@0.8.0
-  - @aoagents/ao-plugin-agent-aider@0.8.0
-  - @aoagents/ao-plugin-agent-opencode@0.8.0
-  - @aoagents/ao-plugin-agent-cursor@0.8.0
-  - @aoagents/ao-plugin-agent-kimicode@0.8.0
-  - @aoagents/ao-plugin-notifier-composio@0.8.0
-  - @aoagents/ao-plugin-notifier-desktop@0.8.0
-  - @aoagents/ao-plugin-notifier-discord@0.8.0
-  - @aoagents/ao-plugin-notifier-openclaw@0.8.0
-  - @aoagents/ao-plugin-notifier-slack@0.8.0
-  - @aoagents/ao-plugin-notifier-webhook@0.8.0
-  - @aoagents/ao-plugin-runtime-process@0.8.0
-  - @aoagents/ao-plugin-runtime-tmux@0.8.0
-  - @aoagents/ao-plugin-scm-github@0.8.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.8.0
-  - @aoagents/ao-plugin-terminal-web@0.8.0
-  - @aoagents/ao-plugin-tracker-github@0.8.0
-  - @aoagents/ao-plugin-tracker-linear@0.8.0
-  - @aoagents/ao-plugin-workspace-clone@0.8.0
-  - @aoagents/ao-plugin-workspace-worktree@0.8.0
-  - @aoagents/ao-web@0.8.0
+  - @contaazul/cahi-core@0.8.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.8.0
+  - @contaazul/cahi-plugin-agent-codex@0.8.0
+  - @contaazul/cahi-plugin-agent-aider@0.8.0
+  - @contaazul/cahi-plugin-agent-opencode@0.8.0
+  - @contaazul/cahi-plugin-agent-cursor@0.8.0
+  - @contaazul/cahi-plugin-agent-kimicode@0.8.0
+  - @contaazul/cahi-plugin-notifier-composio@0.8.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.8.0
+  - @contaazul/cahi-plugin-notifier-discord@0.8.0
+  - @contaazul/cahi-plugin-notifier-openclaw@0.8.0
+  - @contaazul/cahi-plugin-notifier-slack@0.8.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.8.0
+  - @contaazul/cahi-plugin-runtime-process@0.8.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.8.0
+  - @contaazul/cahi-plugin-scm-github@0.8.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.8.0
+  - @contaazul/cahi-plugin-terminal-web@0.8.0
+  - @contaazul/cahi-plugin-tracker-github@0.8.0
+  - @contaazul/cahi-plugin-tracker-linear@0.8.0
+  - @contaazul/cahi-plugin-workspace-clone@0.8.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.8.0
+  - @contaazul/cahi-web@0.8.0
 
 ## 0.7.0
 
@@ -132,10 +132,10 @@
 
   AO now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
-  agents (claude-code, codex, kimicode, aider, opencode, cursor), `ao doctor`,
-  and `ao update` all work out of the box. Each session gets a small detached
+  agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
+  and `cahi update` all work out of the box. Each session gets a small detached
   pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
-  registered so `ao stop` can reach it.
+  registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
   centralises every platform branch behind helpers like `isWindows()`,
@@ -146,7 +146,7 @@
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
   `ao-doctor.ps1` / `ao-update.ps1` shipped.
 
-  `ao open` is now cross-platform: it sources sessions from `sm.list()`
+  `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
   appear), and the open action branches per OS — `open-iterm-tab` stays the
   macOS path, native handling on Windows and Linux.
@@ -159,7 +159,7 @@
   The Windows runtime architecture (pty-host, pipe protocol, registry, sweep,
   mux WS Windows branch) is documented in `docs/ARCHITECTURE.md`.
 
-- fe33bb7: Worker sessions now learn how to message the orchestrator that spawned them. When a project has an orchestrator running, the worker's system prompt gains a "Talking to the Orchestrator" section with the literal `ao send <prefix>-orchestrator "<message>"` command (rendered at prompt-build time, no env var, no shell-syntax variants). `ao send` itself now auto-prefixes outgoing messages with `[from $AO_SESSION_ID]` when invoked from inside an AO session, so the receiver always knows who's writing — symmetric across worker→orchestrator, orchestrator→worker, and worker→worker. Humans running `ao send` from a normal terminal stay unprefixed. (#1786)
+- fe33bb7: Worker sessions now learn how to message the orchestrator that spawned them. When a project has an orchestrator running, the worker's system prompt gains a "Talking to the Orchestrator" section with the literal `cahi send <prefix>-orchestrator "<message>"` command (rendered at prompt-build time, no env var, no shell-syntax variants). `cahi send` itself now auto-prefixes outgoing messages with `[from $CAHI_SESSION_ID]` when invoked from inside an AO session, so the receiver always knows who's writing — symmetric across worker→orchestrator, orchestrator→worker, and worker→worker. Humans running `cahi send` from a normal terminal stay unprefixed. (#1786)
 - 7c46dc9: feat(release): weekly release train — channels, onboarding, dashboard banner, cron
 
   Ships the full release pipeline described in `release-process.html`:
@@ -168,9 +168,9 @@
     Bake window (Wed–Thu) pauses scheduled nightlies; the captain re-cuts via
     workflow*dispatch when a fix lands. Stable `release.yml` publishes via
     `changesets/action`. `.changeset/config.json` adds the snapshot template
-    (`{tag}-{commit}`). `@aoagents/ao-web` stays in the linked group and ships
-    alongside `@aoagents/ao-cli` (it's a workspace:* runtime dep, so marking it
-    private would 404 every `npm install -g @aoagents/ao` after publish).
+    (`{tag}-{commit}`). `@contaazul/cahi-web` stays in the linked group and ships
+    alongside `@contaazul/cahi-cli` (it's a workspace:* runtime dep, so marking it
+    private would 404 every `npm install -g @contaazul/cahi` after publish).
     `scripts/check-publishable-deps.mjs` runs in both release.yml and canary.yml
     before the publish step and fails CI if a publishable package depends on a
     `private: true` package via workspace:\_.
@@ -179,20 +179,20 @@
     surprise installs). `update-check.ts` reads `dist-tags[channel]` from the
     npm registry, compares prerelease versions segment-by-segment so SHA-suffixed
     nightlies sort correctly, and skips notices entirely on `manual`.
-  - **Soft auto-install + active-session guard.** On stable/nightly, `ao update`
+  - **Soft auto-install + active-session guard.** On stable/nightly, `cahi update`
     skips the confirm prompt and just installs. Before installing it lists
-    sessions and refuses with `N session(s) active. Run \`ao stop\` first.`if
+    sessions and refuses with `N session(s) active. Run \`cahi stop\` first.`if
 any are in`working`/`idle`/`needs_input`/`stuck`. Same guard duplicated
 in `POST /api/update` so the dashboard returns a structured 409.
-  - **Onboarding question.** `ao start` prompts once for the channel if unset;
-    dismissal persists `manual`. `ao config set updateChannel <value>` (and
+  - **Onboarding question.** `cahi start` prompts once for the channel if unset;
+    dismissal persists `manual`. `cahi config set updateChannel <value>` (and
     `installMethod`) lets users change it later.
   - **Dashboard banner.** `GET /api/version` reads the same cache file as the
     CLI. `UpdateBanner` (Tailwind only, `var(--color-*)` tokens) appears at the
     top of the dashboard when `isOutdated`. Click POSTs to `/api/update`;
     dismissal persists per-version in `localStorage`.
   - **Bun + Homebrew detection.** New install-method classifiers for
-    `~/.bun/install/global/` (auto-installs `bun add -g @aoagents/ao@<channel>`)
+    `~/.bun/install/global/` (auto-installs `bun add -g @contaazul/cahi@<channel>`)
     and `/Cellar/ao/` (notice only — `brew upgrade ao` to avoid clobbering
     brew's symlinks). `installMethod` config field overrides path detection.
 
@@ -208,29 +208,29 @@ in `POST /api/update` so the dashboard returns a structured 409.
 - Updated dependencies [7c46dc9]
 - Updated dependencies [71326bc]
 - Updated dependencies [a33b2ba]
-  - @aoagents/ao-plugin-runtime-tmux@0.7.0
-  - @aoagents/ao-web@0.7.0
-  - @aoagents/ao-core@0.7.0
-  - @aoagents/ao-plugin-runtime-process@0.7.0
-  - @aoagents/ao-plugin-agent-claude-code@0.7.0
-  - @aoagents/ao-plugin-agent-codex@0.7.0
-  - @aoagents/ao-plugin-agent-aider@0.7.0
-  - @aoagents/ao-plugin-agent-opencode@0.7.0
-  - @aoagents/ao-plugin-workspace-worktree@0.7.0
-  - @aoagents/ao-plugin-workspace-clone@0.7.0
-  - @aoagents/ao-plugin-tracker-github@0.7.0
-  - @aoagents/ao-plugin-tracker-linear@0.7.0
-  - @aoagents/ao-plugin-scm-github@0.7.0
-  - @aoagents/ao-plugin-notifier-desktop@0.7.0
-  - @aoagents/ao-plugin-notifier-slack@0.7.0
-  - @aoagents/ao-plugin-notifier-webhook@0.7.0
-  - @aoagents/ao-plugin-notifier-composio@0.7.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.7.0
-  - @aoagents/ao-plugin-terminal-web@0.7.0
-  - @aoagents/ao-plugin-agent-cursor@0.7.0
-  - @aoagents/ao-plugin-agent-kimicode@0.7.0
-  - @aoagents/ao-plugin-notifier-discord@0.7.0
-  - @aoagents/ao-plugin-notifier-openclaw@0.7.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.7.0
+  - @contaazul/cahi-web@0.7.0
+  - @contaazul/cahi-core@0.7.0
+  - @contaazul/cahi-plugin-runtime-process@0.7.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.7.0
+  - @contaazul/cahi-plugin-agent-codex@0.7.0
+  - @contaazul/cahi-plugin-agent-aider@0.7.0
+  - @contaazul/cahi-plugin-agent-opencode@0.7.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.7.0
+  - @contaazul/cahi-plugin-workspace-clone@0.7.0
+  - @contaazul/cahi-plugin-tracker-github@0.7.0
+  - @contaazul/cahi-plugin-tracker-linear@0.7.0
+  - @contaazul/cahi-plugin-scm-github@0.7.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.7.0
+  - @contaazul/cahi-plugin-notifier-slack@0.7.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.7.0
+  - @contaazul/cahi-plugin-notifier-composio@0.7.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.7.0
+  - @contaazul/cahi-plugin-terminal-web@0.7.0
+  - @contaazul/cahi-plugin-agent-cursor@0.7.0
+  - @contaazul/cahi-plugin-agent-kimicode@0.7.0
+  - @contaazul/cahi-plugin-notifier-discord@0.7.0
+  - @contaazul/cahi-plugin-notifier-openclaw@0.7.0
 
 ## 0.6.0
 
@@ -244,76 +244,76 @@ in `POST /api/update` so the dashboard returns a structured 409.
 - Updated dependencies
 - Updated dependencies
 - Updated dependencies
-  - @aoagents/ao-core@0.6.0
-  - @aoagents/ao-web@0.6.0
-  - @aoagents/ao-plugin-runtime-tmux@0.6.0
-  - @aoagents/ao-plugin-agent-aider@0.6.0
-  - @aoagents/ao-plugin-agent-claude-code@0.6.0
-  - @aoagents/ao-plugin-agent-codex@0.6.0
-  - @aoagents/ao-plugin-agent-cursor@0.1.4
-  - @aoagents/ao-plugin-agent-kimicode@0.1.3
-  - @aoagents/ao-plugin-agent-opencode@0.6.0
-  - @aoagents/ao-plugin-notifier-composio@0.6.0
-  - @aoagents/ao-plugin-notifier-desktop@0.6.0
-  - @aoagents/ao-plugin-notifier-discord@0.2.9
-  - @aoagents/ao-plugin-notifier-openclaw@0.2.9
-  - @aoagents/ao-plugin-notifier-slack@0.6.0
-  - @aoagents/ao-plugin-notifier-webhook@0.6.0
-  - @aoagents/ao-plugin-runtime-process@0.6.0
-  - @aoagents/ao-plugin-scm-github@0.6.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.6.0
-  - @aoagents/ao-plugin-terminal-web@0.6.0
-  - @aoagents/ao-plugin-tracker-github@0.6.0
-  - @aoagents/ao-plugin-tracker-linear@0.6.0
-  - @aoagents/ao-plugin-workspace-clone@0.6.0
-  - @aoagents/ao-plugin-workspace-worktree@0.6.0
+  - @contaazul/cahi-core@0.6.0
+  - @contaazul/cahi-web@0.6.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.6.0
+  - @contaazul/cahi-plugin-agent-aider@0.6.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.6.0
+  - @contaazul/cahi-plugin-agent-codex@0.6.0
+  - @contaazul/cahi-plugin-agent-cursor@0.1.4
+  - @contaazul/cahi-plugin-agent-kimicode@0.1.3
+  - @contaazul/cahi-plugin-agent-opencode@0.6.0
+  - @contaazul/cahi-plugin-notifier-composio@0.6.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.6.0
+  - @contaazul/cahi-plugin-notifier-discord@0.2.9
+  - @contaazul/cahi-plugin-notifier-openclaw@0.2.9
+  - @contaazul/cahi-plugin-notifier-slack@0.6.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.6.0
+  - @contaazul/cahi-plugin-runtime-process@0.6.0
+  - @contaazul/cahi-plugin-scm-github@0.6.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.6.0
+  - @contaazul/cahi-plugin-terminal-web@0.6.0
+  - @contaazul/cahi-plugin-tracker-github@0.6.0
+  - @contaazul/cahi-plugin-tracker-linear@0.6.0
+  - @contaazul/cahi-plugin-workspace-clone@0.6.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.6.0
 
 ## 0.5.0
 
 ### Minor Changes
 
-- 3a69722: Remove the deprecated `ao init` command. Use `ao start` instead — it auto-creates the config on first run in an unconfigured repo.
+- 3a69722: Remove the deprecated `cahi init` command. Use `cahi start` instead — it auto-creates the config on first run in an unconfigured repo.
 
 ### Patch Changes
 
 - Updated dependencies [dd07b6b]
 - Updated dependencies [dd07b6b]
 - Updated dependencies [dd07b6b]
-  - @aoagents/ao-core@0.5.0
-  - @aoagents/ao-web@0.5.0
-  - @aoagents/ao-plugin-agent-aider@0.5.0
-  - @aoagents/ao-plugin-agent-claude-code@0.5.0
-  - @aoagents/ao-plugin-agent-codex@0.5.0
-  - @aoagents/ao-plugin-agent-cursor@0.1.3
-  - @aoagents/ao-plugin-agent-kimicode@0.1.2
-  - @aoagents/ao-plugin-agent-opencode@0.5.0
-  - @aoagents/ao-plugin-notifier-composio@0.5.0
-  - @aoagents/ao-plugin-notifier-desktop@0.5.0
-  - @aoagents/ao-plugin-notifier-discord@0.2.8
-  - @aoagents/ao-plugin-notifier-openclaw@0.2.8
-  - @aoagents/ao-plugin-notifier-slack@0.5.0
-  - @aoagents/ao-plugin-notifier-webhook@0.5.0
-  - @aoagents/ao-plugin-runtime-process@0.5.0
-  - @aoagents/ao-plugin-runtime-tmux@0.5.0
-  - @aoagents/ao-plugin-scm-github@0.5.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.5.0
-  - @aoagents/ao-plugin-terminal-web@0.5.0
-  - @aoagents/ao-plugin-tracker-github@0.5.0
-  - @aoagents/ao-plugin-tracker-linear@0.5.0
-  - @aoagents/ao-plugin-workspace-clone@0.5.0
-  - @aoagents/ao-plugin-workspace-worktree@0.5.0
+  - @contaazul/cahi-core@0.5.0
+  - @contaazul/cahi-web@0.5.0
+  - @contaazul/cahi-plugin-agent-aider@0.5.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.5.0
+  - @contaazul/cahi-plugin-agent-codex@0.5.0
+  - @contaazul/cahi-plugin-agent-cursor@0.1.3
+  - @contaazul/cahi-plugin-agent-kimicode@0.1.2
+  - @contaazul/cahi-plugin-agent-opencode@0.5.0
+  - @contaazul/cahi-plugin-notifier-composio@0.5.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.5.0
+  - @contaazul/cahi-plugin-notifier-discord@0.2.8
+  - @contaazul/cahi-plugin-notifier-openclaw@0.2.8
+  - @contaazul/cahi-plugin-notifier-slack@0.5.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.5.0
+  - @contaazul/cahi-plugin-runtime-process@0.5.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.5.0
+  - @contaazul/cahi-plugin-scm-github@0.5.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.5.0
+  - @contaazul/cahi-plugin-terminal-web@0.5.0
+  - @contaazul/cahi-plugin-tracker-github@0.5.0
+  - @contaazul/cahi-plugin-tracker-linear@0.5.0
+  - @contaazul/cahi-plugin-workspace-clone@0.5.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.5.0
 
 ## 0.4.0
 
 ### Minor Changes
 
-- f330a1e: `ao session ls` and `ao status` now hide terminated sessions (`killed`, `terminated`, `done`, `merged`, `errored`, `cleanup`) by default. A dim footer reports how many were hidden and how to surface them. Pass `--include-terminated` to restore the previous unfiltered output.
+- f330a1e: `cahi session ls` and `cahi status` now hide terminated sessions (`killed`, `terminated`, `done`, `merged`, `errored`, `cleanup`) by default. A dim footer reports how many were hidden and how to surface them. Pass `--include-terminated` to restore the previous unfiltered output.
 
   Core change: `parseCanonicalLifecycle()` now preserves `pr.state="merged"` when reconstructing legacy metadata with `status=merged` but no `pr=` URL (previously collapsed to `pr.state="none"`, which made `isTerminalSession()` return false for those sessions). Also exports `sessionFromMetadata` so consumers can round-trip flat metadata through the canonical lifecycle.
 
-  **Breaking — JSON output shape:** `ao session ls --json` and `ao status --json` now emit `{ data: [...], meta: { hiddenTerminatedCount: number } }` instead of a bare array. Scripts consuming the JSON must read `.data` for the session list. `--include-terminated` restores full data and reports `hiddenTerminatedCount: 0`.
+  **Breaking — JSON output shape:** `cahi session ls --json` and `cahi status --json` now emit `{ data: [...], meta: { hiddenTerminatedCount: number } }` instead of a bare array. Scripts consuming the JSON must read `.data` for the session list. `--include-terminated` restores full data and reports `hiddenTerminatedCount: 0`.
 
-  The existing `-a, --all` flag still only governs orchestrator visibility on `ao session ls` — it does **not** re-enable terminated sessions. Combine with `--include-terminated` when you want both.
+  The existing `-a, --all` flag still only governs orchestrator visibility on `cahi session ls` — it does **not** re-enable terminated sessions. Combine with `--include-terminated` when you want both.
 
 - e7ad928: Allow workers to report non-terminal PR workflow events like `pr-created`, `draft-pr-created`, and `ready-for-review` with optional PR URL/number metadata, while keeping merged and closed PR state SCM-owned.
 
@@ -324,23 +324,23 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Patch Changes
 
-- 2306078: Add SQLite-backed activity event logging for session and lifecycle diagnostics, plus `ao events` commands for listing, searching, and inspecting event log stats.
-- f09cc72: `ao session ls` hides terminal sessions in text output by default; use `--include-terminated` for the full text list.
+- 2306078: Add SQLite-backed activity event logging for session and lifecycle diagnostics, plus `cahi events` commands for listing, searching, and inspecting event log stats.
+- f09cc72: `cahi session ls` hides terminal sessions in text output by default; use `--include-terminated` for the full text list.
 - e1bb51f: Fix restore behavior across AO session recovery flows.
-  - restore the latest dead-but-restorable orchestrator on `ao start` instead of silently spawning a new orchestrator when tmux is gone
+  - restore the latest dead-but-restorable orchestrator on `cahi start` instead of silently spawning a new orchestrator when tmux is gone
   - make worker session orchestrator navigation prefer the most recently active live orchestrator for the project
   - make permissionless Codex restores preserve dangerous bypass semantics so resumed workers behave like fresh permissionless launches
 
 - f674422: Make project orchestrators deterministic and idempotent.
   - ensure each project uses the canonical `{prefix}-orchestrator` session instead of creating numbered main orchestrators
-  - make `ao start`, the dashboard, and the orchestrator API reuse or restore the canonical session
+  - make `cahi start`, the dashboard, and the orchestrator API reuse or restore the canonical session
   - keep legacy numbered orchestrators visible as stale sessions without treating them as the main orchestrator
 
 - 4701122: opencode: bound /tmp blast radius and consolidate session-list cache
 
   Addresses review feedback on PR #1478:
   - **TMPDIR isolation.** Every `opencode` child we spawn now points at
-    `~/.agent-orchestrator/.bun-tmp/` via `TMPDIR`/`TMP`/`TEMP`. Bun's
+    `~/.cahi/.bun-tmp/` via `TMPDIR`/`TMP`/`TEMP`. Bun's
     embedded shared-library extraction lands there instead of the system
     `/tmp`, so the cli janitor only ever sweeps AO-owned files. Other
     users' or other applications' Bun artifacts on a shared host can no
@@ -349,7 +349,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
     plugin previously kept independent caches; per poll cycle the system
     spawned at least two `opencode session list` processes instead of
     one. Both consumers now use the shared cache exported from
-    `@aoagents/ao-core` (`getCachedOpenCodeSessionList`).
+    `@contaazul/cahi-core` (`getCachedOpenCodeSessionList`).
   - **TTL no longer covers the send-confirmation loop.** The cache TTL
     dropped from 3s to 500ms so the
     `updatedAt > baselineUpdatedAt` delivery signal in
@@ -363,7 +363,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
     before allocating per-file promises (matters on hosts with thousands
     of `/tmp` entries), and `stopBunTmpJanitor()` is now async and awaits
     any in-flight sweep so SIGTERM cannot exit while `unlink` is mid-flight.
-  - **Janitor observability.** The sweep callback in `ao start` now logs
+  - **Janitor observability.** The sweep callback in `cahi start` now logs
     successful reclaims, not just errors, so operators can confirm the
     janitor is doing useful work.
 
@@ -374,8 +374,8 @@ in `POST /api/update` so the dashboard returns a structured 409.
   add a null check first. Use a guard like `if (!project.repo) return null;` or a helper that
   throws with a descriptive error.
 
-- bcdda4b: Tighten the session lifecycle review follow-ups by debouncing report-watcher reactions, restoring the shared Geist/JetBrains font setup, wiring recovery validation to real agent activity probes, adding direct coverage for `ao report`, activity-signal classification, and dashboard lifecycle audit panels, fixing the remaining lifecycle-state regressions around legacy merged-session rehydration and malformed canonical payload parsing, making agent-report metadata writes atomic, persisting canonical payloads for legacy sessions on read, stabilizing detecting evidence hashes, and removing the remaining inline-style cleanup debt from the session detail view. Follow-on fixes also split the Session Detail view into smaller components, harden PR URL parsing and wrapper capture for GitHub Enterprise and GitLab-style hosts, redact sensitive observability payload fields, bound on-disk audit logs, and align cleanup wording with the current merged-session lifecycle policy.
-- 1cbf657: Split orchestrator-only detail views from worker detail views, add an auditable history for `ao acknowledge` / `ao report`, and preserve canonical `needs_input` / `stuck` lifecycle states when polling only has weak or unchanged evidence.
+- bcdda4b: Tighten the session lifecycle review follow-ups by debouncing report-watcher reactions, restoring the shared Geist/JetBrains font setup, wiring recovery validation to real agent activity probes, adding direct coverage for `cahi report`, activity-signal classification, and dashboard lifecycle audit panels, fixing the remaining lifecycle-state regressions around legacy merged-session rehydration and malformed canonical payload parsing, making agent-report metadata writes atomic, persisting canonical payloads for legacy sessions on read, stabilizing detecting evidence hashes, and removing the remaining inline-style cleanup debt from the session detail view. Follow-on fixes also split the Session Detail view into smaller components, harden PR URL parsing and wrapper capture for GitHub Enterprise and GitLab-style hosts, redact sensitive observability payload fields, bound on-disk audit logs, and align cleanup wording with the current merged-session lifecycle policy.
+- 1cbf657: Split orchestrator-only detail views from worker detail views, add an auditable history for `cahi acknowledge` / `cahi report`, and preserve canonical `needs_input` / `stuck` lifecycle states when polling only has weak or unchanged evidence.
 - Updated dependencies [2306078]
 - Updated dependencies [b0d0994]
 - Updated dependencies [faaddb1]
@@ -408,29 +408,29 @@ in `POST /api/update` so the dashboard returns a structured 409.
 - Updated dependencies [e518562]
 - Updated dependencies [fed25d5]
 - Updated dependencies [ed2dcea]
-  - @aoagents/ao-core@0.4.0
-  - @aoagents/ao-plugin-agent-codex@0.4.0
-  - @aoagents/ao-plugin-agent-claude-code@0.4.0
-  - @aoagents/ao-web@0.4.0
-  - @aoagents/ao-plugin-agent-opencode@0.4.0
-  - @aoagents/ao-plugin-scm-github@0.4.0
-  - @aoagents/ao-plugin-tracker-github@0.4.0
-  - @aoagents/ao-plugin-agent-aider@0.4.0
-  - @aoagents/ao-plugin-agent-cursor@0.1.2
-  - @aoagents/ao-plugin-agent-kimicode@0.1.1
-  - @aoagents/ao-plugin-notifier-composio@0.4.0
-  - @aoagents/ao-plugin-notifier-desktop@0.4.0
-  - @aoagents/ao-plugin-notifier-discord@0.2.7
-  - @aoagents/ao-plugin-notifier-openclaw@0.2.7
-  - @aoagents/ao-plugin-notifier-slack@0.4.0
-  - @aoagents/ao-plugin-notifier-webhook@0.4.0
-  - @aoagents/ao-plugin-runtime-process@0.4.0
-  - @aoagents/ao-plugin-runtime-tmux@0.4.0
-  - @aoagents/ao-plugin-terminal-iterm2@0.4.0
-  - @aoagents/ao-plugin-terminal-web@0.4.0
-  - @aoagents/ao-plugin-tracker-linear@0.4.0
-  - @aoagents/ao-plugin-workspace-clone@0.4.0
-  - @aoagents/ao-plugin-workspace-worktree@0.4.0
+  - @contaazul/cahi-core@0.4.0
+  - @contaazul/cahi-plugin-agent-codex@0.4.0
+  - @contaazul/cahi-plugin-agent-claude-code@0.4.0
+  - @contaazul/cahi-web@0.4.0
+  - @contaazul/cahi-plugin-agent-opencode@0.4.0
+  - @contaazul/cahi-plugin-scm-github@0.4.0
+  - @contaazul/cahi-plugin-tracker-github@0.4.0
+  - @contaazul/cahi-plugin-agent-aider@0.4.0
+  - @contaazul/cahi-plugin-agent-cursor@0.1.2
+  - @contaazul/cahi-plugin-agent-kimicode@0.1.1
+  - @contaazul/cahi-plugin-notifier-composio@0.4.0
+  - @contaazul/cahi-plugin-notifier-desktop@0.4.0
+  - @contaazul/cahi-plugin-notifier-discord@0.2.7
+  - @contaazul/cahi-plugin-notifier-openclaw@0.2.7
+  - @contaazul/cahi-plugin-notifier-slack@0.4.0
+  - @contaazul/cahi-plugin-notifier-webhook@0.4.0
+  - @contaazul/cahi-plugin-runtime-process@0.4.0
+  - @contaazul/cahi-plugin-runtime-tmux@0.4.0
+  - @contaazul/cahi-plugin-terminal-iterm2@0.4.0
+  - @contaazul/cahi-plugin-terminal-web@0.4.0
+  - @contaazul/cahi-plugin-tracker-linear@0.4.0
+  - @contaazul/cahi-plugin-workspace-clone@0.4.0
+  - @contaazul/cahi-plugin-workspace-worktree@0.4.0
 
 ## 0.2.2
 
@@ -445,15 +445,15 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 - ac625c3: Fix startup onboarding and install reliability:
   - Repair npm global install startup path by improving package resolution and web package discovery hints.
-  - Make `ao start` prerequisite installs explicit and interactive for required tools (`tmux`, `git`) with clearer fallback guidance.
-  - Keep `ao spawn` preflight check-only for `tmux` (no implicit install).
+  - Make `cahi start` prerequisite installs explicit and interactive for required tools (`tmux`, `git`) with clearer fallback guidance.
+  - Keep `cahi spawn` preflight check-only for `tmux` (no implicit install).
   - Remove redundant agent runtime re-detection during config generation.
 
 ## 0.2.0
 
 ### Minor Changes
 
-- 3a650b0: Zero-friction onboarding: `ao start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 
 ### Patch Changes
 

@@ -10,28 +10,28 @@ description: Dashboard xterm.js terminal. Cross-platform. The only option on Win
 
 <PlatformSupport macos="full" linux="full" windows="full" />
 
-The dashboard already has an xterm.js terminal connected to every session. The `web` plugin just points `ao open` at the right dashboard URL.
+The dashboard already has an xterm.js terminal connected to every session. The `web` plugin just points `cahi open` at the right dashboard URL.
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 terminal: web
 terminalConfig:
-  dashboardUrl: http://localhost:3000     # default
+  dashboardUrl: http://localhost:4000     # default
 ```
 
 | Config key | Default | What it does |
 |---|---|---|
-| `dashboardUrl` | `http://localhost:3000` | Base URL for the dashboard. Override when the dashboard runs on another host/port. |
+| `dashboardUrl` | `http://localhost:4000` | Base URL for the dashboard. Override when the dashboard runs on another host/port. |
 
 ## How it works
 
-When you run `ao open <session>`, the plugin prints the session's dashboard URL. If you're on macOS/Linux, it also tries to open it in your default browser.
+When you run `cahi open <session>`, the plugin prints the session's dashboard URL. If you're on macOS/Linux, it also tries to open it in your default browser.
 
 Since the terminal UI lives in the dashboard itself, there's no per-session state here — this plugin is just routing + convenience.
 
 ## Why this exists
 
 - Windows has no `osascript` and no AppleScript-equivalent that's worth writing a plugin for.
-- You're running AO on a remote host — no local terminal to attach to.
+- You're running CAHI on a remote host — no local terminal to attach to.
 - You prefer browser tabs over terminal tabs.

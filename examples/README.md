@@ -1,4 +1,4 @@
-# Agent Orchestrator Config Examples
+# CAHI Config Examples
 
 This directory contains example configurations for common use cases.
 
@@ -7,9 +7,9 @@ This directory contains example configurations for common use cases.
 Copy an example and customize:
 
 ```bash
-cp examples/simple-github.yaml agent-orchestrator.yaml
-nano agent-orchestrator.yaml  # edit as needed
-ao spawn my-app ISSUE-123
+cp examples/simple-github.yaml cahi.yaml
+nano cahi.yaml  # edit as needed
+cahi spawn my-app ISSUE-123
 ```
 
 ## Examples
@@ -32,7 +32,7 @@ Use this if:
 
 Integrates with Linear for issue tracking. Requires `LINEAR_API_KEY` environment variable.
 
-Spawns prefer Linear’s **Copy git branch name** (API `branchName`); if absent, AO uses `feat/<issue-id>` as before. To change Linear’s pattern, use **Linear → Settings → Integrations → GitHub → Branch format**.
+Spawns prefer Linear’s **Copy git branch name** (API `branchName`); if absent, CAHI uses `feat/<issue-id>` as before. To change Linear’s pattern, use **Linear → Settings → Integrations → GitHub → Branch format**.
 
 Use this if:
 
@@ -108,8 +108,8 @@ Add these to your shell profile (`~/.zshrc` or `~/.bashrc`) to persist them.
 After copying an example:
 
 1. **Edit the config** - Update repo paths, team IDs, etc.
-2. **Validate** - Run `ao start` to check for config errors
-3. **Spawn an agent** - Try `ao spawn project-id ISSUE-123`
-4. **Monitor** - Use `ao status` or open the dashboard (default http://localhost:3000, configurable via `port:` in config)
+2. **Validate** - Run `cahi start` to check for config errors
+3. **Spawn an agent** - Try `cahi spawn project-id ISSUE-123`
+4. **Monitor** - Use `cahi status` or open the dashboard (default http://localhost:4000, configurable via `port:` in config)
 
 See [SETUP.md](../SETUP.md) for detailed configuration reference and troubleshooting.

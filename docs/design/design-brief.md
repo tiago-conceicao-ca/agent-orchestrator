@@ -1,12 +1,12 @@
-# Agent Orchestrator Dashboard — Design Brief
-*Research-backed design specification for the ao dashboard*
+# CAHI Dashboard — Design Brief
+*Research-backed design specification for the cahi dashboard*
 *Version 2 — Updated with Playwright CSS extraction from live sites*
 
 ---
 
 ## Product Context
 
-The Agent Orchestrator dashboard is **mission control for parallel AI coding agents**. Users are senior engineers and CTOs who routinely spawn 10–30 agents at once and need to:
+The CAHI dashboard is **mission control for parallel AI coding agents**. Users are senior engineers and CTOs who routinely spawn 10–30 agents at once and need to:
 
 1. Triage at a glance (who needs me right now?)
 2. Merge PRs that are ready
@@ -125,7 +125,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 
 ### Philosophy
 
-**Mission control, not social feed.** The ao dashboard should feel like a fighter pilot's HUD — dense, high-contrast, every element load-bearing. Visual analogues: Vercel deployment list discipline + Grafana panel density + LangSmith trace density + Linear state dot pattern.
+**Mission control, not social feed.** The cahi dashboard should feel like a fighter pilot's HUD — dense, high-contrast, every element load-bearing. Visual analogues: Vercel deployment list discipline + Grafana panel density + LangSmith trace density + Linear state dot pattern.
 
 **Dark mode native.** Not dark mode as a feature — dark mode as the only mode designed with conviction.
 
@@ -261,7 +261,7 @@ Directly derived from Linear's verified CSS token system:
 - Zone header: 32px
 - Page margin: 20px
 
-This density is closer to Grafana than to Linear. The ao dashboard with 30 agents is a monitoring tool, not a project management tool.
+This density is closer to Grafana than to Linear. The cahi dashboard with 30 agents is a monitoring tool, not a project management tool.
 
 ---
 

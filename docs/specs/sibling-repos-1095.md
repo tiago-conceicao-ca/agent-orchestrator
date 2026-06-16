@@ -45,9 +45,9 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 - Verify: add cria worktree isolado + grava metadata; remove limpa; kill remove os siblings; colisão entre 2 sessões paralelas não acontece.
 
 ### Fase 2 — CLI
-- `ao session sibling add <sessionId> <repo> [--branch <ref>] [--readonly]`
-- `ao session sibling ls <sessionId>`
-- `ao session sibling rm <sessionId> <repo>`
+- `cahi session sibling add <sessionId> <repo> [--branch <ref>] [--readonly]`
+- `cahi session sibling ls <sessionId>`
+- `cahi session sibling rm <sessionId> <repo>`
 - (resolve repo via projetos registrados; chama o core)
 - Verify: add/ls/rm via CLI; erros claros (repo desconhecido, sessão inexistente).
 
@@ -62,8 +62,8 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 - Sob o **orchestrator**: visualização do **catálogo** de siblings disponíveis (o que dá pra montar).
 - Verify: botão monta sibling e ele aparece sob a sessão; catálogo listado; remove via UI.
 
-### Fase 5 — `ao start` (catálogo, não worktree compartilhado)
-- No `ao start`, estabelecer/detectar o **catálogo** de siblings disponíveis (declaração/config) — NÃO criar um worktree compartilhado (isso recriaria a colisão do #1095).
+### Fase 5 — `cahi start` (catálogo, não worktree compartilhado)
+- No `cahi start`, estabelecer/detectar o **catálogo** de siblings disponíveis (declaração/config) — NÃO criar um worktree compartilhado (isso recriaria a colisão do #1095).
 - (Opcional) montar siblings **read-only** pro orchestrator (leitura estável, a dor "orchestrator lê checkout stale" do #1095).
 - Verify: catálogo disponível após start; nenhum worktree de worker criado no start.
 
@@ -83,9 +83,9 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 
 ## Decisões (aprovadas 2026-06-10)
 1. **Catálogo de siblings** = **projetos registrados** (o `path` de cada projeto é a fonte do `git worktree add`).
-2. **Namespace CLI** = **`ao session sibling …`**.
+2. **Namespace CLI** = **`cahi session sibling …`**.
 3. **Symlink de adjacência `../sibling` = SIM (em escopo).** Todo sibling em `mode: worktree` ganha, além do worktree isolado, uma adjacência por-sessão de modo que ferramentas (pattern-library) o encontrem como `../{name}` relativo ao cwd da sessão — sem colisão entre sessões paralelas. `mode: readonly-symlink` = só symlink (sem worktree), pra refs read-only (ex: ca-starters-front).
-4. **`ao start`** = só estabelece o catálogo disponível (não cria worktree de worker no start).
+4. **`cahi start`** = só estabelece o catálogo disponível (não cria worktree de worker no start).
 
 ## Entrega
 É a **implementação do #1095** (linkar lá). Independente do PR do SDLC → **PR próprio**. Via worker(s) — sugiro Fase 0+1 num worker, Fase 2 noutro, Fase 3+4 noutro, com review entre eles.
@@ -94,7 +94,7 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 
 ## Status de implementação (esta PR — Fases 0 + 1)
 
-Esta PR entrega a **fundação** do #1095: o modelo de dados e o núcleo (core). CLI, Web e `ao start` (Fases 2–5) ficam para PRs subsequentes.
+Esta PR entrega a **fundação** do #1095: o modelo de dados e o núcleo (core). CLI, Web e `cahi start` (Fases 2–5) ficam para PRs subsequentes.
 
 **Entregue:**
 - **Fase 0 (modelo & metadata):** `SiblingRef` + `Session.siblings` em `types.ts`; persistência metadata-backed espelhando `prs` (#1821) — `siblings` é um único campo de metadata JSON-encoded (`SiblingRef` é estruturado, então JSON em vez do CSV de `prs`), parseado no load (`utils/siblings.ts` → `parseSiblings`/`serializeSiblings`) e gravado junto. Back-compat total: sessões antigas sem `siblings` carregam como `[]`.

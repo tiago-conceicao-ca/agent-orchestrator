@@ -10,4 +10,4 @@ Adds the data model and core engine for mounting secondary "sibling" repos into 
 - `SessionManager.addSibling` / `removeSibling`: resolve the source from the registered-projects catalog, create an isolated per-session worktree at `{worktreeDir}/{sessionId}__sib__{name}` (no cross-session collision), and tear it down on removal.
 - Sibling worktrees/symlinks are cleaned up best-effort when a session is killed, alongside the primary worktree.
 
-CLI, Web, and `ao start` integration (and `../{name}` adjacency) land in follow-up PRs.
+CLI, Web, and `cahi start` integration (and `../{name}` adjacency) land in follow-up PRs.

@@ -1,4 +1,4 @@
-# @aoagents/ao
+# @contaazul/cahi
 
 ## 0.9.2
 
@@ -6,7 +6,7 @@
 
 - 2f9717f: Load agent-grok package metadata through JSON import attributes so packaged web and CLI runtimes do not keep a publish-host package.json lookup. This also raises the Node.js engine floor to 20.18.3+, where JSON modules with import attributes are non-experimental.
 - Updated dependencies [2f9717f]
-  - @aoagents/ao-cli@0.9.2
+  - @contaazul/cahi-cli@0.9.2
 
 ## 0.9.1
 
@@ -14,7 +14,7 @@
 
 - 2d4c457: Fix canary nightly to include all publishable packages and fix Next.js import.meta.url build path issue
 - Updated dependencies [2d4c457]
-  - @aoagents/ao-cli@0.9.1
+  - @contaazul/cahi-cli@0.9.1
 
 ## 0.9.0
 
@@ -26,13 +26,13 @@
 - Updated dependencies [fcedb25]
 - Updated dependencies [2980570]
 - Updated dependencies [d5d0f07]
-  - @aoagents/ao-cli@0.9.0
+  - @contaazul/cahi-cli@0.9.0
 
 ## 0.8.0
 
 ### Patch Changes
 
-- @aoagents/ao-cli@0.8.0
+- @contaazul/cahi-cli@0.8.0
 
 ## 0.7.0
 
@@ -42,10 +42,10 @@
 
   AO now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
-  agents (claude-code, codex, kimicode, aider, opencode, cursor), `ao doctor`,
-  and `ao update` all work out of the box. Each session gets a small detached
+  agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
+  and `cahi update` all work out of the box. Each session gets a small detached
   pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
-  registered so `ao stop` can reach it.
+  registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
   centralises every platform branch behind helpers like `isWindows()`,
@@ -56,7 +56,7 @@
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
   `ao-doctor.ps1` / `ao-update.ps1` shipped.
 
-  `ao open` is now cross-platform: it sources sessions from `sm.list()`
+  `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
   appear), and the open action branches per OS — `open-iterm-tab` stays the
   macOS path, native handling on Windows and Linux.
@@ -77,9 +77,9 @@
     Bake window (Wed–Thu) pauses scheduled nightlies; the captain re-cuts via
     workflow*dispatch when a fix lands. Stable `release.yml` publishes via
     `changesets/action`. `.changeset/config.json` adds the snapshot template
-    (`{tag}-{commit}`). `@aoagents/ao-web` stays in the linked group and ships
-    alongside `@aoagents/ao-cli` (it's a workspace:* runtime dep, so marking it
-    private would 404 every `npm install -g @aoagents/ao` after publish).
+    (`{tag}-{commit}`). `@contaazul/cahi-web` stays in the linked group and ships
+    alongside `@contaazul/cahi-cli` (it's a workspace:* runtime dep, so marking it
+    private would 404 every `npm install -g @contaazul/cahi` after publish).
     `scripts/check-publishable-deps.mjs` runs in both release.yml and canary.yml
     before the publish step and fails CI if a publishable package depends on a
     `private: true` package via workspace:\_.
@@ -88,20 +88,20 @@
     surprise installs). `update-check.ts` reads `dist-tags[channel]` from the
     npm registry, compares prerelease versions segment-by-segment so SHA-suffixed
     nightlies sort correctly, and skips notices entirely on `manual`.
-  - **Soft auto-install + active-session guard.** On stable/nightly, `ao update`
+  - **Soft auto-install + active-session guard.** On stable/nightly, `cahi update`
     skips the confirm prompt and just installs. Before installing it lists
-    sessions and refuses with `N session(s) active. Run \`ao stop\` first.`if
+    sessions and refuses with `N session(s) active. Run \`cahi stop\` first.`if
 any are in`working`/`idle`/`needs_input`/`stuck`. Same guard duplicated
 in `POST /api/update` so the dashboard returns a structured 409.
-  - **Onboarding question.** `ao start` prompts once for the channel if unset;
-    dismissal persists `manual`. `ao config set updateChannel <value>` (and
+  - **Onboarding question.** `cahi start` prompts once for the channel if unset;
+    dismissal persists `manual`. `cahi config set updateChannel <value>` (and
     `installMethod`) lets users change it later.
   - **Dashboard banner.** `GET /api/version` reads the same cache file as the
     CLI. `UpdateBanner` (Tailwind only, `var(--color-*)` tokens) appears at the
     top of the dashboard when `isOutdated`. Click POSTs to `/api/update`;
     dismissal persists per-version in `localStorage`.
   - **Bun + Homebrew detection.** New install-method classifiers for
-    `~/.bun/install/global/` (auto-installs `bun add -g @aoagents/ao@<channel>`)
+    `~/.bun/install/global/` (auto-installs `bun add -g @contaazul/cahi@<channel>`)
     and `/Cellar/ao/` (notice only — `brew upgrade ao` to avoid clobbering
     brew's symlinks). `installMethod` config field overrides path detection.
 
@@ -114,21 +114,21 @@ in `POST /api/update` so the dashboard returns a structured 409.
 - Updated dependencies [0f5ae0b]
 - Updated dependencies [fe33bb7]
 - Updated dependencies [7c46dc9]
-  - @aoagents/ao-cli@0.7.0
+  - @contaazul/cahi-cli@0.7.0
 
 ## 0.6.0
 
 ### Patch Changes
 
 - Updated dependencies [0f539a3]
-  - @aoagents/ao-cli@0.6.0
+  - @contaazul/cahi-cli@0.6.0
 
 ## 0.5.0
 
 ### Patch Changes
 
 - Updated dependencies [3a69722]
-  - @aoagents/ao-cli@0.5.0
+  - @contaazul/cahi-cli@0.5.0
 
 ## 0.4.0
 
@@ -144,7 +144,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 - Updated dependencies [c8af50f]
 - Updated dependencies [bcdda4b]
 - Updated dependencies [1cbf657]
-  - @aoagents/ao-cli@0.4.0
+  - @contaazul/cahi-cli@0.4.0
 
 ## 0.2.2
 
@@ -158,8 +158,8 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 - ac625c3: Fix startup onboarding and install reliability:
   - Repair npm global install startup path by improving package resolution and web package discovery hints.
-  - Make `ao start` prerequisite installs explicit and interactive for required tools (`tmux`, `git`) with clearer fallback guidance.
-  - Keep `ao spawn` preflight check-only for `tmux` (no implicit install).
+  - Make `cahi start` prerequisite installs explicit and interactive for required tools (`tmux`, `git`) with clearer fallback guidance.
+  - Keep `cahi spawn` preflight check-only for `tmux` (no implicit install).
   - Remove redundant agent runtime re-detection during config generation.
 
 - Updated dependencies [ac625c3]
@@ -169,7 +169,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Minor Changes
 
-- 3a650b0: Zero-friction onboarding: `ao start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 
 ### Patch Changes
 

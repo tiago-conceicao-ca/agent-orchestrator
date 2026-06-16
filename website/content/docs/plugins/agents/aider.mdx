@@ -1,6 +1,6 @@
 ---
 title: Aider
-description: Aider pair-programming CLI. No session resume; AO tracks activity via terminal classification.
+description: Aider pair-programming CLI. No session resume; CAHI tracks activity via terminal classification.
 ---
 
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
@@ -20,37 +20,37 @@ import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 pip install aider-install && aider-install
 ```
 
-Set your API key via Aider's normal config (`~/.aider.conf.yml` or env vars). AO doesn't manage credentials for you.
+Set your API key via Aider's normal config (`~/.aider.conf.yml` or env vars). CAHI doesn't manage credentials for you.
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 agent: aider
 ```
 
 ## How it works
 
-- **Launch:** `aider` runs in the worktree. AO pipes the issue prompt in via the normal Aider UX.
-- **Activity tracking:** Aider doesn't emit a structured event log. AO writes `{workspace}/.ao/activity.jsonl` based on terminal output classification — the pattern matcher knows Aider's common prompts (diff review, confirm apply, etc.).
+- **Launch:** `aider` runs in the worktree. CAHI pipes the issue prompt in via the normal Aider UX.
+- **Activity tracking:** Aider doesn't emit a structured event log. CAHI writes `{workspace}/.cahi/activity.jsonl` based on terminal output classification — the pattern matcher knows Aider's common prompts (diff review, confirm apply, etc.).
 - **PR + git tracking:** PATH wrappers for `gh` / `git` record PRs and commits.
 - **Session resume:** Not supported.
 
 ## Environment variables
 
-| Variable | Set by AO | Purpose |
+| Variable | Set by CAHI | Purpose |
 |---|---|---|
-| `AO_SESSION_ID` | ✓ | AO session id |
-| `AO_ISSUE_ID` | ✓ | Issue identifier |
-| `PATH` | ✓ | Prepends `~/.ao/bin` |
+| `CAHI_SESSION_ID` | ✓ | CAHI session id |
+| `CAHI_ISSUE_ID` | ✓ | Issue identifier |
+| `PATH` | ✓ | Prepends `~/.cahi/bin` |
 | `GH_PATH` | ✓ | Absolute path to real `gh` |
 
 ## Troubleshooting
 
 <Accordions>
   <Accordion title="Aider hangs on file-edit confirmation">
-    Aider prompts before applying diffs. If you want fully autonomous runs, configure Aider's `--yes-always` via `~/.aider.conf.yml`. AO won't inject this for you — it's your call whether the agent should auto-apply.
+    Aider prompts before applying diffs. If you want fully autonomous runs, configure Aider's `--yes-always` via `~/.aider.conf.yml`. CAHI won't inject this for you — it's your call whether the agent should auto-apply.
   </Accordion>
   <Accordion title="Dashboard cost shows $0">
-    AO doesn't parse Aider's cost output. The cost column stays empty.
+    CAHI doesn't parse Aider's cost output. The cost column stays empty.
   </Accordion>
 </Accordions>

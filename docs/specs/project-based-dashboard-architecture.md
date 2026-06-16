@@ -1,7 +1,7 @@
 # Project-Based Dashboard Architecture
 
 **Status:** Draft  
-**Author:** Agent Orchestrator  
+**Author:** CAHI  
 **Date:** 2026-03-09  
 **Target Merge:** `opencode-lifyecycle`
 
@@ -9,7 +9,7 @@
 
 ## Overview
 
-This spec defines the architecture changes required to scope the Agent Orchestrator dashboard by project. Currently, the dashboard displays all sessions across all configured projects, which creates cognitive overhead for multi-project setups. The target architecture adds project filtering at every layer (API, SSE events, frontend state) while maintaining full backward compatibility for single-project deployments.
+This spec defines the architecture changes required to scope the CAHI dashboard by project. Currently, the dashboard displays all sessions across all configured projects, which creates cognitive overhead for multi-project setups. The target architecture adds project filtering at every layer (API, SSE events, frontend state) while maintaining full backward compatibility for single-project deployments.
 
 **Key Change:** Add optional `project` query parameter to session list/event endpoints, filtering all responses to a single project scope. Frontend will read `projectName` from config and pass it as the filter.
 
@@ -85,9 +85,9 @@ Real-time updates
 
 4. **SSE Inefficiency** — Client receives updates for ALL sessions, including irrelevant projects, wasting bandwidth and causing unnecessary re-renders.
 
-5. **URL Non-Shareability** — Cannot share a dashboard URL scoped to a specific project. `http://localhost:3000/` shows everything.
+5. **URL Non-Shareability** — Cannot share a dashboard URL scoped to a specific project. `http://localhost:4000/` shows everything.
 
-6. **Future Multi-Tenant Blocker** — If AO ever supports multi-tenant hosting, unscoped APIs would leak data between tenants.
+6. **Future Multi-Tenant Blocker** — If CAHI ever supports multi-tenant hosting, unscoped APIs would leak data between tenants.
 
 ---
 
@@ -126,7 +126,7 @@ Real-time updates (project-scoped)
 | `/?project=all`    | Show all sessions (explicit multi-project view) |
 | `/?project=my-app` | Scoped to `my-app` project                      |
 
-**Default behavior:** When no `project` query param, use `projectName` from config (first project's name or `ao` fallback). This ensures single-project users see their project automatically.
+**Default behavior:** When no `project` query param, use `projectName` from config (first project's name or `cahi` fallback). This ensures single-project users see their project automatically.
 
 ---
 
@@ -455,4 +455,4 @@ The following are explicitly **NOT** part of this change:
 
 - `packages/web/src/lib/serialize.ts` — `resolveProject()` function (existing)
 - `packages/core/src/types.ts` — `Session.projectId` field (existing)
-- `agent-orchestrator.yaml.example` — Project configuration schema
+- `cahi.yaml.example` — Project configuration schema

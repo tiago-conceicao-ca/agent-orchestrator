@@ -88,7 +88,7 @@ feedback:
 
 ## Consent Gates (Default Policy)
 
-For projects other than AO dogfooding, these are hard defaults:
+For projects other than CAHI dogfooding, these are hard defaults:
 
 1. Explicit human consent is required before creating a fork.
 2. Explicit human consent is required before creating a PR.
@@ -160,8 +160,8 @@ Minimal journal schema example:
   "status": "failed",
   "attempt": 2,
   "operationKey": "create_pr:f4d7dbe5b0f8:upstream",
-  "targetRepo": "ComposioHQ/agent-orchestrator",
-  "issueUrl": "https://github.com/ComposioHQ/agent-orchestrator/issues/399",
+  "targetRepo": "contaazul/cahi",
+  "issueUrl": "https://github.com/contaazul/cahi/issues/399",
   "prUrl": null,
   "consent": {
     "createFork": "approved",
@@ -243,7 +243,7 @@ feedback:
     enableAgentSession: true
     requireIssueBeforeSession: true
   consent:
-    defaultPolicy: require_human_for_major_mutations # hard default outside AO dogfooding
+    defaultPolicy: require_human_for_major_mutations # hard default outside CAHI dogfooding
     requireFor:
       createFork: true
       createPR: true

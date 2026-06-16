@@ -1,4 +1,4 @@
-# @aoagents/ao-plugin-notifier-webhook
+# @contaazul/cahi-plugin-notifier-webhook
 
 ## 0.9.1
 
@@ -6,7 +6,7 @@
 
 - 2d4c457: Fix canary nightly to include all publishable packages and fix Next.js import.meta.url build path issue
 - Updated dependencies [2d4c457]
-  - @aoagents/ao-core@0.9.1
+  - @contaazul/cahi-core@0.9.1
 
 ## 0.9.0
 
@@ -20,14 +20,14 @@
 - Updated dependencies [94981dc]
 - Updated dependencies [2980570]
 - Updated dependencies [d5d0f07]
-  - @aoagents/ao-core@0.9.0
+  - @contaazul/cahi-core@0.9.0
 
 ## 0.8.0
 
 ### Patch Changes
 
 - Updated dependencies
-  - @aoagents/ao-core@0.8.0
+  - @contaazul/cahi-core@0.8.0
 
 ## 0.7.0
 
@@ -37,10 +37,10 @@
 
   AO now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
-  agents (claude-code, codex, kimicode, aider, opencode, cursor), `ao doctor`,
-  and `ao update` all work out of the box. Each session gets a small detached
+  agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
+  and `cahi update` all work out of the box. Each session gets a small detached
   pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
-  registered so `ao stop` can reach it.
+  registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
   centralises every platform branch behind helpers like `isWindows()`,
@@ -51,7 +51,7 @@
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
   `ao-doctor.ps1` / `ao-update.ps1` shipped.
 
-  `ao open` is now cross-platform: it sources sessions from `sm.list()`
+  `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
   appear), and the open action branches per OS — `open-iterm-tab` stays the
   macOS path, native handling on Windows and Linux.
@@ -69,7 +69,7 @@
 - Updated dependencies [0f5ae0b]
 - Updated dependencies [fe33bb7]
 - Updated dependencies [7c46dc9]
-  - @aoagents/ao-core@0.7.0
+  - @contaazul/cahi-core@0.7.0
 
 ## 0.6.0
 
@@ -79,14 +79,14 @@
 - Updated dependencies [40aeb78]
 - Updated dependencies
 - Updated dependencies
-  - @aoagents/ao-core@0.6.0
+  - @contaazul/cahi-core@0.6.0
 
 ## 0.5.0
 
 ### Patch Changes
 
 - Updated dependencies [dd07b6b]
-  - @aoagents/ao-core@0.5.0
+  - @contaazul/cahi-core@0.5.0
 
 ## 0.4.0
 
@@ -112,7 +112,7 @@
 - Updated dependencies [a45eb32]
 - Updated dependencies [7072143]
 - Updated dependencies [ed2dcea]
-  - @aoagents/ao-core@0.4.0
+  - @contaazul/cahi-core@0.4.0
 
 ## 0.2.0
 

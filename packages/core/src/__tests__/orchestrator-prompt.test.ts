@@ -64,7 +64,7 @@ describe("generateOrchestratorPrompt", () => {
     expect(prompt).toContain("do not edit repository files or implement fixes");
   });
 
-  it("mandates ao send and bans raw runtime access", async () => {
+  it("mandates cahi send and bans raw runtime access", async () => {
     const generateOrchestratorPrompt = await loadGenerateOrchestratorPrompt();
     const prompt = generateOrchestratorPrompt({
       config,
@@ -72,13 +72,13 @@ describe("generateOrchestratorPrompt", () => {
       project: config.projects["my-app"]!,
     });
 
-    expect(prompt).toContain("Always use `ao send`");
+    expect(prompt).toContain("Always use `cahi send`");
     // Platform-neutral runtime warning — must call out both tmux (Unix) and the
     // Windows named-pipe path so the orchestrator agent doesn't try either.
     expect(prompt).toContain("never bypass it by writing to the runtime layer directly");
     expect(prompt).toContain("tmux send-keys");
     expect(prompt).toContain("named pipe");
-    expect(prompt).toContain("ao send --no-wait");
+    expect(prompt).toContain("cahi send --no-wait");
   });
 
   it("shows 'not configured' and omits repo-only guidance when repo is omitted", async () => {
@@ -92,8 +92,8 @@ describe("generateOrchestratorPrompt", () => {
 
     expect(prompt).toContain("not configured");
     expect(prompt).not.toContain("undefined");
-    expect(prompt).not.toContain("ao batch-spawn");
-    expect(prompt).not.toContain("ao session claim-pr");
+    expect(prompt).not.toContain("cahi batch-spawn");
+    expect(prompt).not.toContain("cahi session claim-pr");
     expect(prompt).not.toContain("PR state (open/merged/closed)");
     expect(prompt).toContain("No repository remote is configured.");
   });
@@ -121,7 +121,7 @@ describe("generateOrchestratorPrompt", () => {
 
     expect(prompt).toContain("# My App Orchestrator");
     expect(prompt).toContain("- **Repository**: org/my-app");
-    expect(prompt).toContain("ao session ls -p my-app");
+    expect(prompt).toContain("cahi session ls -p my-app");
     expect(prompt).toContain("http://localhost:3000");
   });
 

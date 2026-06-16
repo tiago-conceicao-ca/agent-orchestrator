@@ -1,16 +1,16 @@
 ---
 name: ao-weekly-release
-description: "Generate the weekly Agent Orchestrator release notes. Runs every Thursday 10:00 IST from the bot cron, or on-demand. Queries the GitHub API for the latest release, merged PRs, commits, contributors, and star counts, and produces a publishable markdown post in the house style. Output is posted to Discord by the cron job after this skill returns."
+description: "Generate the weekly CAHI release notes. Runs every Thursday 10:00 IST from the bot cron, or on-demand. Queries the GitHub API for the latest release, merged PRs, commits, contributors, and star counts, and produces a publishable markdown post in the house style. Output is posted to Discord by the cron job after this skill returns."
 metadata:
   schedule: "30 4 * * 4"
   timezone: "Asia/Kolkata"
-  repo: "ComposioHQ/agent-orchestrator"
+  repo: "contaazul/cahi"
   discord_channel: "1486439595498405950"
 ---
 
-# AO Weekly Release Notes
+# CAHI Weekly Release Notes
 
-Automated weekly release notes for `ComposioHQ/agent-orchestrator`. The cron job pulls `main`, runs `run.py`, and posts the output to Discord. No manual redeployment — PRs merged into `main` take effect on the next run.
+Automated weekly release notes for `contaazul/cahi`. The cron job pulls `main`, runs `run.py`, and posts the output to Discord. No manual redeployment — PRs merged into `main` take effect on the next run.
 
 ## When this runs
 
@@ -27,7 +27,7 @@ python3 skills/release-notes/ao-weekly-release/run.py --mode on-demand
 python3 skills/release-notes/ao-weekly-release/run.py --mode on-demand --since 2026-04-07
 ```
 
-Requirements: `gh` CLI authenticated against `ComposioHQ/agent-orchestrator`, `python3` ≥ 3.9. No other dependencies — the runner only uses the stdlib and shells out to `gh`.
+Requirements: `gh` CLI authenticated against `contaazul/cahi`, `python3` ≥ 3.9. No other dependencies — the runner only uses the stdlib and shells out to `gh`.
 
 Flags:
 
@@ -35,7 +35,7 @@ Flags:
 |---|---|---|
 | `--mode` | `scheduled` | `scheduled` or `on-demand`. Recorded in the footer. |
 | `--since` | 7 days ago | ISO date. Overrides the default weekly window. |
-| `--repo` | `ComposioHQ/agent-orchestrator` | Target repo. |
+| `--repo` | `contaazul/cahi` | Target repo. |
 | `--output` | stdout | Write the markdown to a file instead of stdout. |
 
 Exit codes: `0` success, `1` input/validation error, `2` `gh` query failure, `3` no activity in the window (the cron should post a short "quiet week" message instead of the full template).
@@ -44,7 +44,7 @@ Exit codes: `0` success, `1` input/validation error, `2` `gh` query failure, `3`
 
 The output is a single markdown document. Section order is fixed — do not reorder. The reference post the style is calibrated against is [surajmarkup.in/research/ao-april-release](https://surajmarkup.in/research/ao-april-release/).
 
-1. **Title + date.** `# Agent Orchestrator — Week of {Mon DD, YYYY}`. Use the Monday of the report week, not the run day.
+1. **Title + date.** `# CAHI — Week of {Mon DD, YYYY}`. Use the Monday of the report week, not the run day.
 2. **Positioning line.** One sentence, no more than 25 words, describing what this week delivered. Factual, not marketing. No "excited to announce", no "we're thrilled", no rocket emojis.
 3. **Highlights.** 8–14 bullets. Each bullet is one short sentence, past tense, references the PR number inline. Group by theme (features → fixes → refactors → docs) but do not add sub-headers. If fewer than 8 merged PRs exist, list every merged PR and add a one-line note that the week was quiet.
 4. **By the Numbers.** Four bullets: commits, merged PRs, contributors, star delta. Format as `Commits: 42` etc.

@@ -4,12 +4,12 @@ Architecture overview, code conventions, and patterns for contributors and AI ag
 
 ## Architecture Overview
 
-Agent Orchestrator is a monorepo with four main packages:
+CAHI is a monorepo with four main packages:
 
 ```
 packages/
 ├── core/          # Types, services, config — the engine
-├── cli/           # `ao` command (depends on core + all plugins)
+├── cli/           # `cahi` command (depends on core + all plugins)
 ├── web/           # Next.js dashboard (depends on core)
 └── plugins/       # 21 plugin packages across 8 slots
 ```
@@ -38,7 +38,7 @@ All runtime data paths are derived from a SHA-256 hash of the config file direct
 ```typescript
 const hash = sha256(path.dirname(configPath)).slice(0, 12); // e.g. "a3b4c5d6e7f8"
 const instanceId = `${hash}-${projectId}`; // e.g. "a3b4c5d6e7f8-myapp"
-const dataDir = `~/.agent-orchestrator/${instanceId}`;
+const dataDir = `~/.cahi/${instanceId}`;
 ```
 
 This means:
@@ -90,12 +90,12 @@ For AI agent-specific guidance (including high-risk files like `types.ts`, `life
 **Prerequisites**: Node.js 20.18.3+, pnpm 9.15+, Git 2.25+
 
 ```bash
-git clone https://github.com/ComposioHQ/agent-orchestrator.git
+git clone https://github.com/contaazul/cahi.git
 cd agent-orchestrator
 pnpm install
 pnpm build
-cp agent-orchestrator.yaml.example agent-orchestrator.yaml
-$EDITOR agent-orchestrator.yaml
+cp cahi.yaml.example cahi.yaml
+$EDITOR cahi.yaml
 ```
 
 ### Running the dev server
@@ -105,7 +105,7 @@ $EDITOR agent-orchestrator.yaml
 ```bash
 pnpm build
 cd packages/web && pnpm dev
-# Open http://localhost:3000
+# Open http://localhost:4000
 ```
 
 ### Project structure
@@ -125,7 +125,7 @@ agent-orchestrator/
 │   │   ├── notifier-*/    # Notification channels
 │   │   └── terminal-*/    # Terminal UIs
 │   └── integration-tests/ # Integration tests
-├── agent-orchestrator.yaml.example
+├── cahi.yaml.example
 └── docs/                  # Documentation
 ```
 
@@ -159,17 +159,17 @@ agent-orchestrator/
 
 ---
 
-## Keeping the local AO install current
+## Keeping the local CAHI install current
 
-When you are developing Agent Orchestrator from a long-lived local checkout, refresh the local `ao` install before debugging launcher or packaging issues:
+When you are developing CAHI from a long-lived local checkout, refresh the local `cahi` install before debugging launcher or packaging issues:
 
 ```bash
 git switch main
-git status --short --branch   # `ao update` expects a clean working tree on main
-ao update
+git status --short --branch   # `cahi update` expects a clean working tree on main
+cahi update
 ```
 
-`ao update` is intentionally conservative: it fast-forwards the local install checkout from `origin/main`, runs `pnpm install`, clean-rebuilds `@aoagents/ao-core`, `@aoagents/ao-cli`, and `@aoagents/ao-web`, refreshes the global launcher with `npm link`, and ends with CLI smoke tests. Use `ao update --skip-smoke` to stop after the rebuild, or `ao update --smoke-only` to rerun the smoke checks without fetching or rebuilding.
+`cahi update` is intentionally conservative: it fast-forwards the local install checkout from `origin/main`, runs `pnpm install`, clean-rebuilds `@contaazul/cahi-core`, `@contaazul/cahi-cli`, and `@contaazul/cahi-web`, refreshes the global launcher with `npm link`, and ends with CLI smoke tests. Use `cahi update --skip-smoke` to stop after the rebuild, or `cahi update --smoke-only` to rerun the smoke checks without fetching or rebuilding.
 
 If your branch has drift from `main`, update the install checkout first and then return to your feature worktree. That keeps CLI behavior and generated docs aligned with the version contributors are expected to run.
 
@@ -196,7 +196,7 @@ function processInput(value: unknown): string {
 }
 
 // Type-only imports for type-only usage
-import type { PluginModule, Runtime } from "@aoagents/ao-core";
+import type { PluginModule, Runtime } from "@contaazul/cahi-core";
 ```
 
 Formatting: semicolons, double quotes, 2-space indent, strict mode.
@@ -234,7 +234,7 @@ A plugin exports a `manifest`, a `create()` factory, and a default `PluginModule
 
 ```typescript
 // packages/plugins/runtime-myplugin/src/index.ts
-import type { PluginModule, Runtime } from "@aoagents/ao-core";
+import type { PluginModule, Runtime } from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "myplugin",
@@ -268,7 +268,7 @@ export default { manifest, create } satisfies PluginModule<Runtime>;
 
 ```json
 {
-  "name": "@aoagents/ao-runtime-myplugin",
+  "name": "@contaazul/cahi-runtime-myplugin",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -279,7 +279,7 @@ export default { manifest, create } satisfies PluginModule<Runtime>;
     "test": "vitest"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   }
 }
 ```
@@ -333,10 +333,10 @@ Orchestrator sessions use a separate prompt from `packages/core/src/orchestrator
 pnpm test
 
 # Run tests for a specific package
-pnpm --filter @aoagents/ao-core test
+pnpm --filter @contaazul/cahi-core test
 
 # Watch mode
-pnpm --filter @aoagents/ao-core test -- --watch
+pnpm --filter @contaazul/cahi-core test -- --watch
 
 # Integration tests
 pnpm test:integration
@@ -359,7 +359,7 @@ Use mock plugins in tests — don't call real tmux or external services in unit 
 
 1. Edit `Session` interface in `packages/core/src/types.ts`
 2. Initialize the field in `spawn()` in `session-manager.ts`
-3. Rebuild: `pnpm --filter @aoagents/ao-core build`
+3. Rebuild: `pnpm --filter @contaazul/cahi-core build`
 
 ### Add a new reaction
 
@@ -383,19 +383,19 @@ Use mock plugins in tests — don't call real tmux or external services in unit 
 
 ```bash
 # Inspect raw metadata
-cat ~/.agent-orchestrator/{hash}-{project}/sessions/{session-id}
+cat ~/.cahi/{hash}-{project}/sessions/{session-id}
 
 # Check API state
-curl http://localhost:3000/api/sessions/{session-id}
+curl http://localhost:4000/api/sessions/{session-id}
 
 # Attach to the runtime session directly
 # Unix:
 tmux attach -t {hash}-{prefix}-{num}
-# Windows: there's no tmux. Use the AO command, which connects to \\.\pipe\ao-pty-<sessionId>:
-ao session attach <sessionId>
+# Windows: there's no tmux. Use the CAHI command, which connects to \\.\pipe\ao-pty-<sessionId>:
+cahi session attach <sessionId>
 
 # Enable verbose logging
-AO_LOG_LEVEL=debug ao start
+CAHI_LOG_LEVEL=debug cahi start
 ```
 
 ---
@@ -414,7 +414,7 @@ pnpm install
 pnpm build
 
 # Copy config
-cp ../agent-orchestrator/agent-orchestrator.yaml .
+cp ../agent-orchestrator/cahi.yaml .
 
 # Start dev server
 cd packages/web && pnpm dev
@@ -466,7 +466,7 @@ Store in `.env.local` (gitignored). Never commit real values.
 ## Key Design Decisions
 
 **Why flat metadata files instead of a database?**
-Debuggability: `cat ~/.agent-orchestrator/a3b4-myapp/sessions/ao-1` shows full state. No database to spin up, no schema to migrate, survives crashes.
+Debuggability: `cat ~/.cahi/a3b4-myapp/sessions/ao-1` shows full state. No database to spin up, no schema to migrate, survives crashes.
 
 **Why polling instead of webhooks?**
 Simpler local setup (no ngrok), survives orchestrator restarts, works offline. CI/review state is fetched, not pushed.
@@ -488,4 +488,4 @@ Node.js ESM requires explicit extensions on local imports. All packages use `"ty
 - [`ARCHITECTURE.md`](../ARCHITECTURE.md) — Hash-based namespace design
 - [`SETUP.md`](../SETUP.md) — Installation and configuration reference
 - [`SECURITY.md`](../SECURITY.md) — Security practices
-- [`agent-orchestrator.yaml.example`](../agent-orchestrator.yaml.example) — Full config reference
+- [`cahi.yaml.example`](../cahi.yaml.example) — Full config reference

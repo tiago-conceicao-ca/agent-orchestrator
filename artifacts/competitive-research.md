@@ -85,7 +85,7 @@ Research into 16+ projects that orchestrate AI coding agents. The goal: understa
 
 ---
 
-### CAO — CLI Agent Orchestrator (AWS Labs)
+### CAO — CLI CAHI (AWS Labs)
 
 - **GitHub**: https://github.com/awslabs/cli-agent-orchestrator
 - **Stack**: Python, tmux, HTTP server (localhost:9889)

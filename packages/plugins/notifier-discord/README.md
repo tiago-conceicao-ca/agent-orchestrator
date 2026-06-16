@@ -1,12 +1,12 @@
 # notifier-discord
 
-Discord webhook notifier plugin for AO. Sends rich embed notifications for session events, PR creation, CI status, and escalations.
+Discord webhook notifier plugin for CAHI. Sends rich embed notifications for session events, PR creation, CI status, and escalations.
 
 ## Setup
 
 1. In your Discord server: **Server Settings > Integrations > Webhooks > New Webhook**
 2. Copy the webhook URL
-3. Add to `agent-orchestrator.yaml`:
+3. Add to `cahi.yaml`:
 
 ```yaml
 defaults:

@@ -28,7 +28,7 @@ Please include the following information:
 **Date**: 2026-02-15
 **Commit**: 0393ab70a83e090883895d2168aa39a76f997ec8
 
-An OpenClaw notifier token (`1af5c4f...872` - redacted) was accidentally committed in `agent-orchestrator.yaml` and later removed. This token was:
+An OpenClaw notifier token (`1af5c4f...872` - redacted) was accidentally committed in `cahi.yaml` and later removed. This token was:
 
 - Used for local development/testing only
 - Never used in production
@@ -37,7 +37,7 @@ An OpenClaw notifier token (`1af5c4f...872` - redacted) was accidentally committ
 
 **Action Required**: If this token is still in use, it should be rotated immediately.
 
-**Lesson**: All tokens and API keys must use environment variables. The `agent-orchestrator.yaml` file is now in `.gitignore` to prevent future accidental commits.
+**Lesson**: All tokens and API keys must use environment variables. The `cahi.yaml` file is now in `.gitignore` to prevent future accidental commits.
 
 ## Security Measures
 
@@ -119,7 +119,7 @@ The `.gitignore` excludes these patterns:
 - `.env`, `.env.local`, `.env.*.local`
 - `*.key`, `*.pem`, `*.p12`, `*.pfx`
 - `secrets.yaml`, `credentials.json`
-- `agent-orchestrator.yaml` (local config)
+- `cahi.yaml` (local config)
 
 ### Checking for Secrets Locally
 
@@ -160,16 +160,16 @@ When reviewing PRs:
 
 ### Secure Configuration
 
-When setting up Agent Orchestrator:
+When setting up CAHI:
 
-1. **Copy example config**: `cp agent-orchestrator.yaml.example agent-orchestrator.yaml`
-2. **Add real secrets**: Edit `agent-orchestrator.yaml` with your actual tokens
+1. **Copy example config**: `cp cahi.yaml.example cahi.yaml`
+2. **Add real secrets**: Edit `cahi.yaml` with your actual tokens
 3. **Never commit local config**: It's in `.gitignore` — keep it there!
 4. **Use secret management**: Consider 1Password, AWS Secrets Manager, etc.
 
 ### Required Secrets
 
-Agent Orchestrator may require these secrets:
+CAHI may require these secrets:
 
 | Service   | Environment Variable | Where to Get                             |
 | --------- | -------------------- | ---------------------------------------- |
@@ -225,4 +225,4 @@ This project uses:
 
 ## License
 
-This security policy is part of the Agent Orchestrator project and is licensed under the MIT License.
+This security policy is part of the CAHI project and is licensed under the MIT License.

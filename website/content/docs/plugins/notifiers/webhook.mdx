@@ -12,26 +12,26 @@ description: Generic HTTP POST. Retries, exponential backoff, custom headers.
 
 <PlatformSupport macos="full" linux="full" windows="full" />
 
-Point it at any HTTPS endpoint. AO POSTs a JSON event. Use this for PagerDuty-style integrations, custom dashboards, or anything we don't have a dedicated notifier for.
+Point it at any HTTPS endpoint. CAHI POSTs a JSON event. Use this for PagerDuty-style integrations, custom dashboards, or anything we don't have a dedicated notifier for.
 
 ## Setup
 
 Run the setup command:
 
 ```bash
-ao setup webhook
+cahi setup webhook
 ```
 
 If a webhook notifier is already configured, the command asks whether to use the
 existing webhook URL, add a new webhook URL, or cancel. The add-new path lets you
-paste a different endpoint, go back, or cancel before AO sends the setup test.
-Before saving, AO also asks which notification priorities the webhook should
+paste a different endpoint, go back, or cancel before CAHI sends the setup test.
+Before saving, CAHI also asks which notification priorities the webhook should
 receive: `urgent-only`, `urgent-action`, or `all`. For scriptable setup, pass
 `--routing-preset <preset>`.
 
 ## Use
 
-```yaml title="agent-orchestrator.yaml"
+```yaml title="cahi.yaml"
 notifiers:
   webhook:
     plugin: webhook
@@ -88,12 +88,12 @@ When actions are attached (e.g. approve/retry buttons in supported notifiers):
 }
 ```
 
-Free-form messages sent via `ao send` arrive as:
+Free-form messages sent via `cahi send` arrive as:
 
 ```json
 {
   "type": "message",
-  "message": "Hello from AO",
+  "message": "Hello from CAHI",
   "context": {}
 }
 ```
@@ -137,11 +137,11 @@ Free-form messages sent via `ao send` arrive as:
 The webhook notifier does **not** sign outgoing requests. There is no `X-Signature` or HMAC header added to POSTs. To secure your endpoint:
 
 - Use a secret `Authorization` header (set via `headers.Authorization` in config, passed as `${MY_TOKEN}`).
-- Restrict inbound traffic to your AO host via IP allowlist or VPN.
+- Restrict inbound traffic to your CAHI host via IP allowlist or VPN.
 - Use a reverse proxy with mutual TLS if needed.
 
 ## Why use this over a specific notifier
 
 - You want a single endpoint regardless of Slack/Discord/email routing (handled downstream).
-- You're building an internal AO dashboard of your own.
+- You're building an internal CAHI dashboard of your own.
 - You want structured events for observability tooling (Datadog, Honeycomb, etc.).

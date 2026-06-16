@@ -4,7 +4,7 @@ Instructions for GitHub Copilot when generating code, reviewing PRs, and suggest
 
 ## Project Overview
 
-Agent Orchestrator (AO) is a TypeScript monorepo that manages fleets of parallel AI coding agents. Each agent gets its own git worktree, branch, and PR. The system handles CI feedback routing, review comment handling, and session lifecycle.
+CAHI is a TypeScript monorepo that manages fleets of parallel AI coding agents. Each agent gets its own git worktree, branch, and PR. The system handles CI feedback routing, review comment handling, and session lifecycle.
 
 **Stack:** TypeScript (strict), pnpm monorepo, Next.js 15 + React 19, Tailwind CSS v4, Vitest, ESLint flat config.
 
@@ -34,7 +34,7 @@ Full conventions: `CLAUDE.md`. Plugin development: `docs/DEVELOPMENT.md`. Design
 - Before generating new code in an existing file, read how similar features are already implemented in that same file. Match the pattern.
 - Do not introduce new patterns when established ones already exist. Search the codebase first.
 - Match existing naming conventions, import styles, and file organization.
-- Use `@aoagents/ao-core` for cross-package imports.
+- Use `@contaazul/cahi-core` for cross-package imports.
 - Use the `workspace:*` protocol in `package.json`.
 
 ### TypeScript Strict Mode
@@ -87,21 +87,21 @@ These are the areas where Copilot review adds the most value: issues CI cannot c
 
 **5. Backward compatibility.** Flag changes to:
 - CLI flags or arguments in `packages/cli/`
-- Config schema, including `agent-orchestrator.yaml` structure and Zod validation in `packages/core/src/config.ts`
+- Config schema, including `cahi.yaml` structure and Zod validation in `packages/core/src/config.ts`
 - Exported types from `packages/core/src/index.ts`, which are a stable public API and should not break
 - Default config values or behavior
 
 **6. Plugin isolation.** Plugins must never import each other directly. They communicate through:
 - The `Session` object
 - The `LifecycleManager` event system
-- Core utilities exported from `@aoagents/ao-core`
+- Core utilities exported from `@contaazul/cahi-core`
 
 **7. Resource cleanup.** Check that:
 - File handles, subprocesses, and runtime sessions (tmux on Unix, ConPTY pty-host processes on Windows) are cleaned up on all exit paths: success, error, and early return
 - `destroy()` methods exist and use best-effort semantics
 - There are no resource leaks in error paths
 
-**8. Shell safety.** Any command construction must use `shellEscape()` from `@aoagents/ao-core` for all dynamic arguments. Flag raw string interpolation in shell commands.
+**8. Shell safety.** Any command construction must use `shellEscape()` from `@contaazul/cahi-core` for all dynamic arguments. Flag raw string interpolation in shell commands.
 
 ### What to Ignore
 
@@ -124,12 +124,12 @@ These files have a wide blast radius and deserve extra scrutiny:
 | `packages/core/src/lifecycle-manager.ts` | State machine and polling loop with subtle state dependencies. |
 | `packages/core/src/session-manager.ts` | Session CRUD + stale runtime reconciliation. `list()` persists `runtime_lost` to disk when enrichment detects dead runtimes. Invariant violations can cause phantom `killed` or `exited` sessions. |
 | `packages/core/src/lifecycle-state.ts` | Canonical lifecycle → legacy status mapping. New terminal reasons (e.g. `runtime_lost`) must be added to `deriveLegacyStatus()`. |
-| `packages/cli/src/commands/start.ts` | ao start/stop + Ctrl+C shutdown. Cross-project scoping logic is subtle — `ao stop <project>` must not kill parent process. On Windows, also calls `sweepWindowsPtyHosts()` to gracefully tear down detached ConPTY pty-host processes that `taskkill /T` cannot reach. |
-| `packages/core/src/config.ts` | Zod validation schema. Changes affect every `ao` command. |
+| `packages/cli/src/commands/start.ts` | cahi start/stop + Ctrl+C shutdown. Cross-project scoping logic is subtle — `cahi stop <project>` must not kill parent process. On Windows, also calls `sweepWindowsPtyHosts()` to gracefully tear down detached ConPTY pty-host processes that `taskkill /T` cannot reach. |
+| `packages/core/src/config.ts` | Zod validation schema. Changes affect every `cahi` command. |
 | `packages/core/src/index.ts` | Stable public API. Do not break it without deprecation. |
 | `packages/web/src/app/globals.css` | Design tokens used by 50+ components. Renaming tokens breaks the UI. |
 | `packages/cli/src/index.ts` | CLI entry point. Flag and argument changes are user-facing. |
-| `agent-orchestrator.yaml.example` | Config reference. It must stay in sync with the Zod schema. |
+| `cahi.yaml.example` | Config reference. It must stay in sync with the Zod schema. |
 
 ### Behavioral Rules for Reviews
 
@@ -179,7 +179,7 @@ Performance
 ### Plugin Implementation
 
 ```typescript
-import type { PluginModule, Runtime } from "@aoagents/ao-core";
+import type { PluginModule, Runtime } from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "tmux",
@@ -223,7 +223,7 @@ const issue = await tracker.getIssue("123"); // null if not found
 ### Shell Commands
 
 ```typescript
-import { shellEscape } from "@aoagents/ao-core";
+import { shellEscape } from "@contaazul/cahi-core";
 
 const cmd = `git checkout ${shellEscape(branchName)}`;
 // NEVER: `git checkout ${branchName}`
@@ -241,7 +241,7 @@ const cmd = `git checkout ${shellEscape(branchName)}`;
 - **New `SessionStatus` without updating `isTerminalSession` / `TERMINAL_STATUSES`.** The session can get stuck in limbo.
 - **New session reason without updating `deriveLegacyStatus()`.** Terminal reasons like `runtime_lost` must map to a legacy status (e.g. `killed`), or sessions show wrong status.
 - **Scoping `useSessionEvents` with project filter in Dashboard.tsx.** The sidebar must see ALL sessions — only the Kanban filters by project (client-side via `projectSessions`).
-- **ao stop killing parent process when targeting a specific project.** `ao stop <project>` must only kill that project's sessions, not the parent `ao start` process or dashboard.
+- **cahi stop killing parent process when targeting a specific project.** `cahi stop <project>` must only kill that project's sessions, not the parent `cahi start` process or dashboard.
 - **CSS color hardcoding.** Using `#hex` or `rgb()` instead of `var(--color-*)` tokens.
 - **Rounded corners.** Using `rounded-md` or `rounded-lg` on cards or buttons. Hard edges only.
 - **External UI libraries.** Importing from Radix, shadcn, or Headless UI. Use native HTML and Tailwind.

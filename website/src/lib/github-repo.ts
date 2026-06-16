@@ -15,7 +15,7 @@ const FALLBACK_STATS: GitHubRepoStats = {
 export async function getGitHubRepoStats(): Promise<GitHubRepoStats> {
   try {
     const response = await fetch(
-      "https://api.github.com/repos/ComposioHQ/agent-orchestrator",
+      "https://api.github.com/repos/contaazul/cahi",
       {
         next: { revalidate: 3600 },
         headers: {

@@ -1,13 +1,13 @@
 # Dashboard Design Language — exploration (ao-2-1)
 
-A design-language exploration for the AO dashboard, captured as live HTML mockups
+A design-language exploration for the CAHI dashboard, captured as live HTML mockups
 plus the rationale behind them. This is an **iteration on / proposal alongside**
 the existing [`DESIGN.md`](../../DESIGN.md) — see [Relationship to DESIGN.md](#relationship-to-designmd)
 for where it diverges and what needs reconciling before any production work.
 
 > These are **reference mockups**, not production code. They use a Google-Fonts
 > CDN and inline `<style>`/`style=` for speed of iteration. The production
-> implementation must use the AO Tailwind v4 tokens in `globals.css`, no inline
+> implementation must use the CAHI Tailwind v4 tokens in `globals.css`, no inline
 > styles (C-02), no external font CDN, and CSS-only motion (C-07).
 
 ## Mockups
@@ -32,7 +32,7 @@ agents running: state is glanceable, not noisy.
 The mascot is the Claude Code character recolored **blue**, holding a wand — it's
 the *conductor*. This drives a deliberate two-color semantic split:
 
-- **Blue = the orchestrator (AO itself / "you").** Brand, the single primary CTA
+- **Blue = the orchestrator (CAHI itself / "you").** Brand, the single primary CTA
   (the **Orchestrator** button), active selection, focus, links.
 - **Orange = the agents being conducted (the Claude Code lineage).** The per-agent
   identity and the **`working`** status — the one "an agent is alive right now"

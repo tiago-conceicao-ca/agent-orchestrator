@@ -9,7 +9,7 @@
 
 ## TL;DR
 
-PR #1466 ("Storage V2") is the big refactor: replaces `storageKey`-based flat metadata with `projects/{projectId}/` JSON storage, introduces deterministic hashed project IDs (`{basename}_{hash}`), removes the `archive/` directory entirely, eliminates the `SessionStatus` dual-truth, ships a crash-safe `migrate-storage` command with rollback, and reworks `ao stop` / `ao start` / `Ctrl+C` for cross-project awareness with session restore.
+PR #1466 ("Storage V2") is the big refactor: replaces `storageKey`-based flat metadata with `projects/{projectId}/` JSON storage, introduces deterministic hashed project IDs (`{basename}_{hash}`), removes the `archive/` directory entirely, eliminates the `SessionStatus` dual-truth, ships a crash-safe `migrate-storage` command with rollback, and reworks `cahi stop` / `cahi start` / `Ctrl+C` for cross-project awareness with session restore.
 
 | Metric | Value |
 |--------|-------|
@@ -26,11 +26,11 @@ PR #1466 ("Storage V2") is the big refactor: replaces `storageKey`-based flat me
 
 | Role | Branch | Where it lives | What it represents |
 |------|--------|----------------|--------------------|
-| **Base** | `main` | `ComposioHQ/agent-orchestrator` | The merge target. PR diffs against this. |
+| **Base** | `main` | `contaazul/cahi` | The merge target. PR diffs against this. |
 | **Head (PR)** | `storage-redesign` | `harshitsinghbhandari/agent-orchestrator` (fork) | The actual PR head — what GitHub shows on PR #1466. All authored commits live here. |
 | **Simulation** | `simulate-pr-1466-merged` | `harshitsinghbhandari/agent-orchestrator` (fork) | What `main` will look like AFTER PR #1466 lands. Used for end-to-end testing of the merged state and for post-merge fixes. Tracks `storage-redesign` via repeated merges + a small number of additional fixes (e.g. `89a51107 fix(cli): add removeProjectFromRunning and targeted stop tests`). |
 
-All three branches live in **Harshit's fork** (`harshitsinghbhandari/agent-orchestrator`). The upstream repo (`ComposioHQ/agent-orchestrator`) only has `main`.
+All three branches live in **Harshit's fork** (`harshitsinghbhandari/agent-orchestrator`). The upstream repo (`contaazul/cahi`) only has `main`.
 
 ---
 
@@ -40,7 +40,7 @@ All three branches live in **Harshit's fork** (`harshitsinghbhandari/agent-orche
 
 Your remotes are already set up:
 - `origin` / `harshit` → `harshitsinghbhandari/agent-orchestrator`
-- `upstream` → `ComposioHQ/agent-orchestrator`
+- `upstream` → `contaazul/cahi`
 
 ```bash
 git fetch upstream && git fetch origin
@@ -58,7 +58,7 @@ Clone the upstream repo, then add Harshit's fork as a remote to access the PR br
 
 ```bash
 # Clone upstream
-git clone https://github.com/ComposioHQ/agent-orchestrator.git
+git clone https://github.com/contaazul/cahi.git
 cd agent-orchestrator
 
 # Add the fork that holds the PR branches
@@ -74,7 +74,7 @@ git checkout -b simulate-pr-1466-merged harshit/simulate-pr-1466-merged
 
 Alternatively, use the GitHub CLI:
 ```bash
-gh repo clone ComposioHQ/agent-orchestrator
+gh repo clone contaazul/cahi
 cd agent-orchestrator
 gh pr checkout 1466    # checks out storage-redesign from the fork automatically
 ```
@@ -88,7 +88,7 @@ gh pr checkout 1466    # checks out storage-redesign from the fork automatically
 | Add a fix that should ride along with the merge but you're unsure about PR scope | `simulate-pr-1466-merged` first, then cherry-pick / merge into `storage-redesign` once validated | The simulate branch is the safe playground. |
 | Compare the PR's diff against base | `git diff origin/main...storage-redesign` | Three-dot diff = PR's contribution only. |
 
-**Do not push directly to `ComposioHQ/agent-orchestrator` main.** PR #1466 will land via the GitHub merge button.
+**Do not push directly to `contaazul/cahi` main.** PR #1466 will land via the GitHub merge button.
 
 ---
 
@@ -103,7 +103,7 @@ pnpm install
 pnpm build
 pnpm typecheck
 pnpm test
-pnpm --filter @aoagents/ao-web test
+pnpm --filter @contaazul/cahi-web test
 
 # Commit conventionally — fix:/refactor:/docs:/test:/feat:
 git commit -m "fix(core): address review on X"
@@ -123,14 +123,14 @@ CI on this branch runs lint, typecheck, tests, and a release dry-run.
 
 This branch exists to validate the *merged* state — useful when:
 - A fix only manifests after PR #1466 conflicts have been resolved with `main`.
-- You're testing CLI behavior end-to-end (e.g. `ao stop` cross-project flows) with a representative repo state.
+- You're testing CLI behavior end-to-end (e.g. `cahi stop` cross-project flows) with a representative repo state.
 - A reviewer asks "but what happens after this merges with PR #X?"
 
 ```bash
 git checkout simulate-pr-1466-merged
 
 # Keep it current with both sides (adjust remote names to your setup):
-git fetch origin          # upstream: ComposioHQ/agent-orchestrator
+git fetch origin          # upstream: contaazul/cahi
 git merge origin/main     # absorb new main commits (resolve conflicts)
 
 # If you have the fork as a remote named 'harshit':
@@ -149,7 +149,7 @@ git push
 
 ## Project context (orient quickly)
 
-- **Repo:** `ComposioHQ/agent-orchestrator` — pnpm workspace (~30 packages).
+- **Repo:** `contaazul/cahi` — pnpm workspace (~30 packages).
 - **Stack:** TypeScript strict, Node 20+, Next.js 15 (App Router), React 19, Tailwind v4, xterm.js, Zod, Vitest.
 - **Read this in the repo root:** `CLAUDE.md` — codebase conventions and working principles.
 - **Read this for design rules:** `DESIGN.md` — design system, anti-patterns.
@@ -167,11 +167,11 @@ git push
 | `packages/core/src/lifecycle-state.ts` | Canonical state + reason model — new in this PR. |
 | `packages/core/src/paths.ts` | V2 path helpers (`getProjectSessionsDir`, etc.). Archive helpers removed. |
 | `packages/core/src/migrate-storage/` | The migration command + rollback. Most-reviewed code in the PR. |
-| `packages/cli/src/commands/start.ts` | Cross-project restore prompt, Ctrl+C graceful shutdown, `ao stop` logic (stop is handled inside start.ts, there is no separate stop.ts). |
+| `packages/cli/src/commands/start.ts` | Cross-project restore prompt, Ctrl+C graceful shutdown, `cahi stop` logic (stop is handled inside start.ts, there is no separate stop.ts). |
 | `packages/cli/src/lib/running-state.ts` | `running.json` / `last-stop.json` read/write, `removeProjectFromRunning()`, advisory locking. |
 | `packages/web/src/components/Dashboard.tsx` | Sidebar always shows all projects' sessions. |
-| `~/.agent-orchestrator/last-stop.json` | New runtime artifact. Read by `ao start` to offer restore. |
-| `~/.agent-orchestrator/config.yaml` | Global config. Cross-project commands fall back here. |
+| `~/.cahi/last-stop.json` | New runtime artifact. Read by `cahi start` to offer restore. |
+| `~/.cahi/config.yaml` | Global config. Cross-project commands fall back here. |
 
 ---
 
@@ -193,4 +193,4 @@ After that, `git diff main...storage-redesign -- packages/core/src/migrate-stora
 ## Contact
 
 PR author: **Harshit Singh** (`@harshitsinghbhandari`)
-PR URL: https://github.com/ComposioHQ/agent-orchestrator/pull/1466
+PR URL: https://github.com/contaazul/cahi/pull/1466
