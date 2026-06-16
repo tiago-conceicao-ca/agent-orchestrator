@@ -426,6 +426,88 @@ export function registerSdlc(program: Command): void {
         const run = await store.load(runId);
         if (!run) throw new Error(`Run not found: ${runId}`);
         printRun(run);
+        if (run.lastError) {
+          console.log(
+            chalk.red(`  error [${run.lastError.phase}]: ${run.lastError.message}`),
+          );
+        }
+      } catch (err) {
+        console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+        process.exit(1);
+      }
+    });
+
+  sdlc
+    .command("retry <runId>")
+    .description("Re-spawn a single task's worker, reusing the persisted epic")
+    .requiredOption("--task <taskId>", "id of the task to re-run")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .option("-g, --generation-instruction <text>", "per-task generation instruction (match `start`)")
+    .option("--skip-lens", "Bypass lens gates (no effect on a single-task retry)")
+    .action(
+      async (
+        runId: string,
+        opts: { task: string; project?: string; generationInstruction?: string; skipLens?: boolean },
+      ) => {
+        try {
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const run = await engine.retryTask(runId, opts.task);
+          console.log(chalk.green(`Retried task ${chalk.bold(opts.task)} on run ${runId}.`));
+          printRun(run);
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
+        }
+      },
+    );
+
+  sdlc
+    .command("resume <runId>")
+    .description("Resume a stalled/failed run from a phase or the first non-done task")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .option("--from-phase <phase>", "phase id to resume from (default: the phase it stopped in)")
+    .option("-g, --generation-instruction <text>", "per-task generation instruction (match `start`)")
+    .option("--skip-lens", "Bypass lens gates (tactical/architectural) for this run")
+    .action(
+      async (
+        runId: string,
+        opts: {
+          project?: string;
+          fromPhase?: string;
+          generationInstruction?: string;
+          skipLens?: boolean;
+        },
+      ) => {
+        try {
+          const { engine } = await buildLiveEngine(
+            opts.project,
+            opts.generationInstruction,
+            opts.skipLens,
+          );
+          const run = await engine.resumeRun(runId, { fromPhase: opts.fromPhase });
+          console.log(chalk.green(`Resumed run ${chalk.bold(runId)} (${run.status}).`));
+          printRun(run);
+        } catch (err) {
+          console.error(chalk.red(err instanceof Error ? err.message : String(err)));
+          process.exit(1);
+        }
+      },
+    );
+
+  sdlc
+    .command("abandon <runId>")
+    .description("Mark a run terminal (reconciles a stale status:running from a dead engine)")
+    .option("-p, --project <id>", "project id the run belongs to")
+    .action(async (runId: string, opts: { project?: string }) => {
+      try {
+        const { engine } = await buildLiveEngine(opts.project);
+        const run = await engine.abandon(runId);
+        console.log(chalk.yellow(`Abandoned run ${chalk.bold(runId)} (${run.status}).`));
+        printRun(run);
       } catch (err) {
         console.error(chalk.red(err instanceof Error ? err.message : String(err)));
         process.exit(1);

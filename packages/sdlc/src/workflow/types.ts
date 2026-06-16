@@ -87,6 +87,8 @@ export interface WorkflowRun {
   prMode?: PrMode;
   /** Per-task attempt/stall progress, keyed by task id. */
   taskProgress?: Record<string, TaskProgress>;
+  /** Last surfaced engine/gate failure (set on fail paths, abandon, reconcile). */
+  lastError?: { phase: string; message: string };
   /**
    * The epic produced by `normalize-plan`, persisted so later phases (and a
    * resume after a human gate) can recover it — `advance()`'s local epic does

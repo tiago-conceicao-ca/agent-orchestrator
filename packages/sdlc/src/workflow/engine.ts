@@ -64,6 +64,76 @@ export class WorkflowEngine {
     return this.advance(cleared.id, "");
   }
 
+  /**
+   * Resume a stalled/failed run from a phase (or the phase it stalled in),
+   * re-driving `advance`. generate-backend skips already-done tasks, so this
+   * picks up the first non-done task rather than restarting the whole run.
+   */
+  async resumeRun(id: string, opts: { fromPhase?: string } = {}): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    const def = this.deps.definitions[run.workflow];
+    let phaseIndex = run.currentPhaseIndex;
+    if (opts.fromPhase) {
+      phaseIndex = def.phases.findIndex((p) => p.id === opts.fromPhase);
+      if (phaseIndex < 0)
+        throw new Error(`Unknown phase '${opts.fromPhase}' for workflow '${run.workflow}'.`);
+    }
+    const phaseId = def.phases[phaseIndex].id;
+    await this.deps.store.update(id, (r) => ({
+      ...r,
+      status: "running",
+      pendingApproval: null,
+      lastError: undefined,
+      currentPhaseIndex: phaseIndex,
+      phaseStates: { ...r.phaseStates, [phaseId]: "pending" },
+    }));
+    return this.advance(id, "");
+  }
+
+  /**
+   * Re-spawn a SINGLE task's worker (for `ao sdlc retry`), reusing the persisted
+   * epic. Idempotent against already-pushed work (the worker resumes/no-ops and
+   * signals via the sentinel). Does not restart the run or touch other tasks.
+   */
+  async retryTask(id: string, taskId: string): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    const epic = run.epic ?? null;
+    if (!epic) throw new Error(`Run '${id}' has no persisted epic to retry a task from.`);
+    const def = this.deps.definitions[run.workflow];
+    let executor: PhaseExecutor | undefined;
+    let phaseId = "generate-backend";
+    for (const phase of def.phases) {
+      const ex = this.deps.executors[phase.executor];
+      if (ex?.runTask) {
+        executor = ex;
+        phaseId = phase.id;
+        break;
+      }
+    }
+    if (!executor?.runTask)
+      throw new Error(`Workflow '${run.workflow}' has no per-task executor to retry.`);
+    const ctx = this.makeContext(id, run, epic, "", phaseId);
+    await executor.runTask(ctx, taskId);
+    return this.require(id);
+  }
+
+  /**
+   * Mark a run terminal (status `failed`) — reconciles a dead-engine run left as
+   * `running` on disk, or lets a human abandon a stuck run.
+   */
+  async abandon(id: string, message = "Run abandoned."): Promise<WorkflowRun> {
+    const run = await this.require(id);
+    const phase =
+      run.pendingApproval?.phaseId ??
+      this.deps.definitions[run.workflow]?.phases[run.currentPhaseIndex]?.id ??
+      "abandon";
+    return this.deps.store.update(id, (r) => ({
+      ...r,
+      status: "failed",
+      lastError: { phase, message },
+    }));
+  }
+
   /** Drives phases from currentPhaseIndex until completion, failure, or a human gate. */
   private async advance(id: string, input: string): Promise<WorkflowRun> {
     let run = await this.require(id);

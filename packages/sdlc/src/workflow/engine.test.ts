@@ -125,3 +125,118 @@ describe("WorkflowEngine", () => {
     expect(runs[0].phaseStates["p1"]).toBe("failed");
   });
 });
+
+import type { Epic } from "../plan/types";
+
+const EPIC: Epic = {
+  id: "epic-1",
+  title: "X",
+  description: "",
+  tasks: [
+    { id: "a", title: "A", summary: "", complexity: "LOW", tdd: false, acceptanceCriteria: [], status: "backlog" },
+    { id: "b", title: "B", summary: "", complexity: "LOW", tdd: false, acceptanceCriteria: [], status: "backlog" },
+  ],
+  dependencies: [],
+};
+
+/** Stub generate-backend: skips done tasks, supports single-task runTask. */
+function trackingGen(spawns: string[]): PhaseExecutor {
+  return {
+    id: "gen",
+    async run(ctx) {
+      for (const t of ctx.epic!.tasks) {
+        if (ctx.run.taskStatus[t.id] === "done") continue;
+        spawns.push(t.id);
+        await ctx.setTaskStatus(t.id, "done");
+      }
+      return { artifactRef: "art" };
+    },
+    async runTask(ctx, taskId) {
+      spawns.push(taskId);
+      await ctx.setTaskStatus(taskId, "done");
+    },
+  };
+}
+
+describe("WorkflowEngine resume/retry/abandon", () => {
+  let dir: string;
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), "eng2-"));
+  });
+
+  function engineWithGen(spawns: string[]) {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "gen", executor: "gen", gates: [], humanGate: false }],
+    };
+    const store = new RunStore(dir);
+    const engine = new WorkflowEngine({
+      store,
+      definitions: { w: def },
+      executors: { gen: trackingGen(spawns) },
+      gates: {},
+    });
+    return { engine, store, def };
+  }
+
+  it("abandon marks a stale running run terminal with a lastError", async () => {
+    const { engine, store } = engineWithGen([]);
+    await store.save({
+      id: "run-x",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "running",
+      currentPhaseIndex: 0,
+      phaseStates: { gen: "running" },
+      taskStatus: { a: "in_progress" },
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+    });
+    const run = await engine.abandon("run-x");
+    expect(run.status).toBe("failed");
+    expect(run.lastError?.phase).toBe("gen");
+  });
+
+  it("retryTask re-runs only the requested task, reusing the persisted epic", async () => {
+    const spawns: string[] = [];
+    const { engine, store } = engineWithGen(spawns);
+    await store.save({
+      id: "run-y",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: { gen: "failed" },
+      taskStatus: { a: "done", b: "blocked" },
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      epic: EPIC,
+    });
+    const run = await engine.retryTask("run-y", "b");
+    expect(spawns).toEqual(["b"]); // only task b re-spawned
+    expect(run.taskStatus["b"]).toBe("done");
+  });
+
+  it("resumeRun re-drives advance and skips already-done tasks", async () => {
+    const spawns: string[] = [];
+    const { engine, store } = engineWithGen(spawns);
+    await store.save({
+      id: "run-z",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: { gen: "failed" },
+      taskStatus: { a: "done", b: "blocked" },
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      epic: EPIC,
+    });
+    const run = await engine.resumeRun("run-z");
+    expect(spawns).toEqual(["b"]); // task a skipped (already done)
+    expect(run.status).toBe("completed");
+  });
+});
