@@ -13,18 +13,19 @@ import {
 } from "@/lib/routes";
 import type { DashboardOrchestratorLink, DashboardPR, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
-import { SdlcAmendForm } from "./SdlcAmendForm";
 import { SdlcKanbanBoard } from "./SdlcKanbanBoard";
+import { SdlcPlanDetail, PhaseProgress } from "./SdlcPlanDetail";
 import { SdlcRunActionButtons } from "./SdlcRunActionButtons";
-import { SdlcRunInsights } from "./SdlcRunInsights";
 import { SdlcTaskDetail } from "./SdlcTaskDetail";
 import { SidebarContext } from "./workspace/SidebarContext";
 
 // Per-run detail page (/sdlc/[id]). Own 3s poll on /api/sdlc/runs/[id] (separate
-// from the 5s session SSE — C-14). Composes the run-level action buttons, a
-// run-level lastError banner, the reused SdlcRunInsights (phases + lens verdicts
-// + plan), the reused 6-column kanban, and the existing task detail panel. An
-// unknown id renders a not-found state; the page is deep-linkable.
+// from the 5s session SSE — C-14). Composes the run-level action buttons
+// (Approve/Resume/Abandon), a run-level lastError banner, a compact phase
+// summary, a clickable plan entry that opens the Plan-detail modal (full plan +
+// phases + lens verdicts + append-only amend box), the reused 6-column kanban,
+// and the existing task detail panel. An unknown id renders a not-found state;
+// the page is deep-linkable (incl. abandoned runs).
 const POLL_INTERVAL_MS = 3_000;
 
 const STATUS_TONE: Record<string, string> = {
@@ -66,6 +67,7 @@ export function SdlcRunDetail({
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [planOpen, setPlanOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
@@ -269,16 +271,27 @@ export function SdlcRunDetail({
                   </div>
                 ) : null}
 
-                <SdlcRunInsights run={run} />
-
-                {run.planArtifact !== null &&
-                (run.status === "failed" || run.status === "awaiting_approval") ? (
-                  <SdlcAmendForm
-                    needsFixes={verdictSummary(run.verdicts).needsFixes > 0}
-                    busy={isAmending(run.id)}
-                    onSave={(comment) => amendPlan(run, comment)}
-                  />
-                ) : null}
+                <div className="flex flex-col gap-3 px-1 pt-3">
+                  <PhaseProgress phases={run.phaseStates} />
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between gap-2 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] px-3 py-2.5 text-left text-[12px] font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-border)] hover:bg-[var(--color-bg-primary)]"
+                    onClick={() => setPlanOpen(true)}
+                  >
+                    <span>Plan &amp; review history</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
 
                 <section className="sdlc-detail-page__board">
                   <SdlcKanbanBoard board={run.board} onSelectTask={setSelectedTaskId} />
@@ -289,6 +302,20 @@ export function SdlcRunDetail({
             )}
           </main>
         </div>
+
+        {planOpen && run ? (
+          <SdlcPlanDetail
+            run={run}
+            amendable={
+              run.planArtifact !== null &&
+              (run.status === "failed" || run.status === "awaiting_approval")
+            }
+            needsFixes={verdictSummary(run.verdicts).needsFixes > 0}
+            saving={isAmending(run.id)}
+            onSaveComment={(comment) => amendPlan(run, comment)}
+            onClose={() => setPlanOpen(false)}
+          />
+        ) : null}
 
         {selectedTask && run ? (
           <SdlcTaskDetail

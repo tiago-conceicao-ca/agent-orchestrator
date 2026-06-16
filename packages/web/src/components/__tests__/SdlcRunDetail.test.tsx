@@ -115,15 +115,26 @@ describe("SdlcRunDetail", () => {
     expect(screen.getByRole("button", { name: "Abandon" })).toBeInTheDocument();
   });
 
-  it("reuses the phase progress, lens verdicts, and the 6-column kanban", async () => {
+  it("shows a compact phase summary and the 6-column kanban on the page", async () => {
     renderDetail();
     await waitFor(() => expect(screen.getByText("Normalize plan")).toBeInTheDocument());
     expect(screen.getByText("Generate backend")).toBeInTheDocument();
-    expect(screen.getByText("tactical")).toBeInTheDocument();
-    expect(screen.getByText("Missing tests")).toBeInTheDocument();
     // Kanban columns render (unlike the runs list cards).
     expect(screen.getByText("Backlog")).toBeInTheDocument();
     expect(screen.getByText("In Review")).toBeInTheDocument();
+    // Lens verdicts are NOT inline — they live in the plan modal.
+    expect(screen.queryByText("Missing tests")).not.toBeInTheDocument();
+  });
+
+  it("opens the plan modal from the plan entry, rendering the plan + lens history", async () => {
+    renderDetail();
+    const entry = await screen.findByRole("button", { name: /Plan & review history/ });
+    fireEvent.click(entry);
+    const modal = await screen.findByRole("dialog", { name: "Plan for run-1" });
+    expect(modal).toBeInTheDocument();
+    expect(screen.getByText(/# Normalized Plan/)).toBeInTheDocument();
+    expect(screen.getByText("tactical")).toBeInTheDocument();
+    expect(screen.getByText("Missing tests")).toBeInTheDocument();
   });
 
   it("surfaces the run-level lastError when failed", async () => {
@@ -203,9 +214,10 @@ describe("SdlcRunDetail", () => {
     expect(screen.queryByRole("button", { name: "Retry task" })).not.toBeInTheDocument();
   });
 
-  it("saves a plan comment on a failed run via the append-only amend-plan endpoint", async () => {
+  it("saves a plan comment from the modal via the append-only amend-plan endpoint", async () => {
     mockFetch(makeRun({ status: "failed", pendingApproval: null }));
     renderDetail();
+    fireEvent.click(await screen.findByRole("button", { name: /Plan & review history/ }));
     const input = await screen.findByLabelText("Plan comment");
     fireEvent.change(input, { target: { value: "Please add integration tests." } });
     fireEvent.click(screen.getByRole("button", { name: "Save comment" }));
@@ -223,10 +235,11 @@ describe("SdlcRunDetail", () => {
     );
   });
 
-  it("hides the amend form once the run has completed", async () => {
+  it("hides the amend box in the modal once the run has completed", async () => {
     mockFetch(makeRun({ status: "completed", pendingApproval: null }));
     renderDetail();
-    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    fireEvent.click(await screen.findByRole("button", { name: /Plan & review history/ }));
+    await screen.findByRole("dialog", { name: "Plan for run-1" });
     expect(screen.queryByLabelText("Plan comment")).not.toBeInTheDocument();
   });
 
