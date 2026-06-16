@@ -172,7 +172,7 @@ jobs:
         id: tag
         if: steps.check.outputs.skip != 'true'
         run: |
-          version=$(node -p "require('./packages/ao/package.json').version")
+          version=$(node -p "require('./packages/cahi/package.json').version")
           git tag "v$version"
           git push origin "v$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"

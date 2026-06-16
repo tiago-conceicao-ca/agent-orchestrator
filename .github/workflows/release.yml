@@ -94,12 +94,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          version=$(node -p "require('./packages/ao/package.json').version")
+          version=$(node -p "require('./packages/cahi/package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
           prev_version=""
           if git rev-parse HEAD^ >/dev/null 2>&1; then
-            prev_version=$(git show HEAD^:packages/ao/package.json 2>/dev/null | jq -r .version 2>/dev/null || echo "")
+            prev_version=$(git show HEAD^:packages/cahi/package.json 2>/dev/null | jq -r .version 2>/dev/null || echo "")
           fi
           if [ -n "$prev_version" ] && [ "$prev_version" != "$version" ]; then
             echo "is_release_commit=true" >> "$GITHUB_OUTPUT"

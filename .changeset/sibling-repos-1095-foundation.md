@@ -1,5 +1,5 @@
 ---
-"@aoagents/ao-core": minor
+"@contaazul/cahi-core": minor
 ---
 
 feat(core): foundation for first-class sibling repos (#1095)

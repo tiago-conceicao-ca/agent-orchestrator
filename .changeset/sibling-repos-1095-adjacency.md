@@ -1,5 +1,5 @@
 ---
-"@aoagents/ao-core": minor
+"@contaazul/cahi-core": minor
 ---
 
 feat(core): per-session adjacency view for sibling repos (#1095)

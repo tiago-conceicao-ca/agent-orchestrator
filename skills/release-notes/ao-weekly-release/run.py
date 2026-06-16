@@ -250,7 +250,7 @@ def fetch_stars(repo: str) -> int | None:
         return None
 
 
-def fetch_npm_version(package: str = "@aoagents/ao") -> str | None:
+def fetch_npm_version(package: str = "@contaazul/cahi") -> str | None:
     """Fetch the latest published version from the npm registry."""
     try:
         result = subprocess.run(
@@ -442,8 +442,8 @@ def render_markdown(snap: Snapshot) -> str:
     install_block = [
         "## Install",
         "```bash",
-        "npm install -g @aoagents/ao",
-        f"# or pin to the current release: npm install -g @aoagents/ao@{version}",
+        "npm install -g @contaazul/cahi",
+        f"# or pin to the current release: npm install -g @contaazul/cahi@{version}",
         "```",
     ]
 
