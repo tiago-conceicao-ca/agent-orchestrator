@@ -1297,6 +1297,12 @@ export type EventType =
   // Reactions
   | "reaction.triggered"
   | "reaction.escalated"
+  // SDLC run-level (emitted by the SDLC workflow engine, not a single session)
+  | "sdlc.awaiting_approval"
+  | "sdlc.needs_fixes"
+  | "sdlc.completed"
+  | "sdlc.failed"
+  | "sdlc.stalled"
   // Summary
   | "summary.all_complete";
 

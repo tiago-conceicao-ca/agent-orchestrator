@@ -14,6 +14,7 @@ import {
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
+  makeSdlcRunEventHandler,
   makeSessionLensRunner,
   makeSessionPlanRunner,
   RunStore,
@@ -78,7 +79,7 @@ function classifyTerminal(session: Session): "done" | "failed" | null {
 export async function buildWebSdlcEngine(
   projectId?: string,
 ): Promise<{ engine: WorkflowEngine; store: RunStore }> {
-  const { config, sessionManager } = await getServices();
+  const { config, registry, sessionManager } = await getServices();
   const ids = Object.keys(config.projects);
   const resolved = projectId ?? (ids.length === 1 ? ids[0] : undefined);
   if (!resolved || !config.projects[resolved]) {
@@ -129,8 +130,20 @@ export async function buildWebSdlcEngine(
       pollIntervalMs: TASK_POLL_INTERVAL_MS,
     });
 
+  // Dashboard-driven approve/amend also notify the orchestrator (+ activity feed
+  // + human notifiers) on RUN-level events, mirroring the CLI wiring.
+  const onRunEvent = makeSdlcRunEventHandler({
+    sessionManager,
+    config,
+    registry,
+    projectId: resolved,
+    project: config.projects[resolved],
+    sessionsDir: dataDir,
+  });
+
   const engine = new WorkflowEngine({
     store,
+    onRunEvent,
     definitions: { [CA_PLAN_TO_BACKEND.name]: CA_PLAN_TO_BACKEND },
     executors: {
       "normalize-plan": makeNormalizePlanExecutor({

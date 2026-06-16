@@ -31,6 +31,7 @@ import {
   makeLensGate,
   makeNormalizePlanExecutor,
   makePatternLibraryGate,
+  makeSdlcRunEventHandler,
   makeSessionLensRunner,
   makeSessionPlanRunner,
   RunStore,
@@ -38,10 +39,11 @@ import {
   waitForTaskCompletion,
   WorkflowEngine,
   type RunContext,
+  type SdlcRunEvent,
   type SdlcSessionSpawn,
   type WorkflowTask,
 } from "@aoagents/ao-sdlc";
-import { getSessionManager } from "../lib/create-session-manager.js";
+import { getPluginRegistry, getSessionManager } from "../lib/create-session-manager.js";
 
 /** Minimal SessionManager surface the engine wiring needs (real or fake). */
 interface SdlcSessionManager {
@@ -62,6 +64,8 @@ export interface SdlcServiceDeps {
   runPlanWriteAgent: (input: string, ctx: RunContext) => Promise<string>;
   /** Optional per-task generation instruction (defaults to /gerar-backend wording). */
   buildTaskPrompt?: (task: WorkflowTask) => string;
+  /** Optional run-event sink (orchestrator notify + activity + notifiers). */
+  onRunEvent?: (event: SdlcRunEvent) => Promise<void>;
 }
 
 const TASK_POLL_INTERVAL_MS = 5_000;
@@ -176,6 +180,7 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     definitions: { [CA_PLAN_TO_BACKEND.name]: CA_PLAN_TO_BACKEND },
     executors,
     gates,
+    onRunEvent: deps.onRunEvent,
   });
   return { engine, store };
 }
@@ -252,11 +257,23 @@ async function buildLiveEngine(
   const config = loadConfig();
   const resolvedProjectId = resolveProjectId(config, projectId);
   const sessionManager = await getSessionManager(config);
+  const registry = await getPluginRegistry(config);
   const sessionSpawn = makeSdlcSessionSpawn(sessionManager, resolvedProjectId);
+  // Notify the orchestrator (+ activity feed + human notifiers) on RUN-level
+  // events, mirroring how a worker session's transitions reach the orchestrator.
+  const onRunEvent = makeSdlcRunEventHandler({
+    sessionManager,
+    config,
+    registry,
+    projectId: resolvedProjectId,
+    project: config.projects[resolvedProjectId],
+    sessionsDir: getProjectSessionsDir(resolvedProjectId),
+  });
   return buildSdlcServices({
     baseDir: getProjectDir(resolvedProjectId),
     sessionManager,
     projectId: resolvedProjectId,
+    onRunEvent,
     // Run each lens as a real, interactive AO worker session (visible/attachable
     // on the board) instead of a headless `claude -p`. The session writes its
     // verdict JSON to a sentinel file the runner reads on completion.
