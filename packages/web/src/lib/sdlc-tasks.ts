@@ -6,8 +6,10 @@ import { projectSessionPath } from "@/lib/routes";
 import {
   assignTaskNumbers,
   dependsOnTitles,
+  passVerdictLens,
   type LinkedSession,
   type SdlcTaskDetail,
+  type TaskPassView,
 } from "@/lib/sdlc-board";
 
 // Server-only enrichment for the SDLC detail panel. Keeps node/fs + the
@@ -46,9 +48,19 @@ export function enrichRunTasks(
   linked: Map<string, LinkedSessionInfo>,
 ): SdlcTaskDetail[] {
   const numbers = assignTaskNumbers(run);
+  // Latest verdict per pass lens (`impl:<taskId>:<role>`) — last write wins so a
+  // pass that needs_fixes then passes shows its final verdict.
+  const verdictByLens = new Map<string, string>();
+  for (const v of run.verdicts ?? []) verdictByLens.set(v.lens, v.verdict);
   return (run.epic?.tasks ?? []).map((task) => {
     const info = linked.get(task.id) ?? null;
     const progress = run.taskProgress?.[task.id];
+    const passes: TaskPassView[] = (task.passes ?? []).map((p) => ({
+      role: p.role,
+      name: p.name,
+      model: p.model,
+      verdict: verdictByLens.get(passVerdictLens(task.id, p.role)) ?? null,
+    }));
     return {
       number: numbers[task.id] ?? 0,
       id: task.id,
@@ -74,6 +86,7 @@ export function enrichRunTasks(
       linkedSession: info?.link ?? null,
       attempts: progress?.attempts ?? 0,
       stalled: progress?.stalled ?? false,
+      passes,
     };
   });
 }
