@@ -230,11 +230,14 @@ describe("availableRunActions", () => {
   it("offers abandon while running", () => {
     expect(availableRunActions("running")).toEqual(["abandon"]);
   });
-  it("offers resume for a failed run", () => {
-    expect(availableRunActions("failed")).toEqual(["resume"]);
+  it("offers resume + abandon for a failed run", () => {
+    expect(availableRunActions("failed")).toEqual(["resume", "abandon"]);
   });
-  it("offers no run-level actions for a completed run", () => {
-    expect(availableRunActions("completed")).toEqual([]);
+  it("offers abandon for a completed run (to dismiss it)", () => {
+    expect(availableRunActions("completed")).toEqual(["abandon"]);
+  });
+  it("offers no run-level actions for an already-abandoned run", () => {
+    expect(availableRunActions("abandoned")).toEqual([]);
   });
 });
 

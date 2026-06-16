@@ -192,8 +192,10 @@ export type RunActionKind = "approve" | "resume" | "abandon";
 
 /**
  * Which run-level actions a status exposes (per-task retry lives on the task
- * panel). Approve gates an awaiting run; Abandon is available while the run is
- * non-terminal; Resume re-drives a failed run.
+ * panel). Approve gates an awaiting run; Resume re-drives a failed run; Abandon
+ * is available for any not-already-abandoned run (it dismisses the run from the
+ * list, so terminal failed/completed runs offer it too). Already-abandoned runs
+ * expose nothing.
  */
 export function availableRunActions(status: string): RunActionKind[] {
   switch (status) {
@@ -202,9 +204,11 @@ export function availableRunActions(status: string): RunActionKind[] {
     case "running":
       return ["abandon"];
     case "failed":
-      return ["resume"];
+      return ["resume", "abandon"];
+    case "abandoned":
+      return []; // already dismissed → no run-level actions
     default:
-      return []; // completed (terminal) → no run-level actions
+      return ["abandon"]; // completed (terminal) → abandon to dismiss
   }
 }
 

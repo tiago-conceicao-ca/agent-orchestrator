@@ -93,11 +93,18 @@ describe("POST /api/sdlc/runs/[id]/abandon", () => {
     expect((await res.json()).ok).toBe(true);
   });
 
-  it("rejects a terminal run (409)", async () => {
+  it("abandons a completed run to dismiss it (200)", async () => {
     const engine = mockEngine(makeRun("completed"));
     const res = await abandonPOST(req(), params);
-    expect(res.status).toBe(409);
-    expect(engine.abandon).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(engine.abandon).toHaveBeenCalledWith("run-1");
+  });
+
+  it("abandons a failed run to dismiss it (200)", async () => {
+    const engine = mockEngine(makeRun("failed"));
+    const res = await abandonPOST(req(), params);
+    expect(res.status).toBe(200);
+    expect(engine.abandon).toHaveBeenCalledWith("run-1");
   });
 
   it("rejects an already-abandoned run (409)", async () => {
