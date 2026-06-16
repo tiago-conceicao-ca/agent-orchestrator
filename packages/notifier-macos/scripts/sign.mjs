@@ -7,7 +7,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const appDir = resolve(__dirname, "..", "dist", "AO Notifier.app");
+const appDir = resolve(__dirname, "..", "dist", "Cahi Notifier.app");
 const identity = process.env["APPLE_CODESIGN_IDENTITY"] ?? "-";
 
 if (process.platform !== "darwin") {
@@ -23,4 +23,4 @@ if (!existsSync(appDir)) {
 execFileSync("codesign", ["--force", "--deep", "--options", "runtime", "--sign", identity, appDir], {
   stdio: "inherit",
 });
-console.log(`Signed AO Notifier.app with ${identity === "-" ? "ad-hoc identity" : identity}.`);
+console.log(`Signed Cahi Notifier.app with ${identity === "-" ? "ad-hoc identity" : identity}.`);

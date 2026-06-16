@@ -1,4 +1,4 @@
-import { isOrchestratorSession } from "@aoagents/ao-core/types";
+import { isOrchestratorSession } from "@contaazul/cahi-core/types";
 import { matchesSessionPrefix } from "./session-utils";
 
 type ProjectWithPrefix = { sessionPrefix?: string };

@@ -13,7 +13,7 @@ import {
   type RuntimeHandle,
   type RuntimeMetrics,
   type AttachInfo,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   getPipePath,
   ptyHostSendMessage,
@@ -509,7 +509,7 @@ export async function sweepWindowsPtyHosts(): Promise<{
   if (!isWindows()) {
     return { attempted: 0, gracefullyExited: 0, forceKilled: 0, failed: 0 };
   }
-  const { getWindowsPtyHosts, unregisterWindowsPtyHost } = await import("@aoagents/ao-core");
+  const { getWindowsPtyHosts, unregisterWindowsPtyHost } = await import("@contaazul/cahi-core");
   const entries = getWindowsPtyHosts();
   let gracefullyExited = 0;
   let forceKilled = 0;

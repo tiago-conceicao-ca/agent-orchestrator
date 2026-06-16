@@ -4,7 +4,7 @@ import {
   betterSqlite3BindingCandidates,
   betterSqlite3RebuildCommand,
   hasBetterSqlite3Binding,
-} from "../../../ao/bin/postinstall.js";
+} from "../../../cahi/bin/postinstall.js";
 
 describe("ao postinstall better-sqlite3 native binding detection", () => {
   const env = {

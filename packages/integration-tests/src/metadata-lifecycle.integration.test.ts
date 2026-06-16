@@ -2,7 +2,7 @@
  * Integration test for metadata lifecycle — real filesystem operations.
  *
  * Tests the full metadata CRUD cycle (write, read, update, list, delete)
- * and concurrent access patterns using @aoagents/ao-core metadata functions
+ * and concurrent access patterns using @contaazul/cahi-core metadata functions
  * with real filesystem I/O.
  */
 
@@ -19,7 +19,7 @@ import {
   deleteMetadata,
   listMetadata,
   type SessionMetadata,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 describe("metadata lifecycle (real filesystem)", () => {
   let tmpDir: string;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { OrchestratorEvent, NotifyAction, EventPriority } from "@aoagents/ao-core";
+import type { OrchestratorEvent, NotifyAction, EventPriority } from "@contaazul/cahi-core";
 import { manifest, create } from "./index.js";
 
 function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEvent {

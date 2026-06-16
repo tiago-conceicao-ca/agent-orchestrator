@@ -13,7 +13,7 @@ import {
   savePreferences,
   loadLocalProjectConfig,
   loadConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   formatPortfolioDegradedReason,
   formatPortfolioProjectName,

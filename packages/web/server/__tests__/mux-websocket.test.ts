@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Socket } from "node:net";
 import { WebSocket } from "ws";
-import { appendDashboardNotification, isWindows, type OrchestratorEvent } from "@aoagents/ao-core";
+import { appendDashboardNotification, isWindows, type OrchestratorEvent } from "@contaazul/cahi-core";
 import type { SessionBroadcaster as SessionBroadcasterType } from "../mux-websocket";
 
 // vi.mock factories run before module-level statements. Hoist the mock
@@ -17,7 +17,7 @@ const { mockSpawn, mockPtySpawn, mockTmuxHasSession, recordActivityEvent } = vi.
   recordActivityEvent: vi.fn(),
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

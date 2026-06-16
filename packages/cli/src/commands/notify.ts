@@ -6,7 +6,7 @@ import {
   loadConfig,
   type OrchestratorConfig,
   type PluginRegistry,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { importPluginModuleFromSource } from "../lib/plugin-store.js";
 import {
   addSinkNotifierConfig,

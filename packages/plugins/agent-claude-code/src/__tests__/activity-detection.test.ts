@@ -17,7 +17,7 @@ import {
   type ActivityState,
   type Session,
   type RuntimeHandle,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Mock homedir() so getActivityState looks in our temp dir
 vi.mock("node:os", async (importOriginal) => {

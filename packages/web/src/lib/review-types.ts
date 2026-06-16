@@ -1,4 +1,4 @@
-import type { CodeReviewRunSummary } from "@aoagents/ao-core";
+import type { CodeReviewRunSummary } from "@contaazul/cahi-core";
 
 export type ReviewBoardColumn =
   | "queued"

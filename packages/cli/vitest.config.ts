@@ -34,43 +34,43 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: "@aoagents/ao-core/scm-webhook-utils",
+        find: "@contaazul/cahi-core/scm-webhook-utils",
         replacement: resolve(__dirname, "../core/src/scm-webhook-utils.ts"),
       },
       {
-        find: "@aoagents/ao-core/types",
+        find: "@contaazul/cahi-core/types",
         replacement: resolve(__dirname, "../core/src/types.ts"),
       },
       {
-        find: "@aoagents/ao-core",
+        find: "@contaazul/cahi-core",
         replacement: resolve(__dirname, "../core/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-sdlc",
+        find: "@contaazul/cahi-sdlc",
         replacement: resolve(__dirname, "../sdlc/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-claude-code",
+        find: "@contaazul/cahi-plugin-agent-claude-code",
         replacement: resolve(__dirname, "../plugins/agent-claude-code/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-codex",
+        find: "@contaazul/cahi-plugin-agent-codex",
         replacement: resolve(__dirname, "../plugins/agent-codex/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-aider",
+        find: "@contaazul/cahi-plugin-agent-aider",
         replacement: resolve(__dirname, "../plugins/agent-aider/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-opencode",
+        find: "@contaazul/cahi-plugin-agent-opencode",
         replacement: resolve(__dirname, "../plugins/agent-opencode/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-cursor",
+        find: "@contaazul/cahi-plugin-agent-cursor",
         replacement: resolve(__dirname, "../plugins/agent-cursor/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-scm-github",
+        find: "@contaazul/cahi-plugin-scm-github",
         replacement: resolve(__dirname, "../plugins/scm-github/src/index.ts"),
       },
     ],

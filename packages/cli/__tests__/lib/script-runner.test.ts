@@ -66,11 +66,11 @@ describe("script-runner", () => {
     "uses the package root for packaged installs inside node_modules",
     () => {
       const modulePath =
-        "/usr/local/lib/node_modules/@aoagents/ao-cli/dist/lib/script-runner.js";
+        "/usr/local/lib/node_modules/@contaazul/cahi-cli/dist/lib/script-runner.js";
 
       expect(resolveScriptLayoutFromPath(modulePath)).toBe("package-install");
       expect(resolveDefaultRepoRootFromPath(modulePath)).toBe(
-        "/usr/local/lib/node_modules/@aoagents/ao-cli",
+        "/usr/local/lib/node_modules/@contaazul/cahi-cli",
       );
     },
   );
@@ -115,10 +115,10 @@ describe("script-runner", () => {
   it("accepts a valid AO_REPO_ROOT override for source checkouts", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-valid-"));
     mkdirSync(join(tempRoot, ".git"), { recursive: true });
-    mkdirSync(join(tempRoot, "packages", "ao"), { recursive: true });
+    mkdirSync(join(tempRoot, "packages", "cahi"), { recursive: true });
     writeFileSync(
-      join(tempRoot, "packages", "ao", "package.json"),
-      JSON.stringify({ name: "@aoagents/ao" }),
+      join(tempRoot, "packages", "cahi", "package.json"),
+      JSON.stringify({ name: "@contaazul/cahi" }),
     );
 
     process.env["AO_REPO_ROOT"] = tempRoot;
@@ -147,10 +147,10 @@ describe("script-runner", () => {
     async () => {
       const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-ps-"));
       mkdirSync(join(tempRoot, ".git"), { recursive: true });
-      mkdirSync(join(tempRoot, "packages", "ao"), { recursive: true });
+      mkdirSync(join(tempRoot, "packages", "cahi"), { recursive: true });
       writeFileSync(
-        join(tempRoot, "packages", "ao", "package.json"),
-        JSON.stringify({ name: "@aoagents/ao" }),
+        join(tempRoot, "packages", "cahi", "package.json"),
+        JSON.stringify({ name: "@contaazul/cahi" }),
       );
 
       process.env["AO_REPO_ROOT"] = tempRoot;
@@ -198,10 +198,10 @@ describe("script-runner", () => {
     async () => {
       const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-ps-noext-"));
       mkdirSync(join(tempRoot, ".git"), { recursive: true });
-      mkdirSync(join(tempRoot, "packages", "ao"), { recursive: true });
+      mkdirSync(join(tempRoot, "packages", "cahi"), { recursive: true });
       writeFileSync(
-        join(tempRoot, "packages", "ao", "package.json"),
-        JSON.stringify({ name: "@aoagents/ao" }),
+        join(tempRoot, "packages", "cahi", "package.json"),
+        JSON.stringify({ name: "@contaazul/cahi" }),
       );
       process.env["AO_REPO_ROOT"] = tempRoot;
 
@@ -219,10 +219,10 @@ describe("script-runner", () => {
   it.skipIf(process.platform === "win32")("pins script execution cwd to the resolved install root", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "script-runner-cwd-"));
     mkdirSync(join(tempRoot, ".git"), { recursive: true });
-    mkdirSync(join(tempRoot, "packages", "ao"), { recursive: true });
+    mkdirSync(join(tempRoot, "packages", "cahi"), { recursive: true });
     writeFileSync(
-      join(tempRoot, "packages", "ao", "package.json"),
-      JSON.stringify({ name: "@aoagents/ao" }),
+      join(tempRoot, "packages", "cahi", "package.json"),
+      JSON.stringify({ name: "@contaazul/cahi" }),
     );
 
     process.env["AO_REPO_ROOT"] = tempRoot;

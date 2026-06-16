@@ -7,7 +7,7 @@ import {
   getProjectDir,
   loadGlobalConfig,
   registerProjectInGlobalConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 const invalidatePortfolioServicesCache = vi.fn();
 const getServices = vi.fn();

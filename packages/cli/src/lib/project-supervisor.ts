@@ -7,7 +7,7 @@ import {
   ConfigNotFoundError,
   type OrchestratorConfig,
   type ProjectObserver,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getSessionManager } from "./create-session-manager.js";
 import {
   ensureLifecycleWorker,

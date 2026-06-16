@@ -17,7 +17,7 @@ import {
   loadGlobalConfig,
   readUpdateCheckCacheRaw,
   type UpdateChannel,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export const dynamic = "force-dynamic";
 

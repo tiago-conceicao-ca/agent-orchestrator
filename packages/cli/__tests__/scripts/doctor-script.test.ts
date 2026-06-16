@@ -31,7 +31,7 @@ function createFakeBinary(binDir: string, name: string, body: string): void {
 function createHealthyRepo(tempRoot: string): string {
   const fakeRepo = join(tempRoot, "repo");
   mkdirSync(join(fakeRepo, "node_modules"), { recursive: true });
-  mkdirSync(join(fakeRepo, "packages", "ao", "bin"), { recursive: true });
+  mkdirSync(join(fakeRepo, "packages", "cahi", "bin"), { recursive: true });
   mkdirSync(join(fakeRepo, "packages", "core", "dist"), { recursive: true });
   mkdirSync(join(fakeRepo, "packages", "cli", "dist"), { recursive: true });
   mkdirSync(join(fakeRepo, "packages", "web"), { recursive: true });
@@ -45,10 +45,10 @@ function createHealthyRepo(tempRoot: string): string {
   );
   writeFileSync(join(fakeRepo, "packages", "cli", "dist", "index.js"), "export {};\n");
   writeFileSync(
-    join(fakeRepo, "packages", "ao", "bin", "ao.js"),
+    join(fakeRepo, "packages", "cahi", "bin", "cahi.js"),
     '#!/usr/bin/env node\nconsole.log("0.1.0");\n',
   );
-  chmodSync(join(fakeRepo, "packages", "ao", "bin", "ao.js"), 0o755);
+  chmodSync(join(fakeRepo, "packages", "cahi", "bin", "cahi.js"), 0o755);
   return fakeRepo;
 }
 
@@ -57,7 +57,7 @@ function createHealthyPackageInstall(tempRoot: string): string {
   mkdirSync(join(fakeInstall, "dist", "assets", "scripts"), { recursive: true });
   writeFileSync(
     join(fakeInstall, "package.json"),
-    JSON.stringify({ name: "@aoagents/ao-cli", version: "0.2.5" }, null, 2),
+    JSON.stringify({ name: "@contaazul/cahi-cli", version: "0.2.5" }, null, 2),
   );
   writeFileSync(join(fakeInstall, "dist", "index.js"), 'console.log("0.2.5");\n');
   writeFileSync(join(fakeInstall, "dist", "assets", "scripts", "ao-doctor.sh"), "#!/bin/bash\n");

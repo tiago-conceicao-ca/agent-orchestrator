@@ -9,7 +9,7 @@ import {
   type SCMWebhookEvent,
   type SCMWebhookRequest,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export interface WebhookProjectMatch {
   projectId: string;

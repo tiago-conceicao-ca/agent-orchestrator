@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import type { ProjectInfo } from "@/lib/project-name";
 import { getAttentionLevel, type DashboardSession } from "@/lib/types";
-import { isOrchestratorSession } from "@aoagents/ao-core/types";
+import { isOrchestratorSession } from "@contaazul/cahi-core/types";
 import { getSessionTitle, humanizeBranch } from "@/lib/format";
 import { usePopoverClamp } from "@/hooks/usePopoverClamp";
 import { useResizable } from "@/hooks/useResizable";

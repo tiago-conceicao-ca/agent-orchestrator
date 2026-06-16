@@ -12,7 +12,7 @@ import {
   type NotifyAction,
   type EventPriority,
   type NotificationDataV3,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 function xmlEscape(s: string): string {
   return s
@@ -52,10 +52,10 @@ export const manifest = {
 };
 
 // Re-export for backwards compatibility
-export { escapeAppleScript } from "@aoagents/ao-core";
+export { escapeAppleScript } from "@contaazul/cahi-core";
 
-type DesktopBackend = "auto" | "ao-app" | "terminal-notifier" | "osascript";
-const PLACEHOLDER_MARKER_NAME = "ao-notifier-placeholder";
+type DesktopBackend = "auto" | "cahi-app" | "terminal-notifier" | "osascript";
+const PLACEHOLDER_MARKER_NAME = "cahi-notifier-placeholder";
 
 interface MacDeliveryOptions {
   backend: DesktopBackend;
@@ -241,11 +241,11 @@ function formatContent(
 }
 
 function defaultMacAppPath(): string {
-  return join(homedir(), "Applications", "AO Notifier.app");
+  return join(homedir(), "Applications", "Cahi Notifier.app");
 }
 
 function macAppExecutable(appPath: string): string {
-  return join(appPath, "Contents", "MacOS", "ao-notifier");
+  return join(appPath, "Contents", "MacOS", "cahi-notifier");
 }
 
 function macAppPlaceholderMarker(appPath: string): string {
@@ -267,7 +267,7 @@ function detectAoNotifierApp(appPath: string): boolean {
 function parseBackend(value: unknown): DesktopBackend {
   if (
     value === "auto" ||
-    value === "ao-app" ||
+    value === "cahi-app" ||
     value === "terminal-notifier" ||
     value === "osascript"
   ) {
@@ -416,15 +416,15 @@ function sendNotification(
       const backend =
         options.mac.backend === "auto"
           ? detectAoNotifierApp(options.mac.appPath)
-            ? "ao-app"
+            ? "cahi-app"
             : options.mac.useTerminalNotifier
               ? "terminal-notifier"
               : "osascript"
           : options.mac.backend;
 
-      if (backend === "ao-app") {
+      if (backend === "cahi-app") {
         if (!detectAoNotifierApp(options.mac.appPath)) {
-          reject(new Error("AO Notifier.app is not installed. Run: ao setup desktop"));
+          reject(new Error("Cahi Notifier.app is not installed. Run: ao setup desktop"));
           return;
         }
 
@@ -571,7 +571,7 @@ export function create(config?: Record<string, unknown>): Notifier {
       const nativeActions = nativeActionPayloads(actions, dashboardUrl);
       const content = formatContent(event, actions, {
         hiddenActionIndexes:
-          backend === "ao-app" || (backend === "auto" && detectAoNotifierApp(appPath))
+          backend === "cahi-app" || (backend === "auto" && detectAoNotifierApp(appPath))
             ? nativeActionIndexes(actions, dashboardUrl)
             : undefined,
       });

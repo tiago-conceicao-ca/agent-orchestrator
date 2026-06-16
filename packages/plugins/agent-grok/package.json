@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-agent-grok",
+  "name": "@contaazul/cahi-plugin-agent-grok",
   "version": "0.1.3",
   "description": "Agent plugin: Grok",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*",
+    "@contaazul/cahi-core": "workspace:*",
     "which": "^6.0.1"
   },
   "devDependencies": {

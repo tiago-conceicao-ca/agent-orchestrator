@@ -14,7 +14,7 @@ import {
   type RuntimeHandle,
   type Session,
   type WorkspaceHooksConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { execFileSync } from "node:child_process";
 import { readFile, stat, open, writeFile, mkdir, chmod } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
@@ -695,7 +695,7 @@ interface JsonlLine {
  * Read only the last chunk of a JSONL file to extract the last entry's type
  * and the file's modification time. This is optimized for polling — it avoids
  * reading the entire file (which `getSessionInfo()` does for full cost/summary).
- * Now uses the shared readLastJsonlEntry utility from @aoagents/ao-core.
+ * Now uses the shared readLastJsonlEntry utility from @contaazul/cahi-core.
  */
 
 /**

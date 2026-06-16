@@ -10,7 +10,7 @@ import {
   migrateToGlobalConfig,
   recordActivityEvent,
   registerProjectInGlobalConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { revalidatePath } from "next/cache";
 import { getAllProjects } from "@/lib/project-name";
 import { invalidatePortfolioServicesCache } from "@/lib/services";

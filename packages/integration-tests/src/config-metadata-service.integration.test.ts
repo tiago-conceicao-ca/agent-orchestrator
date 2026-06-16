@@ -21,7 +21,7 @@ import {
   deleteMetadata,
   listMetadata,
   validateAndStoreOrigin,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 describe("config → metadata service integration (real filesystem)", () => {
   const storageKeyA = "111111111111";

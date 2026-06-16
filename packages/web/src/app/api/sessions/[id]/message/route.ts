@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { getServices } from "@/lib/services";
 import { stripControlChars, validateIdentifier, validateString } from "@/lib/validation";
-import { SessionNotFoundError, recordActivityEvent } from "@aoagents/ao-core";
+import { SessionNotFoundError, recordActivityEvent } from "@contaazul/cahi-core";
 import {
   getCorrelationId,
   jsonWithCorrelation,

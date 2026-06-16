@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { EventEmitter } from "node:events";
-import type * as AoCoreType from "@aoagents/ao-core";
+import type * as AoCoreType from "@contaazul/cahi-core";
 import type * as ChildProcessType from "node:child_process";
 
 // Use a real on-disk cache file in a per-test temp dir rather than mocking
@@ -17,8 +17,8 @@ const { mockGlobalConfig } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@aoagents/ao-core", async () => {
-  const actual = (await vi.importActual("@aoagents/ao-core")) as typeof AoCoreType;
+vi.mock("@contaazul/cahi-core", async () => {
+  const actual = (await vi.importActual("@contaazul/cahi-core")) as typeof AoCoreType;
   return {
     ...actual,
     loadGlobalConfig: () => mockGlobalConfig.value,

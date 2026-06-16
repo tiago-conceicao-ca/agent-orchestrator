@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
-import { isWindows } from "@aoagents/ao-core";
+import { isWindows } from "@contaazul/cahi-core";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   PathSecurityError,

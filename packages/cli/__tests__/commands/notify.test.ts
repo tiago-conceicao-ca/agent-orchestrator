@@ -23,7 +23,7 @@ const {
     },
   }));
 
-vi.mock("@aoagents/ao-core", () => {
+vi.mock("@contaazul/cahi-core", () => {
   function buildSubject(input: {
     sessionId: string;
     projectId: string;

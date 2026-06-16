@@ -11,7 +11,7 @@ import {
   type Workspace,
   type WorkspaceCreateConfig,
   type WorkspaceInfo,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 const execFileAsync = promisify(execFile);
 

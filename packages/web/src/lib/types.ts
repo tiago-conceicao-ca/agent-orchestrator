@@ -2,7 +2,7 @@
  * Dashboard-specific types for the web UI.
  *
  * Core types (SessionStatus, ActivityState, CIStatus, ReviewDecision, etc.)
- * are re-exported from @aoagents/ao-core. Dashboard-specific types
+ * are re-exported from @contaazul/cahi-core. Dashboard-specific types
  * extend/flatten the core types for client-side rendering (e.g. DashboardPR
  * flattens core PRInfo + MergeReadiness + CICheck[] + ReviewComment[]).
  */
@@ -24,7 +24,7 @@ export type {
   CanonicalRuntimeState,
   CanonicalRuntimeReason,
   DashboardAttentionZoneMode,
-} from "@aoagents/ao-core/types";
+} from "@contaazul/cahi-core/types";
 
 import {
   ACTIVITY_STATE,
@@ -48,8 +48,8 @@ import {
   type CanonicalRuntimeState,
   type CanonicalRuntimeReason,
   type DashboardAttentionZoneMode,
-} from "@aoagents/ao-core/types";
-import type { AgentReportedState, SiblingRef } from "@aoagents/ao-core";
+} from "@contaazul/cahi-core/types";
+import type { AgentReportedState, SiblingRef } from "@contaazul/cahi-core";
 
 // Re-export for use in client components
 export { CI_STATUS, TERMINAL_STATUSES, TERMINAL_ACTIVITIES, NON_RESTORABLE_STATUSES };

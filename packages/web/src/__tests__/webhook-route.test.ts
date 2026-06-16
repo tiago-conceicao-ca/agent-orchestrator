@@ -8,12 +8,12 @@ import {
   type PluginRegistry,
   type SCM,
   type LifecycleManager,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Activity event recording is mocked so we can assert what fires without
 // touching the real SQLite layer.
 const recordActivityEvent = vi.fn();
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

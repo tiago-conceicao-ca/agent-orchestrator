@@ -12,7 +12,7 @@ import {
   type ProcessProbeResult,
   type RuntimeHandle,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { execFile } from "node:child_process";
 import { readdir, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";

@@ -16,7 +16,7 @@ const { mockLoadConfig, mockGetGlobalConfigPath, MockConfigNotFoundError } = vi.
   return { mockLoadConfig, mockGetGlobalConfigPath, MockConfigNotFoundError };
 });
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   loadConfig: mockLoadConfig,
   getGlobalConfigPath: mockGetGlobalConfigPath,
   ConfigNotFoundError: MockConfigNotFoundError,

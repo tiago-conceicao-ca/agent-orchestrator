@@ -6,7 +6,7 @@ import {
   type RuntimeHandle,
   type AgentLaunchConfig,
   type WorkspaceHooksConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks — available inside vi.mock factories
@@ -62,7 +62,7 @@ vi.mock("node:os", () => ({
   homedir: mockHomedir,
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

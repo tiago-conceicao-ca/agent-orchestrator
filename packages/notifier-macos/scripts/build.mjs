@@ -11,14 +11,14 @@ import zlib from "node:zlib";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageDir = resolve(__dirname, "..");
 const distDir = resolve(packageDir, "dist");
-const appName = "AO Notifier.app";
+const appName = "Cahi Notifier.app";
 const appDir = resolve(distDir, appName);
 const contentsDir = resolve(appDir, "Contents");
 const macOsDir = resolve(contentsDir, "MacOS");
 const resourcesDir = resolve(contentsDir, "Resources");
-const executablePath = resolve(macOsDir, "ao-notifier");
-const placeholderMarkerPath = resolve(resourcesDir, "ao-notifier-placeholder");
-const swiftSource = resolve(packageDir, "src", "AONotifier.swift");
+const executablePath = resolve(macOsDir, "cahi-notifier");
+const placeholderMarkerPath = resolve(resourcesDir, "cahi-notifier-placeholder");
+const swiftSource = resolve(packageDir, "src", "CahiNotifier.swift");
 const sourceIconSvg = resolve(packageDir, "assets", "AppIcon.svg");
 
 function commandExists(command) {
@@ -100,15 +100,15 @@ function writeInfoPlist() {
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleExecutable</key>
-  <string>ao-notifier</string>
+  <string>cahi-notifier</string>
   <key>CFBundleIdentifier</key>
-  <string>com.aoagents.notifier</string>
+  <string>com.contaazul.cahi.notifier</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>AO Notifier</string>
+  <string>Cahi Notifier</string>
   <key>CFBundleDisplayName</key>
-  <string>AO Notifier</string>
+  <string>Cahi Notifier</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
@@ -180,8 +180,8 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const appName = "AO Notifier.app";
-export const bundleId = "com.aoagents.notifier";
+export const appName = "Cahi Notifier.app";
+export const bundleId = "com.contaazul.cahi.notifier";
 
 export function getBundledAppPath() {
   return resolve(__dirname, appName);
@@ -190,8 +190,8 @@ export function getBundledAppPath() {
   );
   writeFileSync(
     resolve(distDir, "index.d.ts"),
-    `export declare const appName = "AO Notifier.app";
-export declare const bundleId = "com.aoagents.notifier";
+    `export declare const appName = "Cahi Notifier.app";
+export declare const bundleId = "com.contaazul.cahi.notifier";
 export declare function getBundledAppPath(): string;
 `,
   );
@@ -201,7 +201,7 @@ function writePlaceholderExecutable() {
   writeFileSync(
     executablePath,
     `#!/usr/bin/env sh
-echo "AO Notifier.app requires macOS with Swift tooling to build." >&2
+echo "Cahi Notifier.app requires macOS with Swift tooling to build." >&2
 exit 1
 `,
     { mode: 0o755 },
@@ -218,7 +218,7 @@ writeDistIndex();
 
 if (process.platform !== "darwin" || !commandExists("swiftc")) {
   writePlaceholderExecutable();
-  console.log("Built AO Notifier placeholder app (native macOS build unavailable).");
+  console.log("Built Cahi Notifier placeholder app (native macOS build unavailable).");
   process.exit(0);
 }
 
@@ -243,7 +243,7 @@ if (commandExists("codesign")) {
   try {
     execFileSync("codesign", ["--force", "--sign", "-", appDir], { stdio: "ignore" });
   } catch {
-    console.warn("Could not ad-hoc sign AO Notifier.app.");
+    console.warn("Could not ad-hoc sign Cahi Notifier.app.");
   }
 }
 

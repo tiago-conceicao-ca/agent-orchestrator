@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { ProjectConfig } from "@aoagents/ao-core";
+import type { ProjectConfig } from "@contaazul/cahi-core";
 import { buildSiblingCatalog, formatSiblingCatalog } from "../../src/lib/sibling-catalog.js";
 
 function project(overrides: Partial<ProjectConfig> = {}): ProjectConfig {

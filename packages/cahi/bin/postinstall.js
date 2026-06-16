@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Postinstall script for @aoagents/ao (npm/yarn global installs).
+ * Postinstall script for @contaazul/cahi (npm/yarn global installs).
  *
  * 1. Fixes node-pty's spawn-helper binary missing the execute bit.
  *    node-pty@1.1.0 ships spawn-helper without +x; the monorepo works around
@@ -50,23 +50,23 @@ export function resolveNodeModulesPackage(fromDir, ...segments) {
 }
 
 export function findWebDir() {
-  const directWebDir = findPackageUp(__dirname, "@aoagents", "ao-web");
+  const directWebDir = findPackageUp(__dirname, "@contaazul", "cahi-web");
   if (directWebDir) return directWebDir;
 
-  const cliDir = findPackageUp(__dirname, "@aoagents", "ao-cli");
+  const cliDir = findPackageUp(__dirname, "@contaazul", "cahi-cli");
   if (!cliDir) return null;
 
-  return resolveNodeModulesPackage(cliDir, "@aoagents", "ao-web");
+  return resolveNodeModulesPackage(cliDir, "@contaazul", "cahi-web");
 }
 
 export function findBetterSqlite3Dir() {
   const directBetterSqlite3Dir = findPackageUp(__dirname, "better-sqlite3");
   if (directBetterSqlite3Dir) return directBetterSqlite3Dir;
 
-  const cliDir = findPackageUp(__dirname, "@aoagents", "ao-cli");
+  const cliDir = findPackageUp(__dirname, "@contaazul", "cahi-cli");
   if (!cliDir) return null;
 
-  const coreDir = resolveNodeModulesPackage(cliDir, "@aoagents", "ao-core");
+  const coreDir = resolveNodeModulesPackage(cliDir, "@contaazul", "cahi-core");
   if (!coreDir) return null;
 
   return (

@@ -4,14 +4,14 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Command } from "commander";
-import * as AoCore from "@aoagents/ao-core";
+import * as AoCore from "@contaazul/cahi-core";
 
 const { mockMigrateStorage, mockRollbackStorage } = vi.hoisted(() => ({
   mockMigrateStorage: vi.fn(),
   mockRollbackStorage: vi.fn(),
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = await importOriginal<typeof AoCore>();
   return {
     ...actual,

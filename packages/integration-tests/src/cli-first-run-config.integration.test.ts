@@ -6,7 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { isWindows, loadConfig } from "@aoagents/ao-core";
+import { isWindows, loadConfig } from "@contaazul/cahi-core";
 import { isTmuxAvailable } from "./helpers/tmux.js";
 
 const execFileAsync = promisify(execFile);

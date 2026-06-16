@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { SessionManager, Session } from "@aoagents/ao-core";
-import type * as AoCore from "@aoagents/ao-core";
+import type { SessionManager, Session } from "@contaazul/cahi-core";
+import type * as AoCore from "@contaazul/cahi-core";
 
 const { mockConfigRef, mockSessionManager } = vi.hoisted(() => ({
   mockConfigRef: { current: null as Record<string, unknown> | null },
@@ -18,7 +18,7 @@ const { mockConfigRef, mockSessionManager } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = await importOriginal<typeof AoCore>();
   return {
     ...actual,

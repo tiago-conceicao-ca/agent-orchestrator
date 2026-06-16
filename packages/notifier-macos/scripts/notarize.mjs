@@ -7,8 +7,8 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const appDir = resolve(__dirname, "..", "dist", "AO Notifier.app");
-const zipPath = resolve(__dirname, "..", "dist", "AO Notifier.zip");
+const appDir = resolve(__dirname, "..", "dist", "Cahi Notifier.app");
+const zipPath = resolve(__dirname, "..", "dist", "Cahi Notifier.zip");
 
 const appleId = process.env["APPLE_NOTARY_APPLE_ID"];
 const teamId = process.env["APPLE_NOTARY_TEAM_ID"];
@@ -50,4 +50,4 @@ execFileSync(
   { stdio: "inherit" },
 );
 execFileSync("xcrun", ["stapler", "staple", appDir], { stdio: "inherit" });
-console.log("Notarized and stapled AO Notifier.app.");
+console.log("Notarized and stapled Cahi Notifier.app.");

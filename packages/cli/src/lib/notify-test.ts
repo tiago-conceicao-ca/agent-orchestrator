@@ -18,7 +18,7 @@ import {
   type OrchestratorConfig,
   type OrchestratorEvent,
   type PluginRegistry,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export const NOTIFY_TEST_TEMPLATE_NAMES = [
   "basic",

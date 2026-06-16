@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isWindows } from "@aoagents/ao-core";
+import { isWindows } from "@contaazul/cahi-core";
 import {
   classifyInstallPath,
   hasNodeModulesAncestor,
@@ -56,7 +56,7 @@ export function resolveRepoRoot(): string {
     const expected =
       DEFAULT_SCRIPT_LAYOUT === "source-checkout"
         ? "an agent-orchestrator checkout"
-        : "an installed @aoagents/ao-cli package";
+        : "an installed @contaazul/cahi-cli package";
     throw new Error(`AO_REPO_ROOT=${override} does not look like ${expected}`);
   }
 

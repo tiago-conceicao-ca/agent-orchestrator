@@ -11,7 +11,7 @@ vi.mock("node:child_process", () => ({
   execFile: mockExecFile,
 }));
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   killProcessTree: mockKillProcessTree,
 }));
 

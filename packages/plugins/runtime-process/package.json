@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-runtime-process",
+  "name": "@contaazul/cahi-plugin-runtime-process",
   "version": "0.9.1",
   "description": "Runtime plugin: child processes",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*",
+    "@contaazul/cahi-core": "workspace:*",
     "node-pty": "^1.0.0"
   },
   "devDependencies": {

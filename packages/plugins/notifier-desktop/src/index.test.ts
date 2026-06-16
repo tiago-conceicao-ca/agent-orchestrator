@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
-import type { OrchestratorEvent, NotifyAction } from "@aoagents/ao-core";
+import type { OrchestratorEvent, NotifyAction } from "@contaazul/cahi-core";
 
 // Mock node:child_process
 vi.mock("node:child_process", () => ({
@@ -494,26 +494,26 @@ describe("notifier-desktop", () => {
     });
   });
 
-  describe("AO Notifier.app backend", () => {
+  describe("Cahi Notifier.app backend", () => {
     beforeEach(() => {
       mockExistsSync.mockImplementation((path: string) =>
-        path.endsWith("AO Notifier.app/Contents/MacOS/ao-notifier"),
+        path.endsWith("Cahi Notifier.app/Contents/MacOS/cahi-notifier"),
       );
     });
 
-    it("uses AO Notifier.app before terminal-notifier in auto mode", async () => {
+    it("uses Cahi Notifier.app before terminal-notifier in auto mode", async () => {
       mockExecFileSync.mockReturnValue(Buffer.from("/usr/local/bin/terminal-notifier\n"));
       const notifier = create({ dashboardUrl: "http://localhost:3000" });
       await notifier.notify(makeEvent({ message: "native app" }));
 
       expect(mockExecFile.mock.calls[0][0]).toBe(
-        "/Users/test/Applications/AO Notifier.app/Contents/MacOS/ao-notifier",
+        "/Users/test/Applications/Cahi Notifier.app/Contents/MacOS/cahi-notifier",
       );
       expect(mockExecFile.mock.calls[0][1][0]).toBe("--notify-base64");
     });
 
-    it("passes event metadata and default open URL to AO Notifier.app", async () => {
-      const notifier = create({ backend: "ao-app", dashboardUrl: "http://localhost:3001" });
+    it("passes event metadata and default open URL to Cahi Notifier.app", async () => {
+      const notifier = create({ backend: "cahi-app", dashboardUrl: "http://localhost:3001" });
       await notifier.notify(makeEvent({ id: "evt-native", sessionId: "s-9" }));
 
       const encoded = mockExecFile.mock.calls[0][1][1] as string;
@@ -532,8 +532,8 @@ describe("notifier-desktop", () => {
     });
 
     it("scopes native notification sequence to each notifier instance", async () => {
-      const first = create({ backend: "ao-app" });
-      const second = create({ backend: "ao-app" });
+      const first = create({ backend: "cahi-app" });
+      const second = create({ backend: "cahi-app" });
 
       await first.notify(makeEvent({ id: "evt-first" }));
       await second.notify(makeEvent({ id: "evt-second" }));
@@ -551,8 +551,8 @@ describe("notifier-desktop", () => {
       expect(secondPayload.notificationId).toMatch(/^evt-second\..*\.1$/);
     });
 
-    it("passes URL actions to AO Notifier.app", async () => {
-      const notifier = create({ backend: "ao-app" });
+    it("passes URL actions to Cahi Notifier.app", async () => {
+      const notifier = create({ backend: "cahi-app" });
       const actions: NotifyAction[] = [
         { label: "Open PR", url: "https://github.com/example/pr/1" },
         { label: "Kill", callbackEndpoint: "/api/kill" },
@@ -571,8 +571,8 @@ describe("notifier-desktop", () => {
       expect(payload.body).not.toContain("Open PR");
     });
 
-    it("passes callback actions to AO Notifier.app when they resolve against dashboardUrl", async () => {
-      const notifier = create({ backend: "ao-app", dashboardUrl: "http://localhost:3000" });
+    it("passes callback actions to Cahi Notifier.app when they resolve against dashboardUrl", async () => {
+      const notifier = create({ backend: "cahi-app", dashboardUrl: "http://localhost:3000" });
       const actions: NotifyAction[] = [
         { label: "Kill", callbackEndpoint: "/api/sessions/app-1/kill" },
       ];
@@ -589,19 +589,19 @@ describe("notifier-desktop", () => {
       expect(payload.body).not.toContain("Kill");
     });
 
-    it("fails when backend ao-app is configured but the app is missing", async () => {
+    it("fails when backend cahi-app is configured but the app is missing", async () => {
       mockExistsSync.mockReturnValue(false);
-      const notifier = create({ backend: "ao-app" });
+      const notifier = create({ backend: "cahi-app" });
 
       await expect(notifier.notify(makeEvent())).rejects.toThrow("ao setup desktop");
       expect(mockExecFile).not.toHaveBeenCalled();
     });
 
-    it("does not use a placeholder AO Notifier.app in auto mode", async () => {
+    it("does not use a placeholder Cahi Notifier.app in auto mode", async () => {
       mockExistsSync.mockImplementation(
         (path: string) =>
-          path.endsWith("AO Notifier.app/Contents/MacOS/ao-notifier") ||
-          path.endsWith("AO Notifier.app/Contents/Resources/ao-notifier-placeholder"),
+          path.endsWith("Cahi Notifier.app/Contents/MacOS/cahi-notifier") ||
+          path.endsWith("Cahi Notifier.app/Contents/Resources/cahi-notifier-placeholder"),
       );
       const notifier = create();
 

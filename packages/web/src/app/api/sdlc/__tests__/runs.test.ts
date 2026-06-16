@@ -17,7 +17,7 @@ import {
   type RunView,
   type VerdictView,
 } from "@/lib/sdlc-board";
-import type { WorkflowRun } from "@aoagents/ao-sdlc";
+import type { WorkflowRun } from "@contaazul/cahi-sdlc";
 
 function makeRunView(id: string, projectId: string): RunView {
   return {

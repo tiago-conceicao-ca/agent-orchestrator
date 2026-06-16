@@ -4,7 +4,7 @@ import {
   isOpenCodeSessionManager,
   readAgentReportAuditTrailAsync,
   updateMetadata,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getServices } from "@/lib/services";
 import {
   sessionToDashboard,

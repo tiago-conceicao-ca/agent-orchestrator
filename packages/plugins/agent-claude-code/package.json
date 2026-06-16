@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-agent-claude-code",
+  "name": "@contaazul/cahi-plugin-agent-claude-code",
   "version": "0.9.1",
   "description": "Agent plugin: Claude Code",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

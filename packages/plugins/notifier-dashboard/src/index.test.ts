@@ -7,7 +7,7 @@ import {
   getDashboardNotificationStorePath,
   readDashboardNotifications,
   type OrchestratorEvent,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { create, manifest } from "./index.js";
 
 let tempDir: string | null = null;

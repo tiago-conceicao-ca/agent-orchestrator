@@ -15,8 +15,8 @@ const { recordActivityEventMock } = vi.hoisted(() => ({
   recordActivityEventMock: vi.fn(),
 }));
 
-vi.mock("@aoagents/ao-core", async () => {
-  const actual = (await vi.importActual("@aoagents/ao-core")) as Record<string, unknown>;
+vi.mock("@contaazul/cahi-core", async () => {
+  const actual = (await vi.importActual("@contaazul/cahi-core")) as Record<string, unknown>;
   return {
     ...actual,
     recordActivityEvent: recordActivityEventMock,
@@ -46,7 +46,7 @@ vi.mock("node:os", () => ({ homedir: () => "/mock-home" }));
 
 import * as childProcess from "node:child_process";
 import { create } from "../index.js";
-import type { ProjectConfig, WorkspaceCreateConfig, WorkspaceInfo } from "@aoagents/ao-core/types";
+import type { ProjectConfig, WorkspaceCreateConfig, WorkspaceInfo } from "@contaazul/cahi-core/types";
 
 const mockExecFileAsync = (childProcess.execFile as unknown as Record<symbol, unknown>)[
   Symbol.for("nodejs.util.promisify.custom")

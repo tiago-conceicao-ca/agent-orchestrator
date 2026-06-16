@@ -25,8 +25,8 @@ describe("direct-terminal-ws.ts", () => {
     expect(source).toMatch(/from\s+["']\.\/tmux-utils/);
   });
 
-  it("does not import loadConfig from @aoagents/ao-core", () => {
-    expect(source).not.toMatch(/import\s.*loadConfig.*from\s+["']@aoagents\/ao-core["']/);
+  it("does not import loadConfig from @contaazul/cahi-core", () => {
+    expect(source).not.toMatch(/import\s.*loadConfig.*from\s+["']@contaazul\/cahi-core["']/);
   });
 
   it("does not reference config.dataDir", () => {

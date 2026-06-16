@@ -3,7 +3,7 @@ import {
   CodeReviewRunNotFoundError,
   sendCodeReviewFindingsToAgent,
   SessionNotFoundError,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getCorrelationId, jsonWithCorrelation } from "@/lib/observability";
 import { getServices } from "@/lib/services";
 import { validateConfiguredProject, validateIdentifier } from "@/lib/validation";

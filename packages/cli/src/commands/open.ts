@@ -7,7 +7,7 @@ import {
   isWindows,
   loadConfig,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { exec } from "../lib/shell.js";
 import { getSessionManager } from "../lib/create-session-manager.js";
 import { findProjectForSession, matchesPrefix } from "../lib/session-utils.js";

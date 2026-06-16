@@ -11,8 +11,8 @@ import {
   type NotificationDataV3,
   type NotificationCICheck,
   CI_STATUS,
-} from "@aoagents/ao-core";
-import { isRetryableHttpStatus, normalizeRetryConfig } from "@aoagents/ao-core/utils";
+} from "@contaazul/cahi-core";
+import { isRetryableHttpStatus, normalizeRetryConfig } from "@contaazul/cahi-core/utils";
 
 export const manifest = {
   name: "discord",

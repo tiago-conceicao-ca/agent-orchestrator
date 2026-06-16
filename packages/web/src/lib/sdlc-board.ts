@@ -1,10 +1,10 @@
-import type { WorkflowRun } from "@aoagents/ao-sdlc";
+import type { WorkflowRun } from "@contaazul/cahi-sdlc";
 
 /** Client-safe SDLC kanban shapes + grouping logic (no node/server imports). */
 
 /**
  * Selectable model aliases for the task-detail model selector. Client-safe
- * mirror of @aoagents/ao-sdlc `SDLC_MODELS` — kept here so the modal doesn't
+ * mirror of @contaazul/cahi-sdlc `SDLC_MODELS` — kept here so the modal doesn't
  * pull the sdlc package's node deps (RunStore et al.) into the client bundle.
  * A test asserts this stays in sync with the source constant.
  */
@@ -197,7 +197,7 @@ export function toKanban(
  * A run abandoned under the OLD pre-#12 code persists as `status:"failed"` with
  * an abandon `lastError` (no distinct `abandoned` status existed yet). These are
  * the engine's two abandon messages: the manual default and the dead-engine
- * reconcile path (see `engine.abandon` / `reconcile` in @aoagents/ao-sdlc).
+ * reconcile path (see `engine.abandon` / `reconcile` in @contaazul/cahi-sdlc).
  */
 const LEGACY_ABANDON_MESSAGES = [/^Run abandoned\.$/, /^Engine process .+ is no longer alive\.$/];
 

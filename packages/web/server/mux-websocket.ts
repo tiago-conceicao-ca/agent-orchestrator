@@ -23,7 +23,7 @@ import {
   recordActivityEvent,
   readDashboardNotificationsFromFile,
   type DashboardNotificationRecord,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   findTmux,
   resolveTmuxSession,

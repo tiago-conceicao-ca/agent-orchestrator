@@ -55,15 +55,15 @@ cd "$WORKTREE"
 # ── build CLI/core/plugins ─────────────────────────────────────────────────────
 echo -e "\n${BOLD}Building $SESSION${RESET} (branch: ${CYAN}$BRANCH${RESET})\n"
 
-pnpm --filter @aoagents/ao-core \
-     --filter @aoagents/ao-cli \
-     --filter '@aoagents/ao-plugin-*' \
+pnpm --filter @contaazul/cahi-core \
+     --filter @contaazul/cahi-cli \
+     --filter '@contaazul/cahi-plugin-*' \
      build
 
 # ── build web if requested ─────────────────────────────────────────────────────
 if [ "$WITH_WEB" = true ]; then
   echo -e "\n${BOLD}Building dashboard...${RESET}\n"
-  pnpm --filter @aoagents/ao-web build
+  pnpm --filter @contaazul/cahi-web build
 fi
 
 # ── link ao ───────────────────────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import {
   triggerCodeReviewForSession,
   type CodeReviewRunStatus,
   type CodeReviewRunSummary,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getSessionManager } from "../lib/create-session-manager.js";
 
 const RUN_STATUSES: ReadonlySet<CodeReviewRunStatus> = new Set([

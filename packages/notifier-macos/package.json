@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-notifier-macos",
+  "name": "@contaazul/cahi-notifier-macos",
   "version": "0.9.1",
   "description": "Native macOS notification helper app for AO",
   "license": "MIT",

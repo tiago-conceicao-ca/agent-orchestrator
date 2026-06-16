@@ -65,7 +65,7 @@ banner "Pre-flight: build CLI + reset sandbox"
 
 if [[ ! -f "$AO_CLI" ]]; then
   note "CLI bundle not found, building..."
-  (cd "$AO_REPO" && pnpm --filter @aoagents/ao-cli build >/dev/null)
+  (cd "$AO_REPO" && pnpm --filter @contaazul/cahi-cli build >/dev/null)
 fi
 
 rm -rf "$DEMO_HOME"
@@ -531,7 +531,7 @@ sed -n '/attaches to existing daemon (no second dashboard)/,/^  });$/p' \
 sleep 5
 
 step "Run the test live (filtered by test name via vitest -t)"
-(cd "$AO_REPO" && pnpm --filter @aoagents/ao-cli test -- start.test.ts -t "attaches to existing daemon" 2>&1 \
+(cd "$AO_REPO" && pnpm --filter @contaazul/cahi-cli test -- start.test.ts -t "attaches to existing daemon" 2>&1 \
   | grep -E "✓|✗|FAIL|Test Files|^\s*Tests " | head -10 | sed 's/^/    /') || true
 sleep 3
 
@@ -626,12 +626,12 @@ banner "Test summary: 560 CLI + 981 core (last full run)"
 # Restore the real HOME and unset sandbox env vars when running the full
 # test suites — otherwise tests that read getGlobalConfigPath() see the
 # demo's sparse config and fail spuriously.
-step "pnpm --filter @aoagents/ao-cli test"
-(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @aoagents/ao-cli test 2>&1 \
+step "pnpm --filter @contaazul/cahi-cli test"
+(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-cli test 2>&1 \
   | grep -E "^\s*(Tests|Test Files|Duration)" | sed 's/^/    /') || true
 
-step "pnpm --filter @aoagents/ao-core test"
-(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @aoagents/ao-core test 2>&1 \
+step "pnpm --filter @contaazul/cahi-core test"
+(cd "$AO_REPO" && env -u AO_GLOBAL_CONFIG HOME="$REAL_HOME" pnpm --filter @contaazul/cahi-core test 2>&1 \
   | grep -E "^\s*(Tests|Test Files|Duration)" | sed 's/^/    /') || true
 
 # ───────────────────────────────────────────────────────────────────────────

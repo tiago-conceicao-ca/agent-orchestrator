@@ -4,7 +4,7 @@
  * No hardcoded binary paths — relies entirely on each plugin's detect() export.
  */
 
-import type { PluginModule } from "@aoagents/ao-core";
+import type { PluginModule } from "@contaazul/cahi-core";
 import { isHumanCaller } from "./caller-context.js";
 import { promptSelect } from "./prompts.js";
 
@@ -15,13 +15,13 @@ export interface DetectedAgent {
 
 /** Known agent plugins — package name mapping. */
 const AGENT_PLUGINS: Array<{ name: string; pkg: string }> = [
-  { name: "claude-code", pkg: "@aoagents/ao-plugin-agent-claude-code" },
-  { name: "aider", pkg: "@aoagents/ao-plugin-agent-aider" },
-  { name: "codex", pkg: "@aoagents/ao-plugin-agent-codex" },
-  { name: "cursor", pkg: "@aoagents/ao-plugin-agent-cursor" },
-  { name: "kimicode", pkg: "@aoagents/ao-plugin-agent-kimicode" },
-  { name: "grok", pkg: "@aoagents/ao-plugin-agent-grok" },
-  { name: "opencode", pkg: "@aoagents/ao-plugin-agent-opencode" },
+  { name: "claude-code", pkg: "@contaazul/cahi-plugin-agent-claude-code" },
+  { name: "aider", pkg: "@contaazul/cahi-plugin-agent-aider" },
+  { name: "codex", pkg: "@contaazul/cahi-plugin-agent-codex" },
+  { name: "cursor", pkg: "@contaazul/cahi-plugin-agent-cursor" },
+  { name: "kimicode", pkg: "@contaazul/cahi-plugin-agent-kimicode" },
+  { name: "grok", pkg: "@contaazul/cahi-plugin-agent-grok" },
+  { name: "opencode", pkg: "@contaazul/cahi-plugin-agent-opencode" },
 ];
 
 /**

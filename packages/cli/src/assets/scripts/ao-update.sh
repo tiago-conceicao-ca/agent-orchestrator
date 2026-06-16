@@ -42,7 +42,7 @@ fi
 
 is_repo_root() {
   local candidate="$1"
-  [ -f "$candidate/packages/ao/bin/ao.js" ] && [ -d "$candidate/packages/cli" ]
+  [ -f "$candidate/packages/cahi/bin/cahi.js" ] && [ -d "$candidate/packages/cli" ]
 }
 
 find_repo_root_from() {
@@ -159,9 +159,9 @@ maybe_sync_origin_with_upstream() {
 
 run_smoke_tests() {
   printf '\nRunning smoke tests...\n'
-  run_cmd node "$REPO_ROOT/packages/ao/bin/ao.js" --version
-  run_cmd node "$REPO_ROOT/packages/ao/bin/ao.js" doctor --help
-  run_cmd node "$REPO_ROOT/packages/ao/bin/ao.js" update --help
+  run_cmd node "$REPO_ROOT/packages/cahi/bin/cahi.js" --version
+  run_cmd node "$REPO_ROOT/packages/cahi/bin/cahi.js" doctor --help
+  run_cmd node "$REPO_ROOT/packages/cahi/bin/cahi.js" update --help
 }
 
 ensure_repo_clean() {
@@ -222,7 +222,7 @@ if [ "$SMOKE_ONLY" = false ]; then
 
     printf '\nRefreshing ao launcher...\n'
     (
-      cd "$REPO_ROOT/packages/ao"
+      cd "$REPO_ROOT/packages/cahi"
       npm_link_error="$(mktemp)"
       if npm link --force 2>"$npm_link_error"; then
         rm -f "$npm_link_error"
@@ -236,7 +236,7 @@ if [ "$SMOKE_ONLY" = false ]; then
       else
         cat "$npm_link_error" >&2
         rm -f "$npm_link_error"
-        printf 'ERROR: Launcher refresh failed. Run manually: cd %s/packages/ao && sudo npm link --force\n' "$REPO_ROOT"
+        printf 'ERROR: Launcher refresh failed. Run manually: cd %s/packages/cahi && sudo npm link --force\n' "$REPO_ROOT"
         exit 1
       fi
     )

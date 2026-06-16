@@ -7,7 +7,7 @@ import {
   type EventType,
   type SessionStatus,
   type ActivityState,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 /**
  * Create a test OrchestratorEvent with sensible defaults.

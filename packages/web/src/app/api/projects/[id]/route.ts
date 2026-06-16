@@ -17,7 +17,7 @@ import {
   type OpenCodeSessionManager,
   type PluginRegistry,
   type LocalProjectConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { revalidatePath } from "next/cache";
 import { getServices, invalidatePortfolioServicesCache } from "@/lib/services";
 import { stopStaleWindowsPtyHosts } from "@/lib/windows-pty-cleanup";

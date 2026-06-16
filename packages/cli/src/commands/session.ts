@@ -10,7 +10,7 @@ import {
   loadConfig,
   SessionNotRestorableError,
   WorkspaceMissingError,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { DEFAULT_PORT } from "../lib/constants.js";
 import { git, getTmuxActivity, tmux } from "../lib/shell.js";
 import { formatAge } from "../lib/format.js";

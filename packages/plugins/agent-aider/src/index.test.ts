@@ -4,7 +4,7 @@ import {
   type Session,
   type RuntimeHandle,
   type AgentLaunchConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Mock fs/promises for getSessionInfo tests (readFile for .aider.chat.history.md)
 vi.mock("node:fs/promises", async (importOriginal) => {
@@ -30,7 +30,7 @@ const {
   mockReadFileSync: vi.fn(() => ""),
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

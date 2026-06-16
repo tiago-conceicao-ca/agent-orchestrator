@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { WorkflowRun } from "@aoagents/ao-sdlc";
+import type { WorkflowRun } from "@contaazul/cahi-sdlc";
 import { enrichRunTasks } from "@/lib/sdlc-tasks";
 
 function runWith(model: string | undefined): WorkflowRun {

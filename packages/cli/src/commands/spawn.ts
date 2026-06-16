@@ -9,7 +9,7 @@ import {
   TERMINAL_STATUSES,
   type OrchestratorConfig,
   type PreflightContext,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { DEFAULT_PORT } from "../lib/constants.js";
 import { exec } from "../lib/shell.js";
 import { banner } from "../lib/format.js";

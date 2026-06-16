@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { ACTIVITY_STATE, SESSION_STATUS, isOrchestratorSession } from "@aoagents/ao-core/types";
+import { ACTIVITY_STATE, SESSION_STATUS, isOrchestratorSession } from "@contaazul/cahi-core/types";
 import { SessionDetail } from "@/components/SessionDetail";
 import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { ProjectSidebar, type ProjectSidebarOrchestrator } from "@/components/ProjectSidebar";

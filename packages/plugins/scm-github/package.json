@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-scm-github",
+  "name": "@contaazul/cahi-plugin-scm-github",
   "version": "0.9.1",
   "description": "SCM plugin: GitHub (PRs, CI, reviews)",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

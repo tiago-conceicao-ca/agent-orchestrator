@@ -7,9 +7,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as AoCore from "@aoagents/ao-core";
+import * as AoCore from "@contaazul/cahi-core";
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = await importOriginal<typeof AoCore>();
   return {
     ...actual,
@@ -101,10 +101,10 @@ describe("resolve-project — activity events", () => {
     // and assert that whenever `registerFlatConfig` returns null, the event
     // fires at the call site. To do that we drive the function with a
     // controlled cwd that lacks a parseable config but has a config file
-    // present — replicated by stubbing findConfigFile in @aoagents/ao-core.
+    // present — replicated by stubbing findConfigFile in @contaazul/cahi-core.
 
     // Reach into the same module mock by re-mocking findConfigFile + loadConfig.
-    vi.doMock("@aoagents/ao-core", async (importOriginal) => {
+    vi.doMock("@contaazul/cahi-core", async (importOriginal) => {
       const actual = await importOriginal<typeof AoCore>();
       return {
         ...actual,
@@ -123,7 +123,7 @@ describe("resolve-project — activity events", () => {
     const { resolveOrCreateProject: resolveOrCreateProjectReloaded } =
       await import("../../src/lib/resolve-project.js");
     // Re-grab the mock so cleared calls inside the doMock factory don't get lost.
-    const { recordActivityEvent: reloadedRecord } = await import("@aoagents/ao-core");
+    const { recordActivityEvent: reloadedRecord } = await import("@contaazul/cahi-core");
     vi.mocked(reloadedRecord).mockClear();
 
     await expect(
@@ -154,6 +154,6 @@ describe("resolve-project — activity events", () => {
       }),
     );
 
-    vi.doUnmock("@aoagents/ao-core");
+    vi.doUnmock("@contaazul/cahi-core");
   });
 });

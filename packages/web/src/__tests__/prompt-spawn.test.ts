@@ -22,7 +22,7 @@ import {
   type OrchestratorConfig,
   type PluginRegistry,
   type SCM,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { sessionToDashboard } from "@/lib/serialize";
 
 // ── Shared test fixtures ──────────────────────────────────────────────

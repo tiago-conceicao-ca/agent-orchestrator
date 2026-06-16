@@ -19,7 +19,7 @@ const {
   mockLoadLocalProjectConfig: vi.fn(),
 }));
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   isPortfolioEnabled: () => true,
   getPortfolio: mockGetPortfolio,
   getPortfolioSessionCounts: mockGetPortfolioSessionCounts,

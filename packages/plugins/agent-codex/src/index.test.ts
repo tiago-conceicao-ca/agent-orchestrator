@@ -6,7 +6,7 @@ import {
   type RuntimeHandle,
   type AgentLaunchConfig,
   type AgentSpecificConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks — available inside vi.mock factories
@@ -85,7 +85,7 @@ vi.mock("node:os", () => ({
   homedir: mockHomedir,
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
@@ -2029,7 +2029,7 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
   async function getWrapperContent(name: string): Promise<string> {
     // Wrappers are now installed by session-manager via setupPathWrapperWorkspace.
     // Import and call it directly to test wrapper content.
-    const { setupPathWrapperWorkspace } = await import("@aoagents/ao-core");
+    const { setupPathWrapperWorkspace } = await import("@contaazul/cahi-core");
     await setupPathWrapperWorkspace("/workspace/test");
 
     // With atomic writes, content is written to a .tmp. file

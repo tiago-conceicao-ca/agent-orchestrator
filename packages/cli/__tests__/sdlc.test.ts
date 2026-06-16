@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { Session } from "@aoagents/ao-core";
+import type { Session } from "@contaazul/cahi-core";
 import { buildSdlcServices, classifyTerminal, printRun } from "../src/commands/sdlc.js";
 
 /** Minimal Session fake: only the fields classifyTerminal reads. */

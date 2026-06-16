@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { generateOrchestratorPrompt, recordActivityEvent } from "@aoagents/ao-core";
+import { generateOrchestratorPrompt, recordActivityEvent } from "@contaazul/cahi-core";
 import { getServices } from "@/lib/services";
 import { validateIdentifier, validateConfiguredProject } from "@/lib/validation";
 

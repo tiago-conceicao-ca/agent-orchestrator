@@ -15,8 +15,8 @@ vi.mock("node:https", () => ({
   request: requestMock,
 }));
 
-vi.mock("@aoagents/ao-core", async () => {
-  const actual = (await vi.importActual("@aoagents/ao-core")) as Record<string, unknown>;
+vi.mock("@contaazul/cahi-core", async () => {
+  const actual = (await vi.importActual("@contaazul/cahi-core")) as Record<string, unknown>;
   return {
     ...actual,
     recordActivityEvent: recordActivityEventMock,
@@ -28,7 +28,7 @@ vi.mock("@aoagents/ao-core", async () => {
 // shape we want to exercise.
 
 import { create, _resetDepMissingEmittedForTesting } from "./index.js";
-import type { ProjectConfig } from "@aoagents/ao-core";
+import type { ProjectConfig } from "@contaazul/cahi-core";
 
 beforeEach(() => {
   vi.clearAllMocks();

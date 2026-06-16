@@ -5,7 +5,7 @@ import {
   type NotifyAction,
   type OrchestratorEvent,
   type PluginModule,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "dashboard",

@@ -8,7 +8,7 @@ import {
   getGlobalConfigPath,
   loadConfig,
   matchSiblingProjectId,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export interface ProjectInfo {
   id: string;

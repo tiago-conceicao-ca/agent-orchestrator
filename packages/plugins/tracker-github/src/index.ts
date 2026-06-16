@@ -14,7 +14,7 @@ import {
   type IssueUpdate,
   type CreateIssueInput,
   type ProjectConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // ---------------------------------------------------------------------------
 // Helpers

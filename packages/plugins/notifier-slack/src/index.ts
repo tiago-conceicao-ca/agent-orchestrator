@@ -9,7 +9,7 @@ import {
   type EventPriority,
   type NotificationDataV3,
   CI_STATUS,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "slack",

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createInitialCanonicalLifecycle, createActivitySignal, type Session } from "@aoagents/ao-core";
+import { createInitialCanonicalLifecycle, createActivitySignal, type Session } from "@contaazul/cahi-core";
 import { manifest, create } from "./index.js";
 
 function makeSession(overrides: Partial<Session> = {}): Session {

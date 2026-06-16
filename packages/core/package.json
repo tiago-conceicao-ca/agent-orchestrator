@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-core",
+  "name": "@contaazul/cahi-core",
   "version": "0.9.1",
   "description": "Core library — types, config, session manager, lifecycle manager, event bus",
   "license": "MIT",

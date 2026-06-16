@@ -38,8 +38,8 @@ import { closeDb } from "../events-db.js";
 import { createLifecycleManager } from "../lifecycle-manager.js";
 import { writeMetadata } from "../metadata.js";
 import { getProjectSessionsDir, getProjectDir } from "../paths.js";
-import trackerGithub from "@aoagents/ao-plugin-tracker-github";
-import scmGithub from "@aoagents/ao-plugin-scm-github";
+import trackerGithub from "@contaazul/cahi-plugin-tracker-github";
+import scmGithub from "@contaazul/cahi-plugin-scm-github";
 import { createMockPlugins, makeHandle, makeSession as makeSessionBase, makePR, type TestEnvironment } from "./test-utils.js";
 import type {
   OrchestratorConfig,

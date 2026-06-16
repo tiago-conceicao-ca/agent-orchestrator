@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getVerifyIssues, getServices } from "@/lib/services";
 import { validateConfiguredProject } from "@/lib/validation";
-import { recordActivityEvent, type Tracker } from "@aoagents/ao-core";
+import { recordActivityEvent, type Tracker } from "@contaazul/cahi-core";
 
 export const dynamic = "force-dynamic";
 

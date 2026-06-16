@@ -5,8 +5,8 @@
  * Everything else runs for real: config parsing, Block Kit construction, channel routing.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { NotifyAction, EventPriority } from "@aoagents/ao-core";
-import slackPlugin from "@aoagents/ao-plugin-notifier-slack";
+import type { NotifyAction, EventPriority } from "@contaazul/cahi-core";
+import slackPlugin from "@contaazul/cahi-plugin-notifier-slack";
 import { makeEvent } from "./helpers/event-factory.js";
 
 function mockFetchOk() {

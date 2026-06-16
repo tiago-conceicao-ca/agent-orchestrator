@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { updateMetadata, type OrchestratorEvent, type PluginRegistry } from "@aoagents/ao-core";
+import { updateMetadata, type OrchestratorEvent, type PluginRegistry } from "@contaazul/cahi-core";
 import { makeSdlcRunEventHandler, type SdlcRunEventNotifierDeps } from "./run-event-notifier.js";
 import type { SdlcRunEvent } from "../workflow/types.js";
 

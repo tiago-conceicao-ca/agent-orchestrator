@@ -44,101 +44,101 @@ importers:
         specifier: ^8.55.0
         version: 8.58.1(eslint@10.2.0(jiti@2.6.1))(typescript@5.9.3)
 
-  packages/ao:
+  packages/cahi:
     dependencies:
-      '@aoagents/ao-cli':
+      '@contaazul/cahi-cli':
         specifier: workspace:*
         version: link:../cli
 
   packages/cli:
     dependencies:
-      '@aoagents/ao-core':
-        specifier: workspace:*
-        version: link:../core
-      '@aoagents/ao-notifier-macos':
-        specifier: workspace:*
-        version: link:../notifier-macos
-      '@aoagents/ao-plugin-agent-aider':
-        specifier: workspace:*
-        version: link:../plugins/agent-aider
-      '@aoagents/ao-plugin-agent-claude-code':
-        specifier: workspace:*
-        version: link:../plugins/agent-claude-code
-      '@aoagents/ao-plugin-agent-codex':
-        specifier: workspace:*
-        version: link:../plugins/agent-codex
-      '@aoagents/ao-plugin-agent-cursor':
-        specifier: workspace:*
-        version: link:../plugins/agent-cursor
-      '@aoagents/ao-plugin-agent-grok':
-        specifier: workspace:*
-        version: link:../plugins/agent-grok
-      '@aoagents/ao-plugin-agent-kimicode':
-        specifier: workspace:*
-        version: link:../plugins/agent-kimicode
-      '@aoagents/ao-plugin-agent-opencode':
-        specifier: workspace:*
-        version: link:../plugins/agent-opencode
-      '@aoagents/ao-plugin-notifier-composio':
-        specifier: workspace:*
-        version: link:../plugins/notifier-composio
-      '@aoagents/ao-plugin-notifier-dashboard':
-        specifier: workspace:*
-        version: link:../plugins/notifier-dashboard
-      '@aoagents/ao-plugin-notifier-desktop':
-        specifier: workspace:*
-        version: link:../plugins/notifier-desktop
-      '@aoagents/ao-plugin-notifier-discord':
-        specifier: workspace:*
-        version: link:../plugins/notifier-discord
-      '@aoagents/ao-plugin-notifier-openclaw':
-        specifier: workspace:*
-        version: link:../plugins/notifier-openclaw
-      '@aoagents/ao-plugin-notifier-slack':
-        specifier: workspace:*
-        version: link:../plugins/notifier-slack
-      '@aoagents/ao-plugin-notifier-webhook':
-        specifier: workspace:*
-        version: link:../plugins/notifier-webhook
-      '@aoagents/ao-plugin-runtime-process':
-        specifier: workspace:*
-        version: link:../plugins/runtime-process
-      '@aoagents/ao-plugin-runtime-tmux':
-        specifier: workspace:*
-        version: link:../plugins/runtime-tmux
-      '@aoagents/ao-plugin-scm-github':
-        specifier: workspace:*
-        version: link:../plugins/scm-github
-      '@aoagents/ao-plugin-terminal-iterm2':
-        specifier: workspace:*
-        version: link:../plugins/terminal-iterm2
-      '@aoagents/ao-plugin-terminal-web':
-        specifier: workspace:*
-        version: link:../plugins/terminal-web
-      '@aoagents/ao-plugin-tracker-github':
-        specifier: workspace:*
-        version: link:../plugins/tracker-github
-      '@aoagents/ao-plugin-tracker-linear':
-        specifier: workspace:*
-        version: link:../plugins/tracker-linear
-      '@aoagents/ao-plugin-workspace-clone':
-        specifier: workspace:*
-        version: link:../plugins/workspace-clone
-      '@aoagents/ao-plugin-workspace-worktree':
-        specifier: workspace:*
-        version: link:../plugins/workspace-worktree
-      '@aoagents/ao-sdlc':
-        specifier: workspace:*
-        version: link:../sdlc
-      '@aoagents/ao-web':
-        specifier: workspace:*
-        version: link:../web
       '@clack/prompts':
         specifier: ^0.9.1
         version: 0.9.1
       '@composio/core':
         specifier: ^0.9.0
         version: 0.9.0(ws@8.20.0)(zod@3.25.76)
+      '@contaazul/cahi-core':
+        specifier: workspace:*
+        version: link:../core
+      '@contaazul/cahi-notifier-macos':
+        specifier: workspace:*
+        version: link:../notifier-macos
+      '@contaazul/cahi-plugin-agent-aider':
+        specifier: workspace:*
+        version: link:../plugins/agent-aider
+      '@contaazul/cahi-plugin-agent-claude-code':
+        specifier: workspace:*
+        version: link:../plugins/agent-claude-code
+      '@contaazul/cahi-plugin-agent-codex':
+        specifier: workspace:*
+        version: link:../plugins/agent-codex
+      '@contaazul/cahi-plugin-agent-cursor':
+        specifier: workspace:*
+        version: link:../plugins/agent-cursor
+      '@contaazul/cahi-plugin-agent-grok':
+        specifier: workspace:*
+        version: link:../plugins/agent-grok
+      '@contaazul/cahi-plugin-agent-kimicode':
+        specifier: workspace:*
+        version: link:../plugins/agent-kimicode
+      '@contaazul/cahi-plugin-agent-opencode':
+        specifier: workspace:*
+        version: link:../plugins/agent-opencode
+      '@contaazul/cahi-plugin-notifier-composio':
+        specifier: workspace:*
+        version: link:../plugins/notifier-composio
+      '@contaazul/cahi-plugin-notifier-dashboard':
+        specifier: workspace:*
+        version: link:../plugins/notifier-dashboard
+      '@contaazul/cahi-plugin-notifier-desktop':
+        specifier: workspace:*
+        version: link:../plugins/notifier-desktop
+      '@contaazul/cahi-plugin-notifier-discord':
+        specifier: workspace:*
+        version: link:../plugins/notifier-discord
+      '@contaazul/cahi-plugin-notifier-openclaw':
+        specifier: workspace:*
+        version: link:../plugins/notifier-openclaw
+      '@contaazul/cahi-plugin-notifier-slack':
+        specifier: workspace:*
+        version: link:../plugins/notifier-slack
+      '@contaazul/cahi-plugin-notifier-webhook':
+        specifier: workspace:*
+        version: link:../plugins/notifier-webhook
+      '@contaazul/cahi-plugin-runtime-process':
+        specifier: workspace:*
+        version: link:../plugins/runtime-process
+      '@contaazul/cahi-plugin-runtime-tmux':
+        specifier: workspace:*
+        version: link:../plugins/runtime-tmux
+      '@contaazul/cahi-plugin-scm-github':
+        specifier: workspace:*
+        version: link:../plugins/scm-github
+      '@contaazul/cahi-plugin-terminal-iterm2':
+        specifier: workspace:*
+        version: link:../plugins/terminal-iterm2
+      '@contaazul/cahi-plugin-terminal-web':
+        specifier: workspace:*
+        version: link:../plugins/terminal-web
+      '@contaazul/cahi-plugin-tracker-github':
+        specifier: workspace:*
+        version: link:../plugins/tracker-github
+      '@contaazul/cahi-plugin-tracker-linear':
+        specifier: workspace:*
+        version: link:../plugins/tracker-linear
+      '@contaazul/cahi-plugin-workspace-clone':
+        specifier: workspace:*
+        version: link:../plugins/workspace-clone
+      '@contaazul/cahi-plugin-workspace-worktree':
+        specifier: workspace:*
+        version: link:../plugins/workspace-worktree
+      '@contaazul/cahi-sdlc':
+        specifier: workspace:*
+        version: link:../sdlc
+      '@contaazul/cahi-web':
+        specifier: workspace:*
+        version: link:../web
       chalk:
         specifier: ^5.4.0
         version: 5.6.2
@@ -214,56 +214,56 @@ importers:
 
   packages/integration-tests:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../core
-      '@aoagents/ao-plugin-agent-aider':
+      '@contaazul/cahi-plugin-agent-aider':
         specifier: workspace:*
         version: link:../plugins/agent-aider
-      '@aoagents/ao-plugin-agent-claude-code':
+      '@contaazul/cahi-plugin-agent-claude-code':
         specifier: workspace:*
         version: link:../plugins/agent-claude-code
-      '@aoagents/ao-plugin-agent-codex':
+      '@contaazul/cahi-plugin-agent-codex':
         specifier: workspace:*
         version: link:../plugins/agent-codex
-      '@aoagents/ao-plugin-agent-opencode':
+      '@contaazul/cahi-plugin-agent-opencode':
         specifier: workspace:*
         version: link:../plugins/agent-opencode
-      '@aoagents/ao-plugin-runtime-process':
+      '@contaazul/cahi-plugin-runtime-process':
         specifier: workspace:*
         version: link:../plugins/runtime-process
-      '@aoagents/ao-plugin-runtime-tmux':
+      '@contaazul/cahi-plugin-runtime-tmux':
         specifier: workspace:*
         version: link:../plugins/runtime-tmux
-      '@aoagents/ao-plugin-tracker-linear':
+      '@contaazul/cahi-plugin-tracker-linear':
         specifier: workspace:*
         version: link:../plugins/tracker-linear
-      '@aoagents/ao-plugin-workspace-clone':
+      '@contaazul/cahi-plugin-workspace-clone':
         specifier: workspace:*
         version: link:../plugins/workspace-clone
-      '@aoagents/ao-plugin-workspace-worktree':
+      '@contaazul/cahi-plugin-workspace-worktree':
         specifier: workspace:*
         version: link:../plugins/workspace-worktree
     devDependencies:
-      '@aoagents/ao-plugin-notifier-composio':
+      '@contaazul/cahi-plugin-notifier-composio':
         specifier: workspace:*
         version: link:../plugins/notifier-composio
-      '@aoagents/ao-plugin-notifier-desktop':
+      '@contaazul/cahi-plugin-notifier-desktop':
         specifier: workspace:*
         version: link:../plugins/notifier-desktop
-      '@aoagents/ao-plugin-notifier-openclaw':
+      '@contaazul/cahi-plugin-notifier-openclaw':
         specifier: workspace:*
         version: link:../plugins/notifier-openclaw
-      '@aoagents/ao-plugin-notifier-slack':
+      '@contaazul/cahi-plugin-notifier-slack':
         specifier: workspace:*
         version: link:../plugins/notifier-slack
-      '@aoagents/ao-plugin-notifier-webhook':
+      '@contaazul/cahi-plugin-notifier-webhook':
         specifier: workspace:*
         version: link:../plugins/notifier-webhook
-      '@aoagents/ao-plugin-terminal-iterm2':
+      '@contaazul/cahi-plugin-terminal-iterm2':
         specifier: workspace:*
         version: link:../plugins/terminal-iterm2
-      '@aoagents/ao-plugin-terminal-web':
+      '@contaazul/cahi-plugin-terminal-web':
         specifier: workspace:*
         version: link:../plugins/terminal-web
       '@types/node':
@@ -283,7 +283,7 @@ importers:
 
   packages/plugins/agent-aider:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -299,7 +299,7 @@ importers:
 
   packages/plugins/agent-claude-code:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -315,7 +315,7 @@ importers:
 
   packages/plugins/agent-codex:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -331,7 +331,7 @@ importers:
 
   packages/plugins/agent-cursor:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -347,7 +347,7 @@ importers:
 
   packages/plugins/agent-grok:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
       which:
@@ -369,7 +369,7 @@ importers:
 
   packages/plugins/agent-kimicode:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -385,7 +385,7 @@ importers:
 
   packages/plugins/agent-opencode:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -401,12 +401,12 @@ importers:
 
   packages/plugins/notifier-composio:
     dependencies:
-      '@aoagents/ao-core':
-        specifier: workspace:*
-        version: link:../../core
       '@composio/core':
         specifier: ^0.9.0
         version: 0.9.0(ws@8.20.0)(zod@3.25.76)
+      '@contaazul/cahi-core':
+        specifier: workspace:*
+        version: link:../../core
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -423,7 +423,7 @@ importers:
 
   packages/plugins/notifier-dashboard:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -439,7 +439,7 @@ importers:
 
   packages/plugins/notifier-desktop:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -455,7 +455,7 @@ importers:
 
   packages/plugins/notifier-discord:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -474,7 +474,7 @@ importers:
 
   packages/plugins/notifier-openclaw:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -490,7 +490,7 @@ importers:
 
   packages/plugins/notifier-slack:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -506,7 +506,7 @@ importers:
 
   packages/plugins/notifier-webhook:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -522,7 +522,7 @@ importers:
 
   packages/plugins/runtime-process:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
       node-pty:
@@ -541,7 +541,7 @@ importers:
 
   packages/plugins/runtime-tmux:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -557,7 +557,7 @@ importers:
 
   packages/plugins/scm-github:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -573,7 +573,7 @@ importers:
 
   packages/plugins/scm-gitlab:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -589,7 +589,7 @@ importers:
 
   packages/plugins/terminal-iterm2:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -605,7 +605,7 @@ importers:
 
   packages/plugins/terminal-web:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -621,7 +621,7 @@ importers:
 
   packages/plugins/tracker-github:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -637,10 +637,10 @@ importers:
 
   packages/plugins/tracker-gitlab:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
-      '@aoagents/ao-plugin-scm-gitlab':
+      '@contaazul/cahi-plugin-scm-gitlab':
         specifier: workspace:*
         version: link:../scm-gitlab
     devDependencies:
@@ -656,7 +656,7 @@ importers:
 
   packages/plugins/tracker-linear:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -672,7 +672,7 @@ importers:
 
   packages/plugins/workspace-clone:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -688,7 +688,7 @@ importers:
 
   packages/plugins/workspace-worktree:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../../core
     devDependencies:
@@ -704,7 +704,7 @@ importers:
 
   packages/sdlc:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../core
       js-yaml:
@@ -726,46 +726,46 @@ importers:
 
   packages/web:
     dependencies:
-      '@aoagents/ao-core':
+      '@contaazul/cahi-core':
         specifier: workspace:*
         version: link:../core
-      '@aoagents/ao-plugin-agent-claude-code':
+      '@contaazul/cahi-plugin-agent-claude-code':
         specifier: workspace:*
         version: link:../plugins/agent-claude-code
-      '@aoagents/ao-plugin-agent-codex':
+      '@contaazul/cahi-plugin-agent-codex':
         specifier: workspace:*
         version: link:../plugins/agent-codex
-      '@aoagents/ao-plugin-agent-cursor':
+      '@contaazul/cahi-plugin-agent-cursor':
         specifier: workspace:*
         version: link:../plugins/agent-cursor
-      '@aoagents/ao-plugin-agent-grok':
+      '@contaazul/cahi-plugin-agent-grok':
         specifier: workspace:*
         version: link:../plugins/agent-grok
-      '@aoagents/ao-plugin-agent-kimicode':
+      '@contaazul/cahi-plugin-agent-kimicode':
         specifier: workspace:*
         version: link:../plugins/agent-kimicode
-      '@aoagents/ao-plugin-agent-opencode':
+      '@contaazul/cahi-plugin-agent-opencode':
         specifier: workspace:*
         version: link:../plugins/agent-opencode
-      '@aoagents/ao-plugin-runtime-process':
+      '@contaazul/cahi-plugin-runtime-process':
         specifier: workspace:*
         version: link:../plugins/runtime-process
-      '@aoagents/ao-plugin-runtime-tmux':
+      '@contaazul/cahi-plugin-runtime-tmux':
         specifier: workspace:*
         version: link:../plugins/runtime-tmux
-      '@aoagents/ao-plugin-scm-github':
+      '@contaazul/cahi-plugin-scm-github':
         specifier: workspace:*
         version: link:../plugins/scm-github
-      '@aoagents/ao-plugin-tracker-github':
+      '@contaazul/cahi-plugin-tracker-github':
         specifier: workspace:*
         version: link:../plugins/tracker-github
-      '@aoagents/ao-plugin-tracker-linear':
+      '@contaazul/cahi-plugin-tracker-linear':
         specifier: workspace:*
         version: link:../plugins/tracker-linear
-      '@aoagents/ao-plugin-workspace-worktree':
+      '@contaazul/cahi-plugin-workspace-worktree':
         specifier: workspace:*
         version: link:../plugins/workspace-worktree
-      '@aoagents/ao-sdlc':
+      '@contaazul/cahi-sdlc':
         specifier: workspace:*
         version: link:../sdlc
       '@xterm/addon-fit':

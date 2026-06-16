@@ -136,7 +136,7 @@ pnpm build
 
 echo ""
 echo "Linking CLI globally..."
-cd packages/ao
+cd packages/cahi
 npm_link_error="$(mktemp)"
 if npm link --force 2>"$npm_link_error"; then
   rm -f "$npm_link_error"
@@ -150,7 +150,7 @@ elif [ "$INTERACTIVE" = true ]; then
 else
   cat "$npm_link_error" >&2
   rm -f "$npm_link_error"
-  echo "ERROR: Launcher refresh failed. Run manually: cd packages/ao && sudo npm link --force"
+  echo "ERROR: Launcher refresh failed. Run manually: cd packages/cahi && sudo npm link --force"
   exit 1
 fi
 cd "$REPO_ROOT"

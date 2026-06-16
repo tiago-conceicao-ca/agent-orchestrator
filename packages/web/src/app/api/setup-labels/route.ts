@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { recordActivityEvent } from "@aoagents/ao-core";
+import { recordActivityEvent } from "@contaazul/cahi-core";
 import { getServices } from "@/lib/services";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";

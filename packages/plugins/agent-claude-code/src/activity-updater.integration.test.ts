@@ -3,7 +3,7 @@ import { execSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { isWindows } from "@aoagents/ao-core";
+import { isWindows } from "@contaazul/cahi-core";
 import { ACTIVITY_UPDATER_SCRIPT, ACTIVITY_UPDATER_SCRIPT_NODE } from "./index.js";
 
 // ---------------------------------------------------------------------------

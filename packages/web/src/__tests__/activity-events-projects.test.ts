@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { NextRequest } from "next/server";
-import { recordActivityEvent, registerProjectInGlobalConfig } from "@aoagents/ao-core";
+import { recordActivityEvent, registerProjectInGlobalConfig } from "@contaazul/cahi-core";
 
-vi.mock("@aoagents/ao-core", async () => {
-  const actual = await vi.importActual("@aoagents/ao-core");
+vi.mock("@contaazul/cahi-core", async () => {
+  const actual = await vi.importActual("@contaazul/cahi-core");
   return {
     ...(actual as Record<string, unknown>),
     recordActivityEvent: vi.fn(),

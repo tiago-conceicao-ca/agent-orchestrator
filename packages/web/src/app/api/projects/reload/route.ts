@@ -4,7 +4,7 @@ import {
   getGlobalConfigPath,
   loadConfig,
   recordActivityEvent,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { invalidatePortfolioServicesCache } from "@/lib/services";
 
 export const dynamic = "force-dynamic";

@@ -1,7 +1,7 @@
 import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { isWindows } from "@aoagents/ao-core";
+import { isWindows } from "@contaazul/cahi-core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { GET as browseGET } from "@/app/api/filesystem/browse/route";

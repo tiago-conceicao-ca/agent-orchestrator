@@ -1,7 +1,7 @@
 import "server-only";
 
-import { getProjectDir } from "@aoagents/ao-core";
-import { RunStore, type WorkflowRun } from "@aoagents/ao-sdlc";
+import { getProjectDir } from "@contaazul/cahi-core";
+import { RunStore, type WorkflowRun } from "@contaazul/cahi-sdlc";
 import {
   assignTaskNumbers,
   lastErrorFromRun,

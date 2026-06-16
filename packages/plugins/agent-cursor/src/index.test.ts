@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createActivitySignal, type Session, type RuntimeHandle, type AgentLaunchConfig } from "@aoagents/ao-core";
+import { createActivitySignal, type Session, type RuntimeHandle, type AgentLaunchConfig } from "@contaazul/cahi-core";
 
 // Mock fs/promises for getSessionInfo tests
 vi.mock("node:fs/promises", async (importOriginal) => {
@@ -34,7 +34,7 @@ const { mockAppendActivityEntry, mockReadLastActivityEntry, mockRecordTerminalAc
     mockRecordTerminalActivity: vi.fn().mockResolvedValue(undefined),
   }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

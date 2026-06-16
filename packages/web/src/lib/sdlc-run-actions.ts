@@ -1,4 +1,4 @@
-import { SDLC_MODELS, type SdlcModel, type WorkflowEngine, type WorkflowRun } from "@aoagents/ao-sdlc";
+import { SDLC_MODELS, type SdlcModel, type WorkflowEngine, type WorkflowRun } from "@contaazul/cahi-sdlc";
 
 /**
  * Pure run-action decisions that wrap the existing engine methods

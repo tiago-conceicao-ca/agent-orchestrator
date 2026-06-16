@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-notifier-composio",
+  "name": "@contaazul/cahi-plugin-notifier-composio",
   "version": "0.9.1",
   "description": "Notifier plugin: Composio unified notifications (Slack, Discord, email)",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*",
+    "@contaazul/cahi-core": "workspace:*",
     "@composio/core": "^0.9.0",
     "zod": "^3.25.76"
   },

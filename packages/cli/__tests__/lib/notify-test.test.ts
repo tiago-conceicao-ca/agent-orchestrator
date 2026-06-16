@@ -10,7 +10,7 @@ import {
   type OrchestratorConfig,
   type OrchestratorEvent,
   type PluginRegistry,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   addSinkNotifierConfig,
   createNotifyTestEvent,

@@ -1,4 +1,4 @@
-import { createCodeReviewStore } from "@aoagents/ao-core";
+import { createCodeReviewStore } from "@contaazul/cahi-core";
 import { getCorrelationId, jsonWithCorrelation } from "@/lib/observability";
 import { getServices } from "@/lib/services";
 import { validateConfiguredProject, validateIdentifier } from "@/lib/validation";

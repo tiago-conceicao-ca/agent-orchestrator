@@ -5,7 +5,7 @@
  * Everything else runs for real: config parsing, escaping chains, formatting.
  */
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
-import type { NotifyAction } from "@aoagents/ao-core";
+import type { NotifyAction } from "@contaazul/cahi-core";
 import { makeEvent } from "./helpers/event-factory.js";
 
 vi.mock("node:child_process", () => ({
@@ -37,7 +37,7 @@ function setProcessPlatform(value: NodeJS.Platform): void {
 }
 
 // Import the full plugin module — config parsing, escaping, formatting all run for real
-import desktopPlugin from "@aoagents/ao-plugin-notifier-desktop";
+import desktopPlugin from "@contaazul/cahi-plugin-notifier-desktop";
 
 describe("notifier-desktop integration", () => {
   beforeEach(() => {

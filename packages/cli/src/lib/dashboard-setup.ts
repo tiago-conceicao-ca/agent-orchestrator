@@ -9,7 +9,7 @@ import {
   findConfigFile,
   normalizeDashboardNotificationLimit,
   readDashboardNotificationsFromFile,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   applyNotifierRoutingPreset,
   getNotifierRoutingState,

@@ -10,7 +10,7 @@ import {
   loadGlobalConfig,
   recordActivityEvent,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { runRepoScript } from "../lib/script-runner.js";
 import {
   checkForUpdate,
@@ -381,7 +381,7 @@ async function handleGitUpdate(opts: {
       console.error(
         chalk.red(
           "ao-update.sh is missing from the bundled assets. " +
-            "If you're running from a source checkout, rebuild with `pnpm --filter @aoagents/ao-cli build`. " +
+            "If you're running from a source checkout, rebuild with `pnpm --filter @contaazul/cahi-cli build`. " +
             "If you're on a package install, reinstall the package.",
         ),
       );

@@ -23,7 +23,7 @@ import {
   createCodeReviewStore,
   type CodeReviewRunStatus,
   type CodeReviewRunSummary,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { git, getTmuxSessions, getTmuxActivity } from "../lib/shell.js";
 import {
   banner,

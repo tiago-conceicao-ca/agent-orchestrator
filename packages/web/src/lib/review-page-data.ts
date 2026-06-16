@@ -6,7 +6,7 @@ import {
   isRestorable,
   isTerminalSession,
   markOutdatedCodeReviewRunsForSession,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getServices } from "@/lib/services";
 import {
   getAllProjects,

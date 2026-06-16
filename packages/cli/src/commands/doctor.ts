@@ -11,7 +11,7 @@ import {
   type OrchestratorConfig,
   type PluginRegistry,
   type PluginSlot,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { runNotifyTest } from "../lib/notify-test.js";
 import { runRepoScript } from "../lib/script-runner.js";
 import { detectOpenClawInstallation, validateToken } from "../lib/openclaw-probe.js";

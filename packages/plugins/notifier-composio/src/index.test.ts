@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { OrchestratorEvent, NotifyAction } from "@aoagents/ao-core";
+import type { OrchestratorEvent, NotifyAction } from "@contaazul/cahi-core";
 import { manifest, create } from "./index.js";
 
 const { mockToolsExecute, mockConstructorOptions } = vi.hoisted(() => ({

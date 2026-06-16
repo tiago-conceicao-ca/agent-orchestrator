@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import type { WorkflowEngine } from "@aoagents/ao-sdlc";
+import type { WorkflowEngine } from "@contaazul/cahi-sdlc";
 import { handleApprove } from "@/lib/sdlc-approve";
 
 describe("handleApprove", () => {

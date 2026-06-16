@@ -8,7 +8,7 @@ import {
   SessionNotFoundError,
   recordActivityEvent,
   type OrchestratorConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   getCorrelationId,
   jsonWithCorrelation,

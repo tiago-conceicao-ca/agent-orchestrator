@@ -22,7 +22,7 @@ import {
   type WorkspaceCreateConfig,
   type WorkspaceInfo,
   type ProjectConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 /** Timeout for git commands (30 seconds) */
 const GIT_TIMEOUT = 30_000;

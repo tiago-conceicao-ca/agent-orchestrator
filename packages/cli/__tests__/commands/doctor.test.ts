@@ -32,14 +32,14 @@ const {
   mockGetCurrentVersion: vi.fn(() => "0.2.2"),
   mockReadCachedUpdateInfo: vi.fn(() => null),
   mockDetectInstallMethod: vi.fn(() => "unknown"),
-  mockGetUpdateCommand: vi.fn(() => "npm install -g @aoagents/ao@latest"),
+  mockGetUpdateCommand: vi.fn(() => "npm install -g @contaazul/cahi@latest"),
 }));
 
 vi.mock("../../src/lib/script-runner.js", () => ({
   runRepoScript: (...args: unknown[]) => mockRunRepoScript(...args),
 }));
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   buildCIFailureNotificationData: () => ({ schemaVersion: 3 }),
   buildPRStateNotificationData: () => ({ schemaVersion: 3 }),
   buildReactionNotificationData: () => ({ schemaVersion: 3 }),

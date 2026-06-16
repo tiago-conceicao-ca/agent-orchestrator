@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { isOrchestratorSession } from "@aoagents/ao-core/types";
+import { isOrchestratorSession } from "@contaazul/cahi-core/types";
 import { SessionDetail } from "@/components/SessionDetail";
 import { ErrorDisplay } from "@/components/ErrorDisplay";
 import {

@@ -18,7 +18,7 @@
  * Tone is refined from the (tested) attention-level bucket so a card's badge
  * never disagrees with the column it sits in.
  */
-import { ACTIVITY_STATE, SESSION_STATUS, CI_STATUS } from "@aoagents/ao-core/types";
+import { ACTIVITY_STATE, SESSION_STATUS, CI_STATUS } from "@contaazul/cahi-core/types";
 import {
   type DashboardSession,
   getAttentionLevel,

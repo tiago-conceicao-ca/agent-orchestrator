@@ -23,7 +23,7 @@ import {
   loadConfig,
   normalizeAgentReportedState,
   type AgentReportedState,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getSessionManager } from "../lib/create-session-manager.js";
 
 function resolveSessionId(explicit: string | undefined): string {

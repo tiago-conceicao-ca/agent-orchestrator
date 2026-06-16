@@ -13,8 +13,8 @@ import {
   type PluginModule,
   getObservabilityBaseDir,
   recordActivityEvent,
-} from "@aoagents/ao-core";
-import { isRetryableHttpStatus, normalizeRetryConfig, validateUrl } from "@aoagents/ao-core/utils";
+} from "@contaazul/cahi-core";
+import { isRetryableHttpStatus, normalizeRetryConfig, validateUrl } from "@contaazul/cahi-core/utils";
 
 /**
  * Read the hooks token from OpenClaw's config. AO treats OpenClaw as the

@@ -26,7 +26,7 @@ import {
   type PluginRegistry,
   type ProjectConfig,
   type SessionManager,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import type { SdlcRunEvent } from "../workflow/types.js";
 
 type RunEventKind = SdlcRunEvent["kind"];

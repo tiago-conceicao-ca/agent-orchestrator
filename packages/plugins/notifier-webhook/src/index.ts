@@ -4,12 +4,12 @@ import {
   type OrchestratorEvent,
   type NotifyAction,
   type NotifyContext,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   isRetryableHttpStatus,
   normalizeRetryConfig,
   validateUrl,
-} from "@aoagents/ao-core/utils";
+} from "@contaazul/cahi-core/utils";
 
 export const manifest = {
   name: "webhook",

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isRestorable, isTerminalSession } from "@aoagents/ao-core";
+import { isRestorable, isTerminalSession } from "@contaazul/cahi-core";
 import { getServices } from "@/lib/services";
 import {
   getAllProjects,

@@ -1,7 +1,7 @@
 import "server-only";
 
-import { getProjectSessionsDir, listMetadata, readMetadataRaw } from "@aoagents/ao-core";
-import { previewTaskPrompt, type WorkflowRun } from "@aoagents/ao-sdlc";
+import { getProjectSessionsDir, listMetadata, readMetadataRaw } from "@contaazul/cahi-core";
+import { previewTaskPrompt, type WorkflowRun } from "@contaazul/cahi-sdlc";
 import { projectSessionPath } from "@/lib/routes";
 import {
   assignTaskNumbers,
@@ -13,7 +13,7 @@ import {
 } from "@/lib/sdlc-board";
 
 // Server-only enrichment for the SDLC detail panel. Keeps node/fs + the
-// @aoagents/ao-sdlc value import (previewTaskPrompt) out of the client bundle —
+// @contaazul/cahi-sdlc value import (previewTaskPrompt) out of the client bundle —
 // the pure number/dependency helpers live in sdlc-board.ts and run on both sides.
 
 interface LinkedSessionInfo {

@@ -1,4 +1,4 @@
-import type { WorkflowEngine } from "@aoagents/ao-sdlc";
+import type { WorkflowEngine } from "@contaazul/cahi-sdlc";
 
 /**
  * Pure approval decision: resume a run only if it is paused at a human gate.

@@ -30,21 +30,21 @@ import {
   type Session,
   isOrchestratorSession,
   TERMINAL_STATUSES,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Static plugin imports — webpack needs these to be string literals
-import pluginRuntimeTmux from "@aoagents/ao-plugin-runtime-tmux";
-import pluginRuntimeProcess from "@aoagents/ao-plugin-runtime-process";
-import pluginAgentClaudeCode from "@aoagents/ao-plugin-agent-claude-code";
-import pluginAgentCodex from "@aoagents/ao-plugin-agent-codex";
-import pluginAgentCursor from "@aoagents/ao-plugin-agent-cursor";
-import pluginAgentKimicode from "@aoagents/ao-plugin-agent-kimicode";
-import pluginAgentGrok from "@aoagents/ao-plugin-agent-grok";
-import pluginAgentOpencode from "@aoagents/ao-plugin-agent-opencode";
-import pluginWorkspaceWorktree from "@aoagents/ao-plugin-workspace-worktree";
-import pluginScmGithub from "@aoagents/ao-plugin-scm-github";
-import pluginTrackerGithub from "@aoagents/ao-plugin-tracker-github";
-import pluginTrackerLinear from "@aoagents/ao-plugin-tracker-linear";
+import pluginRuntimeTmux from "@contaazul/cahi-plugin-runtime-tmux";
+import pluginRuntimeProcess from "@contaazul/cahi-plugin-runtime-process";
+import pluginAgentClaudeCode from "@contaazul/cahi-plugin-agent-claude-code";
+import pluginAgentCodex from "@contaazul/cahi-plugin-agent-codex";
+import pluginAgentCursor from "@contaazul/cahi-plugin-agent-cursor";
+import pluginAgentKimicode from "@contaazul/cahi-plugin-agent-kimicode";
+import pluginAgentGrok from "@contaazul/cahi-plugin-agent-grok";
+import pluginAgentOpencode from "@contaazul/cahi-plugin-agent-opencode";
+import pluginWorkspaceWorktree from "@contaazul/cahi-plugin-workspace-worktree";
+import pluginScmGithub from "@contaazul/cahi-plugin-scm-github";
+import pluginTrackerGithub from "@contaazul/cahi-plugin-tracker-github";
+import pluginTrackerLinear from "@contaazul/cahi-plugin-tracker-linear";
 
 export interface Services {
   config: LoadedConfig;

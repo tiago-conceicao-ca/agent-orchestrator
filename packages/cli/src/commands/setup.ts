@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { recordActivityEvent } from "@aoagents/ao-core";
+import { recordActivityEvent } from "@contaazul/cahi-core";
 import {
   DesktopSetupError,
   runDesktopSetupAction,
@@ -74,16 +74,16 @@ export function registerSetup(program: Command): void {
   setup
     .command("desktop")
     .description("Install and configure the native macOS desktop notifier")
-    .option("--backend <backend>", "Desktop backend: auto | ao-app | terminal-notifier | osascript")
+    .option("--backend <backend>", "Desktop backend: auto | cahi-app | terminal-notifier | osascript")
     .option("--refresh", "Refresh/reconfigure desktop notifier config")
     .option("--dashboard-url <url>", "Dashboard URL to open from notifications")
-    .option("--app-path <path>", "Custom AO Notifier.app install path")
+    .option("--app-path <path>", "Custom Cahi Notifier.app install path")
     .option("--routing-preset <preset>", "Routing preset: urgent-only | urgent-action | all")
     .option("--no-test", "Skip the setup test notification")
     .option("--non-interactive", "Skip prompts and fail on config conflicts unless --force is set")
     .option("--force", "Repair the app install and replace conflicting desktop notifier config")
     .option("--status", "Show the native desktop notifier install and permission status")
-    .option("--uninstall", "Remove AO Notifier.app without changing AO config")
+    .option("--uninstall", "Remove Cahi Notifier.app without changing AO config")
     .action(async (opts: DesktopSetupOptions) => {
       try {
         await runDesktopSetupAction(opts);

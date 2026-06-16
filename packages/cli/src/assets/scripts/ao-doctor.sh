@@ -213,38 +213,38 @@ check_pnpm() {
 
 check_launcher() {
   local ao_path
-  ao_path="$(command -v ao 2>/dev/null || true)"
+  ao_path="$(command -v cahi 2>/dev/null || true)"
   if [ -n "$ao_path" ]; then
     if [ -x "$ao_path" ]; then
-      pass "ao launcher resolves to $ao_path"
+      pass "cahi launcher resolves to $ao_path"
       return
     fi
-    warn "ao launcher resolves to $ao_path, but its target is missing or not executable"
+    warn "cahi launcher resolves to $ao_path, but its target is missing or not executable"
   fi
 
-  if [ "$SCRIPT_LAYOUT" = "source-checkout" ] && [ "$FIX_MODE" = true ] && command -v npm >/dev/null 2>&1 && [ -d "$REPO_ROOT/packages/ao" ]; then
-    if (cd "$REPO_ROOT/packages/ao" && npm link --force >/dev/null 2>&1) && command -v ao >/dev/null 2>&1; then
-      fixed "ao launcher refreshed with npm link --force"
+  if [ "$SCRIPT_LAYOUT" = "source-checkout" ] && [ "$FIX_MODE" = true ] && command -v npm >/dev/null 2>&1 && [ -d "$REPO_ROOT/packages/cahi" ]; then
+    if (cd "$REPO_ROOT/packages/cahi" && npm link --force >/dev/null 2>&1) && command -v cahi >/dev/null 2>&1; then
+      fixed "cahi launcher refreshed with npm link --force"
       return
     fi
     if [ -t 0 ]; then
       printf '  Launcher refresh failed. Retrying with sudo...\n'
-      if (cd "$REPO_ROOT/packages/ao" && sudo npm link --force >/dev/null 2>&1) && command -v ao >/dev/null 2>&1; then
-        fixed "ao launcher refreshed with sudo npm link --force"
+      if (cd "$REPO_ROOT/packages/cahi" && sudo npm link --force >/dev/null 2>&1) && command -v cahi >/dev/null 2>&1; then
+        fixed "cahi launcher refreshed with sudo npm link --force"
         return
       fi
       printf 'ERROR: sudo npm link --force failed. Inspect npm output above.\n' >&2
     fi
-    warn "ao launcher refresh failed. Fix: cd $REPO_ROOT/packages/ao && sudo npm link --force"
+    warn "cahi launcher refresh failed. Fix: cd $REPO_ROOT/packages/cahi && sudo npm link --force"
     return
   fi
 
   if [ "$SCRIPT_LAYOUT" = "package-install" ]; then
-    warn "ao launcher is not in PATH. Fix: reinstall with npm install -g @aoagents/ao@latest or run via pnpx @aoagents/ao@latest"
+    warn "cahi launcher is not in PATH. Fix: reinstall with npm install -g @contaazul/cahi@latest or run via pnpx @contaazul/cahi@latest"
     return
   fi
 
-  warn "ao launcher is not in PATH. Fix: cd $REPO_ROOT && bash scripts/setup.sh"
+  warn "cahi launcher is not in PATH. Fix: cd $REPO_ROOT && bash scripts/setup.sh"
 }
 
 check_tmux() {
@@ -276,25 +276,25 @@ check_install_layout() {
     if [ -f "$REPO_ROOT/package.json" ]; then
       pass "CLI package metadata is present at $REPO_ROOT/package.json"
     else
-      fail "CLI package metadata is missing at $REPO_ROOT/package.json. Fix: reinstall @aoagents/ao"
+      fail "CLI package metadata is missing at $REPO_ROOT/package.json. Fix: reinstall @contaazul/cahi"
     fi
 
     if [ -f "$REPO_ROOT/dist/index.js" ]; then
       pass "packaged CLI entrypoint exists"
     else
-      fail "packaged CLI entrypoint is missing. Fix: reinstall @aoagents/ao"
+      fail "packaged CLI entrypoint is missing. Fix: reinstall @contaazul/cahi"
     fi
 
     if [ -f "$REPO_ROOT/dist/assets/scripts/ao-doctor.sh" ]; then
       pass "bundled doctor script is available"
     else
-      fail "bundled doctor script is missing. Fix: reinstall @aoagents/ao"
+      fail "bundled doctor script is missing. Fix: reinstall @contaazul/cahi"
     fi
 
     if [ -f "$REPO_ROOT/dist/assets/scripts/ao-update.sh" ]; then
       pass "bundled update script is available"
     else
-      fail "bundled update script is missing. Fix: reinstall @aoagents/ao"
+      fail "bundled update script is missing. Fix: reinstall @contaazul/cahi"
     fi
     return
   fi
@@ -308,37 +308,37 @@ check_install_layout() {
   if [ -f "$REPO_ROOT/packages/core/dist/index.js" ]; then
     pass "core package is built"
   else
-    fail "core package is not built. Fix: run pnpm --filter @aoagents/ao-core build"
+    fail "core package is not built. Fix: run pnpm --filter @contaazul/cahi-core build"
   fi
 
   if [ -f "$REPO_ROOT/packages/cli/dist/index.js" ]; then
     pass "CLI package is built"
   else
-    fail "CLI package is not built. Fix: run pnpm --filter @aoagents/ao-cli build"
+    fail "CLI package is not built. Fix: run pnpm --filter @contaazul/cahi-cli build"
   fi
 }
 
 check_runtime_sanity() {
   if [ "$SCRIPT_LAYOUT" = "package-install" ]; then
     if [ ! -f "$REPO_ROOT/dist/index.js" ]; then
-      fail "packaged CLI entrypoint is missing. Fix: reinstall @aoagents/ao"
+      fail "packaged CLI entrypoint is missing. Fix: reinstall @contaazul/cahi"
       return
     fi
 
     if node "$REPO_ROOT/dist/index.js" --version >/dev/null 2>&1; then
       pass "packaged CLI runtime sanity check passed (ao --version)"
     else
-      fail "packaged CLI runtime sanity check failed. Fix: reinstall @aoagents/ao"
+      fail "packaged CLI runtime sanity check failed. Fix: reinstall @contaazul/cahi"
     fi
     return
   fi
 
-  if [ ! -f "$REPO_ROOT/packages/ao/bin/ao.js" ]; then
+  if [ ! -f "$REPO_ROOT/packages/cahi/bin/cahi.js" ]; then
     fail "launcher entrypoint is missing. Fix: reinstall from a clean checkout"
     return
   fi
 
-  if node "$REPO_ROOT/packages/ao/bin/ao.js" --version >/dev/null 2>&1; then
+  if node "$REPO_ROOT/packages/cahi/bin/cahi.js" --version >/dev/null 2>&1; then
     pass "launcher runtime sanity check passed (ao --version)"
   else
     fail "launcher runtime sanity check failed. Fix: run pnpm build and refresh the launcher"
@@ -447,8 +447,8 @@ function resolveCoreEntrypoint() {
   const sourceCoreDir = path.resolve(repoRoot, "packages", "core");
   const coreDir =
     (fs.existsSync(path.join(sourceCoreDir, "package.json")) ? sourceCoreDir : null) ??
-    findPackageUp(repoRoot, "@aoagents", "ao-core") ??
-    resolveNodeModulesPackage(repoRoot, "@aoagents", "ao-core");
+    findPackageUp(repoRoot, "@contaazul", "cahi-core") ??
+    resolveNodeModulesPackage(repoRoot, "@contaazul", "cahi-core");
   if (!coreDir) return null;
 
   try {
@@ -480,8 +480,8 @@ async function getNodePtyPrebuildsSubdir() {
       const sourceWebDir = path.resolve(repoRoot, "packages", "web");
       const webDir =
         (fs.existsSync(path.join(sourceWebDir, "package.json")) ? sourceWebDir : null) ??
-        findPackageUp(repoRoot, "@aoagents", "ao-web") ??
-        resolveNodeModulesPackage(repoRoot, "@aoagents", "ao-web");
+        findPackageUp(repoRoot, "@contaazul", "cahi-web") ??
+        resolveNodeModulesPackage(repoRoot, "@contaazul", "cahi-web");
       if (!webDir) return null;
 
       const webNodePtyDir =

@@ -2,7 +2,7 @@ import {
   CodeReviewInvalidSessionError,
   SessionNotFoundError,
   triggerCodeReviewForSession,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getReviewPageData, resolveReviewProjectFilter } from "@/lib/review-page-data";
 import { getCorrelationId, jsonWithCorrelation } from "@/lib/observability";
 import { getServices } from "@/lib/services";

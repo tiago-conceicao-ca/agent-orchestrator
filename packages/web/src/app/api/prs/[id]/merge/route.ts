@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { recordActivityEvent, type OrchestratorConfig } from "@aoagents/ao-core";
+import { recordActivityEvent, type OrchestratorConfig } from "@contaazul/cahi-core";
 import { getServices, getSCM } from "@/lib/services";
 import { getCorrelationId, jsonWithCorrelation, recordApiObservation } from "@/lib/observability";
 

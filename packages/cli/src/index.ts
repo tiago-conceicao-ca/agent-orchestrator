@@ -5,7 +5,7 @@ import { maybeShowUpdateNotice, scheduleBackgroundRefresh } from "./lib/update-c
 // Synchronous cache read — no network call on startup.
 maybeShowUpdateNotice();
 
-import { ConfigNotFoundError } from "@aoagents/ao-core";
+import { ConfigNotFoundError } from "@contaazul/cahi-core";
 import { createProgram } from "./program.js";
 
 createProgram()

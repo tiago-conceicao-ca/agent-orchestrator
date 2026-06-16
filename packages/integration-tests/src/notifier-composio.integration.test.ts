@@ -5,8 +5,8 @@
  * Everything else runs for real: config parsing, tool slug routing, message formatting.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { NotifyAction } from "@aoagents/ao-core";
-import composioPlugin from "@aoagents/ao-plugin-notifier-composio";
+import type { NotifyAction } from "@contaazul/cahi-core";
+import composioPlugin from "@contaazul/cahi-plugin-notifier-composio";
 import { makeEvent } from "./helpers/event-factory.js";
 
 const mockToolsExecute = vi.fn().mockResolvedValue({ successful: true });

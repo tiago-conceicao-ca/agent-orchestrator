@@ -7,7 +7,7 @@ import {
   resolveProjectIdForSessionId,
   type OrchestratorConfig,
   type ObservabilitySummary,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { NextResponse } from "next/server";
 
 let webApiObserver: ReturnType<typeof createProjectObserver> | null | undefined;

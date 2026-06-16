@@ -11,7 +11,7 @@ import {
   type OrchestratorConfig,
   type PluginRegistry,
   type SCM,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import * as serialize from "@/lib/serialize";
 import { getSCM } from "@/lib/services";
 
@@ -217,7 +217,7 @@ vi.mock("@/lib/services", () => ({
 // the real module first so the rest of the test file (types, errors, etc.)
 // keeps working. Factory must self-contain its mocks because vi.mock is
 // hoisted above any module-level declarations.
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

@@ -47,7 +47,7 @@ vi.mock("../../src/lib/session-utils.js", () => ({
   findProjectForSession: () => null,
 }));
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   loadConfig: () => {
     if (!mockConfigRef.current) {
       throw new Error("no config");

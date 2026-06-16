@@ -24,7 +24,7 @@ import {
   getDefaultRuntime,
   recordActivityEvent,
   type SessionManager,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks
@@ -135,9 +135,9 @@ vi.mock("ora", () => ({
   }),
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await importOriginal<typeof import("@aoagents/ao-core")>();
+  const actual = await importOriginal<typeof import("@contaazul/cahi-core")>();
   const normalizeOrchestratorSessionStrategy =
     actual.normalizeOrchestratorSessionStrategy ??
     ((strategy: string | undefined) => {

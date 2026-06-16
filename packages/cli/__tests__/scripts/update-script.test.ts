@@ -30,7 +30,7 @@ describe("ao-update.sh", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-script-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
-    mkdirSync(join(fakeRepo, "packages", "ao"), { recursive: true });
+    mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
 
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -84,8 +84,8 @@ esac\nexit 0`,
     expect(commands).toContain("pnpm install");
     expect(commands).toContain("pnpm -r --if-present clean");
     expect(commands).toContain("pnpm build");
-    expect(commands).not.toContain("pnpm --filter @aoagents/ao-core clean");
-    expect(commands).not.toContain("pnpm --filter @aoagents/ao-cli build");
+    expect(commands).not.toContain("pnpm --filter @contaazul/cahi-core clean");
+    expect(commands).not.toContain("pnpm --filter @contaazul/cahi-cli build");
     expect(commands).toContain("npm link --force");
   });
 
@@ -98,7 +98,7 @@ esac\nexit 0`,
       const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-upstream-script-"));
       const fakeRepo = join(tempRoot, "repo");
       mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
-      mkdirSync(join(fakeRepo, "packages", "ao"), { recursive: true });
+      mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
 
       const binDir = join(tempRoot, "bin");
       mkdirSync(binDir, { recursive: true });
@@ -166,7 +166,7 @@ esac\nexit 0`,
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-stale-shim-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
-    mkdirSync(join(fakeRepo, "packages", "ao"), { recursive: true });
+    mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
 
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -231,8 +231,8 @@ exit 0`,
   it.skipIf(process.platform === "win32")("runs the built-in smoke commands in smoke-only mode", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-smoke-"));
     const fakeRepo = join(tempRoot, "repo");
-    mkdirSync(join(fakeRepo, "packages", "ao", "bin"), { recursive: true });
-    writeFileSync(join(fakeRepo, "packages", "ao", "bin", "ao.js"), "#!/usr/bin/env node\n");
+    mkdirSync(join(fakeRepo, "packages", "cahi", "bin"), { recursive: true });
+    writeFileSync(join(fakeRepo, "packages", "cahi", "bin", "cahi.js"), "#!/usr/bin/env node\n");
 
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -259,13 +259,13 @@ exit 0`,
 
     expect(result.status).toBe(0);
     expect(commands).toContain(
-      `node ${join(fakeRepo, "packages", "ao", "bin", "ao.js")} --version`,
+      `node ${join(fakeRepo, "packages", "cahi", "bin", "cahi.js")} --version`,
     );
     expect(commands).toContain(
-      `node ${join(fakeRepo, "packages", "ao", "bin", "ao.js")} doctor --help`,
+      `node ${join(fakeRepo, "packages", "cahi", "bin", "cahi.js")} doctor --help`,
     );
     expect(commands).toContain(
-      `node ${join(fakeRepo, "packages", "ao", "bin", "ao.js")} update --help`,
+      `node ${join(fakeRepo, "packages", "cahi", "bin", "cahi.js")} update --help`,
     );
   });
 
@@ -301,7 +301,7 @@ exit 0`,
       const repoRoot = resolve(packageRoot, "../..");
       expect(result.status).toBe(0);
       expect(commands).toContain(
-        `node ${join(repoRoot, "packages", "ao", "bin", "ao.js")} --version`,
+        `node ${join(repoRoot, "packages", "cahi", "bin", "cahi.js")} --version`,
       );
     },
   );
@@ -356,8 +356,8 @@ exit 0`,
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-already-latest-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
-    mkdirSync(join(fakeRepo, "packages", "ao", "bin"), { recursive: true });
-    writeFileSync(join(fakeRepo, "packages", "ao", "bin", "ao.js"), "#!/usr/bin/env node\n");
+    mkdirSync(join(fakeRepo, "packages", "cahi", "bin"), { recursive: true });
+    writeFileSync(join(fakeRepo, "packages", "cahi", "bin", "cahi.js"), "#!/usr/bin/env node\n");
 
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -414,15 +414,15 @@ exit 0`,
     // Rebuild commands should NOT have run
     expect(commands).not.toContain("pnpm install");
     expect(commands).not.toContain("pnpm build");
-    expect(commands).not.toContain("pnpm --filter @aoagents/ao-core build");
+    expect(commands).not.toContain("pnpm --filter @contaazul/cahi-core build");
     expect(commands).not.toContain("npm link");
     expect(commands).not.toContain("git pull --ff-only origin main");
     // Smoke tests SHOULD still have run
     expect(commands).toContain(
-      `node ${join(fakeRepo, "packages", "ao", "bin", "ao.js")} --version`,
+      `node ${join(fakeRepo, "packages", "cahi", "bin", "cahi.js")} --version`,
     );
     expect(commands).toContain(
-      `node ${join(fakeRepo, "packages", "ao", "bin", "ao.js")} doctor --help`,
+      `node ${join(fakeRepo, "packages", "cahi", "bin", "cahi.js")} doctor --help`,
     );
   });
 
@@ -439,7 +439,7 @@ exit 0`,
     const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-post-dirty-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
-    mkdirSync(join(fakeRepo, "packages", "ao"), { recursive: true });
+    mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
 
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });

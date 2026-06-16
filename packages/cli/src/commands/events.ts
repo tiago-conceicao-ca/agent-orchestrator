@@ -10,7 +10,7 @@ import {
   type ActivityEventLevel,
   type ActivityEventKind,
   type ActivityEventSource,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 interface JsonEnvelope {
   version: number;

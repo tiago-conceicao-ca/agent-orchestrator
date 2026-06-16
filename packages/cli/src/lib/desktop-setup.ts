@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import chalk from "chalk";
 import { parseDocument } from "yaml";
-import { CONFIG_SCHEMA_URL, findConfigFile, isCanonicalGlobalConfigPath } from "@aoagents/ao-core";
+import { CONFIG_SCHEMA_URL, findConfigFile, isCanonicalGlobalConfigPath } from "@contaazul/cahi-core";
 import {
   applyNotifierRoutingPreset,
   getNotifierRoutingState,
@@ -15,10 +15,10 @@ import {
   type NotifierRoutingPreset,
 } from "./notifier-routing.js";
 
-const APP_NAME = "AO Notifier.app";
-const EXECUTABLE_NAME = "ao-notifier";
-const PLACEHOLDER_MARKER_NAME = "ao-notifier-placeholder";
-const DESKTOP_BACKENDS = ["auto", "ao-app", "terminal-notifier", "osascript"] as const;
+const APP_NAME = "Cahi Notifier.app";
+const EXECUTABLE_NAME = "cahi-notifier";
+const PLACEHOLDER_MARKER_NAME = "cahi-notifier-placeholder";
+const DESKTOP_BACKENDS = ["auto", "cahi-app", "terminal-notifier", "osascript"] as const;
 
 type DesktopBackend = (typeof DESKTOP_BACKENDS)[number];
 
@@ -88,7 +88,7 @@ function parseDesktopBackend(value: unknown): DesktopBackend | undefined {
 function packageDirFromImport(): string | null {
   try {
     const require = createRequire(import.meta.url);
-    return dirname(require.resolve("@aoagents/ao-notifier-macos/package.json"));
+    return dirname(require.resolve("@contaazul/cahi-notifier-macos/package.json"));
   } catch {
     return null;
   }
@@ -165,8 +165,8 @@ function formatExecError(error: unknown): string {
 
 function permissionDeniedMessage(): string {
   return (
-    "macOS notification permission is denied for AO Notifier.app.\n" +
-    "  Open System Settings > Notifications > AO Notifier and enable Allow Notifications.\n" +
+    "macOS notification permission is denied for Cahi Notifier.app.\n" +
+    "  Open System Settings > Notifications > Cahi Notifier and enable Allow Notifications.\n" +
     "  Then rerun: ao setup desktop --force"
   );
 }
@@ -232,14 +232,14 @@ function copyBundledApp(targetAppPath = getInstalledNotifierAppPath()): string {
   const sourceAppPath = getBundledNotifierAppPath();
   if (!sourceAppPath || !existsSync(getNotifierExecutablePath(sourceAppPath))) {
     throw new DesktopSetupError(
-      "AO Notifier.app is not built. Run: pnpm --filter @aoagents/ao-notifier-macos build",
+      "Cahi Notifier.app is not built. Run: pnpm --filter @contaazul/cahi-notifier-macos build",
     );
   }
 
   if (isPlaceholderNotifierApp(sourceAppPath)) {
     throw new DesktopSetupError(
-      "AO Notifier.app was built as a non-macOS placeholder and cannot be installed. " +
-        "Rebuild @aoagents/ao-notifier-macos on macOS, or use --backend terminal-notifier.",
+      "Cahi Notifier.app was built as a non-macOS placeholder and cannot be installed. " +
+        "Rebuild @contaazul/cahi-notifier-macos on macOS, or use --backend terminal-notifier.",
     );
   }
 
@@ -248,7 +248,7 @@ function copyBundledApp(targetAppPath = getInstalledNotifierAppPath()): string {
   cpSync(sourceAppPath, targetAppPath, { recursive: true });
 
   if (!isAppInstalled(targetAppPath)) {
-    throw new DesktopSetupError(`AO Notifier.app install failed at ${targetAppPath}`);
+    throw new DesktopSetupError(`Cahi Notifier.app install failed at ${targetAppPath}`);
   }
 
   return targetAppPath;
@@ -285,7 +285,7 @@ function requestPermission(appPath: string): void {
 
 function sendAoAppSetupNotification(appPath: string, dashboardUrl?: string): void {
   const payload = {
-    title: "AO Notifier",
+    title: "Cahi Notifier",
     body: "Desktop notifications are ready.",
     sound: false,
     defaultOpenUrl: dashboardUrl,
@@ -316,7 +316,7 @@ function sendAoAppSetupNotification(appPath: string, dashboardUrl?: string): voi
 }
 
 function sendTerminalNotifierSetupNotification(dashboardUrl?: string): void {
-  const args = ["-title", "AO Notifier", "-message", "Desktop notifications are ready."];
+  const args = ["-title", "Cahi Notifier", "-message", "Desktop notifications are ready."];
   if (dashboardUrl) args.push("-open", dashboardUrl);
   execFileSync("terminal-notifier", args, { stdio: ["ignore", "pipe", "pipe"] });
 }
@@ -324,7 +324,7 @@ function sendTerminalNotifierSetupNotification(dashboardUrl?: string): void {
 function sendOsascriptSetupNotification(): void {
   execFileSync(
     "osascript",
-    ["-e", 'display notification "Desktop notifications are ready." with title "AO Notifier"'],
+    ["-e", 'display notification "Desktop notifications are ready." with title "Cahi Notifier"'],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
 }
@@ -374,15 +374,15 @@ async function chooseDesktopBackend(
   existingBackend: DesktopBackend | undefined,
   nonInteractive: boolean,
 ): Promise<DesktopBackend> {
-  if (nonInteractive) return existingBackend ?? "ao-app";
+  if (nonInteractive) return existingBackend ?? "cahi-app";
 
   const clack = await import("@clack/prompts");
   const choice = await clack.select({
     message: "Choose the desktop notification backend:",
     options: [
       {
-        value: "ao-app",
-        label: existingBackend === "ao-app" ? "AO Notifier.app (current)" : "AO Notifier.app (recommended)",
+        value: "cahi-app",
+        label: existingBackend === "cahi-app" ? "Cahi Notifier.app (current)" : "Cahi Notifier.app (recommended)",
         hint: "Native macOS app with actions and AO-specific behavior",
       },
       {
@@ -460,11 +460,11 @@ function assertOsascriptAvailable(): void {
 }
 
 function resolveAutoBackend(appPath: string): DesktopBackend {
-  if (currentPlatform() === "darwin" && isAppInstalled(appPath)) return "ao-app";
+  if (currentPlatform() === "darwin" && isAppInstalled(appPath)) return "cahi-app";
   if (commandExists("terminal-notifier")) return "terminal-notifier";
   if (commandExists("osascript")) return "osascript";
   throw new DesktopSetupError(
-    "No desktop notification backend is available. Run `ao setup desktop --backend ao-app`, or install terminal-notifier.",
+    "No desktop notification backend is available. Run `ao setup desktop --backend cahi-app`, or install terminal-notifier.",
   );
 }
 
@@ -534,7 +534,7 @@ async function prepareDesktopBackend(
     throw new DesktopSetupError("ao setup desktop is currently only supported on macOS.");
   }
 
-  if (resolved.backend === "ao-app") {
+  if (resolved.backend === "cahi-app") {
     const shouldInstall = !resolved.refresh || force || !isAppInstalled(resolved.appPath);
     if (shouldInstall) {
       const appPath = copyBundledApp(resolved.appPath);
@@ -544,7 +544,7 @@ async function prepareDesktopBackend(
     }
     requestPermission(resolved.appPath);
     console.log(chalk.green("✓ Notification permission checked"));
-    return "ao-app";
+    return "cahi-app";
   }
 
   if (resolved.backend === "terminal-notifier") {
@@ -560,7 +560,7 @@ async function prepareDesktopBackend(
   }
 
   const effectiveBackend = resolveAutoBackend(resolved.appPath);
-  if (effectiveBackend === "ao-app") {
+  if (effectiveBackend === "cahi-app") {
     requestPermission(resolved.appPath);
     console.log(chalk.green(`✓ auto backend resolved to ${APP_NAME}`));
   } else if (effectiveBackend === "terminal-notifier") {
@@ -576,7 +576,7 @@ function sendBackendSetupNotification(
   resolved: ResolvedDesktopSetup,
 ): void {
   try {
-    if (effectiveBackend === "ao-app") {
+    if (effectiveBackend === "cahi-app") {
       sendAoAppSetupNotification(resolved.appPath, resolved.dashboardUrl);
     } else if (effectiveBackend === "terminal-notifier") {
       sendTerminalNotifierSetupNotification(resolved.dashboardUrl);

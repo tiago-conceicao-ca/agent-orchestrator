@@ -12,7 +12,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { recordActivityEvent } from "@aoagents/ao-core";
+import { recordActivityEvent } from "@contaazul/cahi-core";
 
 /** Keys that AO agents commonly need and OpenClaw may already store. */
 const RESOLVABLE_KEYS = [

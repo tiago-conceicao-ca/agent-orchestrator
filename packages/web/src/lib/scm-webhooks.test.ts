@@ -5,7 +5,7 @@ import {
   type ProjectConfig,
   type SCMWebhookEvent,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { eventMatchesProject, findAffectedSessions } from "./scm-webhooks";
 
 const project: ProjectConfig = {

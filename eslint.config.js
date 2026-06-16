@@ -157,7 +157,7 @@ export default tseslint.config(
 
   // ao bin scripts - Node.js environment (postinstall, etc.)
   {
-    files: ["packages/ao/bin/**/*.js"],
+    files: ["packages/cahi/bin/**/*.js"],
     languageOptions: {
       globals: {
         console: "readonly",

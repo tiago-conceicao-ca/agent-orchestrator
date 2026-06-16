@@ -31,45 +31,45 @@ export default defineConfig({
   },
   resolve: {
     alias: [
-      { find: "@aoagents/ao-core/types", replacement: resolve(__dirname, "../core/src/types.ts") },
+      { find: "@contaazul/cahi-core/types", replacement: resolve(__dirname, "../core/src/types.ts") },
       {
-        find: "@aoagents/ao-core",
+        find: "@contaazul/cahi-core",
         replacement: resolve(__dirname, "../core/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-sdlc",
+        find: "@contaazul/cahi-sdlc",
         replacement: resolve(__dirname, "../sdlc/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-runtime-tmux",
+        find: "@contaazul/cahi-plugin-runtime-tmux",
         replacement: resolve(__dirname, "../plugins/runtime-tmux/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-claude-code",
+        find: "@contaazul/cahi-plugin-agent-claude-code",
         replacement: resolve(__dirname, "../plugins/agent-claude-code/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-codex",
+        find: "@contaazul/cahi-plugin-agent-codex",
         replacement: resolve(__dirname, "../plugins/agent-codex/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-agent-opencode",
+        find: "@contaazul/cahi-plugin-agent-opencode",
         replacement: resolve(__dirname, "../plugins/agent-opencode/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-workspace-worktree",
+        find: "@contaazul/cahi-plugin-workspace-worktree",
         replacement: resolve(__dirname, "../plugins/workspace-worktree/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-scm-github",
+        find: "@contaazul/cahi-plugin-scm-github",
         replacement: resolve(__dirname, "../plugins/scm-github/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-tracker-github",
+        find: "@contaazul/cahi-plugin-tracker-github",
         replacement: resolve(__dirname, "../plugins/tracker-github/src/index.ts"),
       },
       {
-        find: "@aoagents/ao-plugin-tracker-linear",
+        find: "@contaazul/cahi-plugin-tracker-linear",
         replacement: resolve(__dirname, "../plugins/tracker-linear/src/index.ts"),
       },
       { find: "server-only", replacement: resolve(__dirname, "./src/__tests__/server-only-mock.ts") },

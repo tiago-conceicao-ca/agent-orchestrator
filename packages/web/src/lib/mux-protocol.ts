@@ -2,7 +2,7 @@ import type {
   DashboardNotificationRecord,
   SerializedDashboardAction as DashboardNotificationAction,
   SerializedDashboardEvent as DashboardNotificationEvent,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import type { AttentionLevel } from "./types";
 
 export type {

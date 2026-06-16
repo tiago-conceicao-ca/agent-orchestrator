@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-sdlc",
+  "name": "@contaazul/cahi-sdlc",
   "version": "0.0.0",
   "description": "SDLC orchestrator — multi-phase workflow engine over agent-orchestrator",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*",
+    "@contaazul/cahi-core": "workspace:*",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SDLC_MODELS } from "@aoagents/ao-sdlc";
+import { SDLC_MODELS } from "@contaazul/cahi-sdlc";
 import {
   SDLC_MODEL_OPTIONS,
   categorizeVerdict,

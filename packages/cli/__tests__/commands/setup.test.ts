@@ -94,7 +94,7 @@ const SLACK_SECRET_WEBHOOK_URL = testHttpsUrl(
 const SLACK_BAD_WEBHOOK_URL = testHttpsUrl(["hooks", "slack", "com"], "/services/T000/B000/bad");
 const SLACK_NEW_WEBHOOK_URL = testHttpsUrl(["hooks", "slack", "com"], "/services/TNEW/BNEW/new");
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   CONFIG_SCHEMA_URL:
     "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
   DEFAULT_DASHBOARD_NOTIFICATION_LIMIT: 50,
@@ -172,7 +172,7 @@ vi.mock("@composio/core", () => {
 
 vi.mock("@clack/prompts", () => mockClack);
 
-import { recordActivityEvent } from "@aoagents/ao-core";
+import { recordActivityEvent } from "@contaazul/cahi-core";
 import { registerSetup } from "../../src/commands/setup.js";
 import { applyNotifierRoutingPreset } from "../../src/lib/notifier-routing.js";
 
@@ -2674,8 +2674,8 @@ projects: {}
 
 describe("setup desktop command", () => {
   const originalEnv = { ...process.env };
-  const sourceApp = "/tmp/source/AO Notifier.app";
-  const targetApp = "/tmp/home/Applications/AO Notifier.app";
+  const sourceApp = "/tmp/source/Cahi Notifier.app";
+  const targetApp = "/tmp/home/Applications/Cahi Notifier.app";
 
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -2690,17 +2690,17 @@ describe("setup desktop command", () => {
     mockCpSync.mockImplementation(() => undefined);
     mockRmSync.mockImplementation(() => undefined);
     mockExistsSync.mockImplementation((path: string) =>
-      path.endsWith("AO Notifier.app/Contents/MacOS/ao-notifier"),
+      path.endsWith("Cahi Notifier.app/Contents/MacOS/cahi-notifier"),
     );
     mockExecFileSync.mockImplementation((_cmd: string, args: string[]) => {
       if (args.includes("--permission-status-json")) {
-        return '{"status":"authorized","bundleId":"com.aoagents.notifier"}';
+        return '{"status":"authorized","bundleId":"com.contaazul.cahi.notifier"}';
       }
       if (args.includes("--version-json")) {
-        return '{"name":"AO Notifier","version":"0.6.0","bundleId":"com.aoagents.notifier"}';
+        return '{"name":"Cahi Notifier","version":"0.6.0","bundleId":"com.contaazul.cahi.notifier"}';
       }
       if (args.includes("--request-permission")) {
-        return '{"status":"authorized","bundleId":"com.aoagents.notifier"}';
+        return '{"status":"authorized","bundleId":"com.contaazul.cahi.notifier"}';
       }
       return "";
     });
@@ -2731,7 +2731,7 @@ describe("setup desktop command", () => {
 
     expect(parsed.notifiers?.["desktop"]).toMatchObject({
       plugin: "desktop",
-      backend: "ao-app",
+      backend: "cahi-app",
       dashboardUrl: "http://localhost:3000",
     });
     expect(parsed.notificationRouting?.["urgent"]).toContain("desktop");
@@ -2740,7 +2740,7 @@ describe("setup desktop command", () => {
     expect(parsed.notificationRouting?.["info"]).toContain("desktop");
   });
 
-  it("configures terminal-notifier backend without installing AO Notifier.app", async () => {
+  it("configures terminal-notifier backend without installing Cahi Notifier.app", async () => {
     const program = createProgram();
 
     await program.parseAsync([
@@ -2762,7 +2762,7 @@ describe("setup desktop command", () => {
       "terminal-notifier",
       [
         "-title",
-        "AO Notifier",
+        "Cahi Notifier",
         "-message",
         "Desktop notifications are ready.",
         "-open",
@@ -2782,7 +2782,7 @@ describe("setup desktop command", () => {
     });
   });
 
-  it("configures osascript backend without installing AO Notifier.app", async () => {
+  it("configures osascript backend without installing Cahi Notifier.app", async () => {
     const program = createProgram();
 
     await program.parseAsync([
@@ -2802,7 +2802,7 @@ describe("setup desktop command", () => {
     });
     expect(mockExecFileSync).toHaveBeenCalledWith(
       "osascript",
-      ["-e", 'display notification "Desktop notifications are ready." with title "AO Notifier"'],
+      ["-e", 'display notification "Desktop notifications are ready." with title "Cahi Notifier"'],
       expect.any(Object),
     );
 
@@ -2881,7 +2881,7 @@ projects:
   });
 
   it("installs and writes an explicit AO app path", async () => {
-    const customAppPath = "/tmp/custom/AO Notifier.app";
+    const customAppPath = "/tmp/custom/Cahi Notifier.app";
     const program = createProgram();
 
     await program.parseAsync([
@@ -2916,7 +2916,7 @@ projects:
     ]);
 
     expect(mockExecFileSync).not.toHaveBeenCalledWith(
-      expect.stringContaining("ao-notifier"),
+      expect.stringContaining("cahi-notifier"),
       ["--notify-base64", expect.any(String)],
       expect.any(Object),
     );
@@ -3045,14 +3045,14 @@ projects:
     const parsed = parseYaml(writtenYaml) as {
       notifiers?: Record<string, { plugin?: string; backend?: string }>;
     };
-    expect(parsed.notifiers?.["desktop"]).toMatchObject({ plugin: "desktop", backend: "ao-app" });
+    expect(parsed.notifiers?.["desktop"]).toMatchObject({ plugin: "desktop", backend: "cahi-app" });
   });
 
   it("reports denied notification permission without writing config", async () => {
     mockExecFileSync.mockImplementation((_cmd: string, args: string[]) => {
       if (args.includes("--request-permission")) {
         const error = new Error("Command failed") as Error & { stdout: Buffer; stderr: Buffer };
-        error.stdout = Buffer.from('{"status":"denied","bundleId":"com.aoagents.notifier"}\n');
+        error.stdout = Buffer.from('{"status":"denied","bundleId":"com.contaazul.cahi.notifier"}\n');
         error.stderr = Buffer.alloc(0);
         throw error;
       }
@@ -3073,11 +3073,11 @@ projects:
     expect(mockWriteFileSync).not.toHaveBeenCalled();
   });
 
-  it("refuses to install a non-macOS placeholder AO Notifier.app", async () => {
+  it("refuses to install a non-macOS placeholder Cahi Notifier.app", async () => {
     mockExistsSync.mockImplementation(
       (path: string) =>
-        path.endsWith("AO Notifier.app/Contents/MacOS/ao-notifier") ||
-        path.endsWith("AO Notifier.app/Contents/Resources/ao-notifier-placeholder"),
+        path.endsWith("Cahi Notifier.app/Contents/MacOS/cahi-notifier") ||
+        path.endsWith("Cahi Notifier.app/Contents/Resources/cahi-notifier-placeholder"),
     );
     const program = createProgram();
     const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
@@ -3103,7 +3103,7 @@ projects:
     expect(mockCpSync).not.toHaveBeenCalled();
     expect(mockWriteFileSync).not.toHaveBeenCalled();
     expect(mockExecFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-notifier"),
+      expect.stringContaining("cahi-notifier"),
       ["--version-json"],
       expect.any(Object),
     );

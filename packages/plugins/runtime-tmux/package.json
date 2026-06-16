@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-runtime-tmux",
+  "name": "@contaazul/cahi-plugin-runtime-tmux",
   "version": "0.9.1",
   "description": "Runtime plugin: tmux sessions",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

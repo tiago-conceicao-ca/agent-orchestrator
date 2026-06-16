@@ -2,9 +2,9 @@ import AppKit
 import Foundation
 import UserNotifications
 
-let appName = "AO Notifier"
+let appName = "Cahi Notifier"
 let appVersion = "0.6.0"
-let bundleId = "com.aoagents.notifier"
+let bundleId = "com.contaazul.cahi.notifier"
 
 struct NotifyPayload: Codable {
   struct Event: Codable {
@@ -113,7 +113,7 @@ func postCallback(_ rawUrl: String?) {
   var request = URLRequest(url: url)
   request.httpMethod = "POST"
   request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-  request.httpBody = Data("{\"source\":\"ao-notifier\"}".utf8)
+  request.httpBody = Data("{\"source\":\"cahi-notifier\"}".utf8)
 
   let semaphore = DispatchSemaphore(value: 0)
   let task = URLSession.shared.dataTask(with: request) { _, _, _ in
@@ -240,7 +240,7 @@ func fallbackNotificationId(_ eventId: String) -> String {
 }
 
 func fallbackThreadId() -> String {
-  return "ao.notifications"
+  return "cahi.notifications"
 }
 
 func sendNotification(_ payload: NotifyPayload) throws {
@@ -251,7 +251,7 @@ func sendNotification(_ payload: NotifyPayload) throws {
   var actionCallbacks: [String: String] = [:]
   let configuredUrlActions = (payload.actions ?? []).enumerated().compactMap { index, action -> UNNotificationAction? in
     guard action.url != nil || action.callbackEndpoint != nil else { return nil }
-    let identifier = "ao.action.\(index)"
+    let identifier = "cahi.action.\(index)"
     if let url = action.url {
       actionUrls[identifier] = url
     }
@@ -269,7 +269,7 @@ func sendNotification(_ payload: NotifyPayload) throws {
   if configuredUrlActions.isEmpty {
     categoryId = nil
   } else {
-    let id = "ao.event.\(payload.event.id)"
+    let id = "cahi.event.\(payload.event.id)"
     let category = UNNotificationCategory(
       identifier: id,
       actions: configuredUrlActions,

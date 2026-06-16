@@ -27,7 +27,7 @@ import { CopyDebugBundleButton } from "./CopyDebugBundleButton";
 import { DashboardNotificationButton } from "./DashboardNotificationButton";
 import { SidebarContext, useSidebarContext } from "./workspace/SidebarContext";
 import { ProjectSidebar } from "./ProjectSidebar";
-import { isOrchestratorSession } from "@aoagents/ao-core/types";
+import { isOrchestratorSession } from "@contaazul/cahi-core/types";
 import {
   projectDashboardPath,
   projectReviewPath,

@@ -1,5 +1,5 @@
 {
-  "name": "@aoagents/ao-plugin-workspace-clone",
+  "name": "@contaazul/cahi-plugin-workspace-clone",
   "version": "0.9.1",
   "description": "Workspace plugin: git clone",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@aoagents/ao-core": "workspace:*"
+    "@contaazul/cahi-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

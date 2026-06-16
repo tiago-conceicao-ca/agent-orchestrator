@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { WorkflowEngine, WorkflowRun } from "@aoagents/ao-sdlc";
+import type { WorkflowEngine, WorkflowRun } from "@contaazul/cahi-sdlc";
 
 const { buildWebSdlcEngine } = vi.hoisted(() => ({ buildWebSdlcEngine: vi.fn() }));
 vi.mock("@/lib/sdlc-services", () => ({ buildWebSdlcEngine }));

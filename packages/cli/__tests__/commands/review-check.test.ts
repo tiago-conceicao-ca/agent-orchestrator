@@ -15,7 +15,7 @@ import {
   type SessionManager,
   getSessionsDir,
   sessionFromMetadata,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 const { mockTmux, mockExec, mockGh, mockConfigRef, mockSessionManager, sessionsDirRef } =
   vi.hoisted(() => ({
@@ -60,9 +60,9 @@ vi.mock("ora", () => ({
   }),
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await importOriginal<typeof import("@aoagents/ao-core")>();
+  const actual = await importOriginal<typeof import("@contaazul/cahi-core")>();
   return {
     ...actual,
     loadConfig: () => mockConfigRef.current,

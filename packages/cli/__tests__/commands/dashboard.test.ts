@@ -14,9 +14,9 @@ vi.mock("../../src/lib/shell.js", () => ({
   execSilent: mockExecSilent,
 }));
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const actual = await importOriginal<typeof import("@aoagents/ao-core")>();
+  const actual = await importOriginal<typeof import("@contaazul/cahi-core")>();
   return {
     ...actual,
     findPidByPort: mockFindPidByPort,
@@ -83,7 +83,7 @@ describe("isInstalledUnderNodeModules", () => {
   it("returns true for a Unix node_modules path segment", async () => {
     const { isInstalledUnderNodeModules } = await import("../../src/lib/dashboard-rebuild.js");
 
-    expect(isInstalledUnderNodeModules("/usr/local/lib/node_modules/@aoagents/ao-web")).toBe(true);
+    expect(isInstalledUnderNodeModules("/usr/local/lib/node_modules/@contaazul/cahi-web")).toBe(true);
   });
 
   it("returns true for a Windows node_modules path segment", async () => {
@@ -116,7 +116,7 @@ describe("assertDashboardRebuildSupported", () => {
     const { assertDashboardRebuildSupported } = await import("../../src/lib/dashboard-rebuild.js");
 
     expect(() =>
-      assertDashboardRebuildSupported("/usr/local/lib/node_modules/@aoagents/ao-web"),
+      assertDashboardRebuildSupported("/usr/local/lib/node_modules/@contaazul/cahi-web"),
     ).toThrow("Dashboard rebuild is only available from a source checkout");
   });
 });
@@ -159,7 +159,7 @@ describe("rebuildDashboardProductionArtifacts", () => {
       await import("../../src/lib/dashboard-rebuild.js");
 
     await expect(
-      rebuildDashboardProductionArtifacts("/usr/local/lib/node_modules/@aoagents/ao-web"),
+      rebuildDashboardProductionArtifacts("/usr/local/lib/node_modules/@contaazul/cahi-web"),
     ).rejects.toThrow("Dashboard rebuild is only available from a source checkout");
   });
 });

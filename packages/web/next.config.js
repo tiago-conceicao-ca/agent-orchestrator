@@ -9,23 +9,23 @@ const homeDir = os.homedir().replace(/\\/g, "/");
 const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../.."),
   transpilePackages: [
-    "@aoagents/ao-plugin-agent-claude-code",
-    "@aoagents/ao-plugin-agent-codex",
-    "@aoagents/ao-plugin-agent-opencode",
-    "@aoagents/ao-plugin-runtime-tmux",
-    "@aoagents/ao-plugin-scm-github",
-    "@aoagents/ao-plugin-tracker-github",
-    "@aoagents/ao-plugin-tracker-linear",
-    "@aoagents/ao-plugin-workspace-worktree",
+    "@contaazul/cahi-plugin-agent-claude-code",
+    "@contaazul/cahi-plugin-agent-codex",
+    "@contaazul/cahi-plugin-agent-opencode",
+    "@contaazul/cahi-plugin-runtime-tmux",
+    "@contaazul/cahi-plugin-scm-github",
+    "@contaazul/cahi-plugin-tracker-github",
+    "@contaazul/cahi-plugin-tracker-linear",
+    "@contaazul/cahi-plugin-workspace-worktree",
   ],
   serverExternalPackages: [
     "yaml",
     "zod",
-    "@aoagents/ao-core",
-    // Kept external so @aoagents/ao-sdlc's loadLensPrompt() can resolve its
+    "@contaazul/cahi-core",
+    // Kept external so @contaazul/cahi-sdlc's loadLensPrompt() can resolve its
     // dist/gates/prompts/*.md via import.meta.url at runtime (bundling would
     // rewrite the module URL and break the prompt path).
-    "@aoagents/ao-sdlc",
+    "@contaazul/cahi-sdlc",
     "better-sqlite3",
   ],
   webpack: (config, { isServer }) => {

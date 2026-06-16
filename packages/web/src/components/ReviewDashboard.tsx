@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CodeReviewFinding } from "@aoagents/ao-core";
+import type { CodeReviewFinding } from "@contaazul/cahi-core";
 import { MOBILE_BREAKPOINT, useMediaQuery } from "@/hooks/useMediaQuery";
 import type { ProjectInfo } from "@/lib/project-name";
 import {

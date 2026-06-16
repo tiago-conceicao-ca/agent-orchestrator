@@ -5,7 +5,7 @@ import {
   getProjectSessionsDir,
   updateMetadata,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   CA_PLAN_TO_BACKEND,
   loadLensPrompt,
@@ -25,13 +25,13 @@ import {
   waitForTaskCompletion,
   WorkflowEngine,
   type SdlcSessionSpawn,
-} from "@aoagents/ao-sdlc";
+} from "@contaazul/cahi-sdlc";
 import { getServices } from "./services";
 
 // Dashboard-side engine wiring. Intentionally mirrors the CLI's buildSdlcServices
 // (packages/cli/src/commands/sdlc.ts) — the shared pure logic (executors, gates,
-// engine) lives in @aoagents/ao-sdlc; only the service-access + agent runners are
-// app-specific. A future refactor could hoist this factory into @aoagents/ao-sdlc.
+// engine) lives in @contaazul/cahi-sdlc; only the service-access + agent runners are
+// app-specific. A future refactor could hoist this factory into @contaazul/cahi-sdlc.
 
 const TASK_POLL_INTERVAL_MS = 5_000;
 const TASK_POLL_TIMEOUT_MS = 2 * 60 * 60 * 1_000; // 2h safety cap

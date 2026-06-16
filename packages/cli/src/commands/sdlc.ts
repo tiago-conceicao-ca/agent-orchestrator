@@ -7,7 +7,7 @@
  *   ao sdlc approve <runId>          approve a run paused at a human gate (resume)
  *   ao sdlc status <runId>           print a run's status + per-task kanban state
  *
- * The pure workflow engine lives in @aoagents/ao-sdlc; this command wires AO's
+ * The pure workflow engine lives in @contaazul/cahi-sdlc; this command wires AO's
  * real SessionManager into the injected spawn/waitForDone seams and constructs
  * the V1 (ca-plan-to-backend) engine.
  */
@@ -22,7 +22,7 @@ import {
   loadConfig,
   updateMetadata,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import {
   CA_PLAN_TO_BACKEND,
   loadLensPrompt,
@@ -46,7 +46,7 @@ import {
   type SdlcRunEvent,
   type SdlcSessionSpawn,
   type WorkflowTask,
-} from "@aoagents/ao-sdlc";
+} from "@contaazul/cahi-sdlc";
 import { getPluginRegistry, getSessionManager } from "../lib/create-session-manager.js";
 
 /** Minimal SessionManager surface the engine wiring needs (real or fake). */
@@ -181,7 +181,7 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
   };
 
   // Lens templates are the ported plan-review prompt bodies (with the {artifact}
-  // placeholder), loaded from the @aoagents/ao-sdlc package's gates/prompts.
+  // placeholder), loaded from the @contaazul/cahi-sdlc package's gates/prompts.
   const gates = {
     tactical: makeLensGate("tactical", loadLensPrompt("tactical"), deps.runLensAgent),
     architectural: makeLensGate(

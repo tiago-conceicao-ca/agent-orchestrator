@@ -9,7 +9,7 @@ import {
   type NotificationDataV3,
   type OrchestratorEvent,
   type PluginModule,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 // Module-level guard so we only emit notifier.dep_missing once per process.
 let depMissingEmitted = false;

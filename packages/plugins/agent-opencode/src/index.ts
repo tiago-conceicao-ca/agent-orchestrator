@@ -26,7 +26,7 @@ import {
   type WorkspaceHooksConfig,
   type OpenCodeAgentConfig,
   type OpenCodeSessionListEntry,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { execFile, execFileSync } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -56,7 +56,7 @@ function parseUpdatedTimestamp(updated: string | number | undefined): Date | nul
   return new Date(parsedMs);
 }
 
-// Re-export for backward compat — see @aoagents/ao-core/opencode-shared.
+// Re-export for backward compat — see @contaazul/cahi-core/opencode-shared.
 export { resetOpenCodeSessionListCache };
 
 /**

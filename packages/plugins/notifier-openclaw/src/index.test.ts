@@ -8,7 +8,7 @@ import {
   type NotificationEventContext,
   type NotifyAction,
   type OrchestratorEvent,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { create, manifest } from "./index.js";
 
 function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEvent {

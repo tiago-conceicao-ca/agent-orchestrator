@@ -10,7 +10,7 @@ import {
   type OrchestratorConfig,
   type Session,
   type SessionManager,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 const { mockConfig, mockSessionManager } = vi.hoisted(() => ({
   mockConfig: {

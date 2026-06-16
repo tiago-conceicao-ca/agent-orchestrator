@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { ProjectConfig, WorkspaceCreateConfig, WorkspaceInfo } from "@aoagents/ao-core/types";
+import type { ProjectConfig, WorkspaceCreateConfig, WorkspaceInfo } from "@contaazul/cahi-core/types";
 
 // ---------------------------------------------------------------------------
 // Mocks — must be declared before any import that uses the mocked modules
@@ -28,7 +28,7 @@ vi.mock("node:fs", () => ({
   readdirSync: vi.fn(),
 }));
 
-vi.mock("@aoagents/ao-core", () => ({
+vi.mock("@contaazul/cahi-core", () => ({
   getShell: vi.fn(() => ({ cmd: "sh", args: (c: string) => ["-c", c] })),
   isWindows: vi.fn(() => false),
   recordActivityEvent: recordActivityEventMock,
@@ -62,7 +62,7 @@ import {
   mkdirSync,
   readdirSync,
 } from "node:fs";
-import * as core from "@aoagents/ao-core";
+import * as core from "@contaazul/cahi-core";
 import { create, manifest } from "../index.js";
 
 // ---------------------------------------------------------------------------

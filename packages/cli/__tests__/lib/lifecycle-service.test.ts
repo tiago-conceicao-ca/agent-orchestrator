@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { LifecycleManager, OrchestratorConfig } from "@aoagents/ao-core";
+import type { LifecycleManager, OrchestratorConfig } from "@contaazul/cahi-core";
 
 const mockGetLifecycleManager = vi.fn();
 

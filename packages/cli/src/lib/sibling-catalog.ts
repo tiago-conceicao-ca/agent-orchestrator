@@ -1,4 +1,4 @@
-import type { ProjectConfig } from "@aoagents/ao-core";
+import type { ProjectConfig } from "@contaazul/cahi-core";
 
 /**
  * An available-siblings catalog entry (#1095): a registered project that a

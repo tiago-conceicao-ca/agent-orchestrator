@@ -2,7 +2,7 @@
  * Returns the complete AO config schema as formatted text.
  * Used by `ao config-help` and injected into orchestrator system prompts.
  */
-import { CONFIG_SCHEMA_URL } from "@aoagents/ao-core";
+import { CONFIG_SCHEMA_URL } from "@contaazul/cahi-core";
 
 export function getConfigInstruction(): string {
   return `
@@ -114,8 +114,8 @@ projects:
 notifiers:
   desktop:
     plugin: desktop
-    # Run 'ao setup desktop' on macOS to use AO Notifier.app
-    # backend: ao-app
+    # Run 'cahi setup desktop on macOS to use Cahi Notifier.app
+    # backend: cahi-app
   dashboard:
     plugin: dashboard
     # Run 'ao setup dashboard' to retain notifications in the web dashboard

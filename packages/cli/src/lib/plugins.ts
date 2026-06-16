@@ -1,12 +1,12 @@
-import type { Agent, OrchestratorConfig, PluginRegistry, SCM } from "@aoagents/ao-core";
-import claudeCodePlugin from "@aoagents/ao-plugin-agent-claude-code";
-import codexPlugin from "@aoagents/ao-plugin-agent-codex";
-import aiderPlugin from "@aoagents/ao-plugin-agent-aider";
-import cursorPlugin from "@aoagents/ao-plugin-agent-cursor";
-import kimicodePlugin from "@aoagents/ao-plugin-agent-kimicode";
-import grokPlugin from "@aoagents/ao-plugin-agent-grok";
-import opencodePlugin from "@aoagents/ao-plugin-agent-opencode";
-import githubSCMPlugin from "@aoagents/ao-plugin-scm-github";
+import type { Agent, OrchestratorConfig, PluginRegistry, SCM } from "@contaazul/cahi-core";
+import claudeCodePlugin from "@contaazul/cahi-plugin-agent-claude-code";
+import codexPlugin from "@contaazul/cahi-plugin-agent-codex";
+import aiderPlugin from "@contaazul/cahi-plugin-agent-aider";
+import cursorPlugin from "@contaazul/cahi-plugin-agent-cursor";
+import kimicodePlugin from "@contaazul/cahi-plugin-agent-kimicode";
+import grokPlugin from "@contaazul/cahi-plugin-agent-grok";
+import opencodePlugin from "@contaazul/cahi-plugin-agent-opencode";
+import githubSCMPlugin from "@contaazul/cahi-plugin-scm-github";
 
 const agentPlugins: Record<string, { create(): Agent }> = {
   "claude-code": claudeCodePlugin,

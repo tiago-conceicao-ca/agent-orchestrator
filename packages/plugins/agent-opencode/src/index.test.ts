@@ -4,7 +4,7 @@ import {
   type Session,
   type RuntimeHandle,
   type AgentLaunchConfig,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 const {
   mockAppendActivityEntry,
@@ -22,7 +22,7 @@ const {
 
 const mockExecFileAsync = vi.fn();
 
-vi.mock("@aoagents/ao-core", async (importOriginal) => {
+vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,

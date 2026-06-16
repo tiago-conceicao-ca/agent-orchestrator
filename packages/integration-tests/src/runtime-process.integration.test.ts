@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { tmpdir } from "node:os";
-import processPlugin from "@aoagents/ao-plugin-runtime-process";
-import type { RuntimeHandle } from "@aoagents/ao-core";
+import processPlugin from "@contaazul/cahi-plugin-runtime-process";
+import type { RuntimeHandle } from "@contaazul/cahi-core";
 import { sleep } from "./helpers/polling.js";
 
 describe("runtime-process (integration)", () => {

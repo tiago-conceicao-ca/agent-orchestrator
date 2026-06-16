@@ -11,7 +11,7 @@ import {
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { setTimeout as sleep } from "node:timers/promises";
-import { atomicWriteFileSync, recordActivityEvent } from "@aoagents/ao-core";
+import { atomicWriteFileSync, recordActivityEvent } from "@contaazul/cahi-core";
 
 export interface RunningState {
   pid: number;

@@ -22,7 +22,7 @@ import {
   TERMINAL_STATUSES as CORE_TERMINAL_STATUSES,
   TERMINAL_ACTIVITIES as CORE_TERMINAL_ACTIVITIES,
   NON_RESTORABLE_STATUSES as CORE_NON_RESTORABLE_STATUSES,
-} from "@aoagents/ao-core/types";
+} from "@contaazul/cahi-core/types";
 
 // Helper to create a minimal DashboardSession for testing
 function createSession(overrides?: Partial<DashboardSession>): DashboardSession {

@@ -21,7 +21,7 @@ import {
   loadGlobalConfig,
   type UpdateChannel,
   type InstallMethodOverride,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { getCliVersion } from "../options/version.js";
 
 // ---------------------------------------------------------------------------
@@ -69,7 +69,7 @@ export interface CacheData {
 // ---------------------------------------------------------------------------
 
 /** Full package document — includes `dist-tags` for channel resolution. */
-const REGISTRY_PACKAGE_URL = "https://registry.npmjs.org/@aoagents%2Fao";
+const REGISTRY_PACKAGE_URL = "https://registry.npmjs.org/@contaazul%2Fcahi";
 const FETCH_TIMEOUT_MS = 3000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 const DEFAULT_GIT_REMOTE = "origin";
@@ -140,7 +140,7 @@ export function isAgentOrchestratorRepoRoot(root: string): boolean {
     return false;
   }
 
-  return readPackageName(resolve(root, "packages", "ao", "package.json")) === "@aoagents/ao";
+  return readPackageName(resolve(root, "packages", "cahi", "package.json")) === "@contaazul/cahi";
 }
 
 export function isAoCliPackageRoot(root: string): boolean {
@@ -148,7 +148,7 @@ export function isAoCliPackageRoot(root: string): boolean {
     return false;
   }
 
-  return readPackageName(resolve(root, "package.json")) === "@aoagents/ao-cli";
+  return readPackageName(resolve(root, "package.json")) === "@contaazul/cahi-cli";
 }
 
 /**
@@ -210,7 +210,7 @@ export function detectInstallMethod(): InstallMethod {
 // ---------------------------------------------------------------------------
 
 /**
- * Resolve the currently-installed `@aoagents/ao` version.
+ * Resolve the currently-installed `@contaazul/cahi` version.
  *
  * Delegates to core's `getInstalledAoVersion` (single source of truth shared
  * with the dashboard) and falls back to the CLI's own embedded version when
@@ -264,15 +264,15 @@ export function getUpdateCommand(method: InstallMethod, channel: UpdateChannel =
     case "git":
       return "ao update";
     case "npm-global":
-      return `npm install -g @aoagents/ao@${tag}`;
+      return `npm install -g @contaazul/cahi@${tag}`;
     case "pnpm-global":
-      return `pnpm add -g @aoagents/ao@${tag}`;
+      return `pnpm add -g @contaazul/cahi@${tag}`;
     case "bun-global":
-      return `bun add -g @aoagents/ao@${tag}`;
+      return `bun add -g @contaazul/cahi@${tag}`;
     case "homebrew":
       return "brew upgrade ao";
     case "unknown":
-      return `npm install -g @aoagents/ao@${tag}`;
+      return `npm install -g @contaazul/cahi@${tag}`;
   }
 }
 
@@ -428,7 +428,7 @@ export async function fetchGitLatestState(
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch the latest version of @aoagents/ao for the given dist-tag.
+ * Fetch the latest version of @contaazul/cahi for the given dist-tag.
  *
  * Hits the full package document (not the per-tag URL) so we get all dist-tags
  * in one round trip. Channels:
@@ -627,7 +627,7 @@ export function scheduleBackgroundRefresh(): void {
 /**
  * Re-export the core implementation so CLI consumers (and the existing test
  * suite) keep importing from this module while the dashboard imports the same
- * function from `@aoagents/ao-core` — single source of truth for the prerelease
+ * function from `@contaazul/cahi-core` — single source of truth for the prerelease
  * comparison rules.
  */
 export const isVersionOutdated = coreIsVersionOutdated;

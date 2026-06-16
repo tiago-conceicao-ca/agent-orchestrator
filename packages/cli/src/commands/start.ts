@@ -46,7 +46,7 @@ import {
   reapAoOrphans,
   type DaemonChildSweepResult,
   type AoOrphanProcess,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { exec, execSilent, git } from "../lib/shell.js";
 import { getSessionManager } from "../lib/create-session-manager.js";
@@ -1912,7 +1912,7 @@ function isLocalPath(arg: string): boolean {
 async function sweepWindowsPtyHostsBeforeParentKill(): Promise<void> {
   if (!isWindows()) return;
   try {
-    const mod = (await import("@aoagents/ao-plugin-runtime-process")) as {
+    const mod = (await import("@contaazul/cahi-plugin-runtime-process")) as {
       sweepWindowsPtyHosts?: () => Promise<{
         attempted: number;
         gracefullyExited: number;

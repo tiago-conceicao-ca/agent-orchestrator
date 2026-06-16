@@ -6,7 +6,7 @@ import type {
   SiblingRef,
   OrchestratorConfig,
   PluginRegistry,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 function makeSibling(overrides: Partial<SiblingRef> = {}): SiblingRef {
   return {

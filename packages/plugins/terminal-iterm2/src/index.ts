@@ -5,7 +5,7 @@ import {
   type PluginModule,
   type Terminal,
   type Session,
-} from "@aoagents/ao-core";
+} from "@contaazul/cahi-core";
 
 export const manifest = {
   name: "iterm2",
@@ -15,7 +15,7 @@ export const manifest = {
 };
 
 // Re-export for backwards compatibility
-export { escapeAppleScript } from "@aoagents/ao-core";
+export { escapeAppleScript } from "@contaazul/cahi-core";
 
 /**
  * Run an AppleScript snippet and return stdout.

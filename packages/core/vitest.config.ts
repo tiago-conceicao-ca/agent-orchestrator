@@ -8,13 +8,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   resolve: {
     alias: [
-      { find: /^@aoagents\/ao-core$/, replacement: resolve(__dirname, "src/index.ts") },
+      { find: /^@contaazul\/cahi-core$/, replacement: resolve(__dirname, "src/index.ts") },
       {
-        find: /^@aoagents\/ao-core\/scm-webhook-utils$/,
+        find: /^@contaazul\/cahi-core\/scm-webhook-utils$/,
         replacement: resolve(__dirname, "src/scm-webhook-utils.ts"),
       },
-      { find: /^@aoagents\/ao-core\/types$/, replacement: resolve(__dirname, "src/types.ts") },
-      { find: /^@aoagents\/ao-core\/utils$/, replacement: resolve(__dirname, "src/utils.ts") },
+      { find: /^@contaazul\/cahi-core\/types$/, replacement: resolve(__dirname, "src/types.ts") },
+      { find: /^@contaazul\/cahi-core\/utils$/, replacement: resolve(__dirname, "src/utils.ts") },
     ],
   },
   plugins: [
@@ -35,11 +35,11 @@ export default defineConfig({
       // Integration tests import real plugins. These aliases resolve
       // package names to source files so we don't need circular devDeps
       // (plugins depend on core, core can't depend on plugins).
-      "@aoagents/ao-plugin-tracker-github": resolve(
+      "@contaazul/cahi-plugin-tracker-github": resolve(
         __dirname,
         "../plugins/tracker-github/src/index.ts",
       ),
-      "@aoagents/ao-plugin-scm-github": resolve(__dirname, "../plugins/scm-github/src/index.ts"),
+      "@contaazul/cahi-plugin-scm-github": resolve(__dirname, "../plugins/scm-github/src/index.ts"),
     },
     coverage: {
       provider: "v8",

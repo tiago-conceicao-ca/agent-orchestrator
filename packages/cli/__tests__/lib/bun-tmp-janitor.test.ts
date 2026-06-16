@@ -3,14 +3,14 @@ import { mkdtempSync, writeFileSync, existsSync, statSync, utimesSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import type * as AoCore from "@aoagents/ao-core";
+import type * as AoCore from "@contaazul/cahi-core";
 
 // We point the shared module at a fresh temp dir per test by mocking the
 // AO base path resolver. The janitor pulls the dir from
-// @aoagents/ao-core's getOpenCodeTmpDir.
+// @contaazul/cahi-core's getOpenCodeTmpDir.
 let mockedDir = "";
-vi.mock("@aoagents/ao-core", async () => {
-  const actual = await vi.importActual<typeof AoCore>("@aoagents/ao-core");
+vi.mock("@contaazul/cahi-core", async () => {
+  const actual = await vi.importActual<typeof AoCore>("@contaazul/cahi-core");
   return {
     ...actual,
     getOpenCodeTmpDir: () => mockedDir,

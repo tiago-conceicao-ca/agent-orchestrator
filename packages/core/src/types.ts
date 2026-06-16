@@ -1922,7 +1922,7 @@ export interface SessionMetadata {
    * touched.
    */
   displayNameUserSet?: boolean;
-  /** SDLC orchestrator linkage (added by @aoagents/ao-sdlc). */
+  /** SDLC orchestrator linkage (added by @contaazul/cahi-sdlc). */
   sdlcRunId?: string;
   sdlcTaskId?: string;
   sdlcPhase?: string;
