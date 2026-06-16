@@ -38,6 +38,12 @@ export interface PhaseContext {
 export interface PhaseResult {
   epic?: Epic; // normalize-plan returns the produced epic
   artifactRef: string; // path/handle to the phase's output, fed to gates
+  /**
+   * The normalized plan markdown. normalize-plan returns it so the engine can
+   * persist it durably on the run (`run.planMarkdown`) — the `artifactRef`
+   * tmpdir file is ephemeral and only exists for the lens agent to Read.
+   */
+  planMarkdown?: string;
 }
 
 export interface PhaseExecutor {
@@ -62,4 +68,9 @@ export interface WorkflowRun {
    * not survive the pause/resume boundary.
    */
   epic?: Epic;
+  /**
+   * The normalized plan markdown produced by `normalize-plan`, persisted so the
+   * run view can show the plan artifact that the lens agents reviewed.
+   */
+  planMarkdown?: string;
 }

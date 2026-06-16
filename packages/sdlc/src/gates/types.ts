@@ -13,6 +13,13 @@ export interface GateVerdict {
   lens: string;
   issues: LensIssue[];
   verdict: "pass" | "needs_fixes";
+  /**
+   * The lens agent's raw output (reasoning + the structured verdict it emitted).
+   * Captured by `makeLensGate` so the run view can surface the agent's reasoning;
+   * the engine persists it via `run.verdicts`. Optional — `parseLensVerdict`
+   * tolerates its absence (e.g. for synthetic skip-lens verdicts).
+   */
+  rawOutput?: string;
 }
 
 export interface Gate {

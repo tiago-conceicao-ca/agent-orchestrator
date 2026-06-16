@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import type { SdlcTaskDetail as SdlcTask } from "@/lib/sdlc-board";
+import { getPRDotClass, getPRStatusLabel } from "@/lib/pr-status";
+import { cn } from "@/lib/cn";
+import type { DashboardPR } from "@/lib/types";
 
 // Read-only, rich detail panel for a single SDLC task. No mutations: no
 // comments, edit, status override, priority, or assignee — it renders the
@@ -57,13 +60,34 @@ function Meta({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+/** Linked worker PR + CI status, tone-mapped identically to the coding board. */
+function LinkedSessionPR({ pr }: { pr: DashboardPR }) {
+  const label = getPRStatusLabel(pr);
+  return (
+    <a
+      href={pr.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="sdlc-detail__link inline-flex items-center gap-1.5"
+    >
+      <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", getPRDotClass(pr))} />
+      <span>PR #{pr.number}</span>
+      {label ? (
+        <span className="text-[var(--color-text-tertiary)]">· {label}</span>
+      ) : null}
+    </a>
+  );
+}
+
 interface SdlcTaskDetailProps {
   task: SdlcTask;
   runId: string;
+  /** Live PR/CI of the linked worker session, when one is dispatched (incl. terminal). */
+  linkedSessionPR?: DashboardPR | null;
   onClose: () => void;
 }
 
-export function SdlcTaskDetail({ task, runId, onClose }: SdlcTaskDetailProps) {
+export function SdlcTaskDetail({ task, runId, linkedSessionPR, onClose }: SdlcTaskDetailProps) {
   const [promptOpen, setPromptOpen] = useState(false);
 
   useEffect(() => {
@@ -172,9 +196,12 @@ export function SdlcTaskDetail({ task, runId, onClose }: SdlcTaskDetailProps) {
             </Meta>
             <Meta label="Session">
               {task.linkedSession ? (
-                <Link href={task.linkedSession.projectSessionPath} className="sdlc-detail__link">
-                  {task.linkedSession.sessionId}
-                </Link>
+                <span className="flex flex-col items-start gap-1">
+                  <Link href={task.linkedSession.projectSessionPath} className="sdlc-detail__link">
+                    {task.linkedSession.sessionId}
+                  </Link>
+                  {linkedSessionPR ? <LinkedSessionPR pr={linkedSessionPR} /> : null}
+                </span>
               ) : (
                 <span className="sdlc-detail__muted">Not dispatched</span>
               )}

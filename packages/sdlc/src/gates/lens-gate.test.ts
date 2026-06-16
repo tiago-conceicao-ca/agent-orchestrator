@@ -12,6 +12,13 @@ describe("lens gate", () => {
     expect(v.verdict).toBe("pass");
     expect(v.lens).toBe("tactical");
   });
+  it("captures the agent's raw output (reasoning + verdict) on the verdict", async () => {
+    const raw = 'Reviewing the plan...\nLooks solid.\n{"verdict":"pass","issues":[]}';
+    const gate = makeLensGate("tactical", "PROMPT", async () => raw);
+    const v = await gate.evaluate("plan.md", "tactical", CTX);
+    expect(v.rawOutput).toBe(raw);
+    expect(v.verdict).toBe("pass");
+  });
   it("propagates needs_fixes and issues", async () => {
     const runner = async () =>
       '{"verdict":"needs_fixes","issues":[{"severity":"high","title":"t","detail":"d"}]}';

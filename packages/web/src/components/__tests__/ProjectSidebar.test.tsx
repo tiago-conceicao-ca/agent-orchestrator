@@ -318,6 +318,62 @@ describe("ProjectSidebar", () => {
     expect(screen.queryByRole("link", { name: "Open feat/test" })).not.toBeInTheDocument();
   });
 
+  it("exposes project-scoped SDLC and Reviews nav links matching the mode-switch hrefs", () => {
+    render(
+      <ProjectSidebar
+        projects={projects}
+        sessions={[]}
+        activeProjectId="project-1"
+        activeSessionId={undefined}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open Project One reviews" })).toHaveAttribute(
+      "href",
+      "/review?project=project-1",
+    );
+    expect(screen.getByRole("link", { name: "Open Project One SDLC runs" })).toHaveAttribute(
+      "href",
+      "/sdlc?project=project-1",
+    );
+  });
+
+  it("shows an SDLC indicator linking to the run view only for sdlc-tagged sessions", () => {
+    render(
+      <ProjectSidebar
+        projects={projects}
+        sessions={[
+          makeSession({
+            id: "sdlc-worker",
+            projectId: "project-1",
+            summary: "SDLC backend task",
+            branch: null,
+            status: "working",
+            activity: "active",
+            metadata: { sdlcRunId: "run-epic-1-abc", sdlcTaskId: "epic-1__repo" },
+          }),
+          makeSession({
+            id: "plain-worker",
+            projectId: "project-1",
+            summary: "Ordinary task",
+            branch: null,
+            status: "working",
+            activity: "active",
+            metadata: {},
+          }),
+        ]}
+        activeProjectId="project-1"
+        activeSessionId={undefined}
+      />,
+    );
+
+    // The per-session indicator's label embeds the run id ("SDLC run <id>"),
+    // distinguishing it from the project-level "Open … SDLC runs" nav link.
+    const sdlcLinks = screen.getAllByRole("link", { name: /^SDLC run run-/i });
+    expect(sdlcLinks).toHaveLength(1);
+    expect(sdlcLinks[0]).toHaveAttribute("href", "/sdlc?project=project-1");
+  });
+
   it("keeps killed sessions visible when they still need attention", () => {
     const lastActivityAt = new Date().toISOString();
 

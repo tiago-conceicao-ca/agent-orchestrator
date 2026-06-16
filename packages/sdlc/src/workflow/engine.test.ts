@@ -100,6 +100,46 @@ describe("WorkflowEngine", () => {
     expect(await new RunStore(dir).list()).toHaveLength(2);
   });
 
+  it("persists the plan markdown durably on the run when a phase returns it", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: [], humanGate: false }],
+    };
+    const eng = new WorkflowEngine({
+      store: new RunStore(dir),
+      definitions: { [def.name]: def },
+      executors: {
+        p1: { id: "p1", run: async () => ({ artifactRef: "art", planMarkdown: "# Plan\n## Task Graph" }) },
+      },
+      gates: {},
+    });
+    const run = await eng.start("w", "epic-1", "input");
+    // Re-load from a fresh store to prove durability, not in-memory state.
+    const reloaded = await new RunStore(dir).load(run.id);
+    expect(reloaded?.planMarkdown).toBe("# Plan\n## Task Graph");
+  });
+
+  it("round-trips a verdict's captured rawOutput through the store", async () => {
+    const def: WorkflowDefinition = {
+      name: "w",
+      phases: [{ id: "p1", executor: "p1", gates: ["tactical"], humanGate: false }],
+    };
+    const verdictWithOutput: Gate = {
+      name: "tactical",
+      evaluate: async () => ({
+        type: "gate",
+        lens: "tactical",
+        issues: [],
+        verdict: "pass",
+        rawOutput: "The plan is sound.\n{\"verdict\":\"pass\",\"issues\":[]}",
+      }),
+    };
+    const eng = makeEngine(dir, def, [verdictWithOutput]);
+    const run = await eng.start("w", "epic-1", "input");
+    const reloaded = await new RunStore(dir).load(run.id);
+    expect(reloaded?.verdicts[0].rawOutput).toContain("The plan is sound.");
+  });
+
   it("marks the run failed (not stuck running) when a gate evaluate() throws", async () => {
     const def: WorkflowDefinition = {
       name: "w",

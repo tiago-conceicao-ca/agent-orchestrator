@@ -10,7 +10,12 @@ import { isOrchestratorSession } from "@aoagents/ao-core/types";
 import { getSessionTitle, humanizeBranch } from "@/lib/format";
 import { usePopoverClamp } from "@/hooks/usePopoverClamp";
 import { useResizable } from "@/hooks/useResizable";
-import { projectDashboardPath, projectSessionPath } from "@/lib/routes";
+import {
+  projectDashboardPath,
+  projectReviewPath,
+  projectSdlcPath,
+  projectSessionPath,
+} from "@/lib/routes";
 import { ThemeToggle } from "./ThemeToggle";
 import { AppMark } from "./AppMark";
 import { AddProjectModal } from "./AddProjectModal";
@@ -187,6 +192,7 @@ const SessionRow = memo(function SessionRow({
       ? effectiveDisplayName
       : (session.branch ?? getSessionTitle(session));
   const sessionHref = projectSessionPath(session.projectId, session.id);
+  const sdlcRunId = session.metadata["sdlcRunId"];
 
   return (
     <div
@@ -223,6 +229,17 @@ const SessionRow = memo(function SessionRow({
           ) : null}
         </div>
       </a>
+      {sdlcRunId ? (
+        <a
+          href={projectSdlcPath(session.projectId)}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0 rounded bg-[var(--color-accent-subtle)] px-1 py-0.5 font-[var(--font-mono)] text-[8px] font-semibold uppercase leading-none tracking-[0.04em] text-[var(--color-accent)] no-underline"
+          title={`SDLC run ${sdlcRunId}`}
+          aria-label={`SDLC run ${sdlcRunId}`}
+        >
+          SDLC
+        </a>
+      ) : null}
       <button
         type="button"
         onClick={(e) => {
@@ -927,6 +944,60 @@ function ProjectSidebarInner({
                       viewBox="0 0 24 24"
                     >
                       <path d="M3 13h8V3H3zm10 8h8V11h-8zM3 21h8v-6H3zm10-10h8V3h-8z" />
+                    </svg>
+                  </Link>
+                ) : null}
+
+                {!isDegraded ? (
+                  <Link
+                    href={projectReviewPath(project.id)}
+                    prefetch={false}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMobileClose?.();
+                    }}
+                    className="project-sidebar__proj-action"
+                    aria-label={`Open ${project.name} reviews`}
+                    title="Reviews"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M9 11l3 3L22 4" />
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                    </svg>
+                  </Link>
+                ) : null}
+
+                {!isDegraded ? (
+                  <Link
+                    href={projectSdlcPath(project.id)}
+                    prefetch={false}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMobileClose?.();
+                    }}
+                    className="project-sidebar__proj-action"
+                    aria-label={`Open ${project.name} SDLC runs`}
+                    title="SDLC"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle cx="5" cy="6" r="2" />
+                      <circle cx="5" cy="18" r="2" />
+                      <circle cx="19" cy="12" r="2" />
+                      <path d="M7 6h6a4 4 0 0 1 4 4M7 18h6a4 4 0 0 0 4-4" />
                     </svg>
                   </Link>
                 ) : null}

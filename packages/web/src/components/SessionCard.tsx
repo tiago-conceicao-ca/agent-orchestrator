@@ -3,21 +3,20 @@
 import { memo, useState, useEffect } from "react";
 import {
   type DashboardSession,
-  type DashboardPR,
   getAttentionLevel,
   isPRRateLimited,
   isPRUnenriched,
-  CI_STATUS,
   isDashboardSessionDone,
   isDashboardSessionTerminal,
   isDashboardSessionRestorable,
 } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { getSessionTitle } from "@/lib/format";
+import { getPRChipColorClass, getPRDotClass, getPRStatusLabel } from "@/lib/pr-status";
 import { StatusBadge } from "./StatusBadge";
-import { DoneSessionCard } from "./SessionCard.parts";
+import { DoneSessionCard, getFooterDetail } from "./SessionCard.parts";
 import { MountedSiblings } from "./SessionSiblings";
-import { projectSessionHashPath } from "@/lib/routes";
+import { projectSdlcPath, projectSessionHashPath } from "@/lib/routes";
 
 /**
  * Tracks which session IDs have already played their entrance animation.
@@ -33,55 +32,41 @@ interface SessionCardProps {
   onRestore?: (sessionId: string) => void;
 }
 
-function getPRDotClass(p: DashboardPR): string {
-  if (!p.enriched) return "bg-[var(--color-text-tertiary)] opacity-30";
-  if (p.state === "merged") return "bg-[var(--color-status-merge)]";
-  if (p.state === "closed") return "bg-[var(--color-text-muted)]";
-  if (p.ciStatus === "failing" || p.reviewDecision === "changes_requested")
-    return "bg-[var(--color-status-error)]";
-  if (p.isDraft) return "bg-[var(--color-text-muted)]";
-  if (p.ciStatus === "passing") return "bg-[var(--color-status-merge)]";
-  if (p.ciStatus === "pending") return "bg-[var(--color-status-pending)]";
-  return "bg-[var(--color-text-tertiary)] opacity-30";
-}
-
-function getPRChipColorClass(p: DashboardPR): string {
-  if (!p.enriched)
-    return "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]";
-  if (p.state === "merged")
-    return "bg-[color-mix(in_srgb,var(--color-status-merge)_15%,transparent)] text-[var(--color-status-merge)]";
-  if (p.state === "closed")
-    return "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]";
-  if (p.ciStatus === "failing" || p.reviewDecision === "changes_requested")
-    return "bg-[color-mix(in_srgb,var(--color-status-error)_15%,transparent)] text-[var(--color-status-error)]";
-  if (p.isDraft)
-    return "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]";
-  if (p.ciStatus === "passing")
-    return "bg-[color-mix(in_srgb,var(--color-status-merge)_15%,transparent)] text-[var(--color-status-merge)]";
-  if (p.ciStatus === "pending")
-    return "bg-[color-mix(in_srgb,var(--color-status-pending)_15%,transparent)] text-[var(--color-status-pending)]";
-  return "bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)]";
-}
-
-function getPRStatusLabel(p: DashboardPR): string {
-  if (!p.enriched) return "";
-  if (p.state === "merged") return "merged";
-  if (p.state === "closed") return "closed";
-  if (p.ciStatus === "failing") return "CI failing";
-  if (p.reviewDecision === "changes_requested") return "changes requested";
-  if (p.isDraft) return "draft";
-  if (p.reviewDecision === "approved") return "approved";
-  if (p.ciStatus === "passing") return "needs review";
-  if (p.ciStatus === "pending") return "CI running";
-  return "";
-}
-
 function getRepoInitials(repo: string): string {
   return repo
     .split("-")
     .map((w) => w[0]?.toUpperCase() ?? "")
     .join("")
     .slice(0, 3);
+}
+
+/** Short, human-friendly task ref from an SDLC task id (e.g. "epic-1__repo" → "repo"). */
+function sdlcTaskRef(taskId: string | undefined): string | null {
+  if (!taskId) return null;
+  const segment = taskId.split("__").pop();
+  return segment || taskId;
+}
+
+/**
+ * Compact badge marking a session as an SDLC worker. Links to the run view so
+ * the plan → lens → CI loop is one click away. Rendered only when the session
+ * carries `sdlcRunId` metadata; ordinary worker cards are unaffected.
+ */
+function SdlcBadge({ session }: { session: DashboardSession }) {
+  const runId = session.metadata["sdlcRunId"];
+  if (!runId) return null;
+  const ref = sdlcTaskRef(session.metadata["sdlcTaskId"]);
+  return (
+    <a
+      href={projectSdlcPath(session.projectId)}
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex shrink-0 items-center gap-1 rounded bg-[var(--color-accent-subtle)] px-1.5 py-0.5 font-[var(--font-mono)] text-[9px] font-semibold uppercase leading-none tracking-[0.04em] text-[var(--color-accent)] no-underline"
+      title={`SDLC run ${runId}`}
+      aria-label={`SDLC run ${runId}`}
+    >
+      SDLC{ref ? <span className="font-normal normal-case opacity-80">{ref}</span> : null}
+    </a>
+  );
 }
 
 function SessionCardView({ session, onKill, onMerge, onRestore }: SessionCardProps) {
@@ -145,6 +130,7 @@ function SessionCardView({ session, onKill, onMerge, onRestore }: SessionCardPro
     <div className={cn("session-card border", !hasEntered && "kanban-card-enter")}>
       <div className="session-card__header">
         <StatusBadge session={session} />
+        <SdlcBadge session={session} />
         <div className="flex-1" />
         <span className="card__id">{session.id}</span>
         {isRestorable && (
@@ -389,53 +375,3 @@ function areSessionCardPropsEqual(prev: SessionCardProps, next: SessionCardProps
 }
 
 export const SessionCard = memo(SessionCardView, areSessionCardPropsEqual);
-
-type FooterTone = "fail" | "amber" | "green" | undefined;
-
-/**
- * Terse PR/CI detail for the card's thin info footer (mockup: `PR #N · CI …`).
- * No cost is shown (the dashboard session carries none).
- */
-function getFooterDetail(
-  session: DashboardSession,
-  isReadyToMerge: boolean,
-  rateLimited: boolean,
-  prUnenriched: boolean,
-): { text: string; tone: FooterTone } | null {
-  const pr = session.pr;
-  if (!pr) {
-    if (session.lifecycle?.sessionState === "detecting") {
-      return { text: "detecting…", tone: undefined };
-    }
-    return { text: "no PR yet", tone: undefined };
-  }
-  if (rateLimited) return { text: "PR data rate limited", tone: undefined };
-  if (prUnenriched) return { text: "loading…", tone: undefined };
-
-  if (
-    pr.ciStatus === CI_STATUS.FAILING ||
-    session.lifecycle?.prReason === "ci_failing" ||
-    session.status === "ci_failed"
-  ) {
-    const failed = pr.ciChecks.filter((c) => c.status === "failed").length;
-    return {
-      text: failed > 0 ? `${failed} check${failed === 1 ? "" : "s"} failed` : "CI failed",
-      tone: "fail",
-    };
-  }
-  if (pr.reviewDecision === "changes_requested") {
-    return { text: "changes requested", tone: "amber" };
-  }
-  if (pr.unresolvedThreads > 0) {
-    return {
-      text: `${pr.unresolvedThreads} comment${pr.unresolvedThreads === 1 ? "" : "s"}`,
-      tone: "amber",
-    };
-  }
-  if (isReadyToMerge && pr.reviewDecision === "approved") {
-    return { text: "approved", tone: "green" };
-  }
-  if (pr.ciStatus === CI_STATUS.PASSING) return { text: "CI passed", tone: "green" };
-  if (pr.ciStatus === CI_STATUS.PENDING) return { text: "CI running", tone: undefined };
-  return { text: "review pending", tone: undefined };
-}
