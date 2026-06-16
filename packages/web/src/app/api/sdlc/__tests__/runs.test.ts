@@ -1,15 +1,20 @@
 import { describe, it, expect } from "vitest";
 import {
   assignTaskNumbers,
+  availableRunActions,
   dependsOnTitles,
   filterRunsByProject,
   lastErrorFromRun,
   planArtifactFromRun,
+  taskTotals,
   titlesFromRun,
   toKanban,
   toPhaseStates,
   toVerdictViews,
+  verdictSummary,
+  type Board,
   type RunView,
+  type VerdictView,
 } from "@/lib/sdlc-board";
 import type { WorkflowRun } from "@aoagents/ao-sdlc";
 
@@ -215,6 +220,52 @@ describe("planArtifactFromRun", () => {
   it("returns null when no plan artifact is persisted", () => {
     const run = { id: "r", taskStatus: {} } as unknown as WorkflowRun;
     expect(planArtifactFromRun(run)).toBeNull();
+  });
+});
+
+describe("availableRunActions", () => {
+  it("gates an awaiting run with approve + abandon", () => {
+    expect(availableRunActions("awaiting_approval")).toEqual(["approve", "abandon"]);
+  });
+  it("offers abandon while running", () => {
+    expect(availableRunActions("running")).toEqual(["abandon"]);
+  });
+  it("offers resume for a failed run", () => {
+    expect(availableRunActions("failed")).toEqual(["resume"]);
+  });
+  it("offers no run-level actions for a completed run", () => {
+    expect(availableRunActions("completed")).toEqual([]);
+  });
+});
+
+describe("verdictSummary", () => {
+  it("counts passes and needs-fixes and tracks the latest failing verdict", () => {
+    const verdicts: VerdictView[] = [
+      { lens: "tactical", verdict: "pass", issues: [], rawOutput: null },
+      { lens: "pattern-library", verdict: "needs_fixes", issues: [], rawOutput: null },
+      { lens: "tactical", verdict: "needs_fixes", issues: [], rawOutput: "second fail" },
+    ];
+    const summary = verdictSummary(verdicts);
+    expect(summary.passed).toBe(1);
+    expect(summary.needsFixes).toBe(2);
+    expect(summary.latestNeedsFixes?.rawOutput).toBe("second fail");
+  });
+  it("returns zeros and null for no verdicts", () => {
+    expect(verdictSummary([])).toEqual({ passed: 0, needsFixes: 0, latestNeedsFixes: null });
+  });
+});
+
+describe("taskTotals", () => {
+  it("sums total and per-bucket counts", () => {
+    const board: Board = {
+      backlog: [{ number: 1, taskId: "a", title: "A", status: "backlog" }],
+      ready: [],
+      in_progress: [{ number: 2, taskId: "b", title: "B", status: "in_progress" }],
+      in_review: [],
+      done: [{ number: 3, taskId: "c", title: "C", status: "done" }],
+      blocked: [{ number: 4, taskId: "d", title: "D", status: "blocked" }],
+    };
+    expect(taskTotals(board)).toEqual({ total: 4, done: 1, inProgress: 1, blocked: 1 });
   });
 });
 

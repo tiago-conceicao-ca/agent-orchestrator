@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSdlcRunActions } from "@/hooks/useSdlcRunActions";
 import { MOBILE_BREAKPOINT, useMediaQuery } from "@/hooks/useMediaQuery";
 import type { ProjectInfo } from "@/lib/project-name";
 import { COLUMNS, filterRunsByProject, type RunView } from "@/lib/sdlc-board";
 import { projectDashboardPath, projectReviewPath, projectSdlcPath } from "@/lib/routes";
-import type { DashboardOrchestratorLink, DashboardPR, DashboardSession } from "@/lib/types";
+import type { DashboardOrchestratorLink, DashboardSession } from "@/lib/types";
 import { ProjectSidebar } from "./ProjectSidebar";
-import { SdlcRunSection } from "./SdlcRunSection";
-import { SdlcTaskDetail } from "./SdlcTaskDetail";
+import { SdlcRunCard } from "./SdlcRunCard";
 import { SidebarContext } from "./workspace/SidebarContext";
 
 // Independent poller for SDLC runs. The session SSE (useSessionEvents, 5s) is
 // untouched (C-14); this view keeps the standalone page's own 3s poll against
-// the read-only /api/sdlc/runs endpoint.
+// the read-only /api/sdlc/runs endpoint. The runs LIST shows summary cards only;
+// the full kanban + plan/lens detail lives on the per-run page (/sdlc/[id]).
 const POLL_INTERVAL_MS = 3_000;
 
 interface SdlcDashboardProps {
@@ -39,10 +40,8 @@ export function SdlcDashboard({
 }: SdlcDashboardProps) {
   const [runs, setRuns] = useState<RunView[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [approvingIds, setApprovingIds] = useState<Set<string>>(() => new Set());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selected, setSelected] = useState<{ runId: string; taskId: string } | null>(null);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 
   const load = useCallback(async () => {
@@ -66,53 +65,9 @@ export function SdlcDashboard({
     return () => clearInterval(timer);
   }, [load]);
 
-  const approve = useCallback(
-    async (run: RunView) => {
-      if (approvingIds.has(run.id)) return;
-      setApprovingIds((current) => new Set(current).add(run.id));
-      try {
-        await fetch("/api/sdlc/approve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ runId: run.id, project: run.projectId }),
-        });
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to approve run");
-      } finally {
-        setApprovingIds((current) => {
-          const next = new Set(current);
-          next.delete(run.id);
-          return next;
-        });
-        void load();
-      }
-    },
-    [approvingIds, load],
-  );
+  const { dispatch, busyActionsFor, actionError } = useSdlcRunActions(load);
 
   const visibleRuns = useMemo(() => filterRunsByProject(runs, projectId), [runs, projectId]);
-
-  // Index the (enriched) sidebar sessions so the task detail can show a linked
-  // worker's live PR/CI — including terminal/killed workers, which listCached
-  // still returns. The 3s SDLC poll is unaffected (C-14); this reads the
-  // server-rendered sessions prop.
-  const sessionsById = useMemo(
-    () => new Map(sidebarSessions.map((s) => [s.id, s])),
-    [sidebarSessions],
-  );
-
-  const selectedTask = useMemo(() => {
-    if (!selected) return null;
-    const run = visibleRuns.find((r) => r.id === selected.runId);
-    if (!run) return null;
-    const task = run.tasks.find((t) => t.id === selected.taskId);
-    if (!task) return null;
-    const linkedId = task.linkedSession?.sessionId;
-    const linkedPR: DashboardPR | null = linkedId
-      ? (sessionsById.get(linkedId)?.pr ?? null)
-      : null;
-    return { runId: run.id, task, linkedPR };
-  }, [selected, visibleRuns, sessionsById]);
 
   const allProjectsView = !projectId;
   const awaitingCount = visibleRuns.filter((run) => run.status === "awaiting_approval").length;
@@ -125,7 +80,7 @@ export function SdlcDashboard({
   const reviewHref = projectReviewPath(projectId);
   const sdlcHref = projectSdlcPath(projectId);
   const headerProjectLabel = projectName ?? (allProjectsView ? "All projects" : "SDLC");
-  const loadError = error ?? dashboardLoadError ?? null;
+  const loadError = error ?? actionError ?? dashboardLoadError ?? null;
 
   const handleToggleSidebar = () => {
     if (isMobile) {
@@ -228,7 +183,7 @@ export function SdlcDashboard({
                   {projectName ? `${projectName} SDLC` : "SDLC"}
                 </h1>
                 <p className="dashboard-main__subtitle">
-                  SDLC workflow runs and their task kanban
+                  SDLC workflow runs
                   {allProjectsView ? " across all projects" : " for this project"}.
                 </p>
               </div>
@@ -257,29 +212,20 @@ export function SdlcDashboard({
                 </Link>
               </section>
             ) : (
-              <div className="sdlc-run-list">
+              <div className="sdlc-run-cards">
                 {visibleRuns.map((run) => (
-                  <SdlcRunSection
+                  <SdlcRunCard
                     key={`${run.projectId}:${run.id}`}
                     run={run}
                     allProjectsView={allProjectsView}
-                    isApproving={approvingIds.has(run.id)}
-                    onApprove={approve}
-                    onSelectTask={(taskId) => setSelected({ runId: run.id, taskId })}
+                    busyActions={busyActionsFor(run.id)}
+                    onAction={dispatch}
                   />
                 ))}
               </div>
             )}
           </main>
         </div>
-        {selectedTask ? (
-          <SdlcTaskDetail
-            task={selectedTask.task}
-            runId={selectedTask.runId}
-            linkedSessionPR={selectedTask.linkedPR}
-            onClose={() => setSelected(null)}
-          />
-        ) : null}
       </div>
     </SidebarContext.Provider>
   );

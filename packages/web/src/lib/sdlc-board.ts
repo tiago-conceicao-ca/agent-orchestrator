@@ -178,3 +178,58 @@ export function filterRunsByProject(runs: RunView[], projectId: string | undefin
   if (!projectId) return runs;
   return runs.filter((run) => run.projectId === projectId);
 }
+
+/** Run-level recovery/gate actions, contextual to a run's status. */
+export type RunActionKind = "approve" | "resume" | "abandon";
+
+/**
+ * Which run-level actions a status exposes (per-task retry lives on the task
+ * panel). Approve gates an awaiting run; Abandon is available while the run is
+ * non-terminal; Resume re-drives a failed run.
+ */
+export function availableRunActions(status: string): RunActionKind[] {
+  switch (status) {
+    case "awaiting_approval":
+      return ["approve", "abandon"];
+    case "running":
+      return ["abandon"];
+    case "failed":
+      return ["resume"];
+    default:
+      return []; // completed (terminal) → no run-level actions
+  }
+}
+
+/** Summarize a run's lens verdicts: pass/needs-fixes counts + the latest failing one. */
+export function verdictSummary(verdicts: VerdictView[]): {
+  passed: number;
+  needsFixes: number;
+  latestNeedsFixes: VerdictView | null;
+} {
+  let passed = 0;
+  let needsFixes = 0;
+  let latestNeedsFixes: VerdictView | null = null;
+  for (const v of verdicts) {
+    if (v.verdict === "pass") passed += 1;
+    else {
+      needsFixes += 1;
+      latestNeedsFixes = v;
+    }
+  }
+  return { passed, needsFixes, latestNeedsFixes };
+}
+
+/** Total and per-bucket task counts for a board (for compact card summaries). */
+export function taskTotals(board: Board): {
+  total: number;
+  done: number;
+  inProgress: number;
+  blocked: number;
+} {
+  return {
+    total: COLUMNS.reduce((n, col) => n + board[col].length, 0),
+    done: board.done.length,
+    inProgress: board.in_progress.length,
+    blocked: board.blocked.length,
+  };
+}

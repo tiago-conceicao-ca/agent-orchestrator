@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SdlcDashboard } from "../SdlcDashboard";
 import type { RunView, SdlcTaskDetail } from "@/lib/sdlc-board";
-import { makePR, makeSession } from "@/__tests__/helpers";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -20,7 +19,7 @@ function makeTask(overrides: Partial<SdlcTaskDetail> = {}): SdlcTaskDetail {
     title: "Repo layer",
     status: "backlog",
     summary: "Persist the aggregate via the repository.",
-    acceptanceCriteria: ["repository saves the aggregate", "integration test passes"],
+    acceptanceCriteria: ["repository saves the aggregate"],
     dependsOn: [],
     complexity: "LOW",
     tdd: true,
@@ -66,8 +65,9 @@ let fetchMock: ReturnType<typeof vi.fn>;
 
 function mockRunsFetch(runs: RunView[]) {
   fetchMock = vi.fn(async (url: unknown) => {
-    if (url === "/api/sdlc/approve") {
-      return { ok: true, json: async () => ({ ok: true, message: "Approved; resuming." }) };
+    if (typeof url === "string" && url !== "/api/sdlc/runs") {
+      // Any action endpoint (approve / runs/:id/{abandon,resume}).
+      return { ok: true, json: async () => ({ ok: true, message: "ok" }) };
     }
     return { ok: true, json: async () => ({ runs }) };
   });
@@ -97,34 +97,71 @@ describe("SdlcDashboard", () => {
       "href",
       "/review?project=my-app",
     );
-    // Flush the on-mount poll so its state update lands inside act().
     await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
   });
 
-  it("renders a run's task cards and columns once the poll loads", async () => {
+  it("renders a run summary card with task counts and an Open link to the detail page", async () => {
+    mockRunsFetch([
+      makeRun({
+        board: {
+          backlog: [],
+          ready: [],
+          in_progress: [{ number: 1, taskId: "t1", title: "A", status: "in_progress" }],
+          in_review: [],
+          done: [{ number: 2, taskId: "t2", title: "B", status: "done" }],
+          blocked: [{ number: 3, taskId: "t3", title: "C", status: "blocked" }],
+        },
+      }),
+    ]);
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
-    await waitFor(() => expect(screen.getByText("Repo layer")).toBeInTheDocument());
-    expect(screen.getByText("run-1")).toBeInTheDocument();
-    expect(screen.getByText("Backlog")).toBeInTheDocument();
-    expect(screen.getByText("In Review")).toBeInTheDocument();
-    // Card shows its T-number.
-    expect(screen.getByText("T1")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
+    expect(screen.getByText(/1\/3 done/)).toBeInTheDocument();
+    expect(screen.getByText(/1 blocked/)).toBeInTheDocument();
+    const openLink = screen.getByRole("link", { name: "Open" });
+    expect(openLink).toHaveAttribute("href", "/sdlc/run-1");
+    // The kanban board is NOT rendered inline on the list anymore.
+    expect(screen.queryByText("In Review")).not.toBeInTheDocument();
   });
 
-  it("opens the read-only detail panel when a task card is clicked", async () => {
+  it("shows compact phase progress and a lens verdict summary on the card", async () => {
+    mockRunsFetch([
+      makeRun({
+        phaseStates: [
+          { id: "normalize-plan", state: "passed" },
+          { id: "generate-backend", state: "running" },
+        ],
+        verdicts: [
+          { lens: "tactical", verdict: "pass", issues: [], rawOutput: null },
+          {
+            lens: "pattern-library",
+            verdict: "needs_fixes",
+            issues: [{ severity: "high", title: "x", detail: "y" }],
+            rawOutput: null,
+          },
+        ],
+      }),
+    ]);
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
-    const card = await screen.findByRole("button", { name: "Open task T1: Repo layer" });
-    fireEvent.click(card);
+    await waitFor(() => expect(screen.getByText("Normalize plan")).toBeInTheDocument());
+    expect(screen.getByText("Generate backend")).toBeInTheDocument();
+    expect(screen.getByText(/1 passed/)).toBeInTheDocument();
+    expect(screen.getByText(/1 needs fixes/)).toBeInTheDocument();
+  });
 
-    const panel = await screen.findByRole("dialog", { name: "Task T1: Repo layer" });
-    expect(panel).toBeInTheDocument();
-    // Detail content: description, an acceptance criterion, and the prompt toggle.
-    expect(screen.getByText("Persist the aggregate via the repository.")).toBeInTheDocument();
-    expect(screen.getByText("repository saves the aggregate")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /View Agent Prompt/ })).toBeInTheDocument();
-    expect(screen.getByText("Not dispatched")).toBeInTheDocument();
+  it("surfaces the run-level lastError on a failed run", async () => {
+    mockRunsFetch([
+      makeRun({
+        status: "failed",
+        lastError: { phase: "normalize-plan", message: "Lens 'tactical' rejected: Missing tests" },
+      }),
+    ]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
+
+    await waitFor(() =>
+      expect(screen.getByText(/Lens 'tactical' rejected: Missing tests/)).toBeInTheDocument(),
+    );
   });
 
   it("shows an empty state when there are no runs", async () => {
@@ -134,7 +171,7 @@ describe("SdlcDashboard", () => {
     await waitFor(() => expect(screen.getByText("No SDLC runs yet")).toBeInTheDocument());
   });
 
-  it("approves a run with its runId and project scope", async () => {
+  it("approves an awaiting run with its runId and project scope", async () => {
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
     const button = await screen.findByRole("button", { name: "Approve" });
@@ -151,107 +188,51 @@ describe("SdlcDashboard", () => {
     );
   });
 
-  it("renders phase progress and the lens-verdict history with reasoning on expand", async () => {
-    mockRunsFetch([
-      makeRun({
-        phaseStates: [
-          { id: "normalize-plan", state: "passed" },
-          { id: "generate-backend", state: "running" },
-        ],
-        verdicts: [
-          {
-            lens: "tactical",
-            verdict: "needs_fixes",
-            issues: [{ severity: "high", title: "Missing tests", detail: "Add unit tests." }],
-            rawOutput: "Detailed lens reasoning here.",
-          },
-        ],
-      }),
-    ]);
+  it("abandons a running run via the run-action endpoint", async () => {
+    mockRunsFetch([makeRun({ status: "running", pendingApproval: null })]);
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
-    await waitFor(() => expect(screen.getByText("Normalize plan")).toBeInTheDocument());
-    expect(screen.getByText("Generate backend")).toBeInTheDocument();
-    // Verdict + its issue render eagerly; reasoning is collapsed until expanded.
-    expect(screen.getByText("tactical")).toBeInTheDocument();
-    expect(screen.getByText("Missing tests")).toBeInTheDocument();
-    expect(screen.getByText("Add unit tests.")).toBeInTheDocument();
-    expect(screen.queryByText("Detailed lens reasoning here.")).not.toBeInTheDocument();
+    const button = await screen.findByRole("button", { name: "Abandon" });
+    expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+    fireEvent.click(button);
 
-    fireEvent.click(screen.getByRole("button", { name: /View lens reasoning/ }));
-    expect(screen.getByText("Detailed lens reasoning here.")).toBeInTheDocument();
-  });
-
-  it("surfaces the captured plan artifact behind a toggle", async () => {
-    mockRunsFetch([makeRun({ planArtifact: "# Normalized Plan\n## Task Graph" })]);
-    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
-
-    const toggle = await screen.findByRole("button", { name: /View normalized plan/ });
-    expect(screen.queryByText(/# Normalized Plan/)).not.toBeInTheDocument();
-    fireEvent.click(toggle);
-    expect(screen.getByText(/# Normalized Plan/)).toBeInTheDocument();
-  });
-
-  it("shows the linked worker's PR/CI status in the task detail (incl. terminal)", async () => {
-    mockRunsFetch([
-      makeRun({
-        tasks: [
-          makeTask({
-            linkedSession: {
-              sessionId: "ao-9",
-              projectId: "my-app",
-              projectSessionPath: "/projects/my-app/sessions/ao-9",
-            },
-          }),
-        ],
-      }),
-    ]);
-    render(
-      <SdlcDashboard
-        projectId="my-app"
-        projectName="My App"
-        projects={PROJECTS}
-        sidebarSessions={[
-          makeSession({
-            id: "ao-9",
-            projectId: "my-app",
-            status: "killed",
-            activity: "exited",
-            pr: makePR({ number: 42, ciStatus: "failing", state: "open", enriched: true }),
-          }),
-        ]}
-      />,
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/sdlc/runs/run-1/abandon",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ project: "my-app" }),
+        }),
+      ),
     );
+  });
 
-    const card = await screen.findByRole("button", { name: "Open task T1: Repo layer" });
-    fireEvent.click(card);
+  it("resumes a failed run via the run-action endpoint", async () => {
+    mockRunsFetch([makeRun({ status: "failed", pendingApproval: null })]);
+    render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
-    const prLink = await screen.findByRole("link", { name: /PR #42/ });
-    expect(prLink).toHaveAttribute("href", "https://github.com/acme/app/pull/100");
-    expect(screen.getByText(/CI failing/)).toBeInTheDocument();
+    const button = await screen.findByRole("button", { name: "Resume" });
+    fireEvent.click(button);
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/sdlc/runs/run-1/resume",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ project: "my-app" }),
+        }),
+      ),
+    );
   });
 
   it("scopes runs to the active project", async () => {
     mockRunsFetch([
       makeRun({ id: "run-1", projectId: "my-app" }),
-      makeRun({
-        id: "run-2",
-        projectId: "other-app",
-        board: {
-          backlog: [{ number: 1, taskId: "epic-2__svc", title: "Other service", status: "backlog" }],
-          ready: [],
-          in_progress: [],
-          in_review: [],
-          done: [],
-          blocked: [],
-        },
-        tasks: [makeTask({ id: "epic-2__svc", title: "Other service" })],
-      }),
+      makeRun({ id: "run-2", projectId: "other-app" }),
     ]);
     render(<SdlcDashboard projectId="my-app" projectName="My App" projects={PROJECTS} />);
 
     await waitFor(() => expect(screen.getByText("run-1")).toBeInTheDocument());
     expect(screen.queryByText("run-2")).not.toBeInTheDocument();
-    expect(screen.queryByText("Other service")).not.toBeInTheDocument();
   });
 });
