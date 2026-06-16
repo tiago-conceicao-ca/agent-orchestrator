@@ -17,6 +17,7 @@ import {
   makeSdlcRunEventHandler,
   makeSessionLensRunner,
   makeSessionPlanRunner,
+  readPassVerdictSentinel,
   RunStore,
   smokeEvalArtifact,
   waitForTaskCompletion,
@@ -167,6 +168,10 @@ export async function buildWebSdlcEngine(
         waitForDone,
         projectId: resolved,
         maxConcurrent: SDLC_MAX_CONCURRENT,
+        // A review pass writes its verdict to a sentinel in the shared worktree;
+        // a needs_fixes verdict auto re-dispatches the pass (bounded).
+        readPassVerdict: async ({ workspacePath, task, pass }) =>
+          readPassVerdictSentinel(workspacePath, `impl:${task.id}:${pass.role}`),
       }),
     },
     gates: {

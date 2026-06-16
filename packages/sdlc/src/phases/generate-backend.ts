@@ -1,7 +1,9 @@
 import type { PhaseExecutor, PhaseContext, PhaseResult, PrMode } from "../workflow/types.js";
 import type { Epic, TaskPass, WorkflowTask } from "../plan/types.js";
 import { taskDoneSentinelInstruction } from "../runner/task-sentinel.js";
+import { passVerdictSentinelInstruction } from "../runner/pass-verdict.js";
 import { loadPromptTemplate } from "../gates/lens-gate.js";
+import type { GateVerdict, LensIssue } from "../gates/types.js";
 import type { TaskOutcome } from "../runner/wait-for-done.js";
 
 export interface SpawnConfig {
@@ -36,6 +38,25 @@ export const TASK_MAX_ATTEMPTS = 2;
 /** Default dependency-parallel slot cap (logical tasks run concurrently up to this). */
 export const DEFAULT_MAX_CONCURRENT = 3;
 
+/**
+ * Bounded auto re-dispatches for a pass that returns `needs_fixes`: the initial
+ * run + up to (this − 1) fix re-dispatches with the review feedback appended.
+ * Exhausting them fails the task. This is OUR deviation from taskmaster (which
+ * routes a needs_fixes pass to a human "Needs Clarification" wait) — we keep the
+ * loop autonomous and bounded instead.
+ */
+export const PASS_MAX_FIX_ATTEMPTS = 3;
+
+/**
+ * Read a completed pass's lens verdict (from its sentinel) so the scheduler can
+ * decide whether to auto re-dispatch. Returns `null` when there is no decisive
+ * verdict (treated as a pass). Optional: when undefined, passes complete purely
+ * on the worker `done` signal (no verdict gating) — the Task-4 behavior.
+ */
+export type ReadPassVerdictFn = (
+  args: { sessionId: string; workspacePath?: string; task: WorkflowTask; pass: TaskPass },
+) => Promise<GateVerdict | null>;
+
 export interface GenerateBackendDeps {
   spawn: SpawnFn; // wraps SessionManager.spawn (Task 16 wires the real one)
   waitForDone: WaitForDoneFn;
@@ -52,6 +73,12 @@ export interface GenerateBackendDeps {
    * dependents. Defaults to {@link DEFAULT_MAX_CONCURRENT}.
    */
   maxConcurrent?: number;
+  /**
+   * Optional: read a completed pass's verdict so the scheduler can auto
+   * re-dispatch a `needs_fixes` pass (bounded). When omitted, passes complete on
+   * the worker `done` signal alone (no verdict gating).
+   */
+  readPassVerdict?: ReadPassVerdictFn;
 }
 
 /** Kahn topological order over the epic's blocking edges (also rejects cycles). */
@@ -162,6 +189,7 @@ export function buildPassPrompt(
     `Summary: ${task.summary}`,
     `Acceptance criteria:\n${ac}`,
     reviewPassCompletionDirective(),
+    passVerdictSentinelInstruction(),
   ].join("\n\n");
 }
 
@@ -192,8 +220,9 @@ async function dispatchWithRetry(
     label: string;
   },
   onAttempt?: (attempt: number, stalled: boolean) => Promise<void>,
-): Promise<{ workspacePath?: string }> {
+): Promise<{ workspacePath?: string; sessionId: string }> {
   let lastWorkspace: string | undefined;
+  let lastSessionId = "";
   for (let attempt = 1; attempt <= TASK_MAX_ATTEMPTS; attempt++) {
     const { id: sessionId, workspacePath } = await deps.spawn({
       projectId: deps.projectId,
@@ -204,11 +233,12 @@ async function dispatchWithRetry(
       worktreeKey: args.worktreeKey,
     });
     lastWorkspace = workspacePath ?? lastWorkspace;
+    lastSessionId = sessionId;
     const outcome: TaskOutcome = await deps.waitForDone(sessionId, workspacePath);
 
     if (outcome === "done") {
       await onAttempt?.(attempt, false);
-      return { workspacePath: workspacePath ?? lastWorkspace };
+      return { workspacePath: workspacePath ?? lastWorkspace, sessionId };
     }
 
     const canRetry = outcome === "stalled" && attempt < TASK_MAX_ATTEMPTS;
@@ -221,7 +251,73 @@ async function dispatchWithRetry(
     throw new Error(`${args.label} ${why} during backend generation.`);
   }
   // Unreachable: the loop always returns or throws.
-  return { workspacePath: lastWorkspace };
+  return { workspacePath: lastWorkspace, sessionId: lastSessionId };
+}
+
+/** Append the review feedback from a prior `needs_fixes` verdict to a pass prompt. */
+function appendPriorIssues(prompt: string, issues: LensIssue[]): string {
+  if (issues.length === 0) return prompt;
+  const rendered = issues
+    .map((i) => `- [${i.severity}] ${i.title}: ${i.detail}`)
+    .join("\n");
+  return [
+    prompt,
+    `---`,
+    `A previous attempt at THIS pass returned needs_fixes. Address every issue below ` +
+      `before reporting pass:`,
+    rendered,
+  ].join("\n\n");
+}
+
+/**
+ * Run ONE lens pass to a passing verdict, auto re-dispatching on `needs_fixes`
+ * with the review feedback appended — bounded by {@link PASS_MAX_FIX_ATTEMPTS}.
+ * Returns the shared worktree path. Throws when the pass still needs fixes after
+ * the bound (failing the task) — NOT a human "Needs Clarification" wait. When no
+ * `readPassVerdict` is configured, a single successful dispatch passes.
+ */
+async function runPassWithFixLoop(
+  deps: GenerateBackendDeps,
+  ctx: PhaseContext,
+  task: WorkflowTask,
+  pass: TaskPass,
+  basePrompt: string,
+): Promise<{ workspacePath?: string }> {
+  let priorIssues: LensIssue[] = [];
+  let workspacePath: string | undefined;
+  for (let fixAttempt = 1; fixAttempt <= PASS_MAX_FIX_ATTEMPTS; fixAttempt++) {
+    const prompt = appendPriorIssues(basePrompt, priorIssues);
+    const dispatched = await dispatchWithRetry(deps, ctx, {
+      sdlcTaskId: task.id,
+      title: task.title,
+      prompt,
+      model: pass.model,
+      worktreeKey: task.id,
+      label: `Task '${task.title}' pass '${pass.role}'${fixAttempt > 1 ? ` (fix ${fixAttempt - 1})` : ""}`,
+    });
+    workspacePath = dispatched.workspacePath ?? workspacePath;
+
+    if (!deps.readPassVerdict) return { workspacePath }; // no verdict gating (Task-4 path)
+    const verdict = await deps.readPassVerdict({
+      sessionId: dispatched.sessionId,
+      workspacePath,
+      task,
+      pass,
+    });
+    // Record every pass verdict (incl. fix attempts) as per-pass history.
+    if (verdict) await ctx.recordVerdict?.(verdict);
+    if (!verdict || verdict.verdict === "pass") return { workspacePath };
+
+    priorIssues = verdict.issues;
+    if (fixAttempt === PASS_MAX_FIX_ATTEMPTS) {
+      throw new Error(
+        `Task '${task.title}' pass '${pass.role}' still needs fixes after ${PASS_MAX_FIX_ATTEMPTS} attempts.`,
+      );
+    }
+    ctx.log(`Task '${task.title}' pass '${pass.role}' needs fixes; auto re-dispatching with feedback.`);
+  }
+  // Unreachable: the loop returns or throws.
+  return { workspacePath };
 }
 
 /**
@@ -257,19 +353,13 @@ async function runLogicalTask(
     }
   }
 
-  // Graduated lens passes: serialize, sharing the task's worktree.
+  // Graduated lens passes: serialize, sharing the task's worktree. Each pass
+  // runs its bounded needs_fixes → auto re-dispatch loop before advancing.
   let sharedWorkspace: string | undefined;
   try {
     for (const pass of task.passes) {
       const prompt = buildPassPrompt(task, pass, sharedWorkspace, promptFor);
-      const { workspacePath } = await dispatchWithRetry(deps, ctx, {
-        sdlcTaskId: task.id,
-        title: task.title,
-        prompt,
-        model: pass.model,
-        worktreeKey: task.id,
-        label: `Task '${task.title}' pass '${pass.role}'`,
-      });
+      const { workspacePath } = await runPassWithFixLoop(deps, ctx, task, pass, prompt);
       sharedWorkspace = workspacePath ?? sharedWorkspace;
     }
     // Record one attempt entry at the task level (passes succeeded).

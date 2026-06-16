@@ -43,11 +43,18 @@ export {
   GERAR_BACKEND_INSTRUCTION,
   TASK_MAX_ATTEMPTS,
   DEFAULT_MAX_CONCURRENT,
+  PASS_MAX_FIX_ATTEMPTS,
   type SpawnFn,
   type SpawnConfig,
   type WaitForDoneFn,
   type GenerateBackendDeps,
+  type ReadPassVerdictFn,
 } from "./phases/generate-backend.js";
+export {
+  readPassVerdictSentinel,
+  passVerdictSentinelInstruction,
+  PASS_VERDICT_SENTINEL,
+} from "./runner/pass-verdict.js";
 export { makeInputAdapter, type PlanWriteRunner } from "./phases/input-adapter.js";
 
 // V1 workflow definition

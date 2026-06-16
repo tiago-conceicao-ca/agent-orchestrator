@@ -370,6 +370,9 @@ export class WorkflowEngine {
           },
         }));
       },
+      recordVerdict: async (verdict) => {
+        await this.deps.store.update(id, (r) => ({ ...r, verdicts: [...r.verdicts, verdict] }));
+      },
     };
   }
 

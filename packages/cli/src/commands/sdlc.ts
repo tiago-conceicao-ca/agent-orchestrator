@@ -34,6 +34,7 @@ import {
   makeSdlcRunEventHandler,
   makeSessionLensRunner,
   makeSessionPlanRunner,
+  readPassVerdictSentinel,
   RunStore,
   smokeEvalArtifact,
   waitForTaskCompletion,
@@ -167,6 +168,9 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
       projectId: deps.projectId,
       buildTaskPrompt: deps.buildTaskPrompt,
       maxConcurrent: Number(process.env.AO_SDLC_MAX_CONCURRENT) || 3,
+      // Auto re-dispatch a pass whose verdict sentinel says needs_fixes (bounded).
+      readPassVerdict: async ({ workspacePath, task, pass }) =>
+        readPassVerdictSentinel(workspacePath, `impl:${task.id}:${pass.role}`),
     }),
   };
 
