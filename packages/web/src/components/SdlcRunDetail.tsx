@@ -96,8 +96,17 @@ export function SdlcRunDetail({
     return () => clearInterval(timer);
   }, [load]);
 
-  const { dispatch, retryTask, amend, busyActionsFor, isRetrying, isAmending, actionError } =
-    useSdlcRunActions(load);
+  const {
+    dispatch,
+    retryTask,
+    setTaskModel,
+    amend,
+    busyActionsFor,
+    isRetrying,
+    isSettingModel,
+    isAmending,
+    actionError,
+  } = useSdlcRunActions(load);
 
   const sessionsById = useMemo(
     () => new Map(sidebarSessions.map((s) => [s.id, s])),
@@ -287,6 +296,8 @@ export function SdlcRunDetail({
             linkedSessionPR={selectedTask.linkedPR}
             onRetry={run.status === "failed" ? (taskId) => retryTask(run, taskId) : undefined}
             retrying={isRetrying(run.id, selectedTask.task.id)}
+            onSetModel={(taskId, model) => setTaskModel(run, taskId, model)}
+            settingModel={isSettingModel(run.id, selectedTask.task.id)}
             onClose={() => setSelectedTaskId(null)}
           />
         ) : null}
