@@ -62,7 +62,10 @@ export function enrichRunTasks(
       // The generate-backend phase always spawns claude-code; prefer the linked
       // session's recorded agent when the task was actually dispatched.
       agent: info?.agent ?? "claude-code",
-      model: info?.model ?? null,
+      // The task's assigned model (complexity default or per-task override) is
+      // authoritative pre-dispatch; fall back to the linked session's recorded
+      // model only when the epic task has none.
+      model: task.model ?? info?.model ?? null,
       // No per-task mutation timestamp is persisted; the run's createdAt is the
       // only authoritative timestamp, so created/updated mirror it.
       createdAt: run.createdAt,

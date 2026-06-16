@@ -1,4 +1,4 @@
-import type { WorkflowEngine, WorkflowRun } from "@aoagents/ao-sdlc";
+import { SDLC_MODELS, type SdlcModel, type WorkflowEngine, type WorkflowRun } from "@aoagents/ao-sdlc";
 
 /**
  * Pure run-action decisions that wrap the existing engine methods
@@ -53,6 +53,39 @@ export async function handleRetry(
     };
   const updated = await engine.retryTask(runId, taskId);
   return { ok: true, status: 200, message: `Retrying task ${taskId}.`, run: updated };
+}
+
+/**
+ * Persist a per-task model override on the run's epic. `null`/absent clears the
+ * override (project default). Valid in any run state — it persists only and
+ * takes effect on the next dispatch/retry (mirrors handleRetry's validation,
+ * minus the failed-only status gate). 404 unknown run/task, 400 bad model.
+ */
+export async function handleSetTaskModel(
+  engine: WorkflowEngine,
+  runId: string,
+  taskId: string | undefined,
+  model: string | null | undefined,
+): Promise<RunActionResult> {
+  if (!taskId) return { ok: false, status: 400, message: "taskId is required." };
+  const normalized = model ?? null;
+  if (normalized !== null && !SDLC_MODELS.includes(normalized as SdlcModel))
+    return {
+      ok: false,
+      status: 400,
+      message: `Invalid model '${normalized}'. Allowed: ${SDLC_MODELS.join("/")}.`,
+    };
+  const run = await engine.load(runId);
+  if (!run) return notFound(runId);
+  if (!run.epic?.tasks.some((t) => t.id === taskId))
+    return { ok: false, status: 404, message: `Task '${taskId}' not found in run '${runId}'.` };
+  const updated = await engine.setTaskModel(runId, taskId, normalized);
+  return {
+    ok: true,
+    status: 200,
+    message: `Task ${taskId} model set to ${normalized ?? "project default"}.`,
+    run: updated,
+  };
 }
 
 /**

@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   COMPLEXITY,
+  COMPLEXITY_MODEL_DEFAULT,
+  SDLC_MODELS,
   type TaskGraph,
   type TaskGraphTask,
   type Epic,
@@ -11,6 +13,24 @@ import {
 describe("plan types", () => {
   it("COMPLEXITY enumerates LOW/MEDIUM/HIGH", () => {
     expect(COMPLEXITY).toEqual(["LOW", "MEDIUM", "HIGH"]);
+  });
+  it("SDLC_MODELS enumerates the selectable claude aliases", () => {
+    expect(SDLC_MODELS).toEqual(["opus", "sonnet", "haiku"]);
+  });
+  it("COMPLEXITY_MODEL_DEFAULT maps HIGH→opus, MEDIUM→sonnet, LOW→haiku", () => {
+    expect(COMPLEXITY_MODEL_DEFAULT).toEqual({ HIGH: "opus", MEDIUM: "sonnet", LOW: "haiku" });
+  });
+  it("a WorkflowTask without a model is back-compatible", () => {
+    const task: WorkflowTask = {
+      id: "e__x",
+      title: "X",
+      summary: "x",
+      complexity: "LOW",
+      tdd: false,
+      acceptanceCriteria: [],
+      status: "backlog",
+    };
+    expect(task.model).toBeUndefined();
   });
   it("a TaskGraphTask is well-formed", () => {
     const t: TaskGraphTask = {

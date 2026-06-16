@@ -22,6 +22,10 @@ function amendKey(runId: string): string {
   return `${runId}|amend`;
 }
 
+function setModelKey(runId: string, taskId: string): string {
+  return `${runId}|set-model|${taskId}`;
+}
+
 export function useSdlcRunActions(onRefresh: () => void) {
   const [busy, setBusy] = useState<Set<string>>(() => new Set());
   const [actionError, setActionError] = useState<string | null>(null);
@@ -87,6 +91,17 @@ export function useSdlcRunActions(onRefresh: () => void) {
     [run],
   );
 
+  const setTaskModel = useCallback(
+    (runView: RunView, taskId: string, model: string | null) =>
+      run(
+        setModelKey(runView.id, taskId),
+        `/api/sdlc/runs/${encodeURIComponent(runView.id)}/set-model`,
+        { project: runView.projectId, taskId, model },
+        `set model for task ${taskId}`,
+      ),
+    [run],
+  );
+
   const amend = useCallback(
     (runView: RunView, comment: string) =>
       run(
@@ -111,5 +126,20 @@ export function useSdlcRunActions(onRefresh: () => void) {
 
   const isAmending = useCallback((runId: string): boolean => busy.has(amendKey(runId)), [busy]);
 
-  return { dispatch, retryTask, amend, busyActionsFor, isRetrying, isAmending, actionError };
+  const isSettingModel = useCallback(
+    (runId: string, taskId: string): boolean => busy.has(setModelKey(runId, taskId)),
+    [busy],
+  );
+
+  return {
+    dispatch,
+    retryTask,
+    setTaskModel,
+    amend,
+    busyActionsFor,
+    isRetrying,
+    isSettingModel,
+    isAmending,
+    actionError,
+  };
 }

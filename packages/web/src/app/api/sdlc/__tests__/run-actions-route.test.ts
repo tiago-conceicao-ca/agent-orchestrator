@@ -8,6 +8,26 @@ import { POST as abandonPOST } from "../runs/[id]/abandon/route";
 import { POST as retryPOST } from "../runs/[id]/retry/route";
 import { POST as resumePOST } from "../runs/[id]/resume/route";
 import { POST as amendPOST } from "../runs/[id]/amend/route";
+import { POST as setModelPOST } from "../runs/[id]/set-model/route";
+
+const epicWithTask: WorkflowRun["epic"] = {
+  id: "epic-1",
+  title: "X",
+  description: "",
+  tasks: [
+    {
+      id: "t-1",
+      title: "T1",
+      summary: "",
+      complexity: "LOW",
+      tdd: false,
+      acceptanceCriteria: [],
+      status: "backlog",
+      model: "haiku",
+    },
+  ],
+  dependencies: [],
+};
 
 function makeRun(
   status: WorkflowRun["status"],
@@ -34,6 +54,7 @@ interface FakeEngine {
   retryTask: ReturnType<typeof vi.fn>;
   resumeRun: ReturnType<typeof vi.fn>;
   amendAndRerun: ReturnType<typeof vi.fn>;
+  setTaskModel: ReturnType<typeof vi.fn>;
 }
 
 function mockEngine(run: WorkflowRun | null): FakeEngine {
@@ -43,6 +64,7 @@ function mockEngine(run: WorkflowRun | null): FakeEngine {
     retryTask: vi.fn().mockResolvedValue(run),
     resumeRun: vi.fn().mockResolvedValue(run ? { ...run, status: "completed" } : null),
     amendAndRerun: vi.fn().mockResolvedValue(run ? { ...run, status: "running" } : null),
+    setTaskModel: vi.fn().mockResolvedValue(run),
   };
   buildWebSdlcEngine.mockResolvedValue({ engine: engine as unknown as WorkflowEngine });
   return engine;
@@ -175,6 +197,49 @@ describe("POST /api/sdlc/runs/[id]/amend", () => {
   it("404s an unknown run", async () => {
     mockEngine(null);
     const res = await amendPOST(req({ comment: "Add tests." }), params);
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("POST /api/sdlc/runs/[id]/set-model", () => {
+  it("sets a task model (200) in any run state", async () => {
+    const engine = mockEngine(makeRun("running", { epic: epicWithTask }));
+    const res = await setModelPOST(req({ taskId: "t-1", model: "opus" }), params);
+    expect(res.status).toBe(200);
+    expect(engine.setTaskModel).toHaveBeenCalledWith("run-1", "t-1", "opus");
+  });
+
+  it("clears the override when model is null (project default)", async () => {
+    const engine = mockEngine(makeRun("completed", { epic: epicWithTask }));
+    const res = await setModelPOST(req({ taskId: "t-1", model: null }), params);
+    expect(res.status).toBe(200);
+    expect(engine.setTaskModel).toHaveBeenCalledWith("run-1", "t-1", null);
+  });
+
+  it("400s when taskId is missing", async () => {
+    const engine = mockEngine(makeRun("failed", { epic: epicWithTask }));
+    const res = await setModelPOST(req({ model: "opus" }), params);
+    expect(res.status).toBe(400);
+    expect(engine.setTaskModel).not.toHaveBeenCalled();
+  });
+
+  it("400s on an invalid model", async () => {
+    const engine = mockEngine(makeRun("failed", { epic: epicWithTask }));
+    const res = await setModelPOST(req({ taskId: "t-1", model: "gpt-4" }), params);
+    expect(res.status).toBe(400);
+    expect(engine.setTaskModel).not.toHaveBeenCalled();
+  });
+
+  it("404s an unknown task", async () => {
+    const engine = mockEngine(makeRun("failed", { epic: epicWithTask }));
+    const res = await setModelPOST(req({ taskId: "ghost", model: "opus" }), params);
+    expect(res.status).toBe(404);
+    expect(engine.setTaskModel).not.toHaveBeenCalled();
+  });
+
+  it("404s an unknown run", async () => {
+    mockEngine(null);
+    const res = await setModelPOST(req({ taskId: "t-1", model: "opus" }), params);
     expect(res.status).toBe(404);
   });
 });

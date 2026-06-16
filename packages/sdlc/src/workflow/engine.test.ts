@@ -285,6 +285,68 @@ describe("WorkflowEngine resume/retry/abandon", () => {
     expect(run.taskStatus["b"]).toBe("done");
   });
 
+  it("setTaskModel persists a per-task model on the epic via the store", async () => {
+    const { engine, store } = engineWithGen([]);
+    await store.save({
+      id: "run-m",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "completed",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      epic: EPIC,
+    });
+    await engine.setTaskModel("run-m", "a", "opus");
+    const reloaded = await new RunStore(dir).load("run-m");
+    expect(reloaded?.epic?.tasks.find((t) => t.id === "a")?.model).toBe("opus");
+    // Other tasks are untouched; the run status is not changed (persist-only).
+    expect(reloaded?.epic?.tasks.find((t) => t.id === "b")?.model).toBeUndefined();
+    expect(reloaded?.status).toBe("completed");
+  });
+
+  it("setTaskModel with null clears the override (project default)", async () => {
+    const { engine, store } = engineWithGen([]);
+    await store.save({
+      id: "run-c",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      epic: { ...EPIC, tasks: [{ ...EPIC.tasks[0], model: "opus" }, EPIC.tasks[1]] },
+    });
+    await engine.setTaskModel("run-c", "a", null);
+    const reloaded = await new RunStore(dir).load("run-c");
+    expect(reloaded?.epic?.tasks.find((t) => t.id === "a")?.model).toBeUndefined();
+  });
+
+  it("setTaskModel rejects an unknown task and an invalid model", async () => {
+    const { engine, store } = engineWithGen([]);
+    await store.save({
+      id: "run-e",
+      workflow: "w",
+      epicId: "epic-1",
+      status: "failed",
+      currentPhaseIndex: 0,
+      phaseStates: {},
+      taskStatus: {},
+      verdicts: [],
+      pendingApproval: null,
+      createdAt: "2026-06-08T00:00:00Z",
+      epic: EPIC,
+    });
+    await expect(engine.setTaskModel("run-e", "ghost", "opus")).rejects.toThrow(/not found/);
+    await expect(engine.setTaskModel("run-e", "a", "gpt-4")).rejects.toThrow(/Invalid model/);
+  });
+
   it("reconcile marks a running run with a dead engine pid as failed", async () => {
     const store = new RunStore(dir);
     const engine = new WorkflowEngine({

@@ -75,6 +75,37 @@ describe("generate-backend executor", () => {
     expect(result.artifactRef).toContain("epic-1");
   });
 
+  it("passes each task's model to the spawn call", async () => {
+    const epicWithModels: Epic = {
+      ...epic,
+      tasks: [
+        { ...epic.tasks[0], model: "haiku" },
+        { ...epic.tasks[1], model: "opus" },
+      ],
+    };
+    const models: (string | undefined)[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      models.push(cfg.model);
+      return { id: `s-${models.length}` };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c } = ctx();
+    await exec.run({ ...c, epic: epicWithModels });
+    expect(models).toEqual(["haiku", "opus"]); // topo order, each task's own model
+  });
+
+  it("passes undefined model when the task has none (byte-identical to today)", async () => {
+    const models: (string | undefined)[] = [];
+    const spawn: SpawnFn = async (cfg) => {
+      models.push(cfg.model);
+      return { id: `s-${models.length}` };
+    };
+    const exec = makeGenerateBackendExecutor({ spawn, projectId: "b", waitForDone: async () => "done" });
+    const { ctx: c } = ctx();
+    await exec.run(c);
+    expect(models).toEqual([undefined, undefined]);
+  });
+
   it("throws if a task's dependency failed", async () => {
     const spawn: SpawnFn = async () => ({ id: "s" });
     const exec = makeGenerateBackendExecutor({ spawn, projectId: "backend", waitForDone: async () => "failed" });

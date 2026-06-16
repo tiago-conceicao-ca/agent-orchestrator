@@ -7118,6 +7118,40 @@ body:not(.is-resizing-x) .sidebar-wrapper {
   text-decoration: underline;
 }
 
+.sdlc-detail__model-select {
+  height: 26px;
+  min-width: 132px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 0;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 8px;
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+
+.sdlc-detail__model-select:focus {
+  outline: 1px solid var(--color-accent);
+  outline-offset: -1px;
+  color: var(--color-text-primary);
+}
+
+.sdlc-detail__model-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sdlc-detail__model-hint {
+  font-size: 10.5px;
+  color: var(--color-text-tertiary);
+}
+
 .sdlc-detail__prompt-toggle {
   display: flex;
   align-items: center;

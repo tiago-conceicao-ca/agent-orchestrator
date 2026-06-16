@@ -2,6 +2,14 @@ import type { WorkflowRun } from "@aoagents/ao-sdlc";
 
 /** Client-safe SDLC kanban shapes + grouping logic (no node/server imports). */
 
+/**
+ * Selectable model aliases for the task-detail model selector. Client-safe
+ * mirror of @aoagents/ao-sdlc `SDLC_MODELS` — kept here so the modal doesn't
+ * pull the sdlc package's node deps (RunStore et al.) into the client bundle.
+ * A test asserts this stays in sync with the source constant.
+ */
+export const SDLC_MODEL_OPTIONS = ["opus", "sonnet", "haiku"] as const;
+
 export interface KanbanCard {
   /** Stable T-number (1-based, in run/plan order) shown on the card. */
   number: number;

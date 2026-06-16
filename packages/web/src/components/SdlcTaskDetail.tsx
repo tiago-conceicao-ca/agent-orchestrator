@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
-import type { SdlcTaskDetail as SdlcTask } from "@/lib/sdlc-board";
+import { SDLC_MODEL_OPTIONS, type SdlcTaskDetail as SdlcTask } from "@/lib/sdlc-board";
 import { getPRDotClass, getPRStatusLabel } from "@/lib/pr-status";
 import { cn } from "@/lib/cn";
 import type { DashboardPR } from "@/lib/types";
@@ -88,6 +88,10 @@ interface SdlcTaskDetailProps {
   onRetry?: (taskId: string) => void;
   /** Disables the Retry button while a retry is in flight. */
   retrying?: boolean;
+  /** When provided, the Model row becomes an editable selector. `null` clears the override. */
+  onSetModel?: (taskId: string, model: string | null) => void;
+  /** Disables the model selector while a set-model request is in flight. */
+  settingModel?: boolean;
   onClose: () => void;
 }
 
@@ -97,6 +101,8 @@ export function SdlcTaskDetail({
   linkedSessionPR,
   onRetry,
   retrying = false,
+  onSetModel,
+  settingModel = false,
   onClose,
 }: SdlcTaskDetailProps) {
   const [promptOpen, setPromptOpen] = useState(false);
@@ -108,8 +114,6 @@ export function SdlcTaskDetail({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-
-  const agentLabel = task.model ? `${task.agent} · ${task.model}` : task.agent;
 
   return (
     <>
@@ -210,7 +214,32 @@ export function SdlcTaskDetail({
           </Section>
 
           <dl className="sdlc-detail__meta">
-            <Meta label="Agent">{agentLabel}</Meta>
+            <Meta label="Agent">{task.agent}</Meta>
+            <Meta label="Model">
+              {onSetModel ? (
+                <span className="flex flex-col items-start gap-1">
+                  <select
+                    className="sdlc-detail__model-select"
+                    aria-label="Task model"
+                    value={task.model ?? ""}
+                    disabled={settingModel}
+                    onChange={(e) => onSetModel(task.id, e.target.value || null)}
+                  >
+                    <option value="">Project default</option>
+                    {SDLC_MODEL_OPTIONS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="sdlc-detail__model-hint">
+                    Applies on the next dispatch/retry of this task.
+                  </span>
+                </span>
+              ) : (
+                (task.model ?? "Project default")
+              )}
+            </Meta>
             <Meta label="Created">
               <time dateTime={task.createdAt}>{formatTimestamp(task.createdAt)}</time>
             </Meta>

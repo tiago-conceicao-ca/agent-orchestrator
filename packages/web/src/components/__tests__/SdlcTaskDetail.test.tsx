@@ -48,11 +48,61 @@ describe("SdlcTaskDetail", () => {
     expect(screen.getByText("ProductKitComposition entity")).toBeInTheDocument();
   });
 
-  it("shows the agent (and model when present)", () => {
+  it("shows the agent and a read-only model when no onSetModel is provided", () => {
+    render(<SdlcTaskDetail task={makeTask({ model: "opus" })} runId="run-1" onClose={vi.fn()} />);
+    expect(screen.getByText("claude-code")).toBeInTheDocument();
+    expect(screen.getByText("opus")).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Task model" })).not.toBeInTheDocument();
+  });
+
+  it("falls back to 'Project default' for a read-only model when the task has none", () => {
+    render(<SdlcTaskDetail task={makeTask({ model: null })} runId="run-1" onClose={vi.fn()} />);
+    expect(screen.getByText("Project default")).toBeInTheDocument();
+  });
+
+  it("renders a model selector reflecting the task's model when onSetModel is provided", () => {
     render(
-      <SdlcTaskDetail task={makeTask({ model: "claude-opus-4-8" })} runId="run-1" onClose={vi.fn()} />,
+      <SdlcTaskDetail
+        task={makeTask({ model: "sonnet" })}
+        runId="run-1"
+        onSetModel={vi.fn()}
+        onClose={vi.fn()}
+      />,
     );
-    expect(screen.getByText("claude-code · claude-opus-4-8")).toBeInTheDocument();
+    const select = screen.getByRole("combobox", { name: "Task model" }) as HTMLSelectElement;
+    expect(select.value).toBe("sonnet");
+    expect(screen.getByRole("option", { name: "Project default" })).toBeInTheDocument();
+    expect(screen.getByText(/Applies on the next dispatch\/retry/)).toBeInTheDocument();
+  });
+
+  it("calls onSetModel with the chosen model, and null for 'Project default'", () => {
+    const onSetModel = vi.fn();
+    render(
+      <SdlcTaskDetail
+        task={makeTask({ id: "t-1", model: "haiku" })}
+        runId="run-1"
+        onSetModel={onSetModel}
+        onClose={vi.fn()}
+      />,
+    );
+    const select = screen.getByRole("combobox", { name: "Task model" });
+    fireEvent.change(select, { target: { value: "opus" } });
+    expect(onSetModel).toHaveBeenCalledWith("t-1", "opus");
+    fireEvent.change(select, { target: { value: "" } });
+    expect(onSetModel).toHaveBeenCalledWith("t-1", null);
+  });
+
+  it("disables the model selector while a set-model request is in flight", () => {
+    render(
+      <SdlcTaskDetail
+        task={makeTask()}
+        runId="run-1"
+        onSetModel={vi.fn()}
+        settingModel
+        onClose={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("combobox", { name: "Task model" })).toBeDisabled();
   });
 
   it("renders 'Not dispatched' when no session is linked", () => {

@@ -50,6 +50,7 @@ interface SdlcSessionManager {
   spawn(cfg: {
     projectId: string;
     prompt: string;
+    model?: string;
   }): Promise<{ id: string; workspacePath?: string | null }>;
   get(id: string): Promise<Session | null>;
   kill(id: string): Promise<unknown>;
@@ -126,10 +127,12 @@ export function buildSdlcServices(deps: SdlcServiceDeps): {
     prompt: string;
     sdlcTaskId: string;
     metadata: Record<string, string>;
+    model?: string;
   }): Promise<{ id: string; workspacePath?: string }> => {
     const session = await deps.sessionManager.spawn({
       projectId: cfg.projectId,
       prompt: cfg.prompt,
+      model: cfg.model,
     });
     updateMetadata(dataDir, session.id, cfg.metadata);
     return { id: session.id, workspacePath: session.workspacePath ?? undefined };

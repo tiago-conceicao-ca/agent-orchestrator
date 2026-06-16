@@ -8,6 +8,8 @@ export interface SpawnConfig {
   prompt: string;
   sdlcTaskId: string;
   metadata: Record<string, string>;
+  /** Per-task model alias (`claude --model`); undefined falls back to the project model. */
+  model?: string;
 }
 export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
 /**
@@ -135,6 +137,7 @@ async function runTaskWithRetry(
       prompt: promptFor(task),
       sdlcTaskId: task.id,
       metadata: { sdlcRunId: ctx.run.id, sdlcTaskId: task.id, sdlcPhase: "generate-backend" },
+      model: task.model,
     });
     lastWorkspace = workspacePath;
     const outcome: TaskOutcome = await deps.waitForDone(sessionId, workspacePath);
