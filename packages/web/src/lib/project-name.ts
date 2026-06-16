@@ -3,7 +3,12 @@ import "server-only";
 import { cache } from "react";
 import { existsSync, realpathSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { ConfigNotFoundError, getGlobalConfigPath, loadConfig } from "@aoagents/ao-core";
+import {
+  ConfigNotFoundError,
+  getGlobalConfigPath,
+  loadConfig,
+  matchSiblingProjectId,
+} from "@aoagents/ao-core";
 
 export interface ProjectInfo {
   id: string;
@@ -145,18 +150,18 @@ export const getPrimaryProjectId = cache((): string => {
   return "ao";
 });
 
-// Resolves configured sibling entries (project id or "owner/name" repo —
-// mirroring resolveSiblingSource in core) to registered ids and display names.
+// Resolves configured sibling entries (project id or "owner/name" repo) to
+// registered ids and display names, via the shared matchSiblingProjectId rule —
+// the same matcher spawn-time resolution uses, against the same global catalog.
 // Entries that no longer resolve are surfaced verbatim so the UI can remove them.
 function resolveSiblingInfos(
   entries: string[],
   projects: ReturnType<typeof loadProjectDiscoveryConfig>["projects"],
 ): { id: string; name: string }[] {
   return entries.map((entry) => {
-    for (const [projectId, project] of Object.entries(projects)) {
-      if (projectId === entry || project.repo === entry) {
-        return { id: projectId, name: project.name ?? projectId };
-      }
+    const projectId = matchSiblingProjectId(entry, projects);
+    if (projectId) {
+      return { id: projectId, name: projects[projectId].name ?? projectId };
     }
     return { id: entry, name: entry };
   });

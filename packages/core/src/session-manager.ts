@@ -101,6 +101,7 @@ import { dedupePrUrls } from "./utils/pr.js";
 import {
   parseSiblings,
   resolveSiblingAdjacency,
+  matchSiblingProjectId,
   serializeSiblings,
   siblingName,
   siblingNameFromPath,
@@ -3832,12 +3833,8 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     catalog?: Record<string, ProjectConfig>,
   ): { repoId: string; project: ProjectConfig } | null {
     const merged = { ...(catalog ?? loadGlobalProjectCatalog()), ...config.projects };
-    for (const [id, proj] of Object.entries(merged)) {
-      if (id === repoOrProjectId || proj.repo === repoOrProjectId) {
-        return { repoId: id, project: proj };
-      }
-    }
-    return null;
+    const repoId = matchSiblingProjectId(repoOrProjectId, merged);
+    return repoId ? { repoId, project: merged[repoId] } : null;
   }
 
   /**

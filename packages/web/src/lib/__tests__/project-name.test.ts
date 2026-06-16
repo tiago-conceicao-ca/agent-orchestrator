@@ -20,6 +20,14 @@ vi.mock("@aoagents/ao-core", () => ({
   loadConfig: mockLoadConfig,
   getGlobalConfigPath: mockGetGlobalConfigPath,
   ConfigNotFoundError: MockConfigNotFoundError,
+  // Real matching rule — the shared single source of truth used by spawn-time
+  // resolution, the PATCH validation, and the sidebar (here).
+  matchSiblingProjectId: (entry: string, projects: Record<string, { repo?: string }>) => {
+    for (const [id, proj] of Object.entries(projects)) {
+      if (id === entry || proj.repo === entry) return id;
+    }
+    return null;
+  },
 }));
 
 describe("project-name fallback discovery", () => {

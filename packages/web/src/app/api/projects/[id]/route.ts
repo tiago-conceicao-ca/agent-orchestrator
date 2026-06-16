@@ -9,6 +9,7 @@ import {
   loadConfig,
   loadGlobalConfig,
   loadLocalProjectConfigDetailed,
+  matchSiblingProjectId,
   recordActivityEvent,
   repairWrappedLocalProjectConfig,
   unregisterProject,
@@ -37,21 +38,6 @@ function sanitizeString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
-}
-
-// Mirrors resolveSiblingSource in core's session-manager (match by project id
-// OR "owner/name" repo) so web validation and spawn-time resolution can never
-// disagree on which entries are mountable.
-function resolveSiblingProjectId(
-  entry: string,
-  projects: Record<string, { repo?: string }>,
-): string | null {
-  for (const [projectId, project] of Object.entries(projects)) {
-    if (projectId === entry || project.repo === entry) {
-      return projectId;
-    }
-  }
-  return null;
 }
 
 function revalidateProjectPaths(projectId: string): void {
@@ -279,7 +265,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
       const entries = rawSiblings as string[];
       const seen = new Set<string>();
       for (const entry of entries) {
-        const resolvedId = resolveSiblingProjectId(entry, state.config.projects);
+        const resolvedId = matchSiblingProjectId(entry, state.config.projects);
         if (!resolvedId) {
           return NextResponse.json(
             {

@@ -11,6 +11,7 @@ import {
 import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
 import { loadConfig } from "../../config.js";
+import { registerProjectInGlobalConfig } from "../../global-config.js";
 import { writeMetadata, readMetadataRaw, updateMetadata } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
 import {
@@ -821,5 +822,24 @@ describe("sibling resolution against the global registered-projects catalog", ()
     await expect(
       sm.addSibling("app-1", "does-not-exist", { mode: "readonly-symlink" }),
     ).rejects.toThrow(/unknown sibling/i);
+  });
+
+  // Single-source-of-truth guard (add-time ↔ spawn-time alignment): a project
+  // registered through the canonical registration path — the same
+  // registerProjectInGlobalConfig the web sidebar/CLI use to register a
+  // project — must be resolvable by the core spawn path, even though it is
+  // absent from the running single-project config. If add-time and spawn-time
+  // ever diverged on catalog or matching rule, this would fail.
+  it("resolves a sibling registered via registerProjectInGlobalConfig (as the sidebar does)", async () => {
+    const taskmasterPath = join(ctx.tmpDir, "taskmaster");
+    mkdirSync(taskmasterPath, { recursive: true });
+    const tmId = registerProjectInGlobalConfig("taskmaster", "Taskmaster", taskmasterPath);
+    writeWorker("app-1");
+
+    const sm = makeManager(pathAwareWorkspace(), localOnlyConfig());
+    const ref = await sm.addSibling("app-1", tmId, { mode: "readonly-symlink" });
+
+    expect(ref.repo).toBe(tmId);
+    expect(realpathSync(ref.path)).toBe(realpathSync(taskmasterPath));
   });
 });
