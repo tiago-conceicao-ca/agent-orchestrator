@@ -1644,9 +1644,29 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       // what lets a globally-registered sibling resolve even when AO was started
       // from a single-project local config.
       const siblingCatalog = loadGlobalProjectCatalog();
-      const configuredSiblings = (project.siblings ?? []).filter(
-        (entry) => resolveSiblingSource(entry, siblingCatalog)?.repoId !== spawnConfig.projectId,
-      );
+      const configuredSiblings = (project.siblings ?? []).filter((entry) => {
+        const source = resolveSiblingSource(entry, siblingCatalog);
+        if (!source) {
+          // SKIP + WARN + SURFACE: a genuinely unresolvable configured sibling
+          // (unregistered or removed) must NOT brick the spawn — the previous
+          // hard-fail rolled the whole spawn back, taking down every session for
+          // the project. Skip it, let the spawn proceed, and record a prominent
+          // warning naming the offender so the dashboard / ao status surfaces it
+          // and the user can fix the config. Valid siblings still mount below.
+          recordActivityEvent({
+            projectId: spawnConfig.projectId,
+            sessionId: reservedSessionId,
+            source: "session-manager",
+            kind: "session.sibling_unresolved",
+            level: "warn",
+            summary: `skipped unresolvable sibling "${entry}" — no registered project matches it; spawn proceeded without it`,
+            data: { sibling: entry },
+          });
+          return false;
+        }
+        // Self-references are the session's own writable repo — skip silently.
+        return source.repoId !== spawnConfig.projectId;
+      });
       if (configuredSiblings.length > 0) {
         const worktreesDir = getProjectWorktreesDir(spawnConfig.projectId);
         // Undo for the assembled __ws view (kill() owns it on the happy path);

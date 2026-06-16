@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { createSessionManager } from "../../session-manager.js";
 import { loadConfig } from "../../config.js";
 import { registerProjectInGlobalConfig } from "../../global-config.js";
+import { queryActivityEvents } from "../../query-activity-events.js";
 import { writeMetadata, readMetadataRaw, updateMetadata } from "../../metadata.js";
 import { getProjectWorktreesDir } from "../../paths.js";
 import {
@@ -470,7 +471,29 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(parseSiblings(raw!)).toEqual([ref]);
     });
 
-    it("fails the spawn with full rollback when a configured repo is unknown", async () => {
+    it("skips an unresolvable configured sibling and proceeds (no rollback), still mounting the valid one", async () => {
+      const workspace = pathAwareWorkspace();
+      const sourcePath = join(ctx.tmpDir, "lib-shared");
+      mkdirSync(sourcePath, { recursive: true });
+
+      const sm = makeManager(
+        workspace,
+        configWithProjectSiblings(["lib-shared", "does-not-exist"]),
+      );
+      // SKIP + WARN + SURFACE: the spawn no longer bricks on the bad sibling.
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      // The valid sibling still mounts; the unresolvable one is skipped.
+      expect(session.siblings.map((s) => s.repo)).toEqual(["lib-shared"]);
+
+      // Session is fully spawned and persisted — no rollback happened.
+      expect(readMetadataRaw(sessionsDir, session.id)).not.toBeNull();
+      expect(ctx.mockRuntime.destroy).not.toHaveBeenCalled();
+      const worktreeDir = getProjectWorktreesDir("my-app");
+      expect(existsSync(join(worktreeDir, `${session.id}__sib__lib-shared`))).toBe(true);
+    });
+
+    it("records a prominent warning naming the skipped sibling (surfaced to dashboard / ao status)", async () => {
       const workspace = pathAwareWorkspace();
       mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
 
@@ -478,15 +501,33 @@ describe("addSibling / removeSibling (#1095)", () => {
         workspace,
         configWithProjectSiblings(["lib-shared", "does-not-exist"]),
       );
-      await expect(sm.spawn({ projectId: "my-app" })).rejects.toThrow(/does-not-exist/);
+      const session = await sm.spawn({ projectId: "my-app" });
 
-      // No leaked session metadata, sibling symlink, adjacency view, worktree, or runtime.
-      expect(readMetadataRaw(sessionsDir, "app-1")).toBeNull();
-      const worktreeDir = getProjectWorktreesDir("my-app");
-      expect(existsSync(join(worktreeDir, "app-1__sib__lib-shared"))).toBe(false);
-      expect(existsSync(assembledViewDir(worktreeDir, "app-1"))).toBe(false);
-      expect(workspace.destroy).toHaveBeenCalledWith(join(worktreeDir, "app-1"));
-      expect(ctx.mockRuntime.destroy).toHaveBeenCalled();
+      const warnings = queryActivityEvents({
+        projectId: "my-app",
+        kind: "session.sibling_unresolved",
+      });
+      expect(warnings).toHaveLength(1);
+      const event = warnings[0]!;
+      expect(event.level).toBe("warn");
+      expect(event.sessionId).toBe(session.id);
+      // The offending sibling is named in both the summary and structured data.
+      expect(event.summary).toContain("does-not-exist");
+      expect(JSON.parse(event.data ?? "{}")).toMatchObject({ sibling: "does-not-exist" });
+    });
+
+    it("proceeds with NO siblings (and no warning) when the only configured sibling is unresolvable", async () => {
+      const workspace = pathAwareWorkspace();
+
+      const sm = makeManager(workspace, configWithProjectSiblings(["does-not-exist"]));
+      const session = await sm.spawn({ projectId: "my-app" });
+
+      expect(session.siblings).toEqual([]);
+      expect(session.assembledViewPath).toBeNull();
+      expect(ctx.mockRuntime.destroy).not.toHaveBeenCalled();
+      expect(
+        queryActivityEvents({ projectId: "my-app", kind: "session.sibling_unresolved" }),
+      ).toHaveLength(1);
     });
 
     it("skips self-reference entries (by project id and by repo)", async () => {
