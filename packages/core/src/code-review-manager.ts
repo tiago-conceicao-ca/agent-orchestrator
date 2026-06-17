@@ -790,7 +790,7 @@ export function formatCodeReviewFindingsForAgent({
     `Review run: ${run.id}${targetLabel}`,
     "",
     "Please address each finding below. Verify each issue against the current source before editing, then update the PR branch and push your fixes.",
-    "When you start working on these, report `ao report addressing-reviews`. When the fixes are ready for another review, report `ao report ready-for-review`.",
+    "When you start working on these, report `cahi report addressing-reviews`. When the fixes are ready for another review, report `cahi report ready-for-review`.",
     "",
     "Findings:",
     findings.map((finding, index) => formatFindingForAgent(finding, index + 1)).join("\n\n"),

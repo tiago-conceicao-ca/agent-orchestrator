@@ -115,7 +115,7 @@ describe("setupPathWrapperWorkspace (Unix)", () => {
       String(c[0]).includes("AGENTS.md"),
     );
     expect(agentsMdWrites).toHaveLength(1);
-    expect(String(agentsMdWrites[0][1])).toContain("Agent Orchestrator");
+    expect(String(agentsMdWrites[0][1])).toContain("CAHI");
   });
 
   it("writes bash wrappers (not .cmd) on Unix", async () => {
@@ -179,11 +179,11 @@ describe("setupPathWrapperWorkspace (Windows)", () => {
     expect(hasBashGit).toBe(false);
   });
 
-  it("does NOT generate ao-metadata-helper.sh on Windows", async () => {
+  it("does NOT generate cahi-metadata-helper.sh on Windows", async () => {
     await setupPathWrapperWorkspace("C:\\workspace");
 
     const renamedFinal = mockRename.mock.calls.map((c: unknown[]) => String(c[1]));
-    const hasHelper = renamedFinal.some((p: string) => p.includes("ao-metadata-helper"));
+    const hasHelper = renamedFinal.some((p: string) => p.includes("cahi-metadata-helper"));
     expect(hasHelper).toBe(false);
   });
 
@@ -207,7 +207,7 @@ describe("setupPathWrapperWorkspace (Windows)", () => {
       String(c[0]).includes("AGENTS.md"),
     );
     expect(agentsMdWrites).toHaveLength(1);
-    expect(String(agentsMdWrites[0][1])).toContain("Agent Orchestrator");
+    expect(String(agentsMdWrites[0][1])).toContain("CAHI");
   });
 
   it("uses semicolon as PATH delimiter on Windows", () => {
@@ -293,8 +293,8 @@ describe("buildNodeWrapper", () => {
 });
 
 describe("CAHI_METADATA_HELPER", () => {
-  it("contains update_ao_metadata function", () => {
-    expect(CAHI_METADATA_HELPER).toContain("update_ao_metadata()");
+  it("contains update_cahi_metadata function", () => {
+    expect(CAHI_METADATA_HELPER).toContain("update_cahi_metadata()");
   });
 
   it("contains read_ao_metadata function", () => {

@@ -31,7 +31,7 @@ export function writeWorkspaceOpenCodeAgentsMd(workspacePath: string, promptFile
   const prompt = readFileSync(promptFile, "utf-8").trim();
   const aoSection = [
     CAHI_OPENCODE_SECTION_START,
-    "## Agent Orchestrator",
+    "## CAHI",
     "",
     prompt,
     CAHI_OPENCODE_SECTION_END,

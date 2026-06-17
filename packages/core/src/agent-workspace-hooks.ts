@@ -78,7 +78,7 @@ export function buildAgentPath(basePath: string | undefined): string {
 /**
  * Helper script sourced by both gh and git wrappers.
  * Provides:
- *   update_ao_metadata <key> <value>   — write key=value to session metadata
+ *   update_cahi_metadata <key> <value>   — write key=value to session metadata
  *   read_ao_metadata <key>             — read a value from session metadata
  *   ao_cache_dir                       — print the per-session gh cache directory
  *   ao_cache_fresh <key> <max_age>     — test if a cache entry is fresh (0 = infinite)
@@ -86,8 +86,8 @@ export function buildAgentPath(basePath: string | undefined): string {
  *   ao_cache_write <key>               — write stdin to cache atomically
  */
 export const CAHI_METADATA_HELPER = `#!/usr/bin/env bash
-# ao-metadata-helper — shared by gh/git wrappers
-# Provides: update_ao_metadata, read_ao_metadata, ao_cache_*
+# cahi-metadata-helper — shared by gh/git wrappers
+# Provides: update_cahi_metadata, read_ao_metadata, ao_cache_*
 
 # ── Shared validation ────────────────────────────────────────────────────────
 
@@ -105,7 +105,7 @@ _ao_validate_env() {
 
 # ── Metadata write ───────────────────────────────────────────────────────────
 
-update_ao_metadata() {
+update_cahi_metadata() {
   local key="\$1" value="\$2"
   local ao_dir="\${CAHI_DATA_DIR:-}"
   local ao_session="\${CAHI_SESSION:-}"
@@ -280,7 +280,7 @@ if [[ -z "\$real_gh" ]]; then
 fi
 
 # Source the metadata helper (provides update/read_ao_metadata, ao_cache_*)
-source "\$ao_bin_dir/ao-metadata-helper.sh" 2>/dev/null || true
+source "\$ao_bin_dir/cahi-metadata-helper.sh" 2>/dev/null || true
 
 # Redact sensitive values from args before tracing.
 # Handles: -H "Authorization: ...", token=..., password=..., secret=...
@@ -527,8 +527,8 @@ case "\$1/\$2" in
         fi
       done
       if [[ -n "\$pr_url" ]]; then
-        update_ao_metadata pr "\$pr_url"
-        update_ao_metadata agentReportedPrUrl "\$pr_url"
+        update_cahi_metadata pr "\$pr_url"
+        update_cahi_metadata agentReportedPrUrl "\$pr_url"
         # Append to prs field (comma-separated list of all PR URLs for this session).
         # Supports multiple PRs per session — same repo or different repos.
         _ao_meta_f="\${CAHI_DATA_DIR}/\${CAHI_SESSION}.json"
@@ -547,15 +547,15 @@ case "\$1/\$2" in
             new_prs="\$existing_prs"
           fi
         fi
-        update_ao_metadata prs "\$new_prs"
+        update_cahi_metadata prs "\$new_prs"
       fi
       pr_number="\$(printf '%s' "\$pr_url" | grep -Eo '[0-9]+$' | head -1)"
       if [[ -n "\$pr_number" ]]; then
-        update_ao_metadata agentReportedPrNumber "\$pr_number"
+        update_cahi_metadata agentReportedPrNumber "\$pr_number"
       fi
-      update_ao_metadata agentReportedState "\$report_state"
-      update_ao_metadata agentReportedAt "\$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-      update_ao_metadata agentReportedPrIsDraft "\$report_draft"
+      update_cahi_metadata agentReportedState "\$report_state"
+      update_cahi_metadata agentReportedAt "\$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      update_cahi_metadata agentReportedPrIsDraft "\$report_draft"
     fi
 
     log_ao_cache "passthrough" "" "\$_ao_duration_ms" "\$exit_code" "\$_ao_ok"
@@ -600,7 +600,7 @@ if [[ -z "\$real_git" ]]; then
 fi
 
 # Source the metadata helper
-source "\$ao_bin_dir/ao-metadata-helper.sh" 2>/dev/null || true
+source "\$ao_bin_dir/cahi-metadata-helper.sh" 2>/dev/null || true
 
 # Run real git
 "\$real_git" "\$@"
@@ -610,10 +610,10 @@ exit_code=\$?
 if [[ \$exit_code -eq 0 ]]; then
   case "\$1/\$2" in
     checkout/-b)
-      update_ao_metadata branch "\$3"
+      update_cahi_metadata branch "\$3"
       ;;
     switch/-c)
-      update_ao_metadata branch "\$3"
+      update_cahi_metadata branch "\$3"
       ;;
     checkout/*|switch/*)
       # Existing branch switch — only track feature-looking branches (contain / or -)
@@ -622,7 +622,7 @@ if [[ \$exit_code -eq 0 ]]; then
       # If $2 is a flag, the actual branch name is in $3
       if [[ "\$branch" == -* ]]; then branch="\$3"; fi
       if [[ -n "\$branch" && "\$branch" != "HEAD" && "\$branch" != -* && "\$branch" == *[/-]* ]]; then
-        update_ao_metadata branch "\$branch"
+        update_cahi_metadata branch "\$branch"
       fi
       ;;
   esac
@@ -676,7 +676,7 @@ function updateAoMetadata(key, value) {
   // Validate key
   if (!/^[a-zA-Z0-9_-]+$/.test(key)) return;
 
-  // Validate aoDir is under expected locations (mirrors bash ao-metadata-helper.sh)
+  // Validate aoDir is under expected locations (mirrors bash cahi-metadata-helper.sh)
   const os = require("os");
   const home = os.homedir();
   const sep = path.sep;
@@ -685,7 +685,7 @@ function updateAoMetadata(key, value) {
   const allowed = [path.join(home, ".cahi"), os.tmpdir()];
   if (!allowed.some(a => resolvedDir === a || resolvedDir.startsWith(a + sep))) return;
 
-  // Try V2 (.json) first, then fall back to V1 (bare) — mirrors bash ao-metadata-helper.sh
+  // Try V2 (.json) first, then fall back to V1 (bare) — mirrors bash cahi-metadata-helper.sh
   let metadataFile = path.join(resolvedDir, aoSession + ".json");
   if (!fs.existsSync(metadataFile)) {
     metadataFile = path.join(resolvedDir, aoSession);
@@ -919,15 +919,15 @@ process.exit(exitCode);
  * and helps if the wrappers are bypassed.
  */
 export const CAHI_AGENTS_MD_SECTION = `
-## Agent Orchestrator (ao) Session
+## CAHI Session
 
-You are running inside an Agent Orchestrator managed workspace.
+You are running inside a CAHI managed workspace.
 Session metadata is updated automatically via shell wrappers.
 
 If automatic updates fail, you can manually update metadata:
 \`\`\`bash
-~/.cahi/bin/ao-metadata-helper.sh  # sourced automatically
-# Then call: update_ao_metadata <key> <value>
+~/.cahi/bin/cahi-metadata-helper.sh  # sourced automatically
+# Then call: update_cahi_metadata <key> <value>
 \`\`\`
 `;
 /* eslint-enable no-useless-escape */
@@ -955,7 +955,7 @@ async function atomicWriteFile(filePath: string, content: string, mode: number):
  * and `postLaunchSetup`.
  *
  * 1. Creates ~/.cahi/bin/ with gh/git wrappers and metadata helper script
- * 2. Appends an "Agent Orchestrator" section to the workspace AGENTS.md
+ * 2. Appends a "CAHI" section to the workspace AGENTS.md
  */
 export async function setupPathWrapperWorkspace(workspacePath: string): Promise<void> {
   // 1. Write shared wrappers to ~/.cahi/bin/ (skip if version marker matches)
@@ -985,7 +985,7 @@ export async function setupPathWrapperWorkspace(workspacePath: string): Promise<
       }
     } else {
       await atomicWriteFile(
-        join(getAoBinDir(), "ao-metadata-helper.sh"),
+        join(getAoBinDir(), "cahi-metadata-helper.sh"),
         CAHI_METADATA_HELPER,
         0o755,
       );
@@ -1003,9 +1003,9 @@ export async function setupPathWrapperWorkspace(workspacePath: string): Promise<
   //    repo-tracked AGENTS.md to avoid polluting worktrees with dirty state.
   const aoAgentsMdPath = join(workspacePath, ".cahi", "AGENTS.md");
   await mkdir(join(workspacePath, ".cahi"), { recursive: true });
-  // On Windows, ao-metadata-helper.sh is never created — use a platform-appropriate section
+  // On Windows, cahi-metadata-helper.sh is never created — use a platform-appropriate section
   const agentsMdContent = isWindows()
-    ? `## Agent Orchestrator (ao) Session\n\nYou are running inside an Agent Orchestrator managed workspace.\nSession metadata is updated automatically via shell wrappers.\n`
+    ? `## CAHI Session\n\nYou are running inside a CAHI managed workspace.\nSession metadata is updated automatically via shell wrappers.\n`
     : CAHI_AGENTS_MD_SECTION.trimStart();
   await writeFile(aoAgentsMdPath, agentsMdContent, "utf-8");
 }

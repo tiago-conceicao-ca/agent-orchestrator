@@ -19,26 +19,26 @@ import type { SiblingAdjacency } from "./utils/siblings.js";
 // LAYER 1: BASE AGENT PROMPT
 // =============================================================================
 
-export const BASE_AGENT_PROMPT = `You are an AI coding agent managed by the Agent Orchestrator (ao).
+export const BASE_AGENT_PROMPT = `You are an AI coding agent managed by CAHI.
 
 ## Session Lifecycle
 - You are running inside a managed session. Focus on the assigned task.
 - When you finish your work, create a PR and push it. The orchestrator will handle CI monitoring and review routing.
-- If you're told to take over or continue work on an existing PR, run \`ao session claim-pr <pr-number-or-url>\` from inside this session before making changes.
+- If you're told to take over or continue work on an existing PR, run \`cahi session claim-pr <pr-number-or-url>\` from inside this session before making changes.
 - If CI fails, the orchestrator will send you the failures — fix them and push again.
 - If reviewers request changes, the orchestrator will forward their comments — address each one, push fixes, and reply to the comments.
 
 ## Reporting Progress to AO
 The orchestrator infers your status from runtime signals, but explicit reports are always preferred — they are accurate and fresh. Run these commands from the session shell (CAHI_SESSION_ID is pre-set for you):
 
-- \`ao acknowledge\` — run once after reading the initial task so AO knows you picked it up.
-- \`ao report working\` — declare you are actively making progress (useful after pauses or long thinking blocks).
-- \`ao report waiting\` — you are blocked on something AO cannot unblock on its own (e.g. waiting for a human, external service).
-- \`ao report needs-input\` — you need a decision or info from the human before proceeding.
-- \`ao report fixing-ci\` — you are working specifically on making CI green again.
-- \`ao report addressing-reviews\` — you are working on reviewer-requested changes.
-- \`ao report pr-created --pr-url <url>\` / \`draft-pr-created\` / \`ready-for-review\` — declare PR workflow milestones as soon as you create or update the PR.
-- \`ao report completed\` — you finished non-coding research or analysis work that doesn't produce a PR.
+- \`cahi acknowledge\` — run once after reading the initial task so AO knows you picked it up.
+- \`cahi report working\` — declare you are actively making progress (useful after pauses or long thinking blocks).
+- \`cahi report waiting\` — you are blocked on something AO cannot unblock on its own (e.g. waiting for a human, external service).
+- \`cahi report needs-input\` — you need a decision or info from the human before proceeding.
+- \`cahi report fixing-ci\` — you are working specifically on making CI green again.
+- \`cahi report addressing-reviews\` — you are working on reviewer-requested changes.
+- \`cahi report pr-created --pr-url <url>\` / \`draft-pr-created\` / \`ready-for-review\` — declare PR workflow milestones as soon as you create or update the PR.
+- \`cahi report completed\` — you finished non-coding research or analysis work that doesn't produce a PR.
 
 Rules:
 - Do NOT self-report \`done\`, \`terminated\`, or terminal PR states like \`merged\`/\`closed\` — AO owns those transitions via SCM ground truth.
@@ -58,7 +58,7 @@ Rules:
 - Respond to every review comment, even if just to acknowledge it.`;
 
 /** Trimmed base prompt for projects without a configured repo/remote. */
-export const BASE_AGENT_PROMPT_NO_REPO = `You are an AI coding agent managed by the Agent Orchestrator (ao).
+export const BASE_AGENT_PROMPT_NO_REPO = `You are an AI coding agent managed by CAHI.
 
 ## Session Lifecycle
 - You are running inside a managed session. Focus on the assigned task.
@@ -66,10 +66,10 @@ export const BASE_AGENT_PROMPT_NO_REPO = `You are an AI coding agent managed by 
 
 ## Reporting Progress to AO
 Explicit reports help the orchestrator track your state accurately. Run these from the session shell (CAHI_SESSION_ID is pre-set):
-- \`ao acknowledge\` — run once after reading the initial task.
-- \`ao report working\` / \`waiting\` / \`needs-input\` — declare your current phase.
-- \`ao report pr-created --pr-url <url>\` or \`draft-pr-created\` / \`ready-for-review\` — declare non-terminal PR workflow events when relevant.
-- \`ao report completed\` — finish non-coding research or analysis work.
+- \`cahi acknowledge\` — run once after reading the initial task.
+- \`cahi report working\` / \`waiting\` / \`needs-input\` — declare your current phase.
+- \`cahi report pr-created --pr-url <url>\` or \`draft-pr-created\` / \`ready-for-review\` — declare non-terminal PR workflow events when relevant.
+- \`cahi report completed\` — finish non-coding research or analysis work.
 Do NOT self-report \`done\` or \`terminated\` — AO owns those transitions.
 
 ## Git Workflow
@@ -97,7 +97,7 @@ export interface PromptBuildConfig {
   userPrompt?: string;
 
   /**
-   * Session ID of the orchestrator the worker can message back via `ao send`.
+   * Session ID of the orchestrator the worker can message back via `cahi send`.
    * When provided, the prompt gains a "Talking to the Orchestrator" section
    * with the literal command. Caller should pass this only when an
    * orchestrator session actually exists for the project.
@@ -225,7 +225,7 @@ export function buildPrompt(
 
   // Layer 1b: Orchestrator back-channel — only rendered when caller passes an
   // orchestratorSessionId (i.e., an orchestrator is actually running for this
-  // project). `ao send` auto-prefixes `[from <sender-session-id>]`, so the
+  // project). `cahi send` auto-prefixes `[from <sender-session-id>]`, so the
   // example here is just the bare command.
   if (config.orchestratorSessionId) {
     systemSections.push(
@@ -233,9 +233,9 @@ export function buildPrompt(
         "## Talking to the Orchestrator",
         `You can message the orchestrator session that spawned you with:`,
         ``,
-        `\`ao send ${config.orchestratorSessionId} "<your message>"\``,
+        `\`cahi send ${config.orchestratorSessionId} "<your message>"\``,
         ``,
-        `Only do this when you genuinely cannot proceed alone — cross-session coordination, a decision only the human-facing orchestrator can make, or a blocker outside your repo's scope. Do NOT ping for things you can resolve yourself (research, retries, normal CI/review fixes go through \`ao report\` and the existing flow). \`ao send\` automatically tags the message with your session ID, so the orchestrator always knows who's writing.`,
+        `Only do this when you genuinely cannot proceed alone — cross-session coordination, a decision only the human-facing orchestrator can make, or a blocker outside your repo's scope. Do NOT ping for things you can resolve yourself (research, retries, normal CI/review fixes go through \`cahi report\` and the existing flow). \`cahi send\` automatically tags the message with your session ID, so the orchestrator always knows who's writing.`,
       ].join("\n"),
     );
   }

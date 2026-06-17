@@ -80,7 +80,7 @@ describe("buildPrompt split output", () => {
       orchestratorSessionId: "test-orchestrator",
     });
     expect(systemPrompt).toContain("## Talking to the Orchestrator");
-    expect(systemPrompt).toContain('ao send test-orchestrator "<your message>"');
+    expect(systemPrompt).toContain('cahi send test-orchestrator "<your message>"');
     // No env vars or shell-syntax variants — literal ID only.
     expect(systemPrompt).not.toContain("CAHI_ORCHESTRATOR_SESSION_ID");
     expect(systemPrompt).not.toContain("$env:");
@@ -94,13 +94,13 @@ describe("buildPrompt split output", () => {
       orchestratorSessionId: "test-orchestrator",
     });
     expect(systemPrompt).toContain(BASE_AGENT_PROMPT_NO_REPO);
-    expect(systemPrompt).toContain('ao send test-orchestrator "<your message>"');
+    expect(systemPrompt).toContain('cahi send test-orchestrator "<your message>"');
   });
 
   it("omits the orchestrator section when no orchestratorSessionId is provided", () => {
     const { systemPrompt } = buildPrompt({ project, projectId: "test-app" });
     expect(systemPrompt).not.toContain("## Talking to the Orchestrator");
-    expect(systemPrompt).not.toContain("ao send");
+    expect(systemPrompt).not.toContain("cahi send");
   });
 });
 
@@ -362,6 +362,6 @@ describe("BASE_AGENT_PROMPT", () => {
     expect(BASE_AGENT_PROMPT).toContain("Session Lifecycle");
     expect(BASE_AGENT_PROMPT).toContain("Git Workflow");
     expect(BASE_AGENT_PROMPT).toContain("PR Best Practices");
-    expect(BASE_AGENT_PROMPT).toContain("ao session claim-pr");
+    expect(BASE_AGENT_PROMPT).toContain("cahi session claim-pr");
   });
 });

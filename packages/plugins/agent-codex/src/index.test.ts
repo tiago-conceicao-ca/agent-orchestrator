@@ -2012,14 +2012,14 @@ describe("setupWorkspaceHooks", () => {
 });
 
 // (Legacy wrapper-write tests removed: the plugin no longer installs wrappers
-// or writes ao-metadata-helper.sh / gh / git / .cahi-version — session-manager
+// or writes cahi-metadata-helper.sh / gh / git / .cahi-version — session-manager
 // owns that path now. See main's test refresh in #1487.)
 
 // =========================================================================
 // Shell wrapper content verification
 // =========================================================================
 // Skip on Windows: these tests verify Unix shell-script wrapper contents
-// (ao-metadata-helper.sh / gh / git wrappers) which don't apply to PowerShell.
+// (cahi-metadata-helper.sh / gh / git wrappers) which don't apply to PowerShell.
 describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
   beforeEach(() => {
     // Force wrapper installation by making version marker miss
@@ -2040,39 +2040,39 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
   }
 
   describe("metadata helper", () => {
-    it("contains update_ao_metadata function", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
-      expect(content).toContain("update_ao_metadata()");
+    it("contains update_cahi_metadata function", async () => {
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
+      expect(content).toContain("update_cahi_metadata()");
     });
 
     it("uses CAHI_DATA_DIR and CAHI_SESSION env vars", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       expect(content).toContain("CAHI_DATA_DIR");
       expect(content).toContain("CAHI_SESSION");
     });
 
     it("escapes sed metacharacters in values", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       // Should contain the sed escaping logic for &, |, and \
       expect(content).toContain("escaped_value");
       expect(content).toMatch(/sed.*\\\\&/);
     });
 
     it("uses atomic temp file + mv pattern", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       expect(content).toContain("temp_file");
       expect(content).toContain("mv");
     });
 
     it("validates session name has no path separators", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       // Rejects session names containing / or ..
       expect(content).toContain("*/*");
       expect(content).toContain("*..*");
     });
 
     it("validates ao_dir is an absolute path under expected locations", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       // Only allows paths under $HOME/.cahi/ or /tmp/
       expect(content).toContain('$HOME"/.cahi/*');
       expect(content).toContain('$HOME"/.cahi/*');
@@ -2080,7 +2080,7 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
     });
 
     it("resolves symlinks and verifies file stays within ao_dir", async () => {
-      const content = await getWrapperContent("ao-metadata-helper.sh");
+      const content = await getWrapperContent("cahi-metadata-helper.sh");
       expect(content).toContain("pwd -P");
       expect(content).toContain("real_ao_dir");
       expect(content).toContain("real_dir");
@@ -2120,14 +2120,14 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
     it("extracts PR URL from gh pr create output", async () => {
       const content = await getWrapperContent("gh");
       expect(content).toContain("grep -Eo 'https?://[^/]+/[^/]+/[^/]+/pull/[0-9]+'");
-      expect(content).toContain("update_ao_metadata pr");
+      expect(content).toContain("update_cahi_metadata pr");
     });
 
     it("records agent-reported PR metadata on gh pr create", async () => {
       const content = await getWrapperContent("gh");
-      expect(content).toContain("update_ao_metadata agentReportedState");
-      expect(content).toContain("update_ao_metadata agentReportedPrUrl");
-      expect(content).toContain("update_ao_metadata agentReportedPrIsDraft");
+      expect(content).toContain("update_cahi_metadata agentReportedState");
+      expect(content).toContain("update_cahi_metadata agentReportedPrUrl");
+      expect(content).toContain("update_cahi_metadata agentReportedPrIsDraft");
     });
 
     it("cleans up temp file on exit", async () => {
@@ -2147,7 +2147,7 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
     it("captures branch name from checkout -b", async () => {
       const content = await getWrapperContent("git");
       expect(content).toContain("checkout/-b");
-      expect(content).toContain("update_ao_metadata branch");
+      expect(content).toContain("update_cahi_metadata branch");
     });
 
     it("captures branch name from switch -c", async () => {
@@ -2163,7 +2163,7 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
     it("sources the metadata helper", async () => {
       const content = await getWrapperContent("git");
       expect(content).toContain("source");
-      expect(content).toContain("ao-metadata-helper.sh");
+      expect(content).toContain("cahi-metadata-helper.sh");
     });
   });
 });

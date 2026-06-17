@@ -38,7 +38,7 @@ export { resetPsCache, resolveWorkspaceForClaude, toClaudeProjectPath } from "./
 /** Hook script content that updates session metadata on git/gh commands.
  *  Exported for integration testing. */
 export const METADATA_UPDATER_SCRIPT = `#!/usr/bin/env bash
-# Metadata Updater Hook for Agent Orchestrator
+# Metadata Updater Hook for CAHI
 #
 # This PostToolUse hook automatically updates session metadata when:
 # - gh pr create: extracts PR URL and writes to metadata
@@ -255,7 +255,7 @@ exit 0
  * Exported for testing.
  */
 export const METADATA_UPDATER_SCRIPT_NODE = `#!/usr/bin/env node
-// Metadata Updater Hook for Agent Orchestrator (Node.js — Windows)
+// Metadata Updater Hook for CAHI (Node.js — Windows)
 //
 // This PostToolUse hook automatically updates session metadata when:
 // - gh pr create: extracts PR URL and writes to metadata
@@ -450,7 +450,7 @@ process.exit(0);
  * silently. Exported for integration testing.
  */
 export const ACTIVITY_UPDATER_SCRIPT = `#!/usr/bin/env bash
-# Activity Updater Hook for Agent Orchestrator
+# Activity Updater Hook for CAHI
 #
 # Records Claude Code lifecycle events to {workspace}/.cahi/activity.jsonl so
 # the dashboard / lifecycle reducer derives activity state from authoritative
@@ -562,7 +562,7 @@ exit 0
  * testing.
  */
 export const ACTIVITY_UPDATER_SCRIPT_NODE = `#!/usr/bin/env node
-// Activity Updater Hook for Agent Orchestrator (Node.js — Windows). See
+// Activity Updater Hook for CAHI (Node.js — Windows). See
 // ACTIVITY_UPDATER_SCRIPT for the canonical bash version. (#1941)
 
 const { appendFileSync, mkdirSync, readFileSync } = require("node:fs");
