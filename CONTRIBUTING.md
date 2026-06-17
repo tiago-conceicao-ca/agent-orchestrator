@@ -260,8 +260,6 @@ Each entry requires:
 - **`source`** — always `"registry"`
 - **`latestVersion`** — semver string
 
-Optionally include `setupAction` if post-install configuration is needed (e.g. `"openclaw-setup"`).
-
 Your plugin package must satisfy the contract in [`docs/PLUGIN_SPEC.md`](docs/PLUGIN_SPEC.md) — export a `PluginModule` with a valid manifest and `create()` function. The package must be published to npm before your registry PR is merged so `cahi plugin install` can fetch it.
 
 ---

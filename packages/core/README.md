@@ -100,7 +100,7 @@ Loads plugins and provides access to them:
 - workspace-worktree, workspace-clone
 - tracker-github, tracker-linear, tracker-gitlab
 - scm-github, scm-gitlab
-- notifier-desktop, notifier-discord, notifier-slack, notifier-composio, notifier-openclaw, notifier-webhook
+- notifier-desktop, notifier-discord, notifier-slack, notifier-composio, notifier-webhook
 - terminal-iterm2, terminal-web
 
 ### `src/config.ts` — Configuration Loading

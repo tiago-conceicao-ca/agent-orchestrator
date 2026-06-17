@@ -1,7 +1,7 @@
 ---
 name: cahi
 description: "Open-source, pluggable agentic coding orchestrator. Manages durable coding agents (Claude Code, Codex, OpenCode) through a simple interface — spawn agents, track progress, and let feedback loops like PR reviews and CI failures automatically route to the right agents. Use for fixing bugs, building features, working on GitHub issues, checking status, and managing agent sessions."
-metadata: {"openclaw": {"emoji": "🤖", "requires": {"bins": ["cahi", "gh"], "anyBins": ["node", "npm"], "env": ["ANTHROPIC_API_KEY"]}, "os": ["darwin", "linux", "win32"]}}
+metadata: {}
 ---
 
 # CAHI
@@ -137,31 +137,9 @@ If a tool call fails, show the error. Never claim you did something you didn't.
 
 A project can declare other registered projects as **siblings** (`project.siblings` in config). Each sibling auto-mounts **read-only** into every spawned session, reachable at `../{name}` next to the worker's checkout. Workers read siblings for cross-repo context but never edit them. To make a change land in a sibling repo, spawn the worker under **that sibling's own project** — the originating project then mounts read-only for it.
 
-## Setup
-
-After installing the plugin, run `/cahi setup` in any OpenClaw channel to auto-configure. Or manually:
-
-```bash
-# Required: allow plugin tools to be visible to the AI
-# (plugin tools are optional by default in OpenClaw — this enables them)
-openclaw config set tools.profile "full"
-openclaw config set tools.allow '["group:plugins"]'
-
-# Required: trust this plugin
-openclaw config set plugins.allow '["cahi"]'
-
-# Optional: increase message context for group chats
-openclaw config set messages.groupChat.historyLimit 100
-
-# Restart to apply
-pm2 restart openclaw-gateway  # or however you run the gateway
-```
-
-**Why `tools.profile: "full"`?** OpenClaw's default `coding` profile only includes built-in tools. Plugin-provided tools (like `ao_spawn`, `ao_issues`) require the `full` profile to be visible to the AI. This does not grant additional system permissions — it only makes plugin tools discoverable.
-
 ## Security & Privacy
 
-CAHI is an orchestrator — it does not read, write, or transmit code itself. It calls `cahi spawn` which creates a git worktree and starts a coding agent (Claude Code, Codex, etc.). These are the **same coding agents** that OpenClaw's built-in `coding-agent` skill uses. CAHI adds no additional code exposure beyond what you already have with any OpenClaw coding workflow.
+CAHI is an orchestrator — it does not read, write, or transmit code itself. It calls `cahi spawn` which creates a git worktree and starts a coding agent (Claude Code, Codex, etc.). These are standard coding agents; CAHI adds no additional code exposure beyond running those agents directly.
 
 What to know:
 - **GitHub access**: CAHI uses `gh` (GitHub CLI) with whatever credentials you've authenticated via `gh auth login`. Use a fine-grained PAT scoped to only the repos CAHI needs.

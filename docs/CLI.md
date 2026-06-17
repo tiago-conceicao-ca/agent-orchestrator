@@ -45,7 +45,6 @@ cahi session restore <session>           # Revive a crashed agent
 ```bash
 cahi doctor                              # Check install, runtime, and stale temp issues
 cahi doctor --fix                        # Apply safe fixes automatically
-cahi setup openclaw                      # Connect CAHI notifications to OpenClaw
 cahi update                              # Update local CAHI install (source installs only)
 cahi config-help                         # Show full config schema reference
 ```

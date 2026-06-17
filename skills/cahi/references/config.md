@@ -18,7 +18,7 @@ defaults:
   agent: claude-code          # claude-code | aider | codex | cursor | kimicode | opencode
   workspace: worktree         # worktree | clone
   notifiers:                  # Active notifier plugins
-    - desktop                 # desktop | slack | webhook | composio | openclaw
+    - desktop                 # desktop | slack | webhook | composio
   orchestrator:
     agent: claude-code        # Override agent for orchestrator sessions
   worker:
@@ -89,10 +89,8 @@ notificationRouting:
   critical:
     - desktop
     - slack
-    - openclaw
   high:
     - desktop
-    - openclaw
   low:
     - desktop
 ```

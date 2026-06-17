@@ -74,10 +74,10 @@ Project config enables plugins through `plugins:` entries:
 
 ```yaml
 plugins:
-  - name: openclaw
+  - name: discord
     source: registry
-    package: "@contaazul/cahi-plugin-notifier-openclaw"
-    version: "0.1.1"
+    package: "@contaazul/cahi-plugin-notifier-discord"
+    version: "0.1.0"
 ```
 
 Descriptor fields:

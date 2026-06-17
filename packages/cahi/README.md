@@ -67,7 +67,7 @@ Seven plugin slots; the lifecycle state machine stays in core:
 | Workspace | worktree | clone |
 | Tracker | github | linear, gitlab |
 | SCM | github | gitlab |
-| Notifier | desktop | slack, discord, composio, webhook, openclaw |
+| Notifier | desktop | slack, discord, composio, webhook |
 | Terminal | iterm2 | web |
 
 ## Why CAHI?

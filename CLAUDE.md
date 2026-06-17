@@ -27,7 +27,7 @@ packages/
     tracker-github/       tracker-linear/   tracker-gitlab/
     scm-github/           scm-gitlab/
     notifier-desktop/     notifier-slack/   notifier-webhook/
-    notifier-composio/    notifier-openclaw/
+    notifier-composio/
     terminal-iterm2/      terminal-web/
   integration-tests/      # E2E tests
 ```
