@@ -3,7 +3,7 @@
  *
  * Distinct from `lib/preflight.ts` (which validates dashboard build
  * artifacts). This module verifies system tools (git, tmux), warns about
- * legacy storage and OpenClaw status, and applies side effects like idle
+ * legacy storage, and applies side effects like idle
  * sleep prevention and credential injection.
  *
  * Each check is exported individually for callers that need it at a
@@ -23,8 +23,6 @@ import {
   type OrchestratorConfig,
 } from "@contaazul/cahi-core";
 import { execSilent } from "./shell.js";
-import { detectOpenClawInstallation } from "./openclaw-probe.js";
-import { applyOpenClawCredentials } from "./credential-resolver.js";
 import { preventIdleSleep } from "./prevent-sleep.js";
 import { askYesNo, tryInstallWithAttempts, type InstallAttempt } from "./install-helpers.js";
 
@@ -237,44 +235,6 @@ export function warnAboutLegacyStorage(): void {
   }
 }
 
-export async function warnAboutOpenClawStatus(config: OrchestratorConfig): Promise<void> {
-  const openclawConfig = config.notifiers?.["openclaw"];
-  const openclawConfigured =
-    openclawConfig !== null &&
-    openclawConfig !== undefined &&
-    typeof openclawConfig === "object" &&
-    openclawConfig.plugin === "openclaw";
-  const configuredUrl =
-    openclawConfigured && typeof openclawConfig.url === "string" ? openclawConfig.url : undefined;
-
-  try {
-    const installation = configuredUrl
-      ? await detectOpenClawInstallation(configuredUrl)
-      : await detectOpenClawInstallation();
-
-    if (openclawConfigured) {
-      if (installation.state !== "running") {
-        console.log(
-          chalk.yellow(
-            `⚠ OpenClaw is configured but the gateway is not reachable at ${installation.gatewayUrl}. Notifications may fail until it is running.`,
-          ),
-        );
-      }
-      return;
-    }
-
-    if (installation.state === "running") {
-      console.log(
-        chalk.yellow(
-          `⚠ OpenClaw is running at ${installation.gatewayUrl} but CAHI is not configured to use it. Run \`cahi setup openclaw\` if you want OpenClaw notifications.`,
-        ),
-      );
-    }
-  } catch {
-    // OpenClaw probing is advisory for `cahi start`; never block startup on it.
-  }
-}
-
 /**
  * Top-level orchestrator: tools + state warnings + idle-sleep + credentials.
  * Replaces the inline preflight block in `runStartup`. Idempotent within a
@@ -295,7 +255,6 @@ export async function runtimePreflight(config: OrchestratorConfig): Promise<void
     }
   }
   warnAboutLegacyStorage();
-  await warnAboutOpenClawStatus(config);
 
   // Prevent macOS idle sleep while CAHI is running (if enabled in config).
   // Uses caffeinate -i -w <pid> to hold an assertion tied to this process
@@ -307,19 +266,4 @@ export async function runtimePreflight(config: OrchestratorConfig): Promise<void
     }
   }
 
-  // Only inject OpenClaw credentials when the project actually uses OpenClaw.
-  // Avoids exposing API keys to projects/plugins that don't need them.
-  const openclawNotifier = config.notifiers?.["openclaw"];
-  const hasOpenClaw =
-    openclawNotifier !== null &&
-    openclawNotifier !== undefined &&
-    typeof openclawNotifier === "object" &&
-    openclawNotifier.plugin === "openclaw";
-  if (hasOpenClaw) {
-    const injectedKeys = applyOpenClawCredentials();
-    if (injectedKeys.length > 0) {
-      const names = injectedKeys.map((k) => k.key).join(", ");
-      console.log(chalk.dim(`  Resolved from OpenClaw config: ${names}`));
-    }
-  }
 }

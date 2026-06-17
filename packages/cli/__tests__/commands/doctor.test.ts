@@ -8,8 +8,6 @@ const {
   mockCreatePluginRegistry,
   mockCreateProjectObserver,
   mockRecordNotificationDelivery,
-  mockDetectOpenClawInstallation,
-  mockValidateToken,
   mockRegistry,
   mockGetCurrentVersion,
   mockReadCachedUpdateInfo,
@@ -22,8 +20,6 @@ const {
   mockCreatePluginRegistry: vi.fn(),
   mockCreateProjectObserver: vi.fn(),
   mockRecordNotificationDelivery: vi.fn(),
-  mockDetectOpenClawInstallation: vi.fn(),
-  mockValidateToken: vi.fn(),
   mockRegistry: {
     loadFromConfig: vi.fn(),
     list: vi.fn(),
@@ -60,11 +56,6 @@ vi.mock("@contaazul/cahi-core", () => ({
       pluginName: configured?.plugin ?? reference,
     };
   },
-}));
-
-vi.mock("../../src/lib/openclaw-probe.js", () => ({
-  detectOpenClawInstallation: (...args: unknown[]) => mockDetectOpenClawInstallation(...args),
-  validateToken: (...args: unknown[]) => mockValidateToken(...args),
 }));
 
 vi.mock("../../src/lib/update-check.js", () => ({
@@ -180,15 +171,6 @@ describe("doctor command", () => {
     mockRegistry.list.mockReturnValue([]);
     mockRegistry.get.mockReset();
     mockRegistry.get.mockReturnValue(null);
-
-    mockDetectOpenClawInstallation.mockReset();
-    mockDetectOpenClawInstallation.mockResolvedValue({
-      state: "running",
-      gatewayUrl: "http://127.0.0.1:18789",
-      probe: { httpStatus: 200 },
-    });
-    mockValidateToken.mockReset();
-    mockValidateToken.mockResolvedValue({ valid: true });
 
     mockGetCurrentVersion.mockReset();
     mockGetCurrentVersion.mockReturnValue("0.2.2");

@@ -12,7 +12,6 @@ const {
   mockImportPluginModuleFromSource,
   mockInstallPackageIntoStore,
   mockReadInstalledPackageVersion,
-  mockRunSetupAction,
   mockUninstallPackageFromStore,
 } = vi.hoisted(() => ({
   mockFindConfigFile: vi.fn(),
@@ -20,7 +19,6 @@ const {
   mockImportPluginModuleFromSource: vi.fn(),
   mockInstallPackageIntoStore: vi.fn(),
   mockReadInstalledPackageVersion: vi.fn(),
-  mockRunSetupAction: vi.fn(),
   mockUninstallPackageFromStore: vi.fn(),
 }));
 
@@ -43,13 +41,9 @@ vi.mock("../../src/lib/plugin-store.js", () => ({
   uninstallPackageFromStore: (...args: unknown[]) => mockUninstallPackageFromStore(...args),
 }));
 
-vi.mock("../../src/commands/setup.js", () => ({
-  runSetupAction: (...args: unknown[]) => mockRunSetupAction(...args),
-}));
-
 import { registerPlugin } from "../../src/commands/plugin.js";
 
-const OPENCLAW_PACKAGE = "@contaazul/cahi-plugin-notifier-openclaw";
+const DISCORD_PACKAGE = "@contaazul/cahi-plugin-notifier-discord";
 const GOOSE_PACKAGE = "@example/cahi-plugin-agent-goose";
 
 function makePlugin(slot: PluginManifest["slot"], name: string): PluginModule {
@@ -104,7 +98,6 @@ describe("plugin command", () => {
     process.env["CAHI_PLUGIN_REGISTRY_CACHE_PATH"] = registryCachePath;
 
     mockFindConfigFile.mockReturnValue(configPath);
-    mockRunSetupAction.mockReset();
     mockGetLatestPublishedPackageVersion.mockReset();
     mockImportPluginModuleFromSource.mockReset();
     mockInstallPackageIntoStore.mockReset();
@@ -137,7 +130,7 @@ describe("plugin command", () => {
     });
 
     mockImportPluginModuleFromSource.mockImplementation(async (specifier: string) => {
-      if (specifier === OPENCLAW_PACKAGE) return { default: makePlugin("notifier", "openclaw") };
+      if (specifier === DISCORD_PACKAGE) return { default: makePlugin("notifier", "discord") };
       if (specifier === GOOSE_PACKAGE) return { default: makePlugin("agent", "goose") };
       throw new Error(`Not found: ${specifier}`);
     });
@@ -234,22 +227,19 @@ describe("plugin command", () => {
   it("installs a marketplace plugin through the CAHI-managed store before writing config", async () => {
     const program = createProgram();
 
-    await program.parseAsync(["node", "test", "plugin", "install", "notifier-openclaw"]);
+    await program.parseAsync(["node", "test", "plugin", "install", "notifier-discord"]);
 
     const parsed = parseYaml(readFileSync(configPath, "utf-8")) as {
       plugins?: Array<Record<string, string>>;
     };
     expect(parsed.plugins).toHaveLength(1);
     expect(parsed.plugins?.[0]).toMatchObject({
-      name: "openclaw",
+      name: "discord",
       source: "registry",
-      package: OPENCLAW_PACKAGE,
-      version: "0.1.1",
+      package: DISCORD_PACKAGE,
+      version: "0.1.0",
     });
-    expect(mockInstallPackageIntoStore).toHaveBeenCalledWith(OPENCLAW_PACKAGE, "0.1.1");
-
-    // Install now always runs setup (auto-detect in non-TTY instead of deferring)
-    expect(mockRunSetupAction).toHaveBeenCalled();
+    expect(mockInstallPackageIntoStore).toHaveBeenCalledWith(DISCORD_PACKAGE, "0.1.0");
   });
 
   it("does not stamp wrapped config schema onto the canonical global config", async () => {
@@ -259,16 +249,16 @@ describe("plugin command", () => {
 
     const program = createProgram();
 
-    await program.parseAsync(["node", "test", "plugin", "install", "notifier-openclaw"]);
+    await program.parseAsync(["node", "test", "plugin", "install", "notifier-discord"]);
 
     const writtenYaml = readFileSync(configPath, "utf-8");
     expect(writtenYaml).not.toContain("$schema:");
     expect(parseYaml(writtenYaml)).toMatchObject({
       plugins: [
         {
-          name: "openclaw",
+          name: "discord",
           source: "registry",
-          package: OPENCLAW_PACKAGE,
+          package: DISCORD_PACKAGE,
         },
       ],
     });

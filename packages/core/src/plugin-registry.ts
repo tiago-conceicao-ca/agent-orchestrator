@@ -63,7 +63,6 @@ const BUILTIN_PLUGINS: Array<{ slot: PluginSlot; name: string; pkg: string }> = 
   { slot: "notifier", name: "dashboard", pkg: "@contaazul/cahi-plugin-notifier-dashboard" },
   { slot: "notifier", name: "desktop", pkg: "@contaazul/cahi-plugin-notifier-desktop" },
   { slot: "notifier", name: "discord", pkg: "@contaazul/cahi-plugin-notifier-discord" },
-  { slot: "notifier", name: "openclaw", pkg: "@contaazul/cahi-plugin-notifier-openclaw" },
   { slot: "notifier", name: "slack", pkg: "@contaazul/cahi-plugin-notifier-slack" },
   { slot: "notifier", name: "webhook", pkg: "@contaazul/cahi-plugin-notifier-webhook" },
   // Terminals

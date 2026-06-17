@@ -70,10 +70,6 @@ const {
   mockStartProjectSupervisor: vi.fn(),
 }));
 
-const { mockDetectOpenClawInstallation } = vi.hoisted(() => ({
-  mockDetectOpenClawInstallation: vi.fn(),
-}));
-
 const { mockProcessCwd } = vi.hoisted(() => ({
   mockProcessCwd: vi.fn<() => string | undefined>(),
 }));
@@ -241,10 +237,6 @@ vi.mock("../../src/lib/project-detection.js", () => ({
   detectProjectType: vi.fn().mockReturnValue({ languages: [], frameworks: [] }),
   generateRulesFromTemplates: vi.fn().mockReturnValue(null),
   formatProjectTypeForDisplay: vi.fn().mockReturnValue(""),
-}));
-
-vi.mock("../../src/lib/openclaw-probe.js", () => ({
-  detectOpenClawInstallation: (...args: unknown[]) => mockDetectOpenClawInstallation(...args),
 }));
 
 vi.mock("../../src/lib/prompts.js", () => ({
@@ -435,12 +427,6 @@ beforeEach(async () => {
   });
   mockStartProjectSupervisor.mockReset();
   mockStartProjectSupervisor.mockResolvedValue({ stop: vi.fn(), reconcileNow: vi.fn() });
-  mockDetectOpenClawInstallation.mockReset();
-  mockDetectOpenClawInstallation.mockResolvedValue({
-    state: "missing",
-    gatewayUrl: "http://127.0.0.1:18789",
-    probe: { reachable: false, error: "not running" },
-  });
   mockSpawn.mockClear();
   mockProcessCwd.mockReset();
   mockPromptSelect.mockReset();
@@ -626,50 +612,6 @@ describe("start command — project resolution", () => {
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
     expect(errors).toContain("No projects configured");
-  });
-});
-
-describe("start command — OpenClaw preflight", () => {
-  it("warns when OpenClaw is configured but offline", async () => {
-    mockConfigRef.current = {
-      ...makeConfig({ "my-app": makeProject() }),
-      notifiers: {
-        openclaw: {
-          plugin: "openclaw",
-          url: "http://127.0.0.1:18789/hooks/agent",
-        },
-      },
-    };
-    mockDetectOpenClawInstallation.mockResolvedValue({
-      state: "installed-but-stopped",
-      gatewayUrl: "http://127.0.0.1:18789",
-      probe: { reachable: false, error: "not running" },
-    });
-
-    await program.parseAsync(["node", "test", "start", "--no-dashboard", "--no-orchestrator"]);
-
-    const output = vi
-      .mocked(console.log)
-      .mock.calls.map((c) => c.join(" "))
-      .join("\n");
-    expect(output).toContain("OpenClaw is configured but the gateway is not reachable");
-  });
-
-  it("suggests setup when OpenClaw is running but not configured", async () => {
-    mockConfigRef.current = makeConfig({ "my-app": makeProject() });
-    mockDetectOpenClawInstallation.mockResolvedValue({
-      state: "running",
-      gatewayUrl: "http://127.0.0.1:18789",
-      probe: { reachable: true, httpStatus: 200 },
-    });
-
-    await program.parseAsync(["node", "test", "start", "--no-dashboard", "--no-orchestrator"]);
-
-    const output = vi
-      .mocked(console.log)
-      .mock.calls.map((c) => c.join(" "))
-      .join("\n");
-    expect(output).toContain("cahi setup openclaw");
   });
 });
 

@@ -330,11 +330,11 @@ describe("loadBuiltins", () => {
 
   it("passes notifier config from config.notifiers when loading builtins", async () => {
     const registry = createPluginRegistry();
-    const fakeOpenClaw = makePlugin("notifier", "openclaw");
+    const fakeDiscord = makePlugin("notifier", "discord");
     const cfg = makeOrchestratorConfig({
       notifiers: {
-        openclaw: {
-          plugin: "openclaw",
+        discord: {
+          plugin: "discord",
           url: "http://127.0.0.1:18789/hooks/agent",
           token: "tok",
         },
@@ -342,11 +342,11 @@ describe("loadBuiltins", () => {
     });
 
     await registry.loadBuiltins(cfg, async (pkg: string) => {
-      if (pkg === "@contaazul/cahi-plugin-notifier-openclaw") return fakeOpenClaw;
+      if (pkg === "@contaazul/cahi-plugin-notifier-discord") return fakeDiscord;
       throw new Error(`Not found: ${pkg}`);
     });
 
-    expect(fakeOpenClaw.create).toHaveBeenCalledWith({
+    expect(fakeDiscord.create).toHaveBeenCalledWith({
       url: "http://127.0.0.1:18789/hooks/agent",
       token: "tok",
     });
@@ -475,11 +475,11 @@ describe("loadBuiltins", () => {
 
   it("does not match notifier key when explicit plugin points to another notifier", async () => {
     const registry = createPluginRegistry();
-    const fakeOpenClaw = makePlugin("notifier", "openclaw");
+    const fakeDiscord = makePlugin("notifier", "discord");
     const fakeWebhook = makePlugin("notifier", "webhook");
     const cfg = makeOrchestratorConfig({
       notifiers: {
-        openclaw: {
+        discord: {
           plugin: "webhook",
           url: "http://127.0.0.1:8787/hook",
           retries: 3,
@@ -488,12 +488,12 @@ describe("loadBuiltins", () => {
     });
 
     await registry.loadBuiltins(cfg, async (pkg: string) => {
-      if (pkg === "@contaazul/cahi-plugin-notifier-openclaw") return fakeOpenClaw;
+      if (pkg === "@contaazul/cahi-plugin-notifier-discord") return fakeDiscord;
       if (pkg === "@contaazul/cahi-plugin-notifier-webhook") return fakeWebhook;
       throw new Error(`Not found: ${pkg}`);
     });
 
-    expect(fakeOpenClaw.create).not.toHaveBeenCalled();
+    expect(fakeDiscord.create).not.toHaveBeenCalled();
     expect(fakeWebhook.create).toHaveBeenCalledWith({
       url: "http://127.0.0.1:8787/hook",
       retries: 3,

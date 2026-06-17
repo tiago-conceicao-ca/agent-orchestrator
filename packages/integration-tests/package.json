@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@contaazul/cahi-plugin-notifier-desktop": "workspace:*",
-    "@contaazul/cahi-plugin-notifier-openclaw": "workspace:*",
     "@contaazul/cahi-plugin-notifier-slack": "workspace:*",
     "@contaazul/cahi-plugin-notifier-webhook": "workspace:*",
     "@contaazul/cahi-plugin-notifier-composio": "workspace:*",

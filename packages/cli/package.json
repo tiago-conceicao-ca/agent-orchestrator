@@ -46,7 +46,6 @@
     "@contaazul/cahi-plugin-notifier-dashboard": "workspace:*",
     "@contaazul/cahi-plugin-notifier-desktop": "workspace:*",
     "@contaazul/cahi-plugin-notifier-discord": "workspace:*",
-    "@contaazul/cahi-plugin-notifier-openclaw": "workspace:*",
     "@contaazul/cahi-plugin-notifier-slack": "workspace:*",
     "@contaazul/cahi-plugin-notifier-webhook": "workspace:*",
     "@contaazul/cahi-plugin-runtime-process": "workspace:*",

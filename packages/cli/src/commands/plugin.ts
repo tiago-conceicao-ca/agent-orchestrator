@@ -32,7 +32,6 @@ import {
   resolveScaffoldDirectory,
   scaffoldPlugin,
 } from "../lib/plugin-scaffold.js";
-import { runSetupAction } from "./setup.js";
 
 function findInstalledPlugin(
   plugins: InstalledPluginConfig[],
@@ -503,57 +502,21 @@ export function registerPlugin(program: Command): void {
     .command("install")
     .description("Install a plugin into the current config")
     .argument("<reference>", "Marketplace id, package name, or local path")
-    .option(
-      "--url <url>",
-      "OpenClaw webhook URL (passed to setup when installing notifier-openclaw)",
-    )
-    .option(
-      "--token <token>",
-      "Remote/manual OpenClaw token fallback (passed to setup when installing notifier-openclaw)",
-    )
-    .option(
-      "--openclaw-config-path <path>",
-      "OpenClaw config path that contains hooks.token (passed to setup when installing notifier-openclaw)",
-    )
-    .action(
-      async (
-        reference: string,
-        opts: { url?: string; token?: string; openclawConfigPath?: string },
-      ) => {
-        const configPath = findConfigFile();
-        if (!configPath) {
-          throw new Error("No cahi.yaml found. Run 'cahi start' first.");
-        }
+    .action(async (reference: string) => {
+      const configPath = findConfigFile();
+      if (!configPath) {
+        throw new Error("No cahi.yaml found. Run 'cahi start' first.");
+      }
 
-        const config = loadConfig(configPath);
-        const { descriptor, specifier, setupAction } = buildPluginDescriptor(reference, configPath);
-        const verifiedDescriptor = await installOrVerifyPlugin(config, descriptor, specifier);
-        const previousPlugins = config.plugins ?? [];
-        const nextPlugins = upsertInstalledPlugin(previousPlugins, verifiedDescriptor);
-        writePluginsConfig(configPath, nextPlugins);
+      const config = loadConfig(configPath);
+      const { descriptor, specifier } = buildPluginDescriptor(reference, configPath);
+      const verifiedDescriptor = await installOrVerifyPlugin(config, descriptor, specifier);
+      const previousPlugins = config.plugins ?? [];
+      const nextPlugins = upsertInstalledPlugin(previousPlugins, verifiedDescriptor);
+      writePluginsConfig(configPath, nextPlugins);
 
-        console.log(chalk.green(formatInstallSummary(verifiedDescriptor, configPath)));
-
-        if (setupAction === "openclaw-setup") {
-          // Always run setup — interactive in TTY, auto-detect in non-TTY.
-          // Non-interactive setup will auto-detect OpenClaw on localhost if
-          // no --url is given and the gateway is reachable.
-          try {
-            await runSetupAction({
-              url: opts.url,
-              token: opts.token,
-              openclawConfigPath: opts.openclawConfigPath,
-            });
-          } catch (err) {
-            // Rollback: restore previous plugin list so a failed setup
-            // doesn't leave a half-configured notifier enabled in config.
-            writePluginsConfig(configPath, previousPlugins);
-            console.log(chalk.dim("Rolled back plugin config after setup failure."));
-            throw err;
-          }
-        }
-      },
-    );
+      console.log(chalk.green(formatInstallSummary(verifiedDescriptor, configPath)));
+    });
 
   plugin
     .command("update")

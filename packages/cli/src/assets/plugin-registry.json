@@ -32,15 +32,6 @@
     "latestVersion": "0.1.0"
   },
   {
-    "id": "notifier-openclaw",
-    "package": "@contaazul/cahi-plugin-notifier-openclaw",
-    "slot": "notifier",
-    "description": "Notifier plugin: OpenClaw webhook notifications",
-    "source": "registry",
-    "setupAction": "openclaw-setup",
-    "latestVersion": "0.1.1"
-  },
-  {
     "id": "notifier-discord",
     "package": "@contaazul/cahi-plugin-notifier-discord",
     "slot": "notifier",

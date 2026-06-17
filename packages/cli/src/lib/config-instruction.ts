@@ -32,7 +32,7 @@ defaults:
   agent: claude-code          # claude-code | aider | codex | cursor | kimicode | grok | opencode
   workspace: worktree         # worktree | clone
   notifiers:
-    - desktop                 # desktop | discord | slack | webhook | composio | openclaw
+    - desktop                 # desktop | discord | slack | webhook | composio
   orchestrator:
     agent: claude-code        # Optional override for orchestrator sessions
   worker:
@@ -126,12 +126,6 @@ notifiers:
   webhook:
     plugin: webhook
     # url: https://example.com/hook
-  openclaw:
-    plugin: openclaw
-    # url: http://127.0.0.1:18789/hooks/agent
-    # openclawConfigPath: ~/.openclaw/openclaw.json
-    # OpenClaw owns hooks.token in openclaw.json
-    # Run 'cahi setup openclaw' for guided configuration
   composio:
     plugin: composio
     # Run 'cahi setup composio' to connect Slack through Composio
@@ -187,7 +181,7 @@ notificationRouting:
 # Workspace: worktree, clone
 # SCM:       github, gitlab
 # Tracker:   github, linear, gitlab
-# Notifier:  dashboard, desktop, discord, slack, webhook, composio, openclaw
+# Notifier:  dashboard, desktop, discord, slack, webhook, composio
 # Terminal:  iterm2, web
 `.trim();
 }

@@ -30,7 +30,6 @@
       "@contaazul/cahi-plugin-notifier-composio",
       "@contaazul/cahi-plugin-notifier-dashboard",
       "@contaazul/cahi-plugin-notifier-discord",
-      "@contaazul/cahi-plugin-notifier-openclaw",
       "@contaazul/cahi-plugin-terminal-iterm2",
       "@contaazul/cahi-plugin-terminal-web",
       "@contaazul/cahi-web"

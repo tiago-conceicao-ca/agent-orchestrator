@@ -1,5 +1,4 @@
 import type { Command } from "commander";
-import { recordActivityEvent } from "@contaazul/cahi-core";
 import {
   DesktopSetupError,
   runDesktopSetupAction,
@@ -37,11 +36,6 @@ import {
   type ComposioMailSetupOptions,
   type ComposioSetupOptions,
 } from "../lib/composio-setup.js";
-import {
-  OpenClawSetupError,
-  runOpenClawSetupAction,
-  type OpenClawSetupOptions,
-} from "../lib/openclaw-setup.js";
 
 // ---------------------------------------------------------------------------
 // Command registration
@@ -310,48 +304,4 @@ export function registerSetup(program: Command): void {
         throw err;
       }
     });
-
-  setup
-    .command("openclaw")
-    .description("Connect CAHI notifications to an OpenClaw gateway")
-    .option("--url <url>", "OpenClaw webhook URL (e.g. http://127.0.0.1:18789/hooks/agent)")
-    .option(
-      "--token <token>",
-      "Remote/manual fallback token; local setup should read hooks.token from OpenClaw config",
-    )
-    .option("--openclaw-config-path <path>", "OpenClaw config path that contains hooks.token")
-    .option("--routing-preset <preset>", "Routing preset: urgent-only | urgent-action | all")
-    .option(
-      "--non-interactive",
-      "Skip prompts — auto-detects OpenClaw if --url not provided and reads token from OpenClaw config",
-    )
-    .option("--refresh", "Refresh/reconfigure OpenClaw notifier config")
-    .option("--no-test", "Skip the setup token probe")
-    .option("--force", "Replace a conflicting notifiers.openclaw entry")
-    .option("--status", "Show OpenClaw notifier setup status and probe the gateway")
-    .action(async (opts: OpenClawSetupOptions) => {
-      try {
-        await runSetupAction(opts);
-      } catch (err) {
-        recordActivityEvent({
-          source: "cli",
-          kind: "cli.setup_failed",
-          level: "error",
-          summary: "cahi setup openclaw failed",
-          data: {
-            aborted: err instanceof OpenClawSetupError && err.exitCode === 0,
-            errorMessage: err instanceof Error ? err.message : String(err),
-          },
-        });
-        if (err instanceof OpenClawSetupError) {
-          console.error(err.message);
-          process.exit(err.exitCode);
-        }
-        throw err;
-      }
-    });
-}
-
-export async function runSetupAction(opts: OpenClawSetupOptions): Promise<void> {
-  await runOpenClawSetupAction(opts);
 }

@@ -13,7 +13,6 @@ export interface MarketplacePluginEntry {
   slot: PluginSlot;
   description: string;
   source: "registry";
-  setupAction?: "openclaw-setup";
   latestVersion?: string;
 }
 
@@ -177,7 +176,6 @@ export function buildPluginDescriptor(
 ): {
   descriptor: InstalledPluginConfig;
   specifier: string;
-  setupAction?: MarketplacePluginEntry["setupAction"];
 } {
   const marketplacePlugin = findMarketplacePlugin(reference);
   if (marketplacePlugin) {
@@ -190,7 +188,6 @@ export function buildPluginDescriptor(
         enabled: true,
       },
       specifier: marketplacePlugin.package,
-      setupAction: marketplacePlugin.setupAction,
     };
   }
 
