@@ -230,7 +230,7 @@ function printOpenClawStartInstructions(): void {
   console.log(chalk.bold("Start or install OpenClaw"));
   console.log("  1. Start your local OpenClaw gateway.");
   console.log("  2. Confirm the gateway URL. The default is http://127.0.0.1:18789.");
-  console.log("  3. Paste the hooks URL here. AO will normalize it to /hooks/agent.");
+  console.log("  3. Paste the hooks URL here. CAHI will normalize it to /hooks/agent.");
   console.log(chalk.dim("If OpenClaw runs elsewhere, use that machine's gateway URL."));
   console.log("");
 }
@@ -256,7 +256,7 @@ function printOpenClawTokenInstructions(openclawConfigPath: string): void {
   console.log("");
   console.log(
     chalk.dim(
-      "OpenClaw requires this shared secret for POST /hooks/agent. AO reads it from the OpenClaw config and does not generate or store it in your shell profile.",
+      "OpenClaw requires this shared secret for POST /hooks/agent. CAHI reads it from the OpenClaw config and does not generate or store it in your shell profile.",
     ),
   );
   console.log(chalk.dim("Restart OpenClaw after changing the config."));
@@ -372,7 +372,7 @@ async function resolveInteractiveUrl(
             {
               value: "need-openclaw",
               label: "Show OpenClaw setup steps",
-              hint: "AO will print the local gateway requirements",
+              hint: "CAHI will print the local gateway requirements",
             },
             {
               value: "cancel",
@@ -382,7 +382,7 @@ async function resolveInteractiveUrl(
           ],
         })
       : await clack.select({
-          message: "How do you want to point AO at OpenClaw?",
+          message: "How do you want to point CAHI at OpenClaw?",
           options: [
             {
               value: "use-local",
@@ -397,7 +397,7 @@ async function resolveInteractiveUrl(
             {
               value: "need-openclaw",
               label: "Show OpenClaw setup steps",
-              hint: "AO will print the local gateway requirements",
+              hint: "CAHI will print the local gateway requirements",
             },
             {
               value: "cancel",
@@ -445,7 +445,7 @@ async function resolveInteractiveToken(
               hint:
                 existingToken.source === "openclaw-config"
                   ? displayOpenClawConfigPath(existingToken.configPath)
-                  : "Legacy fallback; AO will not write shell exports",
+                  : "Legacy fallback; CAHI will not write shell exports",
             },
           ]
         : []),
@@ -462,7 +462,7 @@ async function resolveInteractiveToken(
       {
         value: "manual",
         label: "Enter token manually",
-        hint: "For remote OpenClaw only; AO stores it in cahi.yaml",
+        hint: "For remote OpenClaw only; CAHI stores it in cahi.yaml",
       },
       {
         value: "config-path",
@@ -482,7 +482,7 @@ async function resolveInteractiveToken(
     ];
 
     const choice = await clack.select({
-      message: "How should AO configure the OpenClaw hooks token?",
+      message: "How should CAHI configure the OpenClaw hooks token?",
       options,
     });
 
@@ -779,16 +779,16 @@ function printOpenClawInstructions(nonInteractive: boolean, resolved: ResolvedOp
         : "cahi.yaml";
 
   if (nonInteractive) {
-    console.log(chalk.green("✓ AO config written (OpenClaw config left unchanged)"));
+    console.log(chalk.green("✓ CAHI config written (OpenClaw config left unchanged)"));
     console.log(`Token source: ${tokenLocation}`);
     return;
   }
 
-  console.log(`\n${chalk.green.bold("Done — AO config written.")}`);
+  console.log(`\n${chalk.green.bold("Done — CAHI config written.")}`);
   console.log(chalk.dim("  cahi.yaml  — notifiers.openclaw block"));
   console.log(chalk.dim(`  token source             — ${tokenLocation}`));
   if (resolved.tokenSource === "openclaw-config") {
-    console.log(chalk.dim("  AO did not write OpenClaw config or shell profile exports."));
+    console.log(chalk.dim("  CAHI did not write OpenClaw config or shell profile exports."));
   }
 }
 
@@ -878,12 +878,12 @@ export async function runOpenClawSetupAction(opts: OpenClawSetupOptions): Promis
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("OpenClaw setup complete!")} AO will send notifications to OpenClaw.\n` +
-        chalk.dim("  Test it with: ao notify test --to openclaw --template basic\n") +
-        chalk.dim("  Restart AO with 'cahi stop && cahi start' to activate."),
+      `${chalk.green("OpenClaw setup complete!")} CAHI will send notifications to OpenClaw.\n` +
+        chalk.dim("  Test it with: cahi notify test --to openclaw --template basic\n") +
+        chalk.dim("  Restart CAHI with 'cahi stop && cahi start' to activate."),
     );
   } else {
     console.log(chalk.green("\n✓ OpenClaw setup complete."));
-    console.log(chalk.dim("Restart AO to activate: cahi stop && cahi start"));
+    console.log(chalk.dim("Restart CAHI to activate: cahi stop && cahi start"));
   }
 }

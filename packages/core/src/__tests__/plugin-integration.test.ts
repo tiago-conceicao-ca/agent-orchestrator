@@ -99,7 +99,7 @@ beforeEach(() => {
 
   // Use test-utils to create the test environment
   env = {
-    tmpDir: join(tmpdir(), `ao-test-plugin-int-${randomUUID()}`),
+    tmpDir: join(tmpdir(), `cahi-test-plugin-int-${randomUUID()}`),
     configPath: "",
     sessionsDir: "",
     config: {} as OrchestratorConfig,
@@ -109,7 +109,7 @@ beforeEach(() => {
   mkdirSync(env.tmpDir, { recursive: true });
   previousHome = process.env["HOME"];
   // On Windows, Node's homedir() reads USERPROFILE — overriding HOME alone is
-  // insufficient. We override both so AO base-dir resolution lands in tmpDir
+  // insufficient. We override both so CAHI base-dir resolution lands in tmpDir
   // regardless of platform.
   previousUserProfile = process.env["USERPROFILE"];
   process.env["HOME"] = env.tmpDir;

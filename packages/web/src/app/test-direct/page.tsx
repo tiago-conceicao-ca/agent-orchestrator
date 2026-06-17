@@ -20,8 +20,8 @@ export const dynamic = "force-dynamic";
  *
  * Examples:
  * - http://localhost:3000/test-direct
- * - http://localhost:3000/test-direct?session=ao-20
- * - http://localhost:3000/test-direct?session=ao-20&fullscreen=true
+ * - http://localhost:3000/test-direct?session=cahi-20
+ * - http://localhost:3000/test-direct?session=cahi-20&fullscreen=true
  *
  * This uses native xterm.js with registered XDA handler,
  * which should enable clipboard (OSC 52) in tmux without
@@ -30,7 +30,7 @@ export const dynamic = "force-dynamic";
 function TestDirectPageContent() {
   const searchParams = useSearchParams();
   const startFullscreen = searchParams.get("fullscreen") === "true";
-  const sessionId = searchParams.get("session") || "ao-orchestrator";
+  const sessionId = searchParams.get("session") || "cahi-orchestrator";
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-8">
       <div className="mx-auto max-w-7xl">

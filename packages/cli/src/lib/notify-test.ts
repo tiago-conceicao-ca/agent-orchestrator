@@ -85,8 +85,8 @@ const DEMO_PR_CONTEXT: NotificationEventContext = {
   pr: {
     number: 1579,
     url: DEMO_PR_URL,
-    title: "Normalize AO notifier payloads",
-    branch: "ao/demo-notifier-harness",
+    title: "Normalize CAHI notifier payloads",
+    branch: "cahi/demo-notifier-harness",
     baseBranch: "main",
     owner: "ComposioHQ",
     repo: "cahi",
@@ -96,18 +96,18 @@ const DEMO_PR_CONTEXT: NotificationEventContext = {
     {
       number: 1579,
       url: DEMO_PR_URL,
-      title: "Normalize AO notifier payloads",
-      branch: "ao/demo-notifier-harness",
+      title: "Normalize CAHI notifier payloads",
+      branch: "cahi/demo-notifier-harness",
       baseBranch: "main",
       owner: "ComposioHQ",
       repo: "cahi",
       isDraft: false,
     },
   ],
-  issueId: "AO-1579",
-  issueTitle: "Make AO notification payloads API-grade",
-  summary: "Normalize AO notifier payloads",
-  branch: "ao/demo-notifier-harness",
+  issueId: "CAHI-1579",
+  issueTitle: "Make CAHI notification payloads API-grade",
+  summary: "Normalize CAHI notifier payloads",
+  branch: "cahi/demo-notifier-harness",
 };
 
 const DEMO_SYSTEM_CONTEXT: NotificationEventContext = {
@@ -115,7 +115,7 @@ const DEMO_SYSTEM_CONTEXT: NotificationEventContext = {
   prs: [],
   issueId: null,
   issueTitle: null,
-  summary: "AO notification delivery smoke test",
+  summary: "CAHI notification delivery smoke test",
   branch: null,
 };
 
@@ -140,7 +140,7 @@ const DEMO_TEMPLATES: Record<NotifyTestTemplateName, NotifyTemplate> = {
     priority: "info",
     sessionId: "notify-demo",
     projectId: "demo",
-    message: "Test notification from ao notify test",
+    message: "Test notification from cahi notify test",
     data: buildReactionNotificationData({
       eventType: "reaction.triggered",
       sessionId: "notify-demo",
@@ -250,7 +250,7 @@ const DEMO_TEMPLATES: Record<NotifyTestTemplateName, NotifyTemplate> = {
         ciStatus: "passing",
         reviewDecision: "approved",
         mergeable: true,
-        title: "Normalize AO notifier payloads",
+        title: "Normalize CAHI notifier payloads",
         hasConflicts: false,
         isBehind: false,
       },
@@ -274,7 +274,7 @@ const DEMO_TEMPLATES: Record<NotifyTestTemplateName, NotifyTemplate> = {
         ciStatus: "passing",
         reviewDecision: "approved",
         mergeable: true,
-        title: "Normalize AO notifier payloads",
+        title: "Normalize CAHI notifier payloads",
         hasConflicts: false,
         isBehind: false,
       },

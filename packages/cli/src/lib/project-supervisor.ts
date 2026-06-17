@@ -35,11 +35,11 @@ interface LoadedSupervisorConfig {
 export interface ReconcileProjectSupervisorOptions {
   intervalMs?: number;
   /**
-   * Resolved config path from the caller (typically `ao start`). When the
+   * Resolved config path from the caller (typically `cahi start`). When the
    * global config is missing, this is used as the explicit local-fallback
    * source. Without it the supervisor would fall back to a cwd-walk via
-   * bare `loadConfig()`, which misses configs in `ao start <url>` /
-   * `ao start <path>` first-run flows — there the resolved config can
+   * bare `loadConfig()`, which misses configs in `cahi start <url>` /
+   * `cahi start <path>` first-run flows — there the resolved config can
    * live under the clone/target path while the daemon's cwd is somewhere
    * else. A bare cwd-walk in that case throws ConfigNotFoundError, which
    * `run()` silently swallows, leaving `running.projects` empty.
@@ -204,7 +204,7 @@ export async function startProjectSupervisor(
         } catch (error) {
           if (isMissingConfigError(error)) return;
           if (!runOptions.swallowErrors) throw error;
-          // Best-effort background loop: transient config/state errors should not crash ao start.
+          // Best-effort background loop: transient config/state errors should not crash cahi start.
         }
       } while (pending && !stopped);
     } finally {

@@ -46,14 +46,14 @@ describe("preflight.checkPort", () => {
 });
 
 describe("preflight.checkBuilt", () => {
-  it("passes when ao-core and dist exist at webDir level (pnpm layout)", async () => {
-    // findPackageUp finds ao-core on first check (pnpm symlink in webDir/node_modules)
+  it("passes when cahi-core and dist exist at webDir level (pnpm layout)", async () => {
+    // findPackageUp finds cahi-core on first check (pnpm symlink in webDir/node_modules)
     mockExistsSync.mockReturnValue(true);
     await expect(preflight.checkBuilt("/web")).resolves.toBeUndefined();
     expect(mockExistsSync).toHaveBeenCalled();
   });
 
-  it("finds ao-core when hoisted one level up (npm global install layout)", async () => {
+  it("finds cahi-core when hoisted one level up (npm global install layout)", async () => {
     // /web/node_modules/@contaazul/cahi-core     — miss
     // /node_modules/@contaazul/cahi-core         — hit
     // /node_modules/@contaazul/cahi-core/dist/index.js — exists
@@ -67,22 +67,22 @@ describe("preflight.checkBuilt", () => {
     await expect(preflight.checkBuilt("/web")).resolves.toBeUndefined();
   });
 
-  it("throws npm hint when ao-core not found in global install", async () => {
+  it("throws npm hint when cahi-core not found in global install", async () => {
     mockExistsSync.mockReturnValue(false);
     await expect(
       preflight.checkBuilt("/usr/local/lib/node_modules/@contaazul/cahi-web"),
     ).rejects.toThrow("npm install -g @contaazul/cahi@latest");
   });
 
-  it("throws pnpm hint when ao-core not found in monorepo", async () => {
+  it("throws pnpm hint when cahi-core not found in monorepo", async () => {
     mockExistsSync.mockReturnValue(false);
     await expect(
       preflight.checkBuilt("/home/user/cahi/packages/web"),
     ).rejects.toThrow("pnpm install && pnpm build");
   });
 
-  it("throws 'pnpm build' when ao-core exists but dist is missing", async () => {
-    // findPackageUp finds ao-core, but dist/index.js is missing
+  it("throws 'pnpm build' when cahi-core exists but dist is missing", async () => {
+    // findPackageUp finds cahi-core, but dist/index.js is missing
     mockExistsSync
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(false);
@@ -92,7 +92,7 @@ describe("preflight.checkBuilt", () => {
   });
 
   it("throws when web production artifacts are missing", async () => {
-    // findPackageUp finds ao-core, dist/index.js exists, but .next/BUILD_ID missing
+    // findPackageUp finds cahi-core, dist/index.js exists, but .next/BUILD_ID missing
     mockExistsSync
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(true)
@@ -103,7 +103,7 @@ describe("preflight.checkBuilt", () => {
   });
 
   it("throws npm hint when web artifacts missing in global install", async () => {
-    // ao-core found at first check, dist exists, but .next/BUILD_ID missing
+    // cahi-core found at first check, dist exists, but .next/BUILD_ID missing
     mockExistsSync
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(true)
@@ -113,8 +113,8 @@ describe("preflight.checkBuilt", () => {
     ).rejects.toThrow("npm install -g @contaazul/cahi@latest");
   });
 
-  it("throws npm hint when ao-core dist is missing in global install", async () => {
-    // ao-core found, but dist/index.js missing
+  it("throws npm hint when cahi-core dist is missing in global install", async () => {
+    // cahi-core found, but dist/index.js missing
     mockExistsSync
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(false);

@@ -122,7 +122,7 @@ function openDb(): BetterSqlite3Database {
     _ftsEnabled = false;
     // eslint-disable-next-line no-console
     console.warn(
-      "[ao] activity-events FTS unavailable — writes will continue and search will use a bounded LIKE fallback:",
+      "[cahi] activity-events FTS unavailable — writes will continue and search will use a bounded LIKE fallback:",
       err instanceof Error ? err.message : String(err),
     );
   }
@@ -144,7 +144,7 @@ export function isActivityEventsFtsEnabled(): boolean {
  *
  * On Windows the SQLite handle holds an exclusive file lock; without an
  * explicit close, callers cannot remove `activity-events.db` (or its parent
- * directory) until the process exits. Tests that recreate the AO base dir
+ * directory) until the process exits. Tests that recreate the CAHI base dir
  * across runs must call this before `rmSync`.
  */
 export function closeDb(): void {
@@ -179,9 +179,9 @@ function firstErrorLine(err: unknown): string {
 
 export function formatActivityEventsDbUnavailableWarning(err: unknown): string {
   if (isMissingBetterSqlite3Binding(err)) {
-    return `[ao] activity-events disabled: better-sqlite3 not compiled for Node ${process.version} (ABI v${process.versions.modules}). Run \`pnpm rebuild better-sqlite3\` or use a supported Node version.`;
+    return `[cahi] activity-events disabled: better-sqlite3 not compiled for Node ${process.version} (ABI v${process.versions.modules}). Run \`pnpm rebuild better-sqlite3\` or use a supported Node version.`;
   }
-  return `[ao] activity-events disabled: better-sqlite3 failed to load: ${firstErrorLine(err)}`;
+  return `[cahi] activity-events disabled: better-sqlite3 failed to load: ${firstErrorLine(err)}`;
 }
 
 export function emitActivityEventsDbUnavailableWarning(err: unknown): void {

@@ -21,8 +21,8 @@ describe("/api/filesystem/browse", () => {
     originalHome = process.env["HOME"];
     originalUserProfile = process.env["USERPROFILE"];
 
-    homeDir = mkdtempSync(path.join(tmpdir(), "ao-home-"));
-    outsideDir = mkdtempSync(path.join(tmpdir(), "ao-outside-"));
+    homeDir = mkdtempSync(path.join(tmpdir(), "cahi-home-"));
+    outsideDir = mkdtempSync(path.join(tmpdir(), "cahi-outside-"));
     process.env["HOME"] = homeDir;
     // node's os.homedir() reads USERPROFILE on Windows (not HOME), so the
     // override must cover both for the tests to see the temp HOME.

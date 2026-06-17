@@ -1,7 +1,7 @@
 /**
  * OpenClaw gateway probing utilities.
  *
- * Used by `ao setup openclaw` and future TypeScript-based doctor checks.
+ * Used by `cahi setup openclaw` and future TypeScript-based doctor checks.
  * Probes the OpenClaw gateway for reachability and validates auth tokens.
  */
 
@@ -126,9 +126,9 @@ export async function validateToken(
   const hooksUrl = url.includes(HOOKS_PATH) ? url : `${url.replace(/\/+$/, "")}${HOOKS_PATH}`;
 
   const payload = {
-    message: "[AO Setup] Connection test — you can ignore this message.",
-    name: "AO",
-    sessionKey: "hook:ao:setup-test",
+    message: "[CAHI Setup] Connection test — you can ignore this message.",
+    name: "CAHI",
+    sessionKey: "hook:cahi:setup-test",
     wakeMode: "now",
     deliver: false,
   };

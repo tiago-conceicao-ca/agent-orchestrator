@@ -16,9 +16,9 @@ let dataDir: string;
 let sessionId: string;
 
 beforeEach(() => {
-  dataDir = join(tmpdir(), `ao-test-agent-report-events-${randomUUID()}`);
+  dataDir = join(tmpdir(), `cahi-test-agent-report-events-${randomUUID()}`);
   mkdirSync(dataDir, { recursive: true });
-  sessionId = "ao-1";
+  sessionId = "cahi-1";
   vi.mocked(recordActivityEvent).mockClear();
 });
 

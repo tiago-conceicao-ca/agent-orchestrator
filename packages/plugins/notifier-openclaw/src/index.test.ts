@@ -16,8 +16,8 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
     id: "evt-1",
     type: "reaction.escalated",
     priority: "urgent",
-    sessionId: "ao-5",
-    projectId: "ao",
+    sessionId: "cahi-5",
+    projectId: "cahi",
     timestamp: new Date("2026-03-08T12:00:00Z"),
     message: "Reaction escalated after retries",
     data: { attempts: 5, reason: "ci_failed" },
@@ -29,8 +29,8 @@ const prContext: NotificationEventContext = {
   pr: {
     number: 1579,
     url: "https://github.com/contaazul/cahi/pull/1579",
-    title: "Normalize AO notifier payloads",
-    branch: "ao/demo-notifier-harness",
+    title: "Normalize CAHI notifier payloads",
+    branch: "cahi/demo-notifier-harness",
     baseBranch: "main",
     owner: "ComposioHQ",
     repo: "cahi",
@@ -40,18 +40,18 @@ const prContext: NotificationEventContext = {
     {
       number: 1579,
       url: "https://github.com/contaazul/cahi/pull/1579",
-      title: "Normalize AO notifier payloads",
-      branch: "ao/demo-notifier-harness",
+      title: "Normalize CAHI notifier payloads",
+      branch: "cahi/demo-notifier-harness",
       baseBranch: "main",
       owner: "ComposioHQ",
       repo: "cahi",
       isDraft: false,
     },
   ],
-  issueId: "AO-1579",
-  issueTitle: "Make AO notification payloads API-grade",
-  summary: "Normalize AO notifier payloads",
-  branch: "ao/demo-notifier-harness",
+  issueId: "CAHI-1579",
+  issueTitle: "Make CAHI notification payloads API-grade",
+  summary: "Normalize CAHI notifier payloads",
+  branch: "cahi/demo-notifier-harness",
 };
 
 describe("notifier-openclaw", () => {
@@ -135,11 +135,11 @@ describe("notifier-openclaw", () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal("fetch", fetchMock);
 
-    const notifier = create({ token: "tok", sessionKeyPrefix: "hook:ao:" });
-    await notifier.notify(makeEvent({ sessionId: "ao-12" }));
+    const notifier = create({ token: "tok", sessionKeyPrefix: "hook:cahi:" });
+    await notifier.notify(makeEvent({ sessionId: "cahi-12" }));
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sessionKey).toBe("hook:ao:ao-12");
+    expect(body.sessionKey).toBe("hook:cahi:cahi-12");
   });
 
   it("sanitizes invalid characters in session id", async () => {
@@ -147,10 +147,10 @@ describe("notifier-openclaw", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const notifier = create({ token: "tok" });
-    await notifier.notify(makeEvent({ sessionId: "ao/12?x" }));
+    await notifier.notify(makeEvent({ sessionId: "cahi/12?x" }));
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sessionKey).toBe("hook:ao:ao-12-x");
+    expect(body.sessionKey).toBe("hook:cahi:cahi-12-x");
   });
 
   it("notifyWithActions appends action links", async () => {
@@ -218,10 +218,10 @@ describe("notifier-openclaw", () => {
     );
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.message).toContain("**AO ACTION** `ci.failing`");
+    expect(body.message).toContain("**CAHI ACTION** `ci.failing`");
     expect(body.message).toContain("**Pull Request**");
     expect(body.message).toContain(
-      "[#1579 - Normalize AO notifier payloads](https://github.com/contaazul/cahi/pull/1579)",
+      "[#1579 - Normalize CAHI notifier payloads](https://github.com/contaazul/cahi/pull/1579)",
     );
     expect(body.message).toContain("**Checks**");
     expect(body.message).toContain(
@@ -254,7 +254,7 @@ describe("notifier-openclaw", () => {
             ciStatus: "passing",
             reviewDecision: "approved",
             mergeable: true,
-            title: "Normalize AO notifier payloads",
+            title: "Normalize CAHI notifier payloads",
             hasConflicts: false,
             isBehind: false,
           },
@@ -277,10 +277,10 @@ describe("notifier-openclaw", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const notifier = create({ token: "tok" });
-    await notifier.post!("ready", { sessionId: "ao-77" });
+    await notifier.post!("ready", { sessionId: "cahi-77" });
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sessionKey).toBe("hook:ao:ao-77");
+    expect(body.sessionKey).toBe("hook:cahi:cahi-77");
     expect(body.message).toBe("ready");
   });
 
@@ -327,7 +327,7 @@ describe("notifier-openclaw", () => {
 
     await promise;
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Retry 1/1 for session=ao-5 after HTTP 503"),
+      expect.stringContaining("Retry 1/1 for session=cahi-5 after HTTP 503"),
     );
   });
 

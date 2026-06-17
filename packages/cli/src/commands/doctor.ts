@@ -241,7 +241,7 @@ async function checkOpenClawNotifier(
   const url =
     (typeof openclawConfig["url"] === "string" ? openclawConfig["url"] : undefined) ??
     "http://127.0.0.1:18789";
-  // Resolve ${ENV_VAR} placeholders written by `ao setup openclaw` — the config
+  // Resolve ${ENV_VAR} placeholders written by `cahi setup openclaw` — the config
   // stores the literal string "${OPENCLAW_HOOKS_TOKEN}" which is truthy but wrong.
   const rawToken =
     typeof openclawConfig["token"] === "string" ? openclawConfig["token"] : undefined;
@@ -382,7 +382,7 @@ function checkVersionFreshness(): void {
   const cached = readCachedUpdateInfo(installMethod);
 
   if (!cached) {
-    pass(`ao v${current} installed (run any ao command to check for updates)`);
+    pass(`cahi v${current} installed (run any cahi command to check for updates)`);
     return;
   }
 
@@ -393,9 +393,9 @@ function checkVersionFreshness(): void {
 
   if (isOutdated) {
     const latest = installMethod === "git" ? cached.latestVersion : `v${cached.latestVersion}`;
-    warn(`ao v${current} is outdated (latest: ${latest}). Run: ${getUpdateCommand(installMethod)}`);
+    warn(`cahi v${current} is outdated (latest: ${latest}). Run: ${getUpdateCommand(installMethod)}`);
   } else {
-    pass(`ao v${current} is the latest version`);
+    pass(`cahi v${current} is the latest version`);
   }
 }
 

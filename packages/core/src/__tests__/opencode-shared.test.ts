@@ -26,7 +26,7 @@ describe("opencode-shared", () => {
   });
 
   describe("getOpenCodeTmpDir / ensureOpenCodeTmpDir", () => {
-    it("lives under the AO base dir, not the system /tmp", () => {
+    it("lives under the CAHI base dir, not the system /tmp", () => {
       const dir = getOpenCodeTmpDir();
       expect(dir).toMatch(/\.cahi[\\/]\.bun-tmp$/);
       expect(dir.startsWith("/tmp")).toBe(false);
@@ -40,7 +40,7 @@ describe("opencode-shared", () => {
   });
 
   describe("getOpenCodeChildEnv", () => {
-    it("sets TMPDIR/TMP/TEMP to the AO-owned dir", () => {
+    it("sets TMPDIR/TMP/TEMP to the CAHI-owned dir", () => {
       const env = getOpenCodeChildEnv();
       const dir = getOpenCodeTmpDir();
       expect(env["TMPDIR"]).toBe(dir);
@@ -48,7 +48,7 @@ describe("opencode-shared", () => {
       expect(env["TEMP"]).toBe(dir);
     });
 
-    it("merges extra env vars on top, but keeps TMPDIR pointed at AO dir", () => {
+    it("merges extra env vars on top, but keeps TMPDIR pointed at CAHI dir", () => {
       const env = getOpenCodeChildEnv({ FOO: "bar" });
       expect(env["FOO"]).toBe("bar");
       expect(env["TMPDIR"]).toBe(getOpenCodeTmpDir());

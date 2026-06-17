@@ -43,7 +43,7 @@ const TASK_STALL_THRESHOLD_MS =
 const SDLC_MAX_CONCURRENT = Number(process.env.CAHI_SDLC_MAX_CONCURRENT) || 3;
 
 /**
- * Map an AO session's terminal state to the engine's done/failed outcome.
+ * Map an CAHI session's terminal state to the engine's done/failed outcome.
  *
  * A successful agent that has OPENED a PR (CI green/pending) is "done" — a merge
  * is NOT required. Only a still-working session with no PR yet keeps polling.
@@ -191,7 +191,7 @@ export async function buildWebSdlcEngine(
       }),
     },
     gates: {
-      // Run the tactical lens as a real, interactive AO worker session (visible
+      // Run the tactical lens as a real, interactive CAHI worker session (visible
       // and attachable on the board) instead of a headless `claude -p`. The
       // session writes its verdict JSON to a sentinel file the runner reads.
       tactical: makeLensGate("tactical", loadLensPrompt("tactical"), makeSessionLensRunner(sessionSpawn)),

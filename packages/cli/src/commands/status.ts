@@ -381,7 +381,7 @@ function printReviewStatus(summary: ProjectReviewStatus): void {
   if (hiddenCount > 0) {
     console.log(
       chalk.dim(
-        `    ${hiddenCount} more review run${hiddenCount !== 1 ? "s" : ""}. Use \`ao review list ${summary.projectId}\`.`,
+        `    ${hiddenCount} more review run${hiddenCount !== 1 ? "s" : ""}. Use \`cahi review list ${summary.projectId}\`.`,
       ),
     );
   }
@@ -653,7 +653,7 @@ export function registerStatus(program: Command): void {
             if (unverifiedTotal > 0) {
               console.log(
                 chalk.yellow(
-                  `  ⚠ ${unverifiedTotal} issue${unverifiedTotal !== 1 ? "s" : ""} awaiting verification (use \`ao verify --list\` to see them)`,
+                  `  ⚠ ${unverifiedTotal} issue${unverifiedTotal !== 1 ? "s" : ""} awaiting verification (use \`cahi verify --list\` to see them)`,
                 ),
               );
             }

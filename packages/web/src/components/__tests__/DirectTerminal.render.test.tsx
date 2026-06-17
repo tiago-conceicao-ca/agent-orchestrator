@@ -156,7 +156,7 @@ describe("DirectTerminal render", () => {
       vi.fn(async () => ({
         ok: true,
         json: async () => ({
-          proxyWsPath: "/ao-terminal-ws",
+          proxyWsPath: "/cahi-terminal-ws",
         }),
       })),
     );
@@ -170,15 +170,15 @@ describe("DirectTerminal render", () => {
   it("renders the shared accent chrome for orchestrator terminals", async () => {
     render(
       <DirectTerminal
-        sessionId="ao-orchestrator"
-        tmuxName="ao-orchestrator"
+        sessionId="cahi-orchestrator"
+        tmuxName="cahi-orchestrator"
         variant="orchestrator"
       />,
     );
 
     // The mockup term-head shows no connection-status text — the mono session
     // id is the chrome's identity marker now.
-    await waitFor(() => expect(screen.getByText("ao-orchestrator")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("cahi-orchestrator")).toBeInTheDocument());
 
     expect(screen.queryByText("Connected")).toBeNull();
     expect(screen.queryByText("XDA")).toBeNull();
@@ -187,8 +187,8 @@ describe("DirectTerminal render", () => {
   it("keeps restart and fullscreen actions available in chromeless mode", async () => {
     render(
       <DirectTerminal
-        sessionId="ao-opencode"
-        tmuxName="ao-opencode"
+        sessionId="cahi-opencode"
+        tmuxName="cahi-opencode"
         chromeless
         isOpenCodeSession
       />,
@@ -205,8 +205,8 @@ describe("DirectTerminal render", () => {
   it("switches the terminal shell between inline and fullscreen positioning", async () => {
     const { container } = render(
       <DirectTerminal
-        sessionId="ao-orchestrator"
-        tmuxName="ao-orchestrator"
+        sessionId="cahi-orchestrator"
+        tmuxName="cahi-orchestrator"
         variant="orchestrator"
       />,
     );
@@ -235,7 +235,7 @@ describe("DirectTerminal render", () => {
 
   it("enforces a dark-mode contrast floor so low-contrast agent output stays legible", async () => {
     render(
-      <DirectTerminal sessionId="ao-orchestrator" tmuxName="ao-orchestrator" variant="orchestrator" />,
+      <DirectTerminal sessionId="cahi-orchestrator" tmuxName="cahi-orchestrator" variant="orchestrator" />,
     );
 
     // useTheme is mocked to "dark"; the terminal must enforce a contrast floor > 1
@@ -249,7 +249,7 @@ describe("DirectTerminal render", () => {
 
   it("loads the Unicode 11 addon so emoji widths match modern terminals", async () => {
     render(
-      <DirectTerminal sessionId="ao-orchestrator" tmuxName="ao-orchestrator" variant="orchestrator" />,
+      <DirectTerminal sessionId="cahi-orchestrator" tmuxName="cahi-orchestrator" variant="orchestrator" />,
     );
 
     await waitFor(() =>
@@ -261,7 +261,7 @@ describe("DirectTerminal render", () => {
 
   it("loads the WebGL renderer addon for crisp box-drawing", async () => {
     render(
-      <DirectTerminal sessionId="ao-orchestrator" tmuxName="ao-orchestrator" variant="orchestrator" />,
+      <DirectTerminal sessionId="cahi-orchestrator" tmuxName="cahi-orchestrator" variant="orchestrator" />,
     );
 
     // The addon is loaded rAF-deferred after open(), so wait for it to attach.

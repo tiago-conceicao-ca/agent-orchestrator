@@ -29,7 +29,7 @@ let dataDir: string;
 let tempRoot: string;
 
 beforeEach(() => {
-  tempRoot = join(tmpdir(), `ao-test-agent-report-${randomUUID()}`);
+  tempRoot = join(tmpdir(), `cahi-test-agent-report-${randomUUID()}`);
   dataDir = join(tempRoot, "projects", "project-alpha", "sessions");
   mkdirSync(dataDir, { recursive: true });
   vi.mocked(recordActivityEvent).mockClear();

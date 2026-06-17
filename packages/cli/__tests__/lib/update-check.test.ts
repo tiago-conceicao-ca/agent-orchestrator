@@ -297,12 +297,12 @@ describe("update-check", () => {
       ).toBe("git");
     });
 
-    it("returns 'unknown' for a non-AO repo even when .git exists four levels up", () => {
+    it("returns 'unknown' for a non-CAHI repo even when .git exists four levels up", () => {
       mockExistsSync.mockImplementation((path: string) => {
         if (path.endsWith(".git")) return true;
         return false;
       });
-      mockReadFileSync.mockReturnValue(JSON.stringify({ name: "not-ao" }));
+      mockReadFileSync.mockReturnValue(JSON.stringify({ name: "not-cahi" }));
 
       expect(
         classifyInstallPath("/home/user/other-monorepo/packages/cli/src/lib/update-check.ts"),
@@ -342,7 +342,7 @@ describe("update-check", () => {
       expect(version).toMatch(/^\d+\.\d+\.\d+/);
     });
 
-    it("uses the core-installed AO version when it is available", () => {
+    it("uses the core-installed CAHI version when it is available", () => {
       mockGetInstalledAoVersion.mockReturnValue("0.9.3");
       mockGetCliVersion.mockReturnValue("0.0.0");
 
@@ -362,7 +362,7 @@ describe("update-check", () => {
   // -----------------------------------------------------------------------
 
   describe("getUpdateCommand", () => {
-    it("returns 'ao update' for git installs", () => {
+    it("returns 'cahi update' for git installs", () => {
       expect(getUpdateCommand("git")).toBe("cahi update");
     });
 
@@ -389,7 +389,7 @@ describe("update-check", () => {
       process.env["XDG_CACHE_HOME"] = "/custom/cache";
 
       const dir = getCacheDir();
-      expect(dir).toMatch(/^[\\/]custom[\\/]cache[\\/]ao$/);
+      expect(dir).toMatch(/^[\\/]custom[\\/]cache[\\/]cahi$/);
 
       if (origXdg !== undefined) process.env["XDG_CACHE_HOME"] = origXdg;
       else delete process.env["XDG_CACHE_HOME"];
@@ -401,7 +401,7 @@ describe("update-check", () => {
 
       const dir = getCacheDir();
       expect(dir).toContain(".cache");
-      expect(dir).toMatch(/[\\/]ao$/);
+      expect(dir).toMatch(/[\\/]cahi$/);
 
       if (origXdg !== undefined) process.env["XDG_CACHE_HOME"] = origXdg;
     });
@@ -561,7 +561,7 @@ describe("update-check", () => {
         currentVersionAtCheck: "0.2.2",
       });
 
-      expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("ao"), {
+      expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining("cahi"), {
         recursive: true,
       });
       expect(mockWriteFileSync).toHaveBeenCalledTimes(1);
@@ -893,7 +893,7 @@ describe("update-check", () => {
             channel: "nightly", // matches the suite-level beforeEach
           });
         }
-        return JSON.stringify({ name: "not-ao" });
+        return JSON.stringify({ name: "not-cahi" });
       });
 
       const info = await checkForUpdate({ installMethod: "npm-global" });
@@ -908,7 +908,7 @@ describe("update-check", () => {
       mockGlobalConfig.value = { updateChannel: "stable" };
       mockReadFileSync.mockImplementation((path: string) => {
         if (path.endsWith("update-check.json")) throw new Error("ENOENT");
-        return JSON.stringify({ name: "not-ao" });
+        return JSON.stringify({ name: "not-cahi" });
       });
       mockExistsSync.mockReturnValue(false);
       mockFetch.mockResolvedValue({
@@ -926,7 +926,7 @@ describe("update-check", () => {
       mockGlobalConfig.value = { updateChannel: "stable" };
       mockReadFileSync.mockImplementation((path: string) => {
         if (path.endsWith("update-check.json")) throw new Error("ENOENT");
-        return JSON.stringify({ name: "not-ao" });
+        return JSON.stringify({ name: "not-cahi" });
       });
       mockFetch.mockResolvedValue({
         ok: true,
@@ -1018,7 +1018,7 @@ describe("update-check", () => {
       delete process.env["CI"];
       delete process.env["AGENT_ORCHESTRATOR_CI"];
       delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
-      process.argv = ["node", "ao", "start"];
+      process.argv = ["node", "cahi", "start"];
     });
 
     afterEach(() => {
@@ -1182,7 +1182,7 @@ describe("update-check", () => {
     it.each(["update", "doctor", "--version", "-V", "--help", "-h"])(
       "does not print when argv includes '%s'",
       (arg) => {
-        process.argv = ["node", "ao", arg];
+        process.argv = ["node", "cahi", arg];
         maybeShowUpdateNotice();
         expect(stderrSpy).not.toHaveBeenCalled();
       },
@@ -1276,13 +1276,13 @@ describe("update-check", () => {
       ).toBe("bun-global");
     });
 
-    it("returns 'homebrew' for /Cellar/ao/ paths even when nested under lib/node_modules", () => {
+    it("returns 'homebrew' for /Cellar/cahi/ paths even when nested under lib/node_modules", () => {
       // Brew installs nest the npm tree inside the formula's libexec dir, so
       // the path also matches /lib/node_modules/. The Cellar check must run
       // FIRST or we'd misclassify brew installs as npm-global.
       expect(
         classifyInstallPath(
-          "/usr/local/Cellar/ao/0.5.0/libexec/lib/node_modules/@contaazul/cahi-cli/dist/lib/update-check.js",
+          "/usr/local/Cellar/cahi/0.5.0/libexec/lib/node_modules/@contaazul/cahi-cli/dist/lib/update-check.js",
         ),
       ).toBe("homebrew");
     });
@@ -1301,8 +1301,8 @@ describe("update-check", () => {
     });
 
     it("returns the brew upgrade notice for homebrew installs", () => {
-      expect(getUpdateCommand("homebrew", "stable")).toBe("brew upgrade ao");
-      expect(getUpdateCommand("homebrew", "nightly")).toBe("brew upgrade ao");
+      expect(getUpdateCommand("homebrew", "stable")).toBe("brew upgrade cahi");
+      expect(getUpdateCommand("homebrew", "nightly")).toBe("brew upgrade cahi");
     });
   });
 
@@ -1380,7 +1380,7 @@ describe("update-check", () => {
       delete process.env["AGENT_ORCHESTRATOR_CI"];
       delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       const origArgv = process.argv;
-      process.argv = ["node", "ao", "start"];
+      process.argv = ["node", "cahi", "start"];
       mockReadFileSync.mockReturnValue(
         JSON.stringify({
           latestVersion: "99.0.0",

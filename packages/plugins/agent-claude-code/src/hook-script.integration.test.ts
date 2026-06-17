@@ -15,7 +15,7 @@ let testDir: string;
 let hookScriptPath: string;
 
 beforeAll(() => {
-  testDir = mkdtempSync(join(tmpdir(), "ao-hook-test-"));
+  testDir = mkdtempSync(join(tmpdir(), "cahi-hook-test-"));
   hookScriptPath = join(testDir, "metadata-updater.sh");
   writeFileSync(hookScriptPath, METADATA_UPDATER_SCRIPT, { mode: 0o755 });
 });

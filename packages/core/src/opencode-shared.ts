@@ -7,7 +7,7 @@
  *    Bun-bundled binaries leak `.so`/`.dylib` files into the system temp
  *    directory and never unlink them. Rather than sweeping all of `/tmp`
  *    with a regex (which would touch other users' or other apps' Bun
- *    artifacts), we point every `opencode` child at an AO-owned temp dir
+ *    artifacts), we point every `opencode` child at an CAHI-owned temp dir
  *    via `TMPDIR`. The cli-side janitor then sweeps only that directory.
  *
  * 2. **Single shared cache for `opencode session list`.**
@@ -29,13 +29,13 @@ import { asValidOpenCodeSessionId } from "./opencode-session-id.js";
 const execFileAsync = promisify(execFile);
 
 // -----------------------------------------------------------------------------
-// AO-owned temp dir for opencode children
+// CAHI-owned temp dir for opencode children
 // -----------------------------------------------------------------------------
 
 let cachedOpenCodeTmpDir: string | null = null;
 
 /**
- * Path that opencode children should treat as `TMPDIR`. Lives under the AO
+ * Path that opencode children should treat as `TMPDIR`. Lives under the CAHI
  * base dir so a stray sweep cannot touch unrelated files.
  */
 export function getOpenCodeTmpDir(): string {
@@ -45,7 +45,7 @@ export function getOpenCodeTmpDir(): string {
 }
 
 /**
- * Best-effort: create the AO-owned temp dir. Spawn paths call this before
+ * Best-effort: create the CAHI-owned temp dir. Spawn paths call this before
  * launching opencode so the child sees a real directory at `TMPDIR`.
  *
  * Synchronous because the spawn helpers are themselves synchronous in their

@@ -869,7 +869,7 @@ describe("report_watcher.triggered", () => {
 
   it("REGRESSION: summary must not interpolate auditResult.message (report.note credential leak)", async () => {
     // `auditResult.message` for the agent_needs_input trigger embeds the
-    // free-form `report.note` supplied via `ao report --note "..."`. Since
+    // free-form `report.note` supplied via `cahi report --note "..."`. Since
     // sanitizeSummary only truncates and FTS5 indexes summary, a note that
     // happens to contain a credential URL becomes persistently searchable
     // from the DB. Summary must stay generic; the message stays in `data`

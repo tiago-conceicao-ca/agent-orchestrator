@@ -31,7 +31,7 @@ describe("activity events: config loading", () => {
   beforeEach(() => {
     tempRoot = join(
       tmpdir(),
-      `ao-config-events-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      `cahi-config-events-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     );
     configPath = join(tempRoot, ".cahi", "config.yaml");
     mkdirSync(tempRoot, { recursive: true });

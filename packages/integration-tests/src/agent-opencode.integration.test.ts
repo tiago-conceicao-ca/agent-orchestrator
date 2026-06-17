@@ -34,7 +34,7 @@ const execFileAsync = promisify(execFile);
 // Prerequisites
 // ---------------------------------------------------------------------------
 
-const SESSION_PREFIX = "ao-inttest-opencode-";
+const SESSION_PREFIX = "cahi-inttest-opencode-";
 
 async function findOpencodeBinary(): Promise<string | null> {
   try {
@@ -47,7 +47,7 @@ async function findOpencodeBinary(): Promise<string | null> {
 
 /** Verify opencode can start (has API key, binary works). */
 async function canOpencodeRun(bin: string): Promise<boolean> {
-  const probe = "ao-inttest-opencode-probe";
+  const probe = "cahi-inttest-opencode-probe";
   try {
     await killSessionsByPrefix(probe);
     await createSession(probe, `${bin} run 'Say hello'`, tmpdir());
@@ -116,7 +116,7 @@ describe.skipIf(!canRun)("agent-opencode (integration)", () => {
 
   beforeAll(async () => {
     await killSessionsByPrefix(SESSION_PREFIX);
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-inttest-opencode-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-inttest-opencode-"));
 
     const cmd = `${opencodeBin} run 'Say hello and nothing else'`;
     await createSession(sessionName, cmd, tmpDir);
@@ -207,7 +207,7 @@ describe("getLaunchCommand (integration)", () => {
     });
     expect(cmd).toContain("--agent 'sisyphus'");
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:test-1' --agent 'sisyphus' --command true",
+      "opencode run --format json --title 'CAHI:test-1' --agent 'sisyphus' --command true",
     );
     expect(cmd).toContain("'fix the bug'");
     expect(cmd).toContain("exec opencode --session \"$SES_ID\" --prompt 'fix the bug'");
@@ -220,7 +220,7 @@ describe("getLaunchCommand (integration)", () => {
       systemPrompt: "You are an orchestrator",
       prompt: "do the task",
     });
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain(`exec opencode --session "$SES_ID" --prompt 'do the task'`);
   });
 
@@ -230,7 +230,7 @@ describe("getLaunchCommand (integration)", () => {
       systemPromptFile: "/tmp/orchestrator-prompt.md",
       prompt: "do the task",
     });
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain(`exec opencode --session "$SES_ID" --prompt 'do the task'`);
   });
 
@@ -253,7 +253,7 @@ describe("getLaunchCommand (integration)", () => {
     });
     expect(cmd).toContain("--agent 'oracle'");
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:test-1' --agent 'oracle' --model 'gpt-5.2' --command true",
+      "opencode run --format json --title 'CAHI:test-1' --agent 'oracle' --model 'gpt-5.2' --command true",
     );
     expect(cmd).toContain(
       `exec opencode --session "$SES_ID" --prompt 'review this code' --agent 'oracle' --model 'gpt-5.2'`,
@@ -278,7 +278,7 @@ describe("getLaunchCommand (integration)", () => {
       systemPromptFile: "/tmp/orchestrator-prompt.md",
     });
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:test-orchestrator' --command true",
+      "opencode run --format json --title 'CAHI:test-orchestrator' --command true",
     );
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
   });
@@ -304,7 +304,7 @@ describe("getLaunchCommand (integration)", () => {
       ...baseConfig,
       prompt: "fix  and `backtick` and 'quote'",
     });
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain("fix  and `backtick`");
     expect(cmd).toContain('exec opencode --session "$SES_ID" --prompt');
   });
@@ -314,10 +314,10 @@ describe("getLaunchCommand (integration)", () => {
       ...baseConfig,
       prompt: "",
     });
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).toContain("opencode session list --format json");
-    expect(cmd).toContain("AO:test-1");
+    expect(cmd).toContain("CAHI:test-1");
   });
 
   it("handles prompt with newlines", () => {
@@ -325,7 +325,7 @@ describe("getLaunchCommand (integration)", () => {
       ...baseConfig,
       prompt: "line1\nline2",
     });
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain('exec opencode --session "$SES_ID" --prompt \'line1');
   });
 
@@ -334,8 +334,8 @@ describe("getLaunchCommand (integration)", () => {
       ...baseConfig,
       prompt: "start work",
     });
-    expect(cmd).toContain("--title 'AO:test-1'");
-    expect(cmd).toContain("opencode run --format json --title 'AO:test-1' --command true");
+    expect(cmd).toContain("--title 'CAHI:test-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:test-1' --command true");
     expect(cmd).toContain("exec opencode --session \"$SES_ID\" --prompt 'start work'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
   });

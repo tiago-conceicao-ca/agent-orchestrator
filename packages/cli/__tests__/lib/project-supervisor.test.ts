@@ -410,7 +410,7 @@ describe("project-supervisor", () => {
     await reconcileProjectSupervisor({ configPath: "/repo/cahi.yaml" });
     expect(activeWorkers.has("local-only")).toBe(true);
 
-    // Tick 2: global appears (e.g. another `ao start <url>` wrote it),
+    // Tick 2: global appears (e.g. another `cahi start <url>` wrote it),
     // listing only "from-global". Source = "global" → detach pass runs.
     mockLoadConfig.mockImplementation((path?: string) => {
       if (path === "/tmp/global-config.yaml") return makeConfig(["from-global"]);

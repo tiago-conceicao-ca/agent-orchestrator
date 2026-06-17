@@ -229,7 +229,7 @@ async function runPtyHost(): Promise<void> {
     //   - isAlive() returns true (pipe connectable)
     //   - Clients can still connect and view scrollback output
     //   - The STATUS_RES reports alive:false so getActivityState sees "exited"
-    //   - ao session kill / ao stop will destroy the pipe server via MSG_KILL_REQ
+    //   - cahi session kill / cahi stop will destroy the pipe server via MSG_KILL_REQ
   });
 
   // ---------------------------------------------------------------------------

@@ -99,7 +99,7 @@ beforeEach(() => {
     "fetch",
     vi.fn(async () => ({
       ok: true,
-      json: async () => ({ proxyWsPath: "/ao-terminal-ws" }),
+      json: async () => ({ proxyWsPath: "/cahi-terminal-ws" }),
     })),
   );
 });
@@ -240,7 +240,7 @@ describe("MuxProvider connection lifecycle", () => {
     await flushInit();
 
     expect(MockWebSocket.instances.length).toBeGreaterThan(0);
-    // proxyWsPath "/ao-terminal-ws" → basePath "/ao-terminal-ws" → URL ends with /ao-terminal-ws/mux
+    // proxyWsPath "/cahi-terminal-ws" → basePath "/cahi-terminal-ws" → URL ends with /cahi-terminal-ws/mux
     expect(MockWebSocket.instances[0].url).toContain("/mux");
   });
 
@@ -824,6 +824,6 @@ describe("buildMuxWsUrl", () => {
     });
     renderHook(() => useMux(), { wrapper });
     await flushInit();
-    expect(MockWebSocket.instances[0].url).toMatch(/\/ao-terminal-mux$/);
+    expect(MockWebSocket.instances[0].url).toMatch(/\/cahi-terminal-mux$/);
   });
 });

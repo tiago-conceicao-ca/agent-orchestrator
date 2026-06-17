@@ -93,7 +93,7 @@ export interface PhaseExecutor {
   readonly id: string;
   run(ctx: PhaseContext): Promise<PhaseResult>;
   /**
-   * Optional: re-run a SINGLE task (for `ao sdlc retry`), reusing the persisted
+   * Optional: re-run a SINGLE task (for `cahi sdlc retry`), reusing the persisted
    * epic. Implemented by executors whose work is per-task (generate-backend).
    */
   runTask?(ctx: PhaseContext, taskId: string): Promise<void>;

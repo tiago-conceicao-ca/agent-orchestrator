@@ -31,7 +31,7 @@ describe("project resolver", () => {
   let originalGlobalConfig: string | undefined;
 
   beforeEach(() => {
-    tempRoot = join(tmpdir(), `ao-project-resolver-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    tempRoot = join(tmpdir(), `cahi-project-resolver-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     configPath = join(tempRoot, ".cahi", "config.yaml");
     mkdirSync(tempRoot, { recursive: true });
     originalHome = process.env["HOME"];

@@ -15,7 +15,7 @@ let configPath: string;
 let config: OrchestratorConfig;
 
 beforeEach(() => {
-  tempRoot = join(tmpdir(), `ao-observability-test-${randomUUID()}`);
+  tempRoot = join(tmpdir(), `cahi-observability-test-${randomUUID()}`);
   mkdirSync(tempRoot, { recursive: true });
   configPath = join(tempRoot, "cahi.yaml");
   writeFileSync(configPath, "projects: {}\n", "utf-8");

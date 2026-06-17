@@ -1054,7 +1054,7 @@ function createGitHubSCM(): SCM {
     },
 
     async getPendingComments(pr: PRInfo): Promise<ReviewComment[]> {
-      // 5s TTL — review threads are decision-influencing (gates whether AO
+      // 5s TTL — review threads are decision-influencing (gates whether CAHI
       // reacts to new comments). Within one poll cycle is acceptable. Note:
       // ETag does not work on /graphql per Experiment 2 (G2), so TTL is the
       // only practical lever here.

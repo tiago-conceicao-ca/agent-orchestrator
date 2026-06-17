@@ -14,7 +14,7 @@ describe("activity-events DB unavailable warning", () => {
     __resetActivityEventsDbWarningForTests();
     vi.spyOn(console, "warn").mockImplementation(() => {});
     delete process.env["CAHI_DEBUG"];
-    process.argv = ["node", "ao"];
+    process.argv = ["node", "cahi"];
   });
 
   afterEach(() => {
@@ -35,7 +35,7 @@ describe("activity-events DB unavailable warning", () => {
     );
 
     expect(message).toBe(
-      `[ao] activity-events disabled: better-sqlite3 not compiled for Node ${process.version} (ABI v${process.versions.modules}). Run \`pnpm rebuild better-sqlite3\` or use a supported Node version.`,
+      `[cahi] activity-events disabled: better-sqlite3 not compiled for Node ${process.version} (ABI v${process.versions.modules}). Run \`pnpm rebuild better-sqlite3\` or use a supported Node version.`,
     );
     expect(message).not.toContain("Tried:");
     expect(message).not.toContain("/tmp/build/Release");
@@ -61,11 +61,11 @@ describe("activity-events DB unavailable warning", () => {
       "Could not locate the bindings file. Tried:\n → /tmp/better_sqlite3.node",
     );
 
-    process.argv = ["node", "ao", "spawn", "demo"];
+    process.argv = ["node", "cahi", "spawn", "demo"];
     emitActivityEventsDbUnavailableWarning(err);
     expect(console.warn).not.toHaveBeenCalled();
 
-    process.argv = ["node", "ao", "events", "stats"];
+    process.argv = ["node", "cahi", "events", "stats"];
     emitActivityEventsDbUnavailableWarning(err);
     expect(console.warn).toHaveBeenCalledTimes(1);
   });

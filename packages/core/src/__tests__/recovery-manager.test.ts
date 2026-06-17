@@ -91,7 +91,7 @@ describe("runRecovery activity events", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-events-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-events-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");

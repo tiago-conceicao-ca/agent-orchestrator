@@ -123,7 +123,7 @@ const GLOBAL_PROJECT_ENTRY_FIELDS = new Set([
   "registeredAt",
   "displayName",
   "sessionPrefix",
-  "storageKey", // Preserved until `ao migrate-storage` strips it
+  "storageKey", // Preserved until `cahi migrate-storage` strips it
 ]);
 
 const LOCAL_CONFIG_FILENAMES = ["cahi.yaml", "cahi.yml"] as const;
@@ -159,7 +159,7 @@ export type GlobalProjectEntry = z.infer<typeof GlobalProjectEntrySchema>;
  *
  *   stable  — @latest (weekly Thursday releases). Auto-installs when run.
  *   nightly — @nightly (daily Fri–Tue cron). Auto-installs when run.
- *   manual  — no checks, no notice, no install. User runs `ao update` manually.
+ *   manual  — no checks, no notice, no install. User runs `cahi update` manually.
  */
 export const UpdateChannelSchema = z.enum(["stable", "nightly", "manual"]);
 export type UpdateChannel = z.infer<typeof UpdateChannelSchema>;
@@ -195,13 +195,13 @@ export const GlobalConfigSchema = z
      *
      * Default `manual` (resolved at read time) so users who upgrade across
      * this change keep their existing behavior — no surprise auto-installs.
-     * The onboarding flow prompts new users on first `ao start` and persists
+     * The onboarding flow prompts new users on first `cahi start` and persists
      * the answer here.
      *
      * `.catch(undefined)` makes the schema tolerant of legacy / typo'd values
      * in the on-disk config: a stray `updateChannel: foo` parses as
      * "unset" rather than failing the whole config load. The user can fix it
-     * later via `ao config set updateChannel <stable|nightly|manual>`.
+     * later via `cahi config set updateChannel <stable|nightly|manual>`.
      */
     updateChannel: UpdateChannelSchema.optional().catch(undefined),
     /** Override path-based install detection. Optional. */
@@ -815,7 +815,7 @@ export function registerProjectInGlobalConfig(
       existing?.sessionPrefix ??
       localConfig?.sessionPrefix ??
       generateSessionPrefix(basename(requestedProjectPath));
-    const source = existing?.source ?? (repoIdentity ? "ao-project-add" : "local");
+    const source = existing?.source ?? (repoIdentity ? "cahi-project-add" : "local");
     const registeredAt = existing?.registeredAt ?? Math.floor(Date.now() / 1000);
     const explicitSessionPrefix = !existing?.sessionPrefix && Boolean(localConfig?.sessionPrefix);
     const prefixOwner = findSessionPrefixOwner(
@@ -1166,7 +1166,7 @@ export function migrateToGlobalConfig(oldConfigPath: string, globalConfigPath?: 
  * Single source of truth for "what does a brand-new global config look like?"
  * — used by:
  *   - The internal initial-load path here in core (`makeEmptyGlobalConfig`).
- *   - `ao config set` (CLI) when no config file exists yet.
+ *   - `cahi config set` (CLI) when no config file exists yet.
  *   - `maybePromptForUpdateChannel` (CLI) when persisting the user's channel
  *     pick on first run.
  *
@@ -1283,7 +1283,7 @@ function readRawGlobalConfig(configPath: string): Record<string, unknown> | null
 
 function formatGlobalConfigMigrationLog(sanitization: RawGlobalConfigSanitization): string | null {
   if (sanitization.strippedProjects.length === 0) {
-    return "[ao] migrated legacy project registry fields in global config";
+    return "[cahi] migrated legacy project registry fields in global config";
   }
 
   const totalFieldCount = sanitization.strippedProjects.reduce(
@@ -1294,7 +1294,7 @@ function formatGlobalConfigMigrationLog(sanitization: RawGlobalConfigSanitizatio
     .map((project) => `${project.projectId} (${project.strippedFieldCount})`)
     .join(", ");
 
-  return `[ao] stripped ${totalFieldCount} legacy project registry fields from ${sanitization.strippedProjects.length} project${sanitization.strippedProjects.length === 1 ? "" : "s"}: ${projectSummary}`;
+  return `[cahi] stripped ${totalFieldCount} legacy project registry fields from ${sanitization.strippedProjects.length} project${sanitization.strippedProjects.length === 1 ? "" : "s"}: ${projectSummary}`;
 }
 
 function sanitizeRawGlobalProjectEntry(

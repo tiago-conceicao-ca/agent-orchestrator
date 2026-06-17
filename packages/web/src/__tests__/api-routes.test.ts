@@ -175,7 +175,7 @@ const mockRegistry: PluginRegistry = {
 };
 
 const mockConfig: OrchestratorConfig = {
-  configPath: "/tmp/ao-test/cahi.yaml",
+  configPath: "/tmp/cahi-test/cahi.yaml",
   port: 3000,
   readyThresholdMs: 300_000,
   defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },
@@ -222,7 +222,7 @@ vi.mock("@contaazul/cahi-core", async (importOriginal) => {
   return {
     ...actual,
     updateMetadata: vi.fn(),
-    getProjectSessionsDir: vi.fn(() => "/tmp/ao-test/sessions"),
+    getProjectSessionsDir: vi.fn(() => "/tmp/cahi-test/sessions"),
     readAgentReportAuditTrailAsync: vi.fn(async () => []),
   };
 });
@@ -1136,17 +1136,17 @@ describe("API Routes", () => {
       const data = await res.json();
       expect(data).toEqual({
         error: expect.stringContaining(
-          'AO found an older orchestrator workspace for "my-app" but could not safely reuse it automatically.',
+          'CAHI found an older orchestrator workspace for "my-app" but could not safely reuse it automatically.',
         ),
         code: "orchestrator_workspace_conflict",
         recovery: "reuse-or-recreate-workspace",
       });
     });
 
-    it("returns the same recovery message when a matching branch is outside AO-managed worktree directories", async () => {
+    it("returns the same recovery message when a matching branch is outside CAHI-managed worktree directories", async () => {
       (mockSessionManager.spawnOrchestrator as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
         new Error(
-          'Found existing worktree for orchestrator branch "orchestrator/my-app-orchestrator" at "/tmp/manual-worktree", but it is outside AO-managed worktree directories. Reuse it manually or remove it and try again.',
+          'Found existing worktree for orchestrator branch "orchestrator/my-app-orchestrator" at "/tmp/manual-worktree", but it is outside CAHI-managed worktree directories. Reuse it manually or remove it and try again.',
         ),
       );
 
@@ -1160,7 +1160,7 @@ describe("API Routes", () => {
       expect(res.status).toBe(409);
       const data = await res.json();
       expect(data.recovery).toBe("reuse-or-recreate-workspace");
-      expect(data.error).toContain('AO found an older orchestrator workspace for "my-app"');
+      expect(data.error).toContain('CAHI found an older orchestrator workspace for "my-app"');
     });
 
     it("calls relaunchOrchestrator instead of spawnOrchestrator when clean is true", async () => {

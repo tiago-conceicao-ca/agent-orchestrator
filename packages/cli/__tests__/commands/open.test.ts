@@ -106,7 +106,7 @@ function makeSpawnChild() {
 
 beforeEach(() => {
   mockConfigRef.current = {
-    dataDir: "/tmp/ao",
+    dataDir: "/tmp/cahi",
     worktreeDir: "/tmp/wt",
     port: 3000,
     defaults: {
@@ -324,7 +324,7 @@ describe("open command (Windows)", () => {
     mockIsWindowsRef.current = true;
   });
 
-  it("spawns Windows Terminal running `ao session attach <id>`", async () => {
+  it("spawns Windows Terminal running `cahi session attach <id>`", async () => {
     mockListRef.current = [makeSession("tr-orchestrator", "test-repo")];
 
     await program.parseAsync(["node", "test", "open", "tr-orchestrator"]);
@@ -334,7 +334,7 @@ describe("open command (Windows)", () => {
     expect(cmd).toBe("wt.exe");
     expect(args).toEqual([
       "-w", "0", "new-tab",
-      "--title", "ao:tr-orchestrator",
+      "--title", "cahi:tr-orchestrator",
       "-d", TEST_REPO_PATH,
       "cmd.exe", "/k", "cahi", "session", "attach", "tr-orchestrator",
     ]);
@@ -353,7 +353,7 @@ describe("open command (Windows)", () => {
     expect(mockSpawn).toHaveBeenCalledTimes(2);
     expect(mockSpawn.mock.calls[1][0]).toBe("cmd.exe");
     expect(mockSpawn.mock.calls[1][1]).toEqual([
-      "/c", "start", "ao:tr-orchestrator",
+      "/c", "start", "cahi:tr-orchestrator",
       "/d", TEST_REPO_PATH,
       "cmd.exe", "/k", "cahi", "session", "attach", "tr-orchestrator",
     ]);

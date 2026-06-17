@@ -33,7 +33,7 @@ vi.mock("../activity-events.js", () => ({
 let dataDir: string;
 
 beforeEach(() => {
-  dataDir = join(tmpdir(), `ao-test-metadata-${randomUUID()}`);
+  dataDir = join(tmpdir(), `cahi-test-metadata-${randomUUID()}`);
   mkdirSync(dataDir, { recursive: true });
   vi.mocked(recordActivityEvent).mockClear();
   vi.mocked(renameSync).mockClear();
@@ -370,12 +370,12 @@ describe("updateMetadata", () => {
 // `<path>.corrupt-<ts>` before rewriting so forensics survive.
 describe("mutateMetadata corrupt-file handling", () => {
   it("preserves corrupt JSON as `<path>.corrupt-<ts>` before overwriting", () => {
-    const sessionPath = join(dataDir, "ao-1.json");
+    const sessionPath = join(dataDir, "cahi-1.json");
     writeFileSync(sessionPath, "{ this is not json", "utf-8");
 
     const result = mutateMetadata(
       dataDir,
-      "ao-1",
+      "cahi-1",
       () => ({ branch: "feat/x", project: "myproject" }),
       { createIfMissing: true },
     );
@@ -385,7 +385,7 @@ describe("mutateMetadata corrupt-file handling", () => {
 
     // Forensic copy must exist with the original corrupt bytes.
     const corruptCopies = readdirSync(dataDir).filter((f) =>
-      f.startsWith("ao-1.json.corrupt-"),
+      f.startsWith("cahi-1.json.corrupt-"),
     );
     expect(corruptCopies).toHaveLength(1);
     const corruptContent = readFileSync(join(dataDir, corruptCopies[0]), "utf-8");
@@ -398,24 +398,24 @@ describe("mutateMetadata corrupt-file handling", () => {
   });
 
   it("does not create a .corrupt copy for healthy JSON", () => {
-    writeMetadata(dataDir, "ao-2", {
+    writeMetadata(dataDir, "cahi-2", {
       worktree: "/tmp/w",
       branch: "main",
       status: "working",
     });
-    mutateMetadata(dataDir, "ao-2", (existing) => ({ ...existing, summary: "hi" }));
+    mutateMetadata(dataDir, "cahi-2", (existing) => ({ ...existing, summary: "hi" }));
 
     const corruptCopies = readdirSync(dataDir).filter((f) => f.includes(".corrupt-"));
     expect(corruptCopies).toHaveLength(0);
   });
 
   it("emits metadata.corrupt_detected when JSON parse fails and file is renamed", () => {
-    const sessionPath = join(dataDir, "ao-3.json");
+    const sessionPath = join(dataDir, "cahi-3.json");
     writeFileSync(sessionPath, "{ broken json", "utf-8");
 
     const result = mutateMetadata(
       dataDir,
-      "ao-3",
+      "cahi-3",
       (existing) => ({ ...existing, branch: "feat/x" }),
       { createIfMissing: true },
     );
@@ -423,7 +423,7 @@ describe("mutateMetadata corrupt-file handling", () => {
     expect(result).not.toBeNull();
     expect(recordActivityEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        sessionId: "ao-3",
+        sessionId: "cahi-3",
         source: "session-manager",
         kind: "metadata.corrupt_detected",
         level: "error",
@@ -439,7 +439,7 @@ describe("mutateMetadata corrupt-file handling", () => {
   });
 
   it("emits a rename-failed summary when corrupt metadata cannot be renamed", () => {
-    const sessionPath = join(dataDir, "ao-rename-failed.json");
+    const sessionPath = join(dataDir, "cahi-rename-failed.json");
     writeFileSync(sessionPath, "{ broken json", "utf-8");
     vi.mocked(renameSync).mockImplementationOnce(() => {
       throw new Error("rename denied");
@@ -447,7 +447,7 @@ describe("mutateMetadata corrupt-file handling", () => {
 
     const result = mutateMetadata(
       dataDir,
-      "ao-rename-failed",
+      "cahi-rename-failed",
       (existing) => ({ ...existing, branch: "feat/x" }),
       { createIfMissing: true },
     );
@@ -458,7 +458,7 @@ describe("mutateMetadata corrupt-file handling", () => {
       .mock.calls.find((c) => c[0].kind === "metadata.corrupt_detected");
     expect(call).toBeDefined();
     expect(call![0]).toMatchObject({
-      sessionId: "ao-rename-failed",
+      sessionId: "cahi-rename-failed",
       summary: expect.stringContaining("failed to rename"),
       data: expect.objectContaining({
         renamedTo: null,
@@ -470,19 +470,19 @@ describe("mutateMetadata corrupt-file handling", () => {
   });
 
   it("uses the provided source for metadata.corrupt_detected", () => {
-    const sessionPath = join(dataDir, "ao-api-source.json");
+    const sessionPath = join(dataDir, "cahi-api-source.json");
     writeFileSync(sessionPath, "{ broken json", "utf-8");
 
     mutateMetadata(
       dataDir,
-      "ao-api-source",
+      "cahi-api-source",
       (existing) => ({ ...existing, branch: "feat/api" }),
       { createIfMissing: true, activityEventSource: "api" },
     );
 
     expect(recordActivityEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        sessionId: "ao-api-source",
+        sessionId: "cahi-api-source",
         source: "api",
         kind: "metadata.corrupt_detected",
       }),
@@ -490,7 +490,7 @@ describe("mutateMetadata corrupt-file handling", () => {
   });
 
   it("truncates contentSample to 200 chars in metadata.corrupt_detected", () => {
-    const sessionPath = join(dataDir, "ao-4.json");
+    const sessionPath = join(dataDir, "cahi-4.json");
     // 250 char garbage payload — sanitizer cap is 16KB but invariant B11 caps
     // forensic sample at 200 chars.
     const huge = "x".repeat(250);
@@ -498,7 +498,7 @@ describe("mutateMetadata corrupt-file handling", () => {
 
     mutateMetadata(
       dataDir,
-      "ao-4",
+      "cahi-4",
       (existing) => ({ ...existing, branch: "feat/y" }),
       { createIfMissing: true },
     );
@@ -513,12 +513,12 @@ describe("mutateMetadata corrupt-file handling", () => {
   });
 
   it("does not emit metadata.corrupt_detected for healthy JSON", () => {
-    writeMetadata(dataDir, "ao-5", {
+    writeMetadata(dataDir, "cahi-5", {
       worktree: "/tmp/w",
       branch: "main",
       status: "working",
     });
-    mutateMetadata(dataDir, "ao-5", (existing) => ({ ...existing, summary: "hi" }));
+    mutateMetadata(dataDir, "cahi-5", (existing) => ({ ...existing, summary: "hi" }));
 
     const corruptCalls = vi
       .mocked(recordActivityEvent)
@@ -706,7 +706,7 @@ describe("listMetadata", () => {
   });
 
   it("returns empty array when sessions dir does not exist", () => {
-    const emptyDir = join(tmpdir(), `ao-test-empty-${randomUUID()}`);
+    const emptyDir = join(tmpdir(), `cahi-test-empty-${randomUUID()}`);
     const list = listMetadata(emptyDir);
     expect(list).toEqual([]);
   });

@@ -6,7 +6,7 @@ import { join } from "node:path";
 import type * as AoCore from "@contaazul/cahi-core";
 
 // We point the shared module at a fresh temp dir per test by mocking the
-// AO base path resolver. The janitor pulls the dir from
+// CAHI base path resolver. The janitor pulls the dir from
 // @contaazul/cahi-core's getOpenCodeTmpDir.
 let mockedDir = "";
 vi.mock("@contaazul/cahi-core", async () => {
@@ -35,14 +35,14 @@ function setMtime(path: string, ageMs: number): void {
 // behavioural tests below have no work to assert against.
 describe.skipIf(process.platform === "win32")("bun-tmp-janitor", () => {
   beforeEach(() => {
-    mockedDir = mkdtempSync(join(tmpdir(), "ao-bun-janitor-test-"));
+    mockedDir = mkdtempSync(join(tmpdir(), "cahi-bun-janitor-test-"));
   });
 
   afterEach(async () => {
     await stopBunTmpJanitor();
   });
 
-  it("sweeps matching files older than ageMs in the AO-owned dir only", async () => {
+  it("sweeps matching files older than ageMs in the CAHI-owned dir only", async () => {
     const oldFile = join(mockedDir, PATTERN_NAME);
     const youngFile = join(mockedDir, ".aaaaaaaa-bbbbbbbb.so");
     const unrelated = join(mockedDir, "regular-file.txt");
@@ -69,8 +69,8 @@ describe.skipIf(process.platform === "win32")("bun-tmp-janitor", () => {
     expect(existsSync(unrelated)).toBe(true);
   });
 
-  it("treats a missing AO tmp dir as empty (no error)", async () => {
-    mockedDir = join(tmpdir(), `ao-bun-janitor-missing-${Date.now()}`);
+  it("treats a missing CAHI tmp dir as empty (no error)", async () => {
+    mockedDir = join(tmpdir(), `cahi-bun-janitor-missing-${Date.now()}`);
     expect(existsSync(mockedDir)).toBe(false);
 
     const sweeps: { removed: number; freedBytes: number; errors: number }[] = [];

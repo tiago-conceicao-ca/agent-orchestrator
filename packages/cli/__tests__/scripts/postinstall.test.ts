@@ -6,7 +6,7 @@ import {
   hasBetterSqlite3Binding,
 } from "../../../cahi/bin/postinstall.js";
 
-describe("ao postinstall better-sqlite3 native binding detection", () => {
+describe("cahi postinstall better-sqlite3 native binding detection", () => {
   const env = {
     platform: "darwin",
     arch: "arm64",

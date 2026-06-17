@@ -1,7 +1,7 @@
 /**
- * Pre-flight checks for `ao start` (port + dashboard build artifacts).
+ * Pre-flight checks for `cahi start` (port + dashboard build artifacts).
  *
- * Tool/auth checks for `ao spawn` live on each plugin's `preflight()` method.
+ * Tool/auth checks for `cahi spawn` live on each plugin's `preflight()` method.
  * Adding a new runtime/tracker/scm therefore doesn't require editing this
  * file — the plugin declares its own prereqs.
  *

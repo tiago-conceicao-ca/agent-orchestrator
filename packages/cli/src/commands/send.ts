@@ -91,7 +91,7 @@ async function sendViaTmux(tmuxTarget: string, message: string): Promise<void> {
   await sleep(200);
 
   if (message.includes("\n") || message.length > 200) {
-    const tmpFile = join(tmpdir(), `ao-send-${Date.now()}.txt`);
+    const tmpFile = join(tmpdir(), `cahi-send-${Date.now()}.txt`);
     writeFileSync(tmpFile, message);
     try {
       await exec("tmux", ["load-buffer", tmpFile]);
@@ -136,11 +136,11 @@ export function registerSend(program: Command): void {
         } = await resolveSessionContext(session);
 
         const rawMessage = await readMessageInput(opts, messageParts);
-        // Auto-prefix with the sender's session ID when ao send is invoked
-        // from inside an AO session (worker → orchestrator, orchestrator →
+        // Auto-prefix with the sender's session ID when cahi send is invoked
+        // from inside an CAHI session (worker → orchestrator, orchestrator →
         // worker, worker → worker). The receiver gets the message as raw
         // terminal input with no `from:` metadata, so the prefix is the only
-        // way to identify who's writing. Humans running ao send from their
+        // way to identify who's writing. Humans running cahi send from their
         // own terminal have no CAHI_SESSION_ID and stay unprefixed.
         const senderSessionId = process.env["CAHI_SESSION_ID"];
         const message = senderSessionId

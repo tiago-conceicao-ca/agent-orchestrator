@@ -3,13 +3,13 @@
  *
  * Covers MUST emits in registerStop and the start action that don't
  * require running the full startup pipeline:
- *   - cli.stop_invoked         (start of ao stop action)
- *   - cli.stop_failed          (outer catch of ao stop action)
- *   - cli.stop_session_failed  (per-session kill failure during ao stop)
- *   - cli.last_stop_write_failed (last-stop persistence failure during ao stop)
- *   - cli.daemon_killed        (SIGTERM sent to parent ao start)
+ *   - cli.stop_invoked         (start of cahi stop action)
+ *   - cli.stop_failed          (outer catch of cahi stop action)
+ *   - cli.stop_session_failed  (per-session kill failure during cahi stop)
+ *   - cli.last_stop_write_failed (last-stop persistence failure during cahi stop)
+ *   - cli.daemon_killed        (SIGTERM sent to parent cahi start)
  *   - cli.start_invoked        (true start action entry)
- *   - cli.start_failed (outer) (outer catch of ao start action)
+ *   - cli.start_failed (outer) (outer catch of cahi start action)
  *   - cli.restore_session_failed (per-session restore failure)
  *
  * cli.start_failed (orchestrator_setup / supervisor_start) is exercised by
@@ -208,7 +208,7 @@ function buildProgram(): Command {
   return program;
 }
 
-describe("ao stop — activity events", () => {
+describe("cahi stop — activity events", () => {
   let exitSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -264,14 +264,14 @@ describe("ao stop — activity events", () => {
     program.exitOverride();
     reloaded.registerStop(program);
 
-    await expect(program.parseAsync(["node", "ao", "stop", projectArg])).rejects.toThrow();
+    await expect(program.parseAsync(["node", "cahi", "stop", projectArg])).rejects.toThrow();
 
     const events = recordedEvents();
     expect(events).toContainEqual(
       expect.objectContaining({
         kind: "cli.stop_invoked",
         source: "cli",
-        summary: "ao stop invoked",
+        summary: "cahi stop invoked",
         data: expect.objectContaining({
           projectArg,
         }),
@@ -303,7 +303,7 @@ describe("ao stop — activity events", () => {
     program.exitOverride();
     reloaded.registerStop(program);
 
-    await expect(program.parseAsync(["node", "ao", "stop"])).rejects.toThrow();
+    await expect(program.parseAsync(["node", "cahi", "stop"])).rejects.toThrow();
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -353,9 +353,9 @@ describe("ao stop — activity events", () => {
     reloaded.registerStop(program);
 
     try {
-      await program.parseAsync(["node", "ao", "stop"]);
+      await program.parseAsync(["node", "cahi", "stop"]);
     } catch {
-      // ao stop may exit; we just want the events
+      // cahi stop may exit; we just want the events
     }
 
     const events = recordedEvents();
@@ -371,7 +371,7 @@ describe("ao stop — activity events", () => {
     vi.doUnmock("@contaazul/cahi-core");
   });
 
-  it("emits cli.stop_session_failed when sm.kill throws during ao stop", async () => {
+  it("emits cli.stop_session_failed when sm.kill throws during cahi stop", async () => {
     mockGetRunning.mockResolvedValue({
       pid: 99999,
       configPath: "/tmp/x.yaml",
@@ -416,7 +416,7 @@ describe("ao stop — activity events", () => {
     reloaded.registerStop(program);
 
     try {
-      await program.parseAsync(["node", "ao", "stop"]);
+      await program.parseAsync(["node", "cahi", "stop"]);
     } catch {
       // ignored
     }
@@ -435,7 +435,7 @@ describe("ao stop — activity events", () => {
     vi.doUnmock("@contaazul/cahi-core");
   });
 
-  it("emits cli.last_stop_write_failed when ao stop cannot persist restore state", async () => {
+  it("emits cli.last_stop_write_failed when cahi stop cannot persist restore state", async () => {
     mockGetRunning.mockResolvedValue(null);
     mockSessionManager.list.mockResolvedValue([
       {
@@ -473,7 +473,7 @@ describe("ao stop — activity events", () => {
     program.exitOverride();
     reloaded.registerStop(program);
 
-    await program.parseAsync(["node", "ao", "stop", "my-app"]);
+    await program.parseAsync(["node", "cahi", "stop", "my-app"]);
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -507,7 +507,7 @@ describe("ao stop — activity events", () => {
   });
 });
 
-describe("ao start — activity events (failure paths)", () => {
+describe("cahi start — activity events (failure paths)", () => {
   let exitSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -539,7 +539,7 @@ describe("ao start — activity events (failure paths)", () => {
     const program = buildProgram();
 
     try {
-      await program.parseAsync(["node", "ao", "start", projectArg]);
+      await program.parseAsync(["node", "cahi", "start", projectArg]);
     } catch {
       // process.exit(1) throws in the spy
     }
@@ -550,7 +550,7 @@ describe("ao start — activity events (failure paths)", () => {
         kind: "cli.start_invoked",
         source: "cli",
         level: "info",
-        summary: "ao start invoked",
+        summary: "cahi start invoked",
         data: expect.objectContaining({
           projectArg,
         }),

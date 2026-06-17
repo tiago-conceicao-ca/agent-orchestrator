@@ -88,7 +88,7 @@ function buildMuxWsUrl(runtimeConfig: {
   const loc = window.location;
   const protocol = loc.protocol === "https:" ? "wss:" : "ws:";
 
-  // Runtime proxy path takes priority (set by `ao start` via TERMINAL_WS_PATH env var)
+  // Runtime proxy path takes priority (set by `cahi start` via TERMINAL_WS_PATH env var)
   const proxyWsPath = runtimeConfig.proxyWsPath ?? process.env.NEXT_PUBLIC_TERMINAL_WS_PATH;
   if (proxyWsPath) {
     const basePath = proxyWsPath.replace(/\/ws\/?$/, "");
@@ -97,7 +97,7 @@ function buildMuxWsUrl(runtimeConfig: {
 
   // Port-less or standard ports: use path-based routing (reverse proxy expected)
   if (loc.port === "" || loc.port === "443" || loc.port === "80") {
-    return `${protocol}//${loc.hostname}/ao-terminal-mux`;
+    return `${protocol}//${loc.hostname}/cahi-terminal-mux`;
   }
 
   // Direct port connection — prefer runtime-configured port, fall back to env/default

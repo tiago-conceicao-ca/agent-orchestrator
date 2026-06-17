@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ToastProvider, useToast } from "@/components/Toast";
 
 const IDENTITY_FIELD_TOOLTIP =
-  "These describe which repo this is. Change them via `ao project relink`.";
+  "These describe which repo this is. Change them via `cahi project relink`.";
 
 interface ProjectSettingsFormProps {
   projectId: string;
@@ -104,7 +104,7 @@ function ProjectSettingsFormInner({ projectId, initialValues }: ProjectSettingsF
             </p>
             <h2 className="project-settings-form__section-title">Runtime configuration</h2>
             <p className="project-settings-form__section-copy">
-              These values change how AO runs this project without changing which repository the project points at.
+              These values change how CAHI runs this project without changing which repository the project points at.
             </p>
           </div>
           <button
@@ -194,7 +194,7 @@ function ProjectSettingsFormInner({ projectId, initialValues }: ProjectSettingsF
         </p>
         <h2 className="project-settings-form__section-title">Repository identity</h2>
         <p className="project-settings-form__section-copy">
-          These fields are read-only because they define which repository AO considers this project to be.
+          These fields are read-only because they define which repository CAHI considers this project to be.
         </p>
 
         <div className="project-settings-form__grid">

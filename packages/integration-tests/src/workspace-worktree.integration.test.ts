@@ -27,11 +27,11 @@ async function createRepoClone(): Promise<{
   cloneParent: string;
   repoDir: string;
 }> {
-  const rawBare = await mkdtemp(join(tmpdir(), "ao-inttest-wt-origin-"));
+  const rawBare = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-origin-"));
   const bareDir = await realpath(rawBare);
   await git(bareDir, "init", "--bare");
 
-  const rawParent = await mkdtemp(join(tmpdir(), "ao-inttest-wt-clone-parent-"));
+  const rawParent = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-clone-parent-"));
   const cloneParent = await realpath(rawParent);
   const repoDir = join(cloneParent, "repo");
   await execFileAsync("git", ["clone", bareDir, repoDir]);
@@ -50,7 +50,7 @@ describe("workspace-worktree (integration)", () => {
 
   beforeAll(async () => {
     // Create a temp repo with initial commit
-    const rawRepo = await mkdtemp(join(tmpdir(), "ao-inttest-wt-repo-"));
+    const rawRepo = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-repo-"));
     repoDir = await realpath(rawRepo);
 
     await git(repoDir, "init", "-b", "main");
@@ -65,7 +65,7 @@ describe("workspace-worktree (integration)", () => {
     await git(repoDir, "fetch", "origin");
 
     // Create worktree base dir
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-base-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-base-"));
     worktreeBaseDir = await realpath(rawBase);
 
     workspace = worktreePlugin.create({ worktreeDir: worktreeBaseDir });
@@ -159,7 +159,7 @@ describe("workspace-worktree (integration)", () => {
 
   it("resets a stale session branch when defaultBranch changes", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-stale-default-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-stale-default-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
 
     try {
@@ -213,7 +213,7 @@ describe("workspace-worktree (integration)", () => {
   // HEAD survives.
   it("restore re-attaches existing session branch and preserves its commits", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-restore-preserve-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-restore-preserve-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
 
     try {
@@ -227,14 +227,14 @@ describe("workspace-worktree (integration)", () => {
         repo: "test/restore-preserve",
         path: isolatedRepoDir,
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       };
 
       const created = await isolatedWorkspace.create({
         projectId: "restore-preserve",
-        sessionId: "ao-1",
+        sessionId: "cahi-1",
         project: proj,
-        branch: "session/ao-1",
+        branch: "session/cahi-1",
       });
 
       // Simulate session work with a commit on the session branch.
@@ -243,25 +243,25 @@ describe("workspace-worktree (integration)", () => {
       const sessionSha = await createCommit(created.path, "session.txt", "session work\n");
       expect(sessionSha).not.toBe(mainSha);
 
-      // Tear down the worktree the way AO does — branch is preserved.
+      // Tear down the worktree the way CAHI does — branch is preserved.
       await isolatedWorkspace.destroy(created.path);
       expect(existsSync(created.path)).toBe(false);
-      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/ao-1")).toBe(sessionSha);
+      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/cahi-1")).toBe(sessionSha);
 
-      // Restore — must re-attach session/ao-1 with its existing HEAD intact.
+      // Restore — must re-attach session/cahi-1 with its existing HEAD intact.
       const restored = await isolatedWorkspace.restore!(
         {
           projectId: "restore-preserve",
-          sessionId: "ao-1",
+          sessionId: "cahi-1",
           project: proj,
-          branch: "session/ao-1",
+          branch: "session/cahi-1",
         },
         created.path,
       );
 
-      expect(restored.branch).toBe("session/ao-1");
+      expect(restored.branch).toBe("session/cahi-1");
       expect(await git(restored.path, "rev-parse", "HEAD")).toBe(sessionSha);
-      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/ao-1")).toBe(sessionSha);
+      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/cahi-1")).toBe(sessionSha);
     } finally {
       await rm(isolatedWorktreeBaseDir, { recursive: true, force: true }).catch(() => {});
       await rm(cloneParent, { recursive: true, force: true }).catch(() => {});
@@ -276,7 +276,7 @@ describe("workspace-worktree (integration)", () => {
   // (which would discard the session's commits).
   it("restore recovers when a stale worktree registration conflicts with the path", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-restore-stale-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-restore-stale-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
 
     try {
@@ -290,14 +290,14 @@ describe("workspace-worktree (integration)", () => {
         repo: "test/restore-stale",
         path: isolatedRepoDir,
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       };
 
       const created = await isolatedWorkspace.create({
         projectId: "restore-stale",
-        sessionId: "ao-1",
+        sessionId: "cahi-1",
         project: proj,
-        branch: "session/ao-1",
+        branch: "session/cahi-1",
       });
 
       await git(created.path, "config", "user.email", "test@test.com");
@@ -315,18 +315,18 @@ describe("workspace-worktree (integration)", () => {
       const restored = await isolatedWorkspace.restore!(
         {
           projectId: "restore-stale",
-          sessionId: "ao-1",
+          sessionId: "cahi-1",
           project: proj,
-          branch: "session/ao-1",
+          branch: "session/cahi-1",
         },
         created.path,
       );
 
-      expect(restored.branch).toBe("session/ao-1");
+      expect(restored.branch).toBe("session/cahi-1");
       // Most importantly, the session commit must survive — anything that
       // touched -B would have reset the branch back to mainSha.
       expect(await git(restored.path, "rev-parse", "HEAD")).toBe(sessionSha);
-      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/ao-1")).toBe(sessionSha);
+      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/cahi-1")).toBe(sessionSha);
     } finally {
       await rm(isolatedWorktreeBaseDir, { recursive: true, force: true }).catch(() => {});
       await rm(cloneParent, { recursive: true, force: true }).catch(() => {});
@@ -343,7 +343,7 @@ describe("workspace-worktree (integration)", () => {
   // failed identically.
   it("restore recovers when a stale (non-worktree) directory exists at the path", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-restore-junkdir-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-restore-junkdir-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
 
     try {
@@ -357,14 +357,14 @@ describe("workspace-worktree (integration)", () => {
         repo: "test/restore-junkdir",
         path: isolatedRepoDir,
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       };
 
       const created = await isolatedWorkspace.create({
         projectId: "restore-junkdir",
-        sessionId: "ao-1",
+        sessionId: "cahi-1",
         project: proj,
-        branch: "session/ao-1",
+        branch: "session/cahi-1",
       });
 
       await git(created.path, "config", "user.email", "test@test.com");
@@ -388,19 +388,19 @@ describe("workspace-worktree (integration)", () => {
       const restored = await isolatedWorkspace.restore!(
         {
           projectId: "restore-junkdir",
-          sessionId: "ao-1",
+          sessionId: "cahi-1",
           project: proj,
-          branch: "session/ao-1",
+          branch: "session/cahi-1",
         },
         created.path,
       );
 
-      expect(restored.branch).toBe("session/ao-1");
+      expect(restored.branch).toBe("session/cahi-1");
       // Junk file must be gone (restore rmSync'd the stale dir before retry).
       expect(existsSync(join(created.path, "stale.txt"))).toBe(false);
       // Session commit must survive — anything using -B would have lost it.
       expect(await git(restored.path, "rev-parse", "HEAD")).toBe(sessionSha);
-      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/ao-1")).toBe(sessionSha);
+      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/cahi-1")).toBe(sessionSha);
     } finally {
       await rm(isolatedWorktreeBaseDir, { recursive: true, force: true }).catch(() => {});
       await rm(cloneParent, { recursive: true, force: true }).catch(() => {});
@@ -415,7 +415,7 @@ describe("workspace-worktree (integration)", () => {
   // `'<path>' already exists` exactly like the re-attach path used to.
   it("restore recovers when local branch is missing and stale dir exists at the path", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-restore-missing-branch-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-restore-missing-branch-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
 
     try {
@@ -426,12 +426,12 @@ describe("workspace-worktree (integration)", () => {
       // Manually push a session branch to origin without keeping it locally,
       // simulating a session whose local branch was pruned but origin still
       // has it (e.g. fetched after a remote-only force-update).
-      await git(isolatedRepoDir, "switch", "-c", "session/ao-1");
+      await git(isolatedRepoDir, "switch", "-c", "session/cahi-1");
       const sessionSha = await createCommit(isolatedRepoDir, "session.txt", "session work\n");
-      await git(isolatedRepoDir, "push", "-u", "origin", "session/ao-1");
-      // Switch off session/ao-1 then delete the local branch — only origin has it now.
+      await git(isolatedRepoDir, "push", "-u", "origin", "session/cahi-1");
+      // Switch off session/cahi-1 then delete the local branch — only origin has it now.
       await git(isolatedRepoDir, "switch", "main");
-      await git(isolatedRepoDir, "branch", "-D", "session/ao-1");
+      await git(isolatedRepoDir, "branch", "-D", "session/cahi-1");
 
       const isolatedWorkspace = worktreePlugin.create({ worktreeDir: isolatedWorktreeBaseDir });
       const proj: ProjectConfig = {
@@ -439,14 +439,14 @@ describe("workspace-worktree (integration)", () => {
         repo: "test/restore-missing-branch",
         path: isolatedRepoDir,
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       };
-      const workspacePath = join(isolatedWorktreeBaseDir, "restore-missing-branch", "ao-1");
+      const workspacePath = join(isolatedWorktreeBaseDir, "restore-missing-branch", "cahi-1");
 
       // Plant a stale junk directory at workspacePath. workspace.exists()
       // will return false (not a working tree) and restore is invoked.
       // The first `worktree add` will fail with `'<path>' already exists`,
-      // refExists for refs/heads/session/ao-1 returns false (we deleted it),
+      // refExists for refs/heads/session/cahi-1 returns false (we deleted it),
       // so createBranchFromBase runs and must clean the stale dir first.
       await execFileAsync("mkdir", ["-p", workspacePath]);
       await writeFile(join(workspacePath, "stale.txt"), "junk\n");
@@ -455,20 +455,20 @@ describe("workspace-worktree (integration)", () => {
       const restored = await isolatedWorkspace.restore!(
         {
           projectId: "restore-missing-branch",
-          sessionId: "ao-1",
+          sessionId: "cahi-1",
           project: proj,
-          branch: "session/ao-1",
+          branch: "session/cahi-1",
         },
         workspacePath,
       );
 
-      expect(restored.branch).toBe("session/ao-1");
+      expect(restored.branch).toBe("session/cahi-1");
       // Junk file gone — cleanup ran before -b add.
       expect(existsSync(join(workspacePath, "stale.txt"))).toBe(false);
-      // Local branch was recreated from origin/session/ao-1, preserving the
+      // Local branch was recreated from origin/session/cahi-1, preserving the
       // session's commit (which only existed remotely before restore).
       expect(await git(restored.path, "rev-parse", "HEAD")).toBe(sessionSha);
-      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/ao-1")).toBe(sessionSha);
+      expect(await git(isolatedRepoDir, "rev-parse", "refs/heads/session/cahi-1")).toBe(sessionSha);
     } finally {
       await rm(isolatedWorktreeBaseDir, { recursive: true, force: true }).catch(() => {});
       await rm(cloneParent, { recursive: true, force: true }).catch(() => {});
@@ -478,9 +478,9 @@ describe("workspace-worktree (integration)", () => {
 
   it("resets a stale session branch when origin default branch advances", async () => {
     const { bareDir, cloneParent, repoDir: isolatedRepoDir } = await createRepoClone();
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-wt-stale-origin-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-stale-origin-"));
     const isolatedWorktreeBaseDir = await realpath(rawBase);
-    const rawExternalParent = await mkdtemp(join(tmpdir(), "ao-inttest-wt-external-parent-"));
+    const rawExternalParent = await mkdtemp(join(tmpdir(), "cahi-inttest-wt-external-parent-"));
     const externalParent = await realpath(rawExternalParent);
     const externalRepoDir = join(externalParent, "repo");
 

@@ -8,11 +8,11 @@ import { getOpenCodeTmpDir } from "@contaazul/cahi-core";
 // Bun bug that leaks ~4.3 MB per process invocation. Files look like
 // `.{16hex}-{8hex}.{so|dylib}` (e.g. `.fcb8efb7fbaad77d-00000000.so`).
 //
-// We point every `opencode` child we spawn at an AO-owned subdirectory via
+// We point every `opencode` child we spawn at an CAHI-owned subdirectory via
 // `TMPDIR` (see `getOpenCodeChildEnv` in `@contaazul/cahi-core`). The janitor
 // then sweeps **only that directory**, which keeps the blast radius bounded:
 // no other user's or other application's Bun artifacts can ever be touched
-// even if AO runs as root on a shared host.
+// even if CAHI runs as root on a shared host.
 //
 // Deleting these files is safe even while a live process has them mmap'd: on
 // POSIX systems, `unlink` removes the directory entry but the kernel keeps
@@ -21,7 +21,7 @@ import { getOpenCodeTmpDir } from "@contaazul/cahi-core";
 // immediately. Windows does not allow unlinking mapped files, and opencode
 // does not ship a Windows binary, so the janitor is a no-op there.
 //
-// This janitor runs once per `ao start` process and sweeps matching files
+// This janitor runs once per `cahi start` process and sweeps matching files
 // older than `ageMs` at every interval.
 
 const BUN_TMP_LIB_PATTERN = /^\.[0-9a-f]{8,}-[0-9a-f]{6,}\.(so|dylib)$/i;
@@ -57,7 +57,7 @@ async function sweepOnce(
   // Filter synchronously *before* spawning per-entry stat/unlink work. On a
   // host with thousands of /tmp entries this avoids allocating one promise
   // per file we are about to discard. (Belt-and-suspenders: TMPDIR isolation
-  // already bounds the directory contents to AO's own children.)
+  // already bounds the directory contents to CAHI's own children.)
   const matches = entries.filter((name) => BUN_TMP_LIB_PATTERN.test(name));
   if (matches.length === 0) {
     return { removed, freedBytes, errors: 0 };

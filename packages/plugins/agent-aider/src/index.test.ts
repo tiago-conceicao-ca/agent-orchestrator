@@ -567,7 +567,7 @@ describe("getActivityState with activity JSONL", () => {
       modifiedAt: new Date(),
     });
 
-    // Non-critical "active" from AO JSONL is ignored by checkActivityLogState —
+    // Non-critical "active" from CAHI JSONL is ignored by checkActivityLogState —
     // falls through to git/chat fallbacks. With no git commits or chat history,
     // falls through to JSONL mtime fallback (step 4) which returns "active"
     // since modifiedAt is recent.

@@ -293,7 +293,7 @@ function installManagedSignalHandlers(): void {
     // Installing a signal listener disables Node's default "exit on signal"
     // behaviour. If no application-level shutdown handler is present, preserve
     // that default after giving managed children the same graceful
-    // SIGTERM→wait→SIGKILL lifecycle used by `ao stop`.
+    // SIGTERM→wait→SIGKILL lifecycle used by `cahi stop`.
     if (!daemonShutdownHandlerInstalled && !fallbackShutdownStarted) {
       fallbackShutdownStarted = true;
       void exitAfterManagedChildren(signal);
@@ -332,7 +332,7 @@ export function registerChildReaper(child: ChildProcess, role: string, command?:
 }
 
 /**
- * The required interface for long-running subprocesses owned by the AO daemon.
+ * The required interface for long-running subprocesses owned by the CAHI daemon.
  * Callers get normal child_process.spawn behaviour, plus pid registry,
  * signal forwarding, process-group cleanup, and registry unregister on exit.
  */
@@ -417,8 +417,8 @@ export function classifyAoOrphanCommand(command: string): string | null {
     return "cahi-web";
   }
   if (
-    normalized.includes("/ao lifecycle-worker ") ||
-    normalized.includes(" ao lifecycle-worker ")
+    normalized.includes("/cahi lifecycle-worker ") ||
+    normalized.includes(" cahi lifecycle-worker ")
   ) {
     return "lifecycle-worker";
   }

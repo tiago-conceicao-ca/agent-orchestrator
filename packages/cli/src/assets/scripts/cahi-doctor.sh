@@ -379,14 +379,14 @@ check_stale_temp_files() {
     return
   fi
 
-  stale_count="$(find "$temp_root" -maxdepth 1 -type f -mmin +60 \( -name 'ao-*.tmp' -o -name 'ao-*.pid' -o -name 'ao-*.lock' \) | wc -l | tr -d ' ')"
+  stale_count="$(find "$temp_root" -maxdepth 1 -type f -mmin +60 \( -name 'cahi-*.tmp' -o -name 'cahi-*.pid' -o -name 'cahi-*.lock' \) | wc -l | tr -d ' ')"
   if [ "$stale_count" = "0" ]; then
     pass "no stale temp files were detected under $temp_root"
     return
   fi
 
   if [ "$FIX_MODE" = true ]; then
-    deleted_count="$(find "$temp_root" -maxdepth 1 -type f -mmin +60 \( -name 'ao-*.tmp' -o -name 'ao-*.pid' -o -name 'ao-*.lock' \) -delete -print | wc -l | tr -d ' ')"
+    deleted_count="$(find "$temp_root" -maxdepth 1 -type f -mmin +60 \( -name 'cahi-*.tmp' -o -name 'cahi-*.pid' -o -name 'cahi-*.lock' \) -delete -print | wc -l | tr -d ' ')"
     if [ "$deleted_count" = "$stale_count" ]; then
       fixed "$deleted_count stale temp files removed from $temp_root"
       return

@@ -25,7 +25,7 @@ describe("metadata lifecycle (real filesystem)", () => {
   let tmpDir: string;
 
   beforeAll(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-meta-lifecycle-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-meta-lifecycle-"));
   });
 
   afterAll(async () => {

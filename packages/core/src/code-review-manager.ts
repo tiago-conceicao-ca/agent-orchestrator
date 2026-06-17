@@ -693,7 +693,7 @@ export async function prepareGitReviewerWorkspace({
 
 function buildDefaultReviewPrompt(context: CodeReviewRunnerContext): string {
   return [
-    "You are an AO reviewer agent. Review this repository snapshot for concrete bugs only.",
+    "You are an CAHI reviewer agent. Review this repository snapshot for concrete bugs only.",
     "Do not modify files. Do not publish comments anywhere.",
     `Review the changes against base ref "${context.baseRef}". Start with: git diff --merge-base ${context.baseRef} HEAD -- .`,
     "If that diff command fails, inspect git status/log and compare this detached reviewer workspace to the base ref using read-only commands.",
@@ -783,7 +783,7 @@ export function formatCodeReviewFindingsForAgent({
   const targetLabel = run.targetSha ? `\nTarget SHA reviewed: ${run.targetSha}` : "";
 
   return [
-    `AO reviewer ${run.reviewerSessionId} found ${findings.length} open issue${
+    `CAHI reviewer ${run.reviewerSessionId} found ${findings.length} open issue${
       findings.length === 1 ? "" : "s"
     } for ${prLabel}.`,
     `Linked coding worker: ${session.id}`,

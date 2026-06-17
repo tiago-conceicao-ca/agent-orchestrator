@@ -68,10 +68,10 @@ function git(cwd: string, args: string[]): void {
     stdio: "ignore",
     env: {
       ...process.env,
-      GIT_AUTHOR_NAME: "AO E2E",
-      GIT_AUTHOR_EMAIL: "ao-e2e@example.com",
-      GIT_COMMITTER_NAME: "AO E2E",
-      GIT_COMMITTER_EMAIL: "ao-e2e@example.com",
+      GIT_AUTHOR_NAME: "CAHI E2E",
+      GIT_AUTHOR_EMAIL: "cahi-e2e@example.com",
+      GIT_COMMITTER_NAME: "CAHI E2E",
+      GIT_COMMITTER_EMAIL: "cahi-e2e@example.com",
     },
   });
 }
@@ -273,7 +273,7 @@ async function startWebServer(fixture: Fixture): Promise<ServerHandle> {
 }
 
 function createFixture(): Fixture {
-  const rootDir = mkdtempSync(join(tmpdir(), "ao-review-board-e2e-"));
+  const rootDir = mkdtempSync(join(tmpdir(), "cahi-review-board-e2e-"));
   const homeDir = join(rootDir, "home");
   const projectDir = join(rootDir, "todo-app");
   const globalConfigPath = join(homeDir, ".cahi", "config.yaml");
@@ -452,7 +452,7 @@ function runAoCliAsync(fixture: Fixture, args: string[]): Promise<string> {
         resolveRun(stdout);
         return;
       }
-      rejectRun(new Error(`ao ${args.join(" ")} failed with ${code}\n${stdout}\n${stderr}`));
+      rejectRun(new Error(`cahi ${args.join(" ")} failed with ${code}\n${stdout}\n${stderr}`));
     });
   });
 }
@@ -692,7 +692,7 @@ async function main(): Promise<void> {
       await waitForTmuxText(
         fixture.tmuxSessions[0] ?? "",
         /E2E reviewer finding/,
-        "worker receives AO-local review finding",
+        "worker receives CAHI-local review finding",
       );
 
       const store = createCodeReviewStore(PROJECT_ID);

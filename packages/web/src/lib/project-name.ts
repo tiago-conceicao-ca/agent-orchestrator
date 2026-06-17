@@ -129,12 +129,12 @@ export const getProjectName = cache((): string => {
     const firstKey = Object.keys(config.projects)[0];
     if (firstKey) {
       const name = config.projects[firstKey].name ?? firstKey;
-      return name || firstKey || "ao";
+      return name || firstKey || "cahi";
     }
   } catch {
     // Config not available
   }
-  return "ao";
+  return "cahi";
 });
 
 export const getPrimaryProjectId = cache((): string => {
@@ -147,7 +147,7 @@ export const getPrimaryProjectId = cache((): string => {
   } catch {
     // Config not available
   }
-  return "ao";
+  return "cahi";
 });
 
 // Resolves configured sibling entries (project id or "owner/name" repo) to

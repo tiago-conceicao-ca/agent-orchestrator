@@ -493,7 +493,7 @@ describe("addSibling / removeSibling (#1095)", () => {
       expect(existsSync(join(worktreeDir, `${session.id}__sib__lib-shared`))).toBe(true);
     });
 
-    it("records a prominent warning naming the skipped sibling (surfaced to dashboard / ao status)", async () => {
+    it("records a prominent warning naming the skipped sibling (surfaced to dashboard / cahi status)", async () => {
       const workspace = pathAwareWorkspace();
       mkdirSync(join(ctx.tmpDir, "lib-shared"), { recursive: true });
 
@@ -692,9 +692,9 @@ describe("addSibling / removeSibling (#1095)", () => {
 //
 // Spawn-time sibling resolution must consult the GLOBAL registered-projects
 // catalog (~/.cahi/config.yaml) — the same source the web
-// sidebar offers siblings from — not just the config the running AO was loaded
+// sidebar offers siblings from — not just the config the running CAHI was loaded
 // with. Otherwise a globally-registered sibling (e.g. taskmaster) added via the
-// sidebar fails to resolve when AO was started from a single-project local
+// sidebar fails to resolve when CAHI was started from a single-project local
 // config. setupTestContext points HOME at a tmp dir, so getGlobalConfigPath()
 // resolves under ctx.tmpDir and we can plant a global config there.
 // ---------------------------------------------------------------------------

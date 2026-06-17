@@ -32,7 +32,7 @@ const execFileAsync = promisify(execFile);
 // Prerequisites
 // ---------------------------------------------------------------------------
 
-const SESSION_PREFIX = "ao-inttest-aider-";
+const SESSION_PREFIX = "cahi-inttest-aider-";
 
 async function findAiderBinary(): Promise<string | null> {
   for (const bin of ["aider"]) {
@@ -52,7 +52,7 @@ async function findAiderBinary(): Promise<string | null> {
  * would inherit the vitest process's env, which may differ from tmux's.
  */
 async function canAiderConnect(bin: string): Promise<boolean> {
-  const probe = "ao-inttest-aider-probe";
+  const probe = "cahi-inttest-aider-probe";
   try {
     await killSessionsByPrefix(probe);
     await createSession(probe, `${bin} --exit --no-git --no-browser`, tmpdir());
@@ -102,7 +102,7 @@ describe.skipIf(!canRun)("agent-aider (integration)", () => {
 
   beforeAll(async () => {
     await killSessionsByPrefix(SESSION_PREFIX);
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-inttest-aider-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-inttest-aider-"));
 
     // --no-git avoids needing a git repo, --yes auto-accepts, --no-browser
     // prevents aider from opening the browser for auth (which would block).

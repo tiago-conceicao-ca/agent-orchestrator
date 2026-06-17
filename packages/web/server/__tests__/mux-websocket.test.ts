@@ -48,7 +48,7 @@ vi.mock("node-pty", async (importOriginal) => {
 vi.mock("../tmux-utils.js", () => ({
   findTmux: () => "/usr/bin/tmux",
   validateSessionId: () => true,
-  resolveTmuxSession: () => "ao-177",
+  resolveTmuxSession: () => "cahi-177",
   resolvePipePath: () => null,
   tmuxHasSession: (...args: unknown[]) => mockTmuxHasSession(...args),
 }));
@@ -786,7 +786,7 @@ describe("NotificationBroadcaster", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    tempDir = mkdtempSync(join(tmpdir(), "ao-notification-broadcaster-"));
+    tempDir = mkdtempSync(join(tmpdir(), "cahi-notification-broadcaster-"));
     configPath = join(tempDir, "cahi.yaml");
     writeFileSync(
       configPath,
@@ -938,37 +938,37 @@ describe("TerminalManager.open — tmux target args (regression for #1714)", () 
 
   it("invokes set-option mouse on with the bare session id (no = prefix)", () => {
     const mgr = new TerminalManager("/usr/bin/tmux");
-    mgr.open("ao-177");
+    mgr.open("cahi-177");
 
     const mouseCall = mockSpawn.mock.calls.find(
       (call) => Array.isArray(call[1]) && call[1].includes("mouse"),
     );
     expect(mouseCall).toBeDefined();
-    expect(mouseCall?.[1]).toEqual(["set-option", "-t", "ao-177", "mouse", "on"]);
+    expect(mouseCall?.[1]).toEqual(["set-option", "-t", "cahi-177", "mouse", "on"]);
   });
 
   it("invokes set-option status off with the bare session id (no = prefix)", () => {
     const mgr = new TerminalManager("/usr/bin/tmux");
-    mgr.open("ao-177");
+    mgr.open("cahi-177");
 
     const statusCall = mockSpawn.mock.calls.find(
       (call) => Array.isArray(call[1]) && call[1].includes("status"),
     );
     expect(statusCall).toBeDefined();
-    expect(statusCall?.[1]).toEqual(["set-option", "-t", "ao-177", "status", "off"]);
+    expect(statusCall?.[1]).toEqual(["set-option", "-t", "cahi-177", "status", "off"]);
   });
 
   it("still uses the = exact-match prefix for attach-session", () => {
     const mgr = new TerminalManager("/usr/bin/tmux");
-    mgr.open("ao-177");
+    mgr.open("cahi-177");
 
     expect(mockPtySpawn).toHaveBeenCalledTimes(1);
     const [, args] = mockPtySpawn.mock.calls[0];
-    expect(args).toEqual(["attach-session", "-t", "=ao-177"]);
+    expect(args).toEqual(["attach-session", "-t", "=cahi-177"]);
   });
 
   it("repairs node-pty spawn-helper when applicable and retries once after posix_spawnp failure", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-mux-spawn-helper-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-mux-spawn-helper-"));
     const helperPath = join(tempRoot, "spawn-helper");
     writeFileSync(helperPath, "#!/bin/sh\nexit 0\n");
     chmodSync(helperPath, 0o644);
@@ -990,7 +990,7 @@ describe("TerminalManager.open — tmux target args (regression for #1714)", () 
 
     try {
       const mgr = new TerminalManager("/usr/bin/tmux");
-      mgr.open("ao-177");
+      mgr.open("cahi-177");
 
       expect(mockPtySpawn).toHaveBeenCalledTimes(2);
       if (!isWindows()) {
@@ -1032,7 +1032,7 @@ describe("TerminalManager.open — re-attach skipped when tmux session is gone (
   it("skips re-attach and notifies subscribers when has-session reports the tmux session is gone", async () => {
     const mgr = new TerminalManager("/usr/bin/tmux");
     const exitCb = vi.fn();
-    mgr.subscribe("ao-177", undefined, vi.fn(), exitCb);
+    mgr.subscribe("cahi-177", undefined, vi.fn(), exitCb);
 
     expect(mockPtySpawn).toHaveBeenCalledTimes(1);
     expect(capturedOnExit).toBeDefined();
@@ -1050,9 +1050,9 @@ describe("TerminalManager.open — re-attach skipped when tmux session is gone (
         source: "ui",
         kind: "ui.terminal_pty_lost",
         level: "warn",
-        sessionId: "ao-177",
+        sessionId: "cahi-177",
         data: expect.objectContaining({
-          sessionId: "ao-177",
+          sessionId: "cahi-177",
           exitCode: 0,
           reattachSkipped: true,
           tmuxSessionPresent: false,
@@ -1064,7 +1064,7 @@ describe("TerminalManager.open — re-attach skipped when tmux session is gone (
   it("still re-attaches when has-session reports the tmux session is alive", async () => {
     const mgr = new TerminalManager("/usr/bin/tmux");
     const exitCb = vi.fn();
-    mgr.subscribe("ao-177", undefined, vi.fn(), exitCb);
+    mgr.subscribe("cahi-177", undefined, vi.fn(), exitCb);
 
     expect(mockPtySpawn).toHaveBeenCalledTimes(1);
 

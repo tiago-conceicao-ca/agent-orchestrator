@@ -10,7 +10,7 @@ describe("hasRecentCommits", () => {
   let repoDir: string;
 
   beforeEach(() => {
-    repoDir = mkdtempSync(join(tmpdir(), "ao-git-activity-"));
+    repoDir = mkdtempSync(join(tmpdir(), "cahi-git-activity-"));
     execFileSync("git", ["init", "-q", "-b", "main"], { cwd: repoDir });
     execFileSync("git", ["config", "user.email", "test@example.com"], { cwd: repoDir });
     execFileSync("git", ["config", "user.name", "Test"], { cwd: repoDir });
@@ -34,7 +34,7 @@ describe("hasRecentCommits", () => {
   });
 
   it("returns false when the path is not a git repo", async () => {
-    const notARepo = mkdtempSync(join(tmpdir(), "ao-git-activity-notrepo-"));
+    const notARepo = mkdtempSync(join(tmpdir(), "cahi-git-activity-notrepo-"));
     try {
       expect(await hasRecentCommits(notARepo)).toBe(false);
     } finally {

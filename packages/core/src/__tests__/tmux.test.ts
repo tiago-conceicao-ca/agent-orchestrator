@@ -169,13 +169,13 @@ describe("sendKeys", () => {
     const loadArgs = mockExecFile.mock.calls[1][1] as string[];
     expect(loadArgs[0]).toBe("load-buffer");
     expect(loadArgs[1]).toBe("-b");
-    expect(loadArgs[2]).toMatch(/^ao-/); // named buffer
+    expect(loadArgs[2]).toMatch(/^cahi-/); // named buffer
 
     // Call 2: paste-buffer with named buffer and -d (delete after paste)
     const pasteArgs = mockExecFile.mock.calls[2][1] as string[];
     expect(pasteArgs[0]).toBe("paste-buffer");
     expect(pasteArgs[1]).toBe("-b");
-    expect(pasteArgs[2]).toMatch(/^ao-/);
+    expect(pasteArgs[2]).toMatch(/^cahi-/);
     expect(pasteArgs).toContain("-d");
     expect(pasteArgs).toContain("-t");
     expect(pasteArgs).toContain("app-1");

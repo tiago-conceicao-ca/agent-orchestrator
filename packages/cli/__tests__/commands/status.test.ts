@@ -236,7 +236,7 @@ let clearIntervalSpy: ReturnType<typeof vi.spyOn> | undefined;
 let processOnceSpy: ReturnType<typeof vi.spyOn> | undefined;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-status-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-status-test-"));
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpDir;
 
@@ -348,7 +348,7 @@ describe("status command", () => {
     expect(output).toContain("no active sessions");
   });
 
-  it("shows AO-local reviewer runs separately from coding sessions", async () => {
+  it("shows CAHI-local reviewer runs separately from coding sessions", async () => {
     const store = createCodeReviewStore("my-app");
     const run = store.createRun({
       linkedSessionId: "app-1",

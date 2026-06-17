@@ -380,9 +380,9 @@ export default function SessionPage() {
   const cachedSession = (() => {
     if (typeof sessionStorage === "undefined") return null;
     try {
-      const raw = sessionStorage.getItem(`ao-session-nav:${id}`);
+      const raw = sessionStorage.getItem(`cahi-session-nav:${id}`);
       if (raw) {
-        sessionStorage.removeItem(`ao-session-nav:${id}`);
+        sessionStorage.removeItem(`cahi-session-nav:${id}`);
         return JSON.parse(raw) as DashboardSession;
       }
     } catch {

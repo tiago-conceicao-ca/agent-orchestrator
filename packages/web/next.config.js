@@ -35,7 +35,7 @@ const nextConfig = {
         managedPaths: [/^(.+?[\\/]node_modules[\\/])/],
       };
       // Prevent nft from globbing the home directory during server file tracing.
-      // ao-core resolves paths like ~/.cahi at runtime; nft tries to
+      // cahi-core resolves paths like ~/.cahi at runtime; nft tries to
       // scan them at build time and hits EPERM on Windows junction points
       // (e.g. C:\Users\<user>\Application Data).
       if (isServer) {

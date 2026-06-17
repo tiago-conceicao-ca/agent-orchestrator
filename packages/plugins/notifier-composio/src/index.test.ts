@@ -256,7 +256,7 @@ describe("notifier-composio", () => {
           connectedAccountId: "ca_gmail",
           arguments: expect.objectContaining({
             recipient_email: "test@test.com",
-            subject: "[AO] Session Spawned: app-1",
+            subject: "[CAHI] Session Spawned: app-1",
             is_html: true,
           }),
         }),
@@ -287,14 +287,14 @@ describe("notifier-composio", () => {
               session: { id: "demo-agent-19", projectId: "demo" },
               pr: {
                 number: 1579,
-                title: "Normalize AO notifier payloads",
+                title: "Normalize CAHI notifier payloads",
                 url: "https://github.com/contaazul/cahi/pull/1579",
-                branch: "ao/demo-notifier-harness",
+                branch: "cahi/demo-notifier-harness",
                 baseBranch: "main",
               },
               issue: {
-                id: "AO-1579",
-                title: "Make AO notification payloads API-grade",
+                id: "CAHI-1579",
+                title: "Make CAHI notification payloads API-grade",
               },
             },
             ci: {
@@ -313,14 +313,14 @@ describe("notifier-composio", () => {
       );
 
       const callArgs = mockToolsExecute.mock.calls[0][1];
-      expect(callArgs.arguments.subject).toBe("[AO] CI failing on PR #1579");
+      expect(callArgs.arguments.subject).toBe("[CAHI] CI failing on PR #1579");
       expect(callArgs.arguments.is_html).toBe(true);
       expect(callArgs.arguments.body).toContain("<!doctype html>");
       expect(callArgs.arguments.body).toContain("CI is failing on PR #1579");
-      expect(callArgs.arguments.body).toContain("Normalize AO notifier payloads");
+      expect(callArgs.arguments.body).toContain("Normalize CAHI notifier payloads");
       expect(callArgs.arguments.body).toContain("Action required");
       expect(callArgs.arguments.body).toContain("Pull Request");
-      expect(callArgs.arguments.body).toContain("#1579 - Normalize AO notifier payloads");
+      expect(callArgs.arguments.body).toContain("#1579 - Normalize CAHI notifier payloads");
       expect(callArgs.arguments.body).toContain("typecheck: failed/FAILURE");
       expect(callArgs.arguments.body).not.toContain("👉");
     });
@@ -650,7 +650,7 @@ describe("notifier-composio", () => {
               session: { id: "demo-agent-29", projectId: "demo" },
               pr: {
                 number: 1579,
-                title: "Normalize AO notifier payloads",
+                title: "Normalize CAHI notifier payloads",
                 url: "https://github.com/contaazul/cahi/pull/1579",
               },
             },
@@ -664,12 +664,12 @@ describe("notifier-composio", () => {
       );
 
       const callArgs = mockToolsExecute.mock.calls[0][1];
-      expect(callArgs.arguments.subject).toBe("[AO] PR #1579 ready to merge");
+      expect(callArgs.arguments.subject).toBe("[CAHI] PR #1579 ready to merge");
       expect(callArgs.arguments.is_html).toBe(true);
       expect(callArgs.arguments.body).toContain("<!doctype html>");
       expect(callArgs.arguments.body).toContain("Ready to merge");
       expect(callArgs.arguments.body).toContain("PR #1579 is ready to merge");
-      expect(callArgs.arguments.body).toContain("Normalize AO notifier payloads");
+      expect(callArgs.arguments.body).toContain("Normalize CAHI notifier payloads");
       expect(callArgs.arguments.body).toContain("View pull request");
       expect(callArgs.arguments.body).toContain("Transition");
       expect(callArgs.arguments.body).toContain("approved -&gt; mergeable");
@@ -685,10 +685,10 @@ describe("notifier-composio", () => {
   describe("post", () => {
     it("sends text payload", async () => {
       const notifier = create({ composioApiKey: "k" });
-      await notifier.post!("Hello from AO");
+      await notifier.post!("Hello from CAHI");
 
       const callArgs = mockToolsExecute.mock.calls[0][1];
-      expect(callArgs.arguments.markdown_text).toBe("Hello from AO");
+      expect(callArgs.arguments.markdown_text).toBe("Hello from CAHI");
     });
 
     it("overrides channel from context", async () => {
@@ -706,7 +706,7 @@ describe("notifier-composio", () => {
         emailTo: "test@test.com",
         connectedAccountId: "ca_gmail",
       });
-      await notifier.post!("Hello from AO");
+      await notifier.post!("Hello from CAHI");
 
       expect(mockToolsExecute).toHaveBeenCalledWith(
         "GMAIL_SEND_EMAIL",
@@ -722,7 +722,7 @@ describe("notifier-composio", () => {
       );
 
       const callArgs = mockToolsExecute.mock.calls[0][1];
-      expect(callArgs.arguments.body).toContain("Hello from AO");
+      expect(callArgs.arguments.body).toContain("Hello from CAHI");
     });
 
     it("returns null", async () => {
@@ -760,7 +760,7 @@ describe("notifier-composio", () => {
 
       const notifier = create({ composioApiKey: "k" });
 
-      await expect(notifier.notify(makeEvent())).rejects.toThrow("ao setup composio");
+      await expect(notifier.notify(makeEvent())).rejects.toThrow("cahi setup composio");
     });
 
     it("uses mail setup guidance for Gmail connection errors", async () => {
@@ -775,7 +775,7 @@ describe("notifier-composio", () => {
         connectedAccountId: "ca_gmail",
       });
 
-      await expect(notifier.notify(makeEvent())).rejects.toThrow("ao setup composio-mail");
+      await expect(notifier.notify(makeEvent())).rejects.toThrow("cahi setup composio-mail");
     });
 
     it("requires connectedAccountId before executing Gmail notifications", async () => {

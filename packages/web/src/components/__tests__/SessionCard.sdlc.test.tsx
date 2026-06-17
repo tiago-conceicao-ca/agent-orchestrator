@@ -8,7 +8,7 @@ describe("SessionCard SDLC badge", () => {
     render(
       <SessionCard
         session={makeSession({
-          id: "ao-7",
+          id: "cahi-7",
           projectId: "my-app",
           metadata: {
             sdlcRunId: "run-epic-1-abc",
@@ -26,7 +26,7 @@ describe("SessionCard SDLC badge", () => {
   });
 
   it("does not render an SDLC badge for an ordinary worker session", () => {
-    render(<SessionCard session={makeSession({ id: "ao-3", metadata: {} })} />);
+    render(<SessionCard session={makeSession({ id: "cahi-3", metadata: {} })} />);
 
     expect(screen.queryByRole("link", { name: /SDLC run/i })).not.toBeInTheDocument();
   });

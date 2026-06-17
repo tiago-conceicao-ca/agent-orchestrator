@@ -646,7 +646,7 @@ async function chooseAccount(
 
   const clack = await import("@clack/prompts");
   const selected = await clack.select({
-    message: `Select the ${label} connected account AO should use:`,
+    message: `Select the ${label} connected account CAHI should use:`,
     options: accounts.map((account) => ({
       value: account.id,
       label: account.alias ? `${account.alias} (${account.id})` : account.id,
@@ -676,7 +676,7 @@ async function chooseAuthConfig(
 
   const clack = await import("@clack/prompts");
   const selected = await clack.select({
-    message: `Select the ${label} auth config AO should use:`,
+    message: `Select the ${label} auth config CAHI should use:`,
     options: configs.map((config) => ({
       value: config.id,
       label: config.id,
@@ -898,7 +898,7 @@ function printComposioApiKeyInstructions(): void {
 function printComposioSlackAccountInfo(): void {
   console.log(
     chalk.dim(
-      "AO uses a Composio Slack connected account to execute SLACK_SEND_MESSAGE. The userId groups connected accounts inside your Composio project.",
+      "CAHI uses a Composio Slack connected account to execute SLACK_SEND_MESSAGE. The userId groups connected accounts inside your Composio project.",
     ),
   );
 }
@@ -906,7 +906,7 @@ function printComposioSlackAccountInfo(): void {
 function printComposioSlackChannelInfo(): void {
   console.log(
     chalk.dim(
-      "Slack channel is optional for Composio. If set, AO passes it to SLACK_SEND_MESSAGE; use the channel name without # or a Slack channel id.",
+      "Slack channel is optional for Composio. If set, CAHI passes it to SLACK_SEND_MESSAGE; use the channel name without # or a Slack channel id.",
     ),
   );
 }
@@ -942,7 +942,7 @@ function redactDiscordWebhookUrl(webhookUrl: string | undefined): string {
 function printComposioDiscordWebhookInfo(): void {
   console.log(
     chalk.dim(
-      "AO uses Composio's discordbot toolkit with DISCORDBOT_EXECUTE_WEBHOOK. Webhook mode stores the Discord webhook token as a Composio bearer connected account; no Discord bot invite is required.",
+      "CAHI uses Composio's discordbot toolkit with DISCORDBOT_EXECUTE_WEBHOOK. Webhook mode stores the Discord webhook token as a Composio bearer connected account; no Discord bot invite is required.",
     ),
   );
 }
@@ -981,7 +981,7 @@ function printComposioDiscordWebhookReview(
 function printComposioDiscordBotInfo(): void {
   console.log(
     chalk.dim(
-      "AO uses Composio's discordbot toolkit with DISCORDBOT_CREATE_MESSAGE. Bot mode requires a Discord channel id and a Composio Discord bot connected account.",
+      "CAHI uses Composio's discordbot toolkit with DISCORDBOT_CREATE_MESSAGE. Bot mode requires a Discord channel id and a Composio Discord bot connected account.",
     ),
   );
 }
@@ -1026,7 +1026,7 @@ function printComposioDiscordBotReview(resolved: ResolvedDiscordSetup, apiKeySou
 function printComposioGmailInfo(): void {
   console.log(
     chalk.dim(
-      "AO uses Composio's Gmail toolkit with GMAIL_SEND_EMAIL. Gmail mode requires a recipient email and a Gmail connected account with send/profile access.",
+      "CAHI uses Composio's Gmail toolkit with GMAIL_SEND_EMAIL. Gmail mode requires a recipient email and a Gmail connected account with send/profile access.",
     ),
   );
 }
@@ -1036,11 +1036,11 @@ function printComposioGmailConnectInfo(): void {
   console.log(chalk.bold("Connect Gmail in Composio"));
   console.log(`  1. Open ${COMPOSIO_DASHBOARD_URL}`);
   console.log("  2. Make sure your project has a Gmail auth config with send access.");
-  console.log("  3. AO can create a Composio connect link from that existing auth config.");
+  console.log("  3. CAHI can create a Composio connect link from that existing auth config.");
   console.log("  4. Complete the Google OAuth flow, then return here.");
   console.log(
     chalk.dim(
-      "AO does not create Gmail OAuth/auth configs because Google may block unverified or invalid OAuth apps.",
+      "CAHI does not create Gmail OAuth/auth configs because Google may block unverified or invalid OAuth apps.",
     ),
   );
   console.log("");
@@ -1065,7 +1065,7 @@ function printComposioAppRequirements(choice: ComposioAppChoice): void {
   if (choice === "discord-webhook") {
     console.log(chalk.bold("Composio Discord webhook setup"));
     console.log("  Required: Composio API key, userId, Discord webhook URL.");
-    console.log("  AO creates/stores a Composio connected account from the webhook token.");
+    console.log("  CAHI creates/stores a Composio connected account from the webhook token.");
     console.log("  No Discord bot invite is required for webhook mode.");
     console.log("  Current command: cahi setup composio-discord --webhook-url <url>");
   } else if (choice === "discord-bot") {
@@ -1176,7 +1176,7 @@ async function promptInteractiveComposioUserId(
   const currentUserId = resolveUserId(opts, existing);
   console.log(
     chalk.dim(
-      `userId is the Composio user namespace AO uses for tool execution and connected-account lookup. For AO-managed setups, ${DEFAULT_COMPOSIO_USER_ID} is the recommended default.`,
+      `userId is the Composio user namespace CAHI uses for tool execution and connected-account lookup. For CAHI-managed setups, ${DEFAULT_COMPOSIO_USER_ID} is the recommended default.`,
     ),
   );
 
@@ -1252,7 +1252,7 @@ async function promptChooseSlackConnectedAccount(
   }
 
   const selected = await clack.select({
-    message: "Select the Slack connected account AO should use:",
+    message: "Select the Slack connected account CAHI should use:",
     options: [
       ...accounts.map((account) => ({
         value: account.id,
@@ -1701,7 +1701,7 @@ async function promptChooseDiscordWebhookConnectedAccount(
   }
 
   const selected = await clack.select({
-    message: "Select the Discord webhook connected account AO should use:",
+    message: "Select the Discord webhook connected account CAHI should use:",
     options: [
       ...accounts.map((account) => ({
         value: account.id,
@@ -1952,7 +1952,7 @@ async function promptChooseDiscordBotConnectedAccount(
   }
 
   const selected = await clack.select({
-    message: "Select the Discord bot connected account AO should use:",
+    message: "Select the Discord bot connected account CAHI should use:",
     options: [
       ...accounts.map((account) => ({
         value: account.id,
@@ -2196,7 +2196,7 @@ async function promptInteractiveGmailEmail(
         {
           value: "enter-email",
           label: "Enter recipient email",
-          hint: "AO sends notification emails to this address",
+          hint: "CAHI sends notification emails to this address",
         },
         { value: "back", label: "Back", hint: "Return to userId" },
         { value: "cancel", label: "Cancel setup", hint: "Do not change config" },
@@ -2282,7 +2282,7 @@ async function promptChooseGmailConnectedAccount(
   }
 
   const selected = await clack.select({
-    message: "Select the Gmail connected account AO should use:",
+    message: "Select the Gmail connected account CAHI should use:",
     options: [
       ...accounts.map((account) => ({
         value: account.id,
@@ -2327,7 +2327,7 @@ async function promptManualGmailAuthConfigId(
   if (config && !authConfigAllowsGmailSend(config)) {
     console.log(
       chalk.yellow(
-        `Auth config ${id} does not explicitly list ${GMAIL_SEND_TOOL}; AO will create the connect link anyway.`,
+        `Auth config ${id} does not explicitly list ${GMAIL_SEND_TOOL}; CAHI will create the connect link anyway.`,
       ),
     );
   }
@@ -2399,7 +2399,7 @@ async function promptInteractiveGmailAuthConfig(
 
   while (true) {
     const choice = await clack.select({
-      message: "How should AO choose the Gmail auth config for the connect link?",
+      message: "How should CAHI choose the Gmail auth config for the connect link?",
       options: [
         ...(existingAuthConfigId
           ? [
@@ -2856,7 +2856,7 @@ async function runInteractiveComposioSlackSetup(
     writeComposioConfig(configPath, resolved);
     console.log(chalk.green(`✓ Config written to ${configPath}`));
     console.log(chalk.green(`✓ Slack connected account: ${connectedAccountId}`));
-    console.log(chalk.dim(`Test it with: ao notify test --to ${targetName} --template ci-failing`));
+    console.log(chalk.dim(`Test it with: cahi notify test --to ${targetName} --template ci-failing`));
     clack.outro("Composio Slack setup complete.");
     return "done";
   }
@@ -3015,7 +3015,7 @@ async function runInteractiveComposioDiscordWebhookSetup(
     console.log(chalk.green(`✓ Config written to ${configPath}`));
     console.log(chalk.green("✓ Discord webhook configured through Composio"));
     console.log(chalk.green(`✓ Discord webhook connected account: ${resolved.connectedAccountId}`));
-    console.log(chalk.dim(`Test it with: ao notify test --to ${targetName} --template basic`));
+    console.log(chalk.dim(`Test it with: cahi notify test --to ${targetName} --template basic`));
     clack.outro("Composio Discord webhook setup complete.");
     return "done";
   }
@@ -3175,7 +3175,7 @@ async function runInteractiveComposioDiscordBotSetup(
     writeComposioDiscordConfig(configPath, resolved);
     console.log(chalk.green(`✓ Config written to ${configPath}`));
     console.log(chalk.green(`✓ Discord bot connected account: ${connectedAccountId}`));
-    console.log(chalk.dim(`Test it with: ao notify test --to ${targetName} --template basic`));
+    console.log(chalk.dim(`Test it with: cahi notify test --to ${targetName} --template basic`));
     clack.outro("Composio Discord bot setup complete.");
     return "done";
   }
@@ -3324,7 +3324,7 @@ async function runInteractiveComposioGmailSetup(
     writeComposioMailConfig(configPath, resolved, targetName);
     console.log(chalk.green(`✓ Config written to ${configPath}`));
     console.log(chalk.green(`✓ Gmail connected account: ${connectedAccountId}`));
-    console.log(chalk.dim(`Test it with: ao notify test --to ${targetName} --template basic`));
+    console.log(chalk.dim(`Test it with: cahi notify test --to ${targetName} --template basic`));
     clack.outro("Composio Gmail setup complete.");
     return "done";
   }
@@ -3356,7 +3356,7 @@ async function runInteractiveComposioSetupHub(
 ): Promise<void> {
   const clack = await import("@clack/prompts");
   let directChoice = getDirectComposioAppChoice(opts);
-  clack.intro("AO Composio notifier setup");
+  clack.intro("CAHI Composio notifier setup");
 
   while (true) {
     const choice =
@@ -3798,7 +3798,7 @@ function printStatus(
   targetName = COMPOSIO_NOTIFIER,
   rawConfig?: Record<string, unknown>,
 ): void {
-  console.log(chalk.bold(`AO Composio notifier (${targetName})`));
+  console.log(chalk.bold(`CAHI Composio notifier (${targetName})`));
   console.log("  api key: configured");
   console.log(`  userId: ${resolved.userId}`);
   console.log(`  connectedAccountId: ${resolved.connectedAccountId ?? "not configured"}`);
@@ -3813,7 +3813,7 @@ function printDiscordStatus(
   resolved: Pick<ResolvedDiscordSetup, "userId" | "connectedAccountId" | "targetName" | "mode">,
   rawConfig?: Record<string, unknown>,
 ): void {
-  console.log(chalk.bold(`AO Composio Discord notifier (${resolved.targetName})`));
+  console.log(chalk.bold(`CAHI Composio Discord notifier (${resolved.targetName})`));
   console.log("  api key: configured");
   console.log(`  mode: ${resolved.mode}`);
   console.log(`  userId: ${resolved.userId}`);
@@ -3829,7 +3829,7 @@ function printMailStatus(
   rawConfig?: Record<string, unknown>,
   targetName = COMPOSIO_MAIL_NOTIFIER,
 ): void {
-  console.log(chalk.bold(`AO Composio mail notifier (${targetName})`));
+  console.log(chalk.bold(`CAHI Composio mail notifier (${targetName})`));
   console.log("  api key: configured");
   console.log(`  userId: ${resolved.userId}`);
   console.log(`  emailTo: ${resolved.emailTo ?? "not configured"}`);
@@ -3980,7 +3980,7 @@ export async function runComposioSetupAction(opts: ComposioSetupOptions): Promis
     console.log(chalk.green(`✓ Slack connected account: ${resolved.connectedAccountId}`));
   }
 
-  console.log(chalk.dim("Test it with: ao notify test --to composio --template ci-failing"));
+  console.log(chalk.dim("Test it with: cahi notify test --to composio --template ci-failing"));
 }
 
 export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): Promise<void> {
@@ -4004,7 +4004,7 @@ export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): P
 
   if (shouldUseInteractiveDedicatedSetup(opts, nonInteractive)) {
     const clack = await import("@clack/prompts");
-    clack.intro("AO Composio Slack setup");
+    clack.intro("CAHI Composio Slack setup");
     await runInteractiveComposioSlackSetup(
       clack,
       opts,
@@ -4045,7 +4045,7 @@ export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): P
   }
 
   console.log(
-    chalk.dim(`Test it with: ao notify test --to ${COMPOSIO_SLACK_NOTIFIER} --template ci-failing`),
+    chalk.dim(`Test it with: cahi notify test --to ${COMPOSIO_SLACK_NOTIFIER} --template ci-failing`),
   );
 }
 
@@ -4374,7 +4374,7 @@ export async function runComposioDiscordWebhookSetupAction(
 
   if (shouldUseInteractiveDedicatedSetup(opts, opts.nonInteractive || !process.stdin.isTTY)) {
     const clack = await import("@clack/prompts");
-    clack.intro("AO Composio Discord webhook setup");
+    clack.intro("CAHI Composio Discord webhook setup");
     await runInteractiveComposioDiscordWebhookSetup(
       clack,
       opts,
@@ -4405,7 +4405,7 @@ export async function runComposioDiscordWebhookSetupAction(
   }
   console.log(
     chalk.dim(
-      `Test it with: ao notify test --to ${COMPOSIO_DISCORD_WEBHOOK_NOTIFIER} --template basic`,
+      `Test it with: cahi notify test --to ${COMPOSIO_DISCORD_WEBHOOK_NOTIFIER} --template basic`,
     ),
   );
 }
@@ -4431,7 +4431,7 @@ export async function runComposioDiscordBotSetupAction(
 
   if (shouldUseInteractiveDedicatedSetup(opts, opts.nonInteractive || !process.stdin.isTTY)) {
     const clack = await import("@clack/prompts");
-    clack.intro("AO Composio Discord bot setup");
+    clack.intro("CAHI Composio Discord bot setup");
     await runInteractiveComposioDiscordBotSetup(
       clack,
       opts,
@@ -4459,7 +4459,7 @@ export async function runComposioDiscordBotSetupAction(
   console.log(chalk.green(`✓ Discord bot connected account: ${resolved.connectedAccountId}`));
   console.log(
     chalk.dim(
-      `Test it with: ao notify test --to ${COMPOSIO_DISCORD_BOT_NOTIFIER} --template basic`,
+      `Test it with: cahi notify test --to ${COMPOSIO_DISCORD_BOT_NOTIFIER} --template basic`,
     ),
   );
 }
@@ -4485,7 +4485,7 @@ export async function runComposioMailSetupAction(opts: ComposioMailSetupOptions)
 
   if (shouldUseInteractiveDedicatedSetup(opts, nonInteractive)) {
     const clack = await import("@clack/prompts");
-    clack.intro("AO Composio Gmail setup");
+    clack.intro("CAHI Composio Gmail setup");
     await runInteractiveComposioGmailSetup(
       clack,
       opts,
@@ -4526,6 +4526,6 @@ export async function runComposioMailSetupAction(opts: ComposioMailSetupOptions)
   }
 
   console.log(
-    chalk.dim(`Test it with: ao notify test --to ${COMPOSIO_MAIL_NOTIFIER} --template basic`),
+    chalk.dim(`Test it with: cahi notify test --to ${COMPOSIO_MAIL_NOTIFIER} --template basic`),
   );
 }

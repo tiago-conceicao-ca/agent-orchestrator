@@ -27,14 +27,14 @@ describe("notifier-openclaw integration", () => {
     const notifier = openClawPlugin.create({
       url: "http://127.0.0.1:18789/hooks/agent",
       token: "tok",
-      sessionKeyPrefix: "hook:ao:",
+      sessionKeyPrefix: "hook:cahi:",
     });
 
     await notifier.notify(
       makeEvent({
         type: "reaction.escalated",
         priority: "urgent",
-        sessionId: "ao-12",
+        sessionId: "cahi-12",
         message: "CI failed 5 times",
         data: { attempts: 5, reason: "ci_failed" },
       }),
@@ -45,14 +45,14 @@ describe("notifier-openclaw integration", () => {
     expect(url).toBe("http://127.0.0.1:18789/hooks/agent");
 
     const body = JSON.parse(opts.body);
-    expect(body.name).toBe("AO");
-    expect(body.sessionKey).toBe("hook:ao:ao-12");
+    expect(body.name).toBe("CAHI");
+    expect(body.sessionKey).toBe("hook:cahi:cahi-12");
     expect(body.wakeMode).toBe("now");
     expect(body.deliver).toBe(true);
-    expect(body.message).toContain("**AO URGENT** `reaction.escalated`");
+    expect(body.message).toContain("**CAHI URGENT** `reaction.escalated`");
     expect(body.message).toContain("CI failed 5 times");
     expect(body.message).toContain("- Project: `my-project`");
-    expect(body.message).toContain("- Session: `ao-12`");
+    expect(body.message).toContain("- Session: `cahi-12`");
     expect(body.message).toContain("- attempts: 5");
     expect(body.message).toContain("- reason: ci_failed");
   });
@@ -68,7 +68,7 @@ describe("notifier-openclaw integration", () => {
       makeEvent({
         priority: "action",
         type: "ci.failing",
-        sessionId: "ao-5",
+        sessionId: "cahi-5",
         message: "CI check failed on app-1",
         data: { checkName: "lint" },
       }),
@@ -76,11 +76,11 @@ describe("notifier-openclaw integration", () => {
     );
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.sessionKey).toBe("hook:ao:ao-5");
-    expect(body.message).toContain("**AO ACTION** `ci.failing`");
+    expect(body.sessionKey).toBe("hook:cahi:cahi-5");
+    expect(body.message).toContain("**CAHI ACTION** `ci.failing`");
     expect(body.message).toContain("CI check failed on app-1");
     expect(body.message).toContain("- Project: `my-project`");
-    expect(body.message).toContain("- Session: `ao-5`");
+    expect(body.message).toContain("- Session: `cahi-5`");
     expect(body.message).toContain("- checkName: lint");
     expect(body.message).toContain("**Actions**");
     expect(body.message).toContain("- retry");
@@ -96,7 +96,7 @@ describe("notifier-openclaw integration", () => {
       deliver: true,
       wakeMode: "now",
     });
-    await notifier.notify(makeEvent({ sessionId: "ao-21" }));
+    await notifier.notify(makeEvent({ sessionId: "cahi-21" }));
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(body.deliver).toBe(true);

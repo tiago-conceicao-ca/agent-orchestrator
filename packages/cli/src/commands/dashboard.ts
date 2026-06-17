@@ -102,7 +102,7 @@ export function registerDashboard(program: Command): void {
           if (looksLikeStaleBuild(stderr)) {
             const recoveryCommand = isInstalledUnderNodeModules(webDir)
               ? "npm install -g @contaazul/cahi@latest"
-              : "ao dashboard --rebuild";
+              : "cahi dashboard --rebuild";
             console.error(
               chalk.yellow(
                 "\nThis looks like a stale build cache issue. Try:\n\n" +

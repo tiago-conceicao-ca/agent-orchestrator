@@ -88,7 +88,7 @@ describe("package metadata import", () => {
   });
 
   it("uses JSON import attributes in the compiled runtime module", async () => {
-    const outDir = await mkdtemp(path.join(tmpdir(), "ao-agent-grok-"));
+    const outDir = await mkdtemp(path.join(tmpdir(), "cahi-agent-grok-"));
 
     try {
       compileAgentGrokTo(outDir);

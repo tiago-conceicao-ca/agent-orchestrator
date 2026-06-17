@@ -82,7 +82,7 @@ function createMockChild(exitCode: number | null, signal?: NodeJS.Signals): Even
   return child;
 }
 
-describe("ao update — activity events", () => {
+describe("cahi update — activity events", () => {
   let program: Command;
   let origStdinTTY: boolean | undefined;
   let origStdoutTTY: boolean | undefined;
@@ -122,7 +122,7 @@ describe("ao update — activity events", () => {
     // the throw, which is then re-caught and emits a second event before the
     // final exit. The instrumentation event for the non-zero exit is what
     // matters; whichever final exit code propagates is incidental.
-    await expect(program.parseAsync(["node", "ao", "update"])).rejects.toThrow(/process\.exit/);
+    await expect(program.parseAsync(["node", "cahi", "update"])).rejects.toThrow(/process\.exit/);
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -139,7 +139,7 @@ describe("ao update — activity events", () => {
     mockDetectInstallMethod.mockReturnValue("git");
     mockRunRepoScript.mockRejectedValue(new Error("Script not found: cahi-update.sh"));
 
-    await expect(program.parseAsync(["node", "ao", "update"])).rejects.toThrow("process.exit(1)");
+    await expect(program.parseAsync(["node", "cahi", "update"])).rejects.toThrow("process.exit(1)");
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -166,7 +166,7 @@ describe("ao update — activity events", () => {
     Object.defineProperty(process.stdout, "isTTY", { value: true, configurable: true });
     mockSpawn.mockReturnValue(createMockChild(1));
 
-    await expect(program.parseAsync(["node", "ao", "update"])).rejects.toThrow("process.exit(1)");
+    await expect(program.parseAsync(["node", "cahi", "update"])).rejects.toThrow("process.exit(1)");
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -190,7 +190,7 @@ describe("ao update — activity events", () => {
       checkedAt: null,
     });
 
-    await expect(program.parseAsync(["node", "ao", "update"])).rejects.toThrow(
+    await expect(program.parseAsync(["node", "cahi", "update"])).rejects.toThrow(
       "process.exit(1)",
     );
 
@@ -212,7 +212,7 @@ describe("ao update — activity events", () => {
     mockDetectInstallMethod.mockReturnValue("npm-global");
     mockCheckForUpdate.mockRejectedValue(new Error("registry timeout"));
 
-    await expect(program.parseAsync(["node", "ao", "update"])).rejects.toThrow(
+    await expect(program.parseAsync(["node", "cahi", "update"])).rejects.toThrow(
       "process.exit(1)",
     );
 

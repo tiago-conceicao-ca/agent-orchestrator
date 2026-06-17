@@ -12,7 +12,7 @@ describe("Config Loading", () => {
 
   beforeEach(() => {
     // Create temp test directory
-    testDir = join(tmpdir(), `ao-test-${Date.now()}`);
+    testDir = join(tmpdir(), `cahi-test-${Date.now()}`);
     mkdirSync(testDir, { recursive: true });
 
     // Save original state

@@ -68,8 +68,8 @@ const VIEWS: { id: InspectorView; label: string; icon: ReactNode }[] = [
 export function SessionInspector({ session }: SessionInspectorProps) {
   const [view, setView] = useState<InspectorView>("summary");
   const { onPointerDown, onDoubleClick } = useResizable({
-    cssVar: "--ao-inspector-w",
-    storageKey: "ao-inspector-w",
+    cssVar: "--cahi-inspector-w",
+    storageKey: "cahi-inspector-w",
     defaultWidth: 344,
     min: 280,
     max: 560,

@@ -2,7 +2,7 @@
  * Idle sleep prevention for macOS.
  *
  * Spawns `caffeinate -i -w <pid>` to hold an idle-sleep prevention assertion
- * for the duration of the AO process. The assertion is automatically released
+ * for the duration of the CAHI process. The assertion is automatically released
  * when the watched process exits (cleanly, on crash, or via kill -9).
  *
  * No-op on non-macOS platforms.

@@ -17,7 +17,7 @@ const NODE_TYPES_VERSION = "^25.2.3";
 
 const SLOT_HINTS: Record<PluginSlot, string> = {
   runtime: "Implement a Runtime-compatible object from create() and wire up create/destroy/send lifecycle methods.",
-  agent: "Implement an Agent-compatible object from create() so AO can launch, inspect, and restore sessions.",
+  agent: "Implement an Agent-compatible object from create() so CAHI can launch, inspect, and restore sessions.",
   workspace: "Implement a Workspace-compatible object from create() for setup, cleanup, and isolation behavior.",
   tracker: "Implement a Tracker-compatible object from create() for issue list/read/update operations.",
   scm: "Implement an SCM-compatible object from create() for branch, PR, CI, and review operations.",
@@ -42,7 +42,7 @@ export function normalizePluginName(value: string): string {
 }
 
 export function buildDefaultPackageName(slot: PluginSlot, pluginName: string): string {
-  return `ao-plugin-${slot}-${normalizePluginName(pluginName)}`;
+  return `cahi-plugin-${slot}-${normalizePluginName(pluginName)}`;
 }
 
 export function resolveScaffoldDirectory(displayName: string, targetDir?: string): string {
@@ -163,7 +163,7 @@ npm install
 npm run build
 \`\`\`
 
-## AO Config
+## CAHI Config
 
 Local development:
 

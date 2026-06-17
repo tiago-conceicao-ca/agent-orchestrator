@@ -16,8 +16,8 @@
  *    publishes matching prebuilds; global installs must rebuild from source.
  *    See: https://github.com/contaazul/cahi/issues/1822
  *
- * 4. Clears stale Next.js runtime cache (.next/cache) from @composio/ao-web
- *    after a version upgrade, so `ao start` serves fresh dashboard assets.
+ * 4. Clears stale Next.js runtime cache (.next/cache) from @contaazul/cahi-web
+ *    after a version upgrade, so `cahi start` serves fresh dashboard assets.
  *    Writes a version stamp (.next/CAHI_VERSION) to skip cleanup on subsequent runs.
  */
 

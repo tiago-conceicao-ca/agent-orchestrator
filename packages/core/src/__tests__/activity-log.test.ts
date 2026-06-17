@@ -138,7 +138,7 @@ describe("getActivityFallbackState", () => {
   });
 
   it("lets a newer active entry override an older waiting_input entry", async () => {
-    const tmpDir = await mkdtemp(join(tmpdir(), "ao-test-"));
+    const tmpDir = await mkdtemp(join(tmpdir(), "cahi-test-"));
     try {
       await mkdir(join(tmpDir, ".cahi"), { recursive: true });
       const waitingEntry: ActivityLogEntry = {
@@ -181,7 +181,7 @@ describe("readLastActivityEntry", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-test-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-test-"));
   });
 
   afterEach(async () => {
@@ -273,7 +273,7 @@ describe("recordTerminalActivity", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-test-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-test-"));
   });
 
   afterEach(async () => {

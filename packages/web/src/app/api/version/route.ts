@@ -1,13 +1,13 @@
 /**
- * GET /api/version — current AO version, latest available, and channel state.
+ * GET /api/version — current CAHI version, latest available, and channel state.
  *
  * Backed by the same cache file that the CLI's `update-check.ts` writes to
- * (`$XDG_CACHE_HOME/ao/update-check.json` or `~/.cache/ao/update-check.json`),
+ * (`$XDG_CACHE_HOME/cahi/update-check.json` or `~/.cache/cahi/update-check.json`),
  * so the dashboard banner and the CLI startup notice always agree.
  *
  * Cache-only by design — never makes a network call inside a request handler.
  * The CLI keeps the cache fresh (24 h TTL) via `scheduleBackgroundRefresh()`,
- * and `ao update --check` forces a refresh on demand.
+ * and `cahi update --check` forces a refresh on demand.
  */
 
 import { NextResponse } from "next/server";

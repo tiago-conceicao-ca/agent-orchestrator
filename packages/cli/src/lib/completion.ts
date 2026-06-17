@@ -232,7 +232,7 @@ function renderArgumentsInvocation(node: CompletionCommandNode): string[] {
 function renderSubcommandCase(node: CompletionCommandNode): string[] {
   if (node.children.length === 0) return [];
 
-  const describeLabel = node.path.length === 0 ? "ao command" : `${commandKey(node)} command`;
+  const describeLabel = node.path.length === 0 ? "cahi command" : `${commandKey(node)} command`;
   const lines = [
     "  case $state in",
     "    subcommand)",
@@ -455,7 +455,7 @@ export function generateZshCompletion(program: Command): string {
   const reportStates = formatStaticSuggestions(formatReportedStateSuggestions()).join("\n        ");
   const functions = flattenCommandFunctions(tree).join("\n");
 
-  return `#compdef ao
+  return `#compdef cahi
 
 _ao_dynamic_describe() {
   local tag="$1"
@@ -473,7 +473,7 @@ _ao_dynamic_describe() {
     else
       items+=("\${value}")
     fi
-  done < <(command ao __complete "$kind" "$@" 2>/dev/null)
+  done < <(command cahi __complete "$kind" "$@" 2>/dev/null)
 
   (( \${#items[@]} )) || return 1
   _describe -t "$tag" "$label" items

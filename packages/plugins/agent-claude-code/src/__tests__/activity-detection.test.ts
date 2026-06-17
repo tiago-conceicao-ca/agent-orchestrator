@@ -98,7 +98,7 @@ function writeActivityLog(
 describe("Claude Code Activity Detection", () => {
   describe("toClaudeProjectPath", () => {
     it("encodes paths with leading dash", () => {
-      expect(toClaudeProjectPath("/Users/dev/.worktrees/ao")).toBe("-Users-dev--worktrees-ao");
+      expect(toClaudeProjectPath("/Users/dev/.worktrees/cahi")).toBe("-Users-dev--worktrees-cahi");
     });
 
     it("preserves leading slash as leading dash", () => {
@@ -138,7 +138,7 @@ describe("Claude Code Activity Detection", () => {
       // slug matches what Claude wrote), so the test setup must do the same — otherwise
       // the test JSONL lives under one slug and the code looks under another.
       // homedir() is mocked to fakeHome, so its realpath flows through naturally.
-      fakeHome = realpathSync(mkdtempSync(join(tmpdir(), "ao-activity-test-")));
+      fakeHome = realpathSync(mkdtempSync(join(tmpdir(), "cahi-activity-test-")));
       workspacePath = join(fakeHome, "workspace");
       mkdirSync(workspacePath, { recursive: true });
 
@@ -183,8 +183,8 @@ describe("Claude Code Activity Detection", () => {
     // Fallback cases (no JSONL data available)
     // -----------------------------------------------------------------------
 
-    it("returns null when no session file or AO activity entry exists yet", async () => {
-      // projectDir exists but is empty, and the AO safety-net log is absent.
+    it("returns null when no session file or CAHI activity entry exists yet", async () => {
+      // projectDir exists but is empty, and the CAHI safety-net log is absent.
       expect(await agent.getActivityState(makeSession())).toBeNull();
     });
 
@@ -274,7 +274,7 @@ describe("Claude Code Activity Detection", () => {
     });
 
     it("resolves symlinked workspace paths so slugs match what Claude wrote", async () => {
-      // Claude resolves the symlink target before slugifying. If AO records
+      // Claude resolves the symlink target before slugifying. If CAHI records
       // the symlink path and slugifies without realpath, the two slugs
       // diverge and findLatestSessionFile returns null forever. This test
       // confirms the realpath fix: write JSONL under the SLUG OF THE TARGET,
@@ -292,7 +292,7 @@ describe("Claude Code Activity Detection", () => {
       expect(result?.state).toBe("ready");
     });
 
-    it("returns null when project directory does not exist and AO activity is unavailable", async () => {
+    it("returns null when project directory does not exist and CAHI activity is unavailable", async () => {
       const badPath = join(fakeHome, "nonexistent-workspace");
       expect(await agent.getActivityState(makeSession({ workspacePath: badPath }))).toBeNull();
     });
@@ -310,14 +310,14 @@ describe("Claude Code Activity Detection", () => {
       expect(existsSync(join(workspacePath, ".cahi", "activity.jsonl"))).toBe(false);
     });
 
-    it("keeps native JSONL as primary when AO activity JSONL also exists", async () => {
+    it("keeps native JSONL as primary when CAHI activity JSONL also exists", async () => {
       writeJsonl([{ type: "assistant", message: { content: "Done!" } }]);
       writeActivityLog("waiting_input");
 
       expect((await agent.getActivityState(makeSession()))?.state).toBe("ready");
     });
 
-    it("falls back to AO JSONL waiting_input when native session lookup is unavailable (#1941 hook entry)", async () => {
+    it("falls back to CAHI JSONL waiting_input when native session lookup is unavailable (#1941 hook entry)", async () => {
       // PermissionRequest hook fires → activity-updater appends a JSONL entry
       // with source: "hook". The cascade picks it up exactly like the old
       // terminal-derived entry.
@@ -326,7 +326,7 @@ describe("Claude Code Activity Detection", () => {
       expect((await agent.getActivityState(makeSession()))?.state).toBe("waiting_input");
     });
 
-    it("falls back to AO JSONL waiting_input when native session entry predates this session", async () => {
+    it("falls back to CAHI JSONL waiting_input when native session entry predates this session", async () => {
       writeJsonl([{ type: "assistant", message: { content: "Previous session done" } }], 120_000);
       const session = makeSession({ createdAt: new Date() });
 
@@ -335,7 +335,7 @@ describe("Claude Code Activity Detection", () => {
       expect((await agent.getActivityState(session))?.state).toBe("waiting_input");
     });
 
-    it("surfaces blocked from a StopFailure hook entry in AO JSONL", async () => {
+    it("surfaces blocked from a StopFailure hook entry in CAHI JSONL", async () => {
       // StopFailure → activity-updater appends `{state: blocked, source: hook,
       // trigger: "StopFailure (rate_limit)"}`. With no Claude native JSONL
       // present, the cascade must surface it through checkActivityLogState.
@@ -345,7 +345,7 @@ describe("Claude Code Activity Detection", () => {
       expect(result?.state).toBe("blocked");
     });
 
-    it("returns idle for stale native session entry when AO JSONL is unavailable", async () => {
+    it("returns idle for stale native session entry when CAHI JSONL is unavailable", async () => {
       writeJsonl([{ type: "assistant", message: { content: "Previous session done" } }], 120_000);
       const session = makeSession({ createdAt: new Date() });
 
@@ -355,7 +355,7 @@ describe("Claude Code Activity Detection", () => {
       expect(result?.timestamp).toBe(session.createdAt);
     });
 
-    it("falls back to AO JSONL age-decay when native session lookup is unavailable", async () => {
+    it("falls back to CAHI JSONL age-decay when native session lookup is unavailable", async () => {
       writeActivityLog("active", 400_000);
 
       expect((await agent.getActivityState(makeSession()))?.state).toBe("idle");
@@ -425,7 +425,7 @@ describe("Claude Code Activity Detection", () => {
       });
 
       it("returns 'idle' (not 'ready') for recent 'pr-link' — re-snapshot noise", async () => {
-        // Empirical evidence (ao-160): the SAME PR (#1911) was written as
+        // Empirical evidence (cahi-160): the SAME PR (#1911) was written as
         // pr-link 33 times in the last 200 lines, with new timestamps each
         // time. It's a periodic state snapshot, not a one-shot event.
         // Treat as noise so dormant sessions don't show as "ready" forever.
@@ -447,9 +447,9 @@ describe("Claude Code Activity Detection", () => {
       // Pure UI-noise types (permission-mode, ai-title, agent-*, custom-title)
       // are written by Claude at random times (session attach, mode change,
       // title gen) and don't reflect actual activity. Real-world repro:
-      // ao-144 had 73 trailing permission-mode + 73 trailing ai-title entries
+      // cahi-144 had 73 trailing permission-mode + 73 trailing ai-title entries
       // over 6 dormant days, causing the dashboard to oscillate between
-      // ready and idle. They now fall through to the AO JSONL pipeline; if
+      // ready and idle. They now fall through to the CAHI JSONL pipeline; if
       // that has nothing, the stale-native fallback returns idle from
       // session.createdAt.
       it("returns 'idle' (not 'ready') for recent permission-mode noise — dormant session", async () => {
@@ -465,15 +465,15 @@ describe("Claude Code Activity Detection", () => {
       it("returns 'idle' for agent-color / agent-name / custom-title noise", async () => {
         writeJsonl([{ type: "agent-color", color: "#fff" }]);
         expect((await agent.getActivityState(makeSession()))?.state).toBe("idle");
-        writeJsonl([{ type: "agent-name", name: "ao-161" }]);
+        writeJsonl([{ type: "agent-name", name: "cahi-161" }]);
         expect((await agent.getActivityState(makeSession()))?.state).toBe("idle");
         writeJsonl([{ type: "custom-title", title: "x" }]);
         expect((await agent.getActivityState(makeSession()))?.state).toBe("idle");
       });
 
-      it("noise last entry yields to AO JSONL when AO has actionable state", async () => {
+      it("noise last entry yields to CAHI JSONL when CAHI has actionable state", async () => {
         // Repro of the scenario where Claude IS active but the latest native
-        // JSONL line happens to be noise. Native JSONL gets skipped, AO
+        // JSONL line happens to be noise. Native JSONL gets skipped, CAHI
         // activity JSONL has waiting_input from a recent terminal scrape,
         // cascade returns waiting_input.
         writeJsonl([{ type: "permission-mode" }]);
@@ -575,7 +575,7 @@ describe("Claude Code Activity Detection", () => {
 
       it("ignores agent- prefixed JSONL files", async () => {
         writeJsonl([{ type: "user" }], 0, "agent-toolkit.jsonl");
-        // No real session file and no AO activity fallback.
+        // No real session file and no CAHI activity fallback.
         expect(await agent.getActivityState(makeSession())).toBeNull();
       });
 

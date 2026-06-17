@@ -2112,7 +2112,7 @@ describe.skipIf(process.platform === "win32")("shell wrapper content", () => {
       expect(content).toContain('real_gh="$GH_PATH"');
     });
 
-    it("guards against recursive GH_PATH pointing to ao wrapper dir", async () => {
+    it("guards against recursive GH_PATH pointing to cahi wrapper dir", async () => {
       const content = await getWrapperContent("gh");
       expect(content).toContain('if [[ "$gh_dir" != "$ao_bin_dir" ]]');
     });

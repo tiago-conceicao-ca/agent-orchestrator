@@ -404,7 +404,7 @@ describe("restore", () => {
       JSON.stringify([
         {
           id: "ses_restore_discovered",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -884,7 +884,7 @@ describe("restore", () => {
     const projectDir = getProjectDir("my-app");
     mkdirSync(projectDir, { recursive: true });
     const promptFile = join(projectDir, "orchestrator-prompt-app-orchestrator.md");
-    const promptContent = "You are the AO orchestrator. Delegate tasks.";
+    const promptContent = "You are the CAHI orchestrator. Delegate tasks.";
     writeFileSync(promptFile, promptContent, "utf-8");
 
     const agentsMdPath = getWorkspaceAgentsMdPath(wsPath);

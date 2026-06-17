@@ -175,13 +175,13 @@ function writeState(state: RunningState | null): void {
   } else {
     // Atomic temp+rename so a crash mid-write cannot leave torn JSON
     // that makes `getRunning()` silently return `null` and orphan a
-    // still-alive AO process from later CLI commands.
+    // still-alive CAHI process from later CLI commands.
     atomicWriteFileSync(STATE_FILE, JSON.stringify(state, null, 2));
   }
 }
 
 /**
- * Register the current AO instance as running.
+ * Register the current CAHI instance as running.
  * Uses a lockfile to prevent concurrent registration.
  */
 export async function register(entry: RunningState): Promise<void> {
@@ -194,7 +194,7 @@ export async function register(entry: RunningState): Promise<void> {
 }
 
 /**
- * Unregister the running AO instance.
+ * Unregister the running CAHI instance.
  */
 export async function unregister(): Promise<void> {
   const release = await acquireLock(STATE_LOCK_FILE, 5000, "running.json lock");
@@ -207,7 +207,7 @@ export async function unregister(): Promise<void> {
 
 /**
  * Remove a single project from the running state's project list.
- * Used by `ao stop <project>` so that `ao start <project>` can restart
+ * Used by `cahi stop <project>` so that `cahi start <project>` can restart
  * the orchestrator without hitting the "already running" gate.
  * No-op if the state is missing or the project isn't listed.
  */
@@ -227,9 +227,9 @@ export async function removeProjectFromRunning(projectId: string): Promise<void>
 /**
  * Add a project to the running state's project list (idempotent).
  * Used when a project's orchestrator is spawned against an already-running
- * daemon — for example after `ao start <project>` attaches to an existing
+ * daemon — for example after `cahi start <project>` attaches to an existing
  * parent process whose `projects` list didn't yet include the project.
- * Without this, subsequent `ao stop` (no args) would leave the new
+ * Without this, subsequent `cahi stop` (no args) would leave the new
  * orchestrator orphaned because it isn't in `running.projects`.
  * No-op if the state is missing or the project is already listed.
  */
@@ -246,7 +246,7 @@ export async function addProjectToRunning(projectId: string): Promise<void> {
 }
 
 /**
- * Get the currently running AO instance, if any.
+ * Get the currently running CAHI instance, if any.
  * Auto-prunes stale entries (dead PIDs).
  */
 export async function getRunning(): Promise<RunningState | null> {
@@ -280,7 +280,7 @@ export async function getRunning(): Promise<RunningState | null> {
 }
 
 /**
- * Check if AO is already running.
+ * Check if CAHI is already running.
  * Returns the running state if alive, null otherwise.
  */
 export async function isAlreadyRunning(): Promise<RunningState | null> {
@@ -288,7 +288,7 @@ export async function isAlreadyRunning(): Promise<RunningState | null> {
 }
 
 /**
- * Serialize `ao start` so concurrent startups cannot both observe an empty
+ * Serialize `cahi start` so concurrent startups cannot both observe an empty
  * running.json and create competing orchestrator/dashboard processes.
  */
 export async function acquireStartupLock(timeoutMs = 30000): Promise<() => void> {
@@ -309,7 +309,7 @@ export async function waitForExit(pid: number, timeoutMs = 5000): Promise<boolea
 }
 
 /**
- * Record which sessions were active when `ao stop` ran.
+ * Record which sessions were active when `cahi stop` ran.
  */
 export async function writeLastStop(state: LastStopState): Promise<void> {
   const release = await acquireLock(LAST_STOP_LOCK_FILE, 5000, "last-stop.json lock");

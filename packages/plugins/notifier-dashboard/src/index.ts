@@ -10,7 +10,7 @@ import {
 export const manifest = {
   name: "dashboard",
   slot: "notifier" as const,
-  description: "Notifier plugin: AO dashboard notifications",
+  description: "Notifier plugin: CAHI dashboard notifications",
   version: "0.1.0",
 };
 

@@ -302,7 +302,7 @@ export interface TestEnvironment {
 }
 
 export function createTestEnvironment(): TestEnvironment {
-  const tmpDir = join(tmpdir(), `ao-test-lifecycle-${randomUUID()}`);
+  const tmpDir = join(tmpdir(), `cahi-test-lifecycle-${randomUUID()}`);
   mkdirSync(tmpDir, { recursive: true });
   const previousHome = process.env["HOME"];
   const previousUserProfile = process.env["USERPROFILE"];
@@ -397,7 +397,7 @@ export function setupTestContext(): TestContext {
   const originalPath = process.env.PATH;
   const originalHome = process.env["HOME"];
   const originalUserProfile = process.env["USERPROFILE"];
-  const tmpDir = join(tmpdir(), `ao-test-session-mgr-${randomUUID()}`);
+  const tmpDir = join(tmpdir(), `cahi-test-session-mgr-${randomUUID()}`);
   mkdirSync(tmpDir, { recursive: true });
   process.env["HOME"] = tmpDir;
   // os.homedir() reads USERPROFILE on Windows, not HOME

@@ -1,6 +1,6 @@
 /**
  * Integration round-trip for the boundary-bug-hunter Phase 1 finding on
- * PR #1466: after `ao migrate-storage` rewrites a session's worktree path
+ * PR #1466: after `cahi migrate-storage` rewrites a session's worktree path
  * from V1 (`{hash}-{project}/worktrees/{sid}`) to V2
  * (`projects/{projectId}/worktrees/{sid}`), the agent-codex plugin must
  * still be able to find the prior Codex thread and produce a real
@@ -30,7 +30,7 @@ describe.skipIf(process.platform === "win32")("migrate-storage → agent-codex.g
   let prevHome: string | undefined;
 
   beforeEach(() => {
-    testDir = mkdtempSync(join(tmpdir(), `ao-mig-codex-rt-${randomUUID()}-`));
+    testDir = mkdtempSync(join(tmpdir(), `cahi-mig-codex-rt-${randomUUID()}-`));
     aoBaseDir = join(testDir, ".cahi");
     mkdirSync(aoBaseDir, { recursive: true });
     configPath = join(aoBaseDir, "config.yaml");
@@ -63,15 +63,15 @@ describe.skipIf(process.platform === "win32")("migrate-storage → agent-codex.g
     //    disk before running migrate-storage.
     const hashDir = join(aoBaseDir, "aaaaaa000000-myproject");
     mkdirSync(join(hashDir, "sessions"), { recursive: true });
-    const oldWorktreePath = join(hashDir, "worktrees", "ao-1");
+    const oldWorktreePath = join(hashDir, "worktrees", "cahi-1");
     mkdirSync(oldWorktreePath, { recursive: true });
 
     writeFileSync(
-      join(hashDir, "sessions", "ao-1"),
+      join(hashDir, "sessions", "cahi-1"),
       [
         "project=myproject",
         "agent=codex",
-        "branch=session/ao-1",
+        "branch=session/cahi-1",
         `worktree=${oldWorktreePath}`,
       ].join("\n"),
     );
@@ -104,7 +104,7 @@ describe.skipIf(process.platform === "win32")("migrate-storage → agent-codex.g
       "projects",
       "myproject",
       "worktrees",
-      "ao-1",
+      "cahi-1",
     );
     const rewritten = JSON.parse(
       readFileSync(rolloutPath, "utf-8").split("\n")[0],
@@ -122,13 +122,13 @@ describe.skipIf(process.platform === "win32")("migrate-storage → agent-codex.g
     const codexPlugin = (await import("@contaazul/cahi-plugin-agent-codex"))
       .default;
     const agent = codexPlugin.create();
-    const session = makeSession("ao-1", null, newWorktreePath);
+    const session = makeSession("cahi-1", null, newWorktreePath);
     const projectConfig = {
       name: "My Project",
       repo: "owner/repo",
       path: join(testDir, "repo"),
       defaultBranch: "main",
-      sessionPrefix: "ao",
+      sessionPrefix: "cahi",
     };
     const cmd = await agent.getRestoreCommand!(session, projectConfig);
 

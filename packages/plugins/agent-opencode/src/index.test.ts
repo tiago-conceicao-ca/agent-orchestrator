@@ -154,15 +154,15 @@ describe("getLaunchCommand", () => {
 
   it("generates base command without prompt", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig());
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).toContain("opencode session list --format json");
-    expect(cmd).toContain("AO:sess-1");
+    expect(cmd).toContain("CAHI:sess-1");
   });
 
   it("uses --prompt with shell-escaped prompt", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ prompt: "Fix it" }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain("exec opencode --session \"$SES_ID\" --prompt 'Fix it'");
   });
 
@@ -176,7 +176,7 @@ describe("getLaunchCommand", () => {
       makeLaunchConfig({ prompt: "Go", model: "claude-sonnet-4-5-20250929" }),
     );
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:sess-1' --model 'claude-sonnet-4-5-20250929'",
+      "opencode run --format json --title 'CAHI:sess-1' --model 'claude-sonnet-4-5-20250929'",
     );
     expect(cmd).toContain(
       "exec opencode --session \"$SES_ID\" --prompt 'Go' --model 'claude-sonnet-4-5-20250929'",
@@ -186,7 +186,7 @@ describe("getLaunchCommand", () => {
 
   it("escapes single quotes in prompt (POSIX shell escaping)", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ prompt: "it's broken" }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain("exec opencode --session \"$SES_ID\" --prompt 'it'\\''s broken'");
   });
 
@@ -205,7 +205,7 @@ describe("getLaunchCommand", () => {
     const cmd = agent.getLaunchCommand(
       makeLaunchConfig({ subagent: "sisyphus", prompt: "fix bug" }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1' --agent 'sisyphus'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1' --agent 'sisyphus'");
     expect(cmd).toContain(
       "exec opencode --session \"$SES_ID\" --prompt 'fix bug' --agent 'sisyphus'",
     );
@@ -221,7 +221,7 @@ describe("getLaunchCommand", () => {
       }),
     );
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:sess-1' --agent 'sisyphus' --model 'claude-sonnet-4-5-20250929'",
+      "opencode run --format json --title 'CAHI:sess-1' --agent 'sisyphus' --model 'claude-sonnet-4-5-20250929'",
     );
     expect(cmd).toContain(
       "exec opencode --session \"$SES_ID\" --prompt 'fix the bug' --agent 'sisyphus' --model 'claude-sonnet-4-5-20250929'",
@@ -234,7 +234,7 @@ describe("getLaunchCommand", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ sessionId: "sess-1; rm -rf /" }));
 
     expect(cmd).toContain(
-      "echo 'failed to discover OpenCode session ID for AO:sess-1; rm -rf /' >&2",
+      "echo 'failed to discover OpenCode session ID for CAHI:sess-1; rm -rf /' >&2",
     );
   });
 
@@ -264,7 +264,7 @@ describe("getLaunchCommand", () => {
   it("backward compatible: no agent flag when subagent not provided", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ prompt: "fix it" }));
     expect(cmd).not.toContain("--agent");
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain("exec opencode --session \"$SES_ID\" --prompt 'fix it'");
   });
 
@@ -274,7 +274,7 @@ describe("getLaunchCommand", () => {
     );
     expect(cmd).not.toContain("--agent");
     expect(cmd).toContain(
-      "opencode run --format json --title 'AO:sess-1' --model 'claude-sonnet-4-5-20250929'",
+      "opencode run --format json --title 'CAHI:sess-1' --model 'claude-sonnet-4-5-20250929'",
     );
     expect(cmd).toContain(
       "exec opencode --session \"$SES_ID\" --prompt 'Go' --model 'claude-sonnet-4-5-20250929'",
@@ -286,7 +286,7 @@ describe("getLaunchCommand", () => {
     const cmd = agent.getLaunchCommand(
       makeLaunchConfig({ systemPrompt: "You are an orchestrator" }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).not.toContain("--prompt 'You are an orchestrator'");
     expect(cmd).not.toContain("--agent");
@@ -296,7 +296,7 @@ describe("getLaunchCommand", () => {
     const cmd = agent.getLaunchCommand(
       makeLaunchConfig({ systemPrompt: "You are an orchestrator", prompt: "do the task" }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain(`exec opencode --session "$SES_ID" --prompt 'do the task'`);
     expect(cmd).not.toContain("--agent");
   });
@@ -310,13 +310,13 @@ describe("getLaunchCommand", () => {
   it("handles very long systemPrompt", () => {
     const longPrompt = "A".repeat(500);
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ systemPrompt: longPrompt }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd.length).toBeGreaterThan(500);
   });
 
   it("generates command with systemPromptFile via shell substitution", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ systemPromptFile: "/tmp/prompt.md" }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).not.toContain("$(cat '/tmp/prompt.md')");
     expect(cmd).not.toContain("--agent");
@@ -337,7 +337,7 @@ describe("getLaunchCommand", () => {
         systemPromptFile: "/tmp/file-prompt.md",
       }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).not.toContain("direct prompt");
   });
@@ -350,7 +350,7 @@ describe("getLaunchCommand", () => {
         prompt: "fix the bug",
       }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1' --agent 'sisyphus'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1' --agent 'sisyphus'");
     expect(cmd).toContain(
       `exec opencode --session "$SES_ID" --prompt 'fix the bug' --agent 'sisyphus'`,
     );
@@ -364,7 +364,7 @@ describe("getLaunchCommand", () => {
         systemPromptFile: "/tmp/orchestrator.md",
       }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:my-orchestrator'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:my-orchestrator'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).not.toContain("--agent");
   });
@@ -377,7 +377,7 @@ describe("getLaunchCommand", () => {
         prompt: "fix the bug",
       }),
     );
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1' --agent 'sisyphus'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1' --agent 'sisyphus'");
     expect(cmd).toContain(
       `exec opencode --session "$SES_ID" --prompt 'fix the bug' --agent 'sisyphus'`,
     );
@@ -393,7 +393,7 @@ describe("getLaunchCommand", () => {
 
   it("handles prompt with newlines", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ prompt: "line1\nline2\nline3" }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain("'line1");
   });
 
@@ -424,10 +424,10 @@ describe("getLaunchCommand", () => {
 
   it("handles empty prompt", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig({ prompt: "" }));
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
     expect(cmd).toContain("opencode session list --format json");
-    expect(cmd).toContain("AO:sess-1");
+    expect(cmd).toContain("CAHI:sess-1");
   });
 
   it("uses existing session id", () => {
@@ -450,7 +450,7 @@ describe("getLaunchCommand", () => {
 
   it("uses existing session id with --title fallback", () => {
     const cmd = agent.getLaunchCommand(makeLaunchConfig());
-    expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+    expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     expect(cmd).toContain('exec opencode --session "$SES_ID"');
   });
 });
@@ -667,11 +667,11 @@ describe("getActivityState", () => {
     expect(state).toBeNull();
   });
 
-  it("falls back to AO session title when opencodeSessionId metadata is missing", async () => {
+  it("falls back to CAHI session title when opencodeSessionId metadata is missing", async () => {
     mockOpencodeSessionRows([
       {
         id: "ses_different",
-        title: "AO:test-1",
+        title: "CAHI:test-1",
         updated: new Date(Date.now() - 5_000).toISOString(),
       },
     ]);
@@ -725,7 +725,7 @@ describe("getSessionInfo", () => {
 
   it("returns session info when matching session found by metadata ID", async () => {
     mockOpencodeSessionRows([
-      { id: "ses_abc123", title: "AO:test-1", updated: new Date().toISOString() },
+      { id: "ses_abc123", title: "CAHI:test-1", updated: new Date().toISOString() },
     ]);
 
     const info = await agent.getSessionInfo(
@@ -733,13 +733,13 @@ describe("getSessionInfo", () => {
     );
     expect(info).not.toBeNull();
     expect(info!.agentSessionId).toBe("ses_abc123");
-    expect(info!.summary).toBe("AO:test-1");
+    expect(info!.summary).toBe("CAHI:test-1");
     expect(info!.summaryIsFallback).toBe(true);
   });
 
   it("returns session info when matching session found by title", async () => {
     mockOpencodeSessionRows([
-      { id: "ses_xyz789", title: "AO:test-1", updated: new Date().toISOString() },
+      { id: "ses_xyz789", title: "CAHI:test-1", updated: new Date().toISOString() },
     ]);
 
     const info = await agent.getSessionInfo(makeSession({ metadata: {} }));
@@ -749,7 +749,7 @@ describe("getSessionInfo", () => {
 
   it("returns null when no matching session", async () => {
     mockOpencodeSessionRows([
-      { id: "ses_other", title: "AO:different", updated: new Date().toISOString() },
+      { id: "ses_other", title: "CAHI:different", updated: new Date().toISOString() },
     ]);
 
     const info = await agent.getSessionInfo(makeSession({ metadata: {} }));
@@ -808,7 +808,7 @@ describe("getRestoreCommand", () => {
     mockExecFileAsync.mockImplementation((cmd: string) => {
       if (cmd === "opencode") {
         return Promise.resolve({
-          stdout: JSON.stringify([{ id: "ses_found", title: "AO:test-1" }]),
+          stdout: JSON.stringify([{ id: "ses_found", title: "CAHI:test-1" }]),
           stderr: "",
         });
       }
@@ -946,7 +946,7 @@ describe("invalid session ID rejection", () => {
       );
 
       expect(cmd).not.toContain(`--session '${invalidId}'`);
-      expect(cmd).toContain("opencode run --format json --title 'AO:sess-1'");
+      expect(cmd).toContain("opencode run --format json --title 'CAHI:sess-1'");
     }
   });
 
@@ -1044,7 +1044,7 @@ describe("getActivityState with activity JSONL", () => {
           stdout: JSON.stringify([
             {
               id: "ses_abc123",
-              title: "AO:test-1",
+              title: "CAHI:test-1",
               updated: new Date(Date.now() - 5_000).toISOString(),
             },
           ]),

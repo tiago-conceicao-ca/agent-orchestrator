@@ -13,7 +13,7 @@ function setPlatform(p: NodeJS.Platform): void {
 }
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-pathseq-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-pathseq-"));
   originalPlatform = Object.getOwnPropertyDescriptor(process, "platform");
 });
 

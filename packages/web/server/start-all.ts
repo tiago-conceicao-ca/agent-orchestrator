@@ -1,6 +1,6 @@
 /**
  * Production entry point — starts Next.js + terminal servers.
- * Used by `ao start` when running from an npm install (no monorepo).
+ * Used by `cahi start` when running from an npm install (no monorepo).
  * Replaces the dev-only `concurrently` setup.
  */
 
@@ -111,7 +111,7 @@ const pathBasedMux = process.env["CAHI_PATH_BASED_MUX"] === "1";
 
 // When CAHI_PATH_BASED_MUX=1, single-port-server.js owns PORT and Next.js is
 // shifted to PORT + 1000 (overridable via NEXT_INTERNAL_PORT). The proxy
-// forwards HTTP to Next.js and tunnels `/ao-terminal-mux` WS upgrades to
+// forwards HTTP to Next.js and tunnels `/cahi-terminal-mux` WS upgrades to
 // direct-terminal-ws. Default off — Next.js stays on PORT directly.
 const NEXT_INTERNAL_OFFSET = 1000;
 const nextPort = pathBasedMux

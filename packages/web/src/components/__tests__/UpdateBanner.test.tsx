@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 import { UpdateBanner } from "../UpdateBanner";
 
-const DISMISS_KEY = "ao.updateBanner.dismissedFor";
+const DISMISS_KEY = "cahi.updateBanner.dismissedFor";
 
 function mockVersionResponse(body: {
   current: string;
@@ -166,7 +166,7 @@ describe("UpdateBanner", () => {
         status: 409,
         json: async () => ({
           ok: false,
-          message: "3 sessions active. Run `ao stop` first.",
+          message: "3 sessions active. Run `cahi stop` first.",
           activeSessions: 3,
         }),
       } as Response);
@@ -193,7 +193,7 @@ describe("UpdateBanner", () => {
         status: 409,
         json: async () => ({
           ok: false,
-          message: "1 session active. Run `ao stop` first.",
+          message: "1 session active. Run `cahi stop` first.",
           activeSessions: 1,
         }),
       } as Response);

@@ -377,7 +377,7 @@ export class CodexAppServerClient extends EventEmitter {
   private async initialize(): Promise<void> {
     const result = await this.sendRequest("initialize", {
       clientInfo: {
-        name: "ao-agent-codex",
+        name: "cahi-agent-codex",
         title: "CAHI — Codex Plugin",
         version: "0.1.1",
       },

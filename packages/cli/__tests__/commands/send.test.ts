@@ -87,9 +87,9 @@ beforeEach(() => {
   mockSessionManager.send.mockReset();
   mockConfigRef.current = null;
   mockExec.mockResolvedValue({ stdout: "", stderr: "" });
-  // Tests assume the caller is a human (no AO session). Tests that need to
+  // Tests assume the caller is a human (no CAHI session). Tests that need to
   // simulate session-to-session sends override CAHI_SESSION_ID explicitly. This
-  // matters because the test process itself often runs inside an AO worker,
+  // matters because the test process itself often runs inside an CAHI worker,
   // which would leak its own CAHI_SESSION_ID into the auto-prefix logic.
   savedSessionEnv = process.env["CAHI_SESSION_ID"];
   delete process.env["CAHI_SESSION_ID"];
@@ -408,7 +408,7 @@ describe("send command", () => {
       };
     }
 
-    it("routes AO sessions through SessionManager.send", async () => {
+    it("routes CAHI sessions through SessionManager.send", async () => {
       mockConfigRef.current = makeConfig();
       mockSessionManager.get.mockResolvedValue({
         id: "app-1",
@@ -484,7 +484,7 @@ describe("send command", () => {
       );
     });
 
-    it("skips tmux checks for non-tmux AO sessions and still uses lifecycle send", async () => {
+    it("skips tmux checks for non-tmux CAHI sessions and still uses lifecycle send", async () => {
       mockConfigRef.current = makeConfig();
       mockSessionManager.get.mockResolvedValue({
         id: "app-1",
@@ -509,7 +509,7 @@ describe("send command", () => {
       expect(mockTmux).not.toHaveBeenCalledWith("has-session", "-t", expect.any(String));
     });
 
-    it("fails loudly when lifecycle delivery fails for an AO session", async () => {
+    it("fails loudly when lifecycle delivery fails for an CAHI session", async () => {
       mockConfigRef.current = makeConfig();
       mockSessionManager.get.mockResolvedValue({
         id: "app-1",
@@ -542,7 +542,7 @@ describe("send command", () => {
       );
     });
 
-    it("passes file contents through SessionManager.send for AO sessions", async () => {
+    it("passes file contents through SessionManager.send for CAHI sessions", async () => {
       mockConfigRef.current = makeConfig();
       mockSessionManager.get.mockResolvedValue({
         id: "app-1",
@@ -566,7 +566,7 @@ describe("send command", () => {
       });
       mockDetectActivity.mockReturnValue("idle");
 
-      const filePath = join(tmpdir(), `ao-send-message-${Date.now()}.txt`);
+      const filePath = join(tmpdir(), `cahi-send-message-${Date.now()}.txt`);
       writeFileSync(filePath, "from file");
 
       try {

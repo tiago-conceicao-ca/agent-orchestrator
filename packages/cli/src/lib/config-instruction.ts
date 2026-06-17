@@ -1,6 +1,6 @@
 /**
- * Returns the complete AO config schema as formatted text.
- * Used by `ao config-help` and injected into orchestrator system prompts.
+ * Returns the complete CAHI config schema as formatted text.
+ * Used by `cahi config-help` and injected into orchestrator system prompts.
  */
 import { CONFIG_SCHEMA_URL } from "@contaazul/cahi-core";
 
@@ -44,7 +44,7 @@ defaults:
 plugins:
   - name: owasp-auditor
     source: registry          # registry | npm | local
-    package: "@ao-plugins/owasp-auditor"
+    package: "@cahi-plugins/owasp-auditor"
     version: "^0.1.0"
     enabled: true
   - name: local-dev-plugin

@@ -142,7 +142,7 @@ export function create(): Runtime {
           ptyChild.stdout?.destroy();
           ptyChild.stderr?.destroy();
 
-          // Sideband registration so `ao stop` can find and graceful-kill this
+          // Sideband registration so `cahi stop` can find and graceful-kill this
           // pty-host even if its session JSON is later wiped. Without this,
           // `detached: true` puts pty-host in its own console group, escaping
           // `taskkill /T` on the parent process. See windows-pty-registry.ts.
@@ -311,7 +311,7 @@ export function create(): Runtime {
 
       const entry = processes.get(handle.id);
       if (!entry) {
-        // Process was spawned by a different Node.js process (e.g. ao spawn).
+        // Process was spawned by a different Node.js process (e.g. cahi spawn).
         // The in-memory Map doesn't have it, but handle.data.pid has the OS PID.
         const pid = (handle.data as Record<string, unknown>)?.pid;
         if (typeof pid === "number" && pid > 0) {
@@ -495,7 +495,7 @@ export function create(): Runtime {
  * pipe (so node-pty disposes its ConPTY handle and avoids the WER 0x800700e8
  * dialog), wait briefly, then SIGKILL stragglers via the OS process tree.
  *
- * Invoked by `ao stop` on Windows so orphaned pty-hosts (whose session JSON
+ * Invoked by `cahi stop` on Windows so orphaned pty-hosts (whose session JSON
  * was wiped or whose parent died ungracefully) still get cleaned up.
  *
  * Returns counts for diagnostics. No-op on non-Windows.

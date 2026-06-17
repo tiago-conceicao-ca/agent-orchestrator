@@ -12,7 +12,7 @@ import type { DashboardSession } from "./types.js";
  * title-cases the remainder.
  *
  * When `sessionId` is provided and the stripped branch is equal to the session
- * ID (i.e. the branch is just `session/ao-42` or `orchestrator/ao-orchestrator-8`),
+ * ID (i.e. the branch is just `session/cahi-42` or `orchestrator/cahi-orchestrator-8`),
  * this function returns an empty string. That signals to {@link getSessionTitle}
  * that the branch carries no task information beyond the session ID and should
  * be skipped in the fallback chain so the display name doesn't read like
@@ -20,8 +20,8 @@ import type { DashboardSession } from "./types.js";
  *
  * @example
  *   humanizeBranch("feat/infer-project-id")           // → "Infer Project Id"
- *   humanizeBranch("orchestrator/ao-orchestrator-8", "ao-orchestrator-8") // → ""
- *   humanizeBranch("session/ao-52", "ao-52")          // → ""
+ *   humanizeBranch("orchestrator/cahi-orchestrator-8", "cahi-orchestrator-8") // → ""
+ *   humanizeBranch("session/cahi-52", "cahi-52")          // → ""
  */
 export function humanizeBranch(branch: string, sessionId?: string): string {
   // Remove common prefixes (keep in sync with actual branch-generation logic
@@ -32,8 +32,8 @@ export function humanizeBranch(branch: string, sessionId?: string): string {
     "",
   );
 
-  // If the remaining text is just the session ID (e.g. "ao-42" or
-  // "ao-orchestrator-8"), there's no task signal here — return empty so the
+  // If the remaining text is just the session ID (e.g. "cahi-42" or
+  // "cahi-orchestrator-8"), there's no task signal here — return empty so the
   // caller can fall through to the next fallback (displayName, summary, …).
   if (sessionId && withoutPrefix === sessionId) {
     return "";
@@ -95,7 +95,7 @@ export function getSessionTitle(session: DashboardSession): string {
 
   // 5. Humanized branch — stable semantic fallback.
   // humanizeBranch returns "" when the branch is just the session ID
-  // (e.g. "session/ao-42", "orchestrator/ao-orchestrator-8"), which signals
+  // (e.g. "session/cahi-42", "orchestrator/cahi-orchestrator-8"), which signals
   // we should skip ahead to the summary fallbacks instead of showing noise.
   if (session.branch) {
     const humanized = humanizeBranch(session.branch, session.id);

@@ -286,7 +286,7 @@ function DashboardInner({
   // Update document title with live attention counts
   useEffect(() => {
     const needsAttention = countNeedingAttention(attentionLevels);
-    const label = projectName ?? "ao";
+    const label = projectName ?? "cahi";
     document.title = needsAttention > 0 ? `${label} (${needsAttention} need attention)` : label;
   }, [attentionLevels, projectName]);
 
@@ -497,7 +497,7 @@ function DashboardInner({
       <span className="break-words text-[var(--color-text-secondary)]">{visibleLoadError}</span>
       <span className="text-[var(--color-text-secondary)]">
         Confirm <span className="font-mono text-[10px]">cahi.yaml</span> exists and is
-        valid, then run <span className="font-mono text-[10px]">ao doctor</span> for diagnostics.
+        valid, then run <span className="font-mono text-[10px]">cahi doctor</span> for diagnostics.
       </span>
     </div>
   ) : null;

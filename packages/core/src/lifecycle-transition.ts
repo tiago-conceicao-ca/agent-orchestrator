@@ -32,7 +32,7 @@ import type { LifecycleDecision } from "./lifecycle-status-decisions.js";
  */
 export type TransitionSource =
   | "poll" // Lifecycle manager polling
-  | "agent_report" // Agent self-report (ao acknowledge, ao report)
+  | "agent_report" // Agent self-report (cahi acknowledge, cahi report)
   | "spawn" // Session spawn
   | "restore" // Session restore
   | "kill" // Manual kill

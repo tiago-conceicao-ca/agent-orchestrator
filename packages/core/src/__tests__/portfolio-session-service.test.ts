@@ -18,7 +18,7 @@ describe("portfolio-session-service", () => {
   let oldUserProfile: string | undefined;
 
   beforeEach(() => {
-    tempRoot = join(tmpdir(), `ao-portfolio-sessions-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    tempRoot = join(tmpdir(), `cahi-portfolio-sessions-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     mkdirSync(tempRoot, { recursive: true });
     oldHome = process.env["HOME"];
     oldUserProfile = process.env["USERPROFILE"];

@@ -18,7 +18,7 @@ import type { Session } from "@contaazul/cahi-core";
 //            │                                           │ then dominant.
 //   2        │ kimi.json soft-pin (`last_session_id`)    │ kimi-cli's own
 //            │                                           │ bookkeeping; fallback
-//            │                                           │ when AO pin not yet
+//            │                                           │ when CAHI pin not yet
 //            │                                           │ written.
 //   3        │ Recency heuristic (live-file mtime)       │ filtered by:
 //            │                                           │   - baseline (pre-
@@ -30,7 +30,7 @@ import type { Session } from "@contaazul/cahi-core";
 //
 // Files written into the workspace's .cahi/ dir:
 //   - kimi-baseline.json   — UUIDs that existed BEFORE launch
-//   - kimi-session-id.json — pinned UUID for this AO session
+//   - kimi-session-id.json — pinned UUID for this CAHI session
 //
 // Both are write-once and survive restore.
 // =============================================================================
@@ -132,7 +132,7 @@ function kimiWorkspaceHash(workspacePath: string): string {
 /**
  * Resolve the workspace path kimi would see as its cwd. kimi's process reads
  * cwd via `os.getcwd()`, which on Linux returns the realpath (symlinks are
- * resolved by the kernel via /proc/self/cwd). If AO hands us a symlinked
+ * resolved by the kernel via /proc/self/cwd). If CAHI hands us a symlinked
  * workspacePath, our MD5 of the symlink won't match kimi's MD5 of the
  * resolved path — session discovery would silently miss every session.
  *
@@ -231,7 +231,7 @@ async function getKimiLiveSignalMtime(sessionDir: string): Promise<Date | null> 
 // =============================================================================
 
 interface KimiBaseline {
-  /** Pre-existing UUIDs in ~/.kimi/sessions/<md5(workspace)>/ at AO launch. */
+  /** Pre-existing UUIDs in ~/.kimi/sessions/<md5(workspace)>/ at CAHI launch. */
   preExistingUuids: string[];
   /** ISO timestamp the baseline was captured. */
   capturedAt: string;
@@ -251,7 +251,7 @@ async function readKimiBaseline(workspacePath: string): Promise<Set<string> | nu
 /**
  * Snapshot existing UUIDs in this workspace's Kimi bucket. Called once by
  * preLaunchSetup; if the baseline file already exists (e.g. on session
- * restore) we leave it alone so the original "what was here before AO
+ * restore) we leave it alone so the original "what was here before CAHI
  * started" partition is preserved.
  */
 export async function captureKimiBaseline(workspacePath: string): Promise<void> {
@@ -352,13 +352,13 @@ async function findKimiSessionMatchUncached(
   }
 
   // Pin file takes highest priority. Once we've identified a UUID for this
-  // AO session (this function writes the pin on first successful match),
+  // CAHI session (this function writes the pin on first successful match),
   // we always return it — never re-evaluate the recency heuristic.
   const pinnedId = await readKimiSessionPin(session.workspacePath);
 
   // kimi.json soft-pin: kimi-cli stores `work_dirs[].last_session_id` for
   // each workspace. When populated it's more authoritative than directory
-  // mtime — kimi itself wrote it. Used as a tiebreaker when no AO pin yet
+  // mtime — kimi itself wrote it. Used as a tiebreaker when no CAHI pin yet
   // exists.
   let kimiJsonSessionId: string | null = null;
   if (!pinnedId) {
@@ -372,8 +372,8 @@ async function findKimiSessionMatchUncached(
     }
   }
 
-  // UUIDs that existed BEFORE this AO session started are partitioned out —
-  // they belong to a manual `kimi` run, a sibling AO session, or some other
+  // UUIDs that existed BEFORE this CAHI session started are partitioned out —
+  // they belong to a manual `kimi` run, a sibling CAHI session, or some other
   // context. Without this, the "freshest in bucket" heuristic would attach
   // to whichever one happened to scroll recently.
   const baseline = await readKimiBaseline(session.workspacePath);
@@ -399,9 +399,9 @@ async function findKimiSessionMatchUncached(
     // Baseline filter — UUIDs present at launch never count as "ours".
     // Applied BEFORE the kimi.json soft-pin check: kimi.json's
     // last_session_id can lag the live bucket (e.g. a manual `kimi`
-    // run earlier left a stale pointer, or AO polls before kimi has
+    // run earlier left a stale pointer, or CAHI polls before kimi has
     // updated kimi.json). Without this guard, the soft-pin would
-    // capture a baseline UUID and persist it to the AO pin file
+    // capture a baseline UUID and persist it to the CAHI pin file
     // permanently, with no self-healing path.
     if (baseline?.has(entry)) continue;
 
@@ -411,7 +411,7 @@ async function findKimiSessionMatchUncached(
     // can still return a recency winner if the soft-pin UUID has no live
     // files (rare but possible if kimi.json points at a stale entry).
     // Reaches here only after passing the baseline + createdAt filters,
-    // so a stale last_session_id pointing at a pre-AO UUID is rejected.
+    // so a stale last_session_id pointing at a pre-CAHI UUID is rejected.
     if (kimiJsonSessionId && entry === kimiJsonSessionId) {
       kimiJsonMatch = { dir, sessionId: entry, mtime: liveMtime };
       continue;
@@ -437,7 +437,7 @@ async function findKimiSessionMatchUncached(
   if (best) {
     // Persist the recency-heuristic winner. Subsequent calls will read the
     // pin file and bypass the heuristic — even if the bucket gains another
-    // recently-active UUID later (manual kimi run, sibling AO session).
+    // recently-active UUID later (manual kimi run, sibling CAHI session).
     await writeKimiSessionPin(session.workspacePath, best.sessionId);
     return { dir: best.dir, sessionId: best.sessionId, mtime: best.mtime };
   }

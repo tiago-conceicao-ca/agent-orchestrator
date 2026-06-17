@@ -9,7 +9,7 @@ let storeDir: string;
 let store: CodeReviewStore;
 
 beforeEach(() => {
-  storeDir = join(tmpdir(), `ao-test-code-review-store-${randomUUID()}`);
+  storeDir = join(tmpdir(), `cahi-test-code-review-store-${randomUUID()}`);
   mkdirSync(storeDir, { recursive: true });
   store = createCodeReviewStore("app", { storeDir });
 });

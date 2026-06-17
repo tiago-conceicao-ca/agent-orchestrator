@@ -224,12 +224,12 @@ describe("notifier-desktop", () => {
               session: { id: "demo-agent-29", projectId: "demo" },
               pr: {
                 number: 1579,
-                title: "Normalize AO notifier payloads",
+                title: "Normalize CAHI notifier payloads",
                 url: "https://github.com/contaazul/cahi/pull/1579",
-                branch: "ao/demo-notifier-harness",
+                branch: "cahi/demo-notifier-harness",
                 baseBranch: "main",
               },
-              issue: { id: "AO-1579", title: "Make AO notification payloads API-grade" },
+              issue: { id: "CAHI-1579", title: "Make CAHI notification payloads API-grade" },
             },
             ci: { status: "passing" },
             review: { decision: "approved" },
@@ -241,11 +241,11 @@ describe("notifier-desktop", () => {
 
       const script = mockExecFile.mock.calls[0][1][1] as string;
       expect(script).toContain("PR #1579 ready to merge");
-      expect(script).toContain("Normalize AO notifier payloads");
+      expect(script).toContain("Normalize CAHI notifier payloads");
       expect(script).toContain("demo · demo-agent-29 · PR #1579");
       expect(script).toContain("PR #1579");
-      expect(script).toContain("AO-1579");
-      expect(script).toContain("Branch: ao/demo-notifier-harness → main");
+      expect(script).toContain("CAHI-1579");
+      expect(script).toContain("Branch: cahi/demo-notifier-harness → main");
       expect(script).toContain("CI: Passing");
       expect(script).toContain("Review: Approved");
       expect(script).toContain("Merge: Ready");
@@ -525,7 +525,7 @@ describe("notifier-desktop", () => {
         event: { id: string; sessionId: string };
       };
       expect(payload.notificationId).toMatch(/^evt-native\./);
-      expect(payload.threadId).toBe("ao.notifications");
+      expect(payload.threadId).toBe("cahi.notifications");
       expect(payload.subtitle).toBe("my-project · s-9 · Info");
       expect(payload.defaultOpenUrl).toBe("http://localhost:3001/projects/my-project/sessions/s-9");
       expect(payload.event).toMatchObject({ id: "evt-native", sessionId: "s-9" });
@@ -593,7 +593,7 @@ describe("notifier-desktop", () => {
       mockExistsSync.mockReturnValue(false);
       const notifier = create({ backend: "cahi-app" });
 
-      await expect(notifier.notify(makeEvent())).rejects.toThrow("ao setup desktop");
+      await expect(notifier.notify(makeEvent())).rejects.toThrow("cahi setup desktop");
       expect(mockExecFile).not.toHaveBeenCalled();
     });
 

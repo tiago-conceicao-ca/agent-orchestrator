@@ -1,5 +1,5 @@
 /**
- * Runtime preflight checks for `ao start`.
+ * Runtime preflight checks for `cahi start`.
  *
  * Distinct from `lib/preflight.ts` (which validates dashboard build
  * artifacts). This module verifies system tools (git, tmux), warns about
@@ -124,7 +124,7 @@ async function offerWindowsRuntimeSwitch(configPath: string): Promise<boolean> {
   console.log(chalk.dim(`  Config: ${configPath}`));
   console.log(
     chalk.dim(
-      "  AO can rewrite `runtime: tmux` -> `runtime: process` in this file.\n" +
+      "  CAHI can rewrite `runtime: tmux` -> `runtime: process` in this file.\n" +
         "  If the file is git-tracked, you'll see this as a local change.",
     ),
   );
@@ -168,7 +168,7 @@ async function offerWindowsRuntimeSwitch(configPath: string): Promise<boolean> {
 
 /**
  * Ensure tmux is available — interactive install with user consent if missing.
- * Called from runtimePreflight() so all `ao start` paths are covered.
+ * Called from runtimePreflight() so all `cahi start` paths are covered.
  *
  * On Windows, tmux cannot run; instead, offer to rewrite the project config
  * to `runtime: process`. Returns `{ switchedToProcess: true }` if the rewrite
@@ -266,12 +266,12 @@ export async function warnAboutOpenClawStatus(config: OrchestratorConfig): Promi
     if (installation.state === "running") {
       console.log(
         chalk.yellow(
-          `⚠ OpenClaw is running at ${installation.gatewayUrl} but AO is not configured to use it. Run \`cahi setup openclaw\` if you want OpenClaw notifications.`,
+          `⚠ OpenClaw is running at ${installation.gatewayUrl} but CAHI is not configured to use it. Run \`cahi setup openclaw\` if you want OpenClaw notifications.`,
         ),
       );
     }
   } catch {
-    // OpenClaw probing is advisory for `ao start`; never block startup on it.
+    // OpenClaw probing is advisory for `cahi start`; never block startup on it.
   }
 }
 
@@ -297,13 +297,13 @@ export async function runtimePreflight(config: OrchestratorConfig): Promise<void
   warnAboutLegacyStorage();
   await warnAboutOpenClawStatus(config);
 
-  // Prevent macOS idle sleep while AO is running (if enabled in config).
+  // Prevent macOS idle sleep while CAHI is running (if enabled in config).
   // Uses caffeinate -i -w <pid> to hold an assertion tied to this process
   // lifetime. No-op on non-macOS platforms.
   if (config.power?.preventIdleSleep !== false) {
     const sleepHandle = preventIdleSleep();
     if (sleepHandle) {
-      console.log(chalk.dim("  Preventing macOS idle sleep while AO is running"));
+      console.log(chalk.dim("  Preventing macOS idle sleep while CAHI is running"));
     }
   }
 

@@ -35,12 +35,12 @@ describe.skipIf(!tmuxOk)("CLI-Core integration (projectId-based architecture)", 
   let configPath: string;
   let repoPath: string;
   let originalHome: string | undefined;
-  const sessionPrefix = "ao-inttest-new";
+  const sessionPrefix = "cahi-inttest-new";
   const sessionName = `${sessionPrefix}-1`;
 
   beforeAll(async () => {
     await killSessionsByPrefix(sessionPrefix);
-    const raw = await mkdtemp(join(tmpdir(), "ao-inttest-new-"));
+    const raw = await mkdtemp(join(tmpdir(), "cahi-inttest-new-"));
     tmpDir = await realpath(raw);
 
     // HOME isolation so getProjectSessionsDir resolves under tmpDir

@@ -165,7 +165,7 @@ async function updateManagedPlugin(
 ): Promise<"updated" | "skipped"> {
   if (!plugin.package || plugin.source === "local") {
     throw new Error(
-      `Plugin ${plugin.name} is local-only and cannot be updated through the AO store.`,
+      `Plugin ${plugin.name} is local-only and cannot be updated through the CAHI store.`,
     );
   }
 
@@ -225,7 +225,7 @@ async function verifyPluginDescriptor(
 ): Promise<InstalledPluginConfig> {
   const imported = normalizeImportedPluginModule(await importPluginModuleFromSource(specifier));
   if (!imported) {
-    throw new Error(`Imported module ${specifier} does not export a valid AO plugin`);
+    throw new Error(`Imported module ${specifier} does not export a valid CAHI plugin`);
   }
 
   const normalizedDescriptor: InstalledPluginConfig = {
@@ -317,7 +317,7 @@ function printPluginListFromCatalog(
 }
 
 export function registerPlugin(program: Command): void {
-  const plugin = program.command("plugin").description("Browse and manage AO plugins");
+  const plugin = program.command("plugin").description("Browse and manage CAHI plugins");
 
   plugin
     .command("list")
@@ -364,7 +364,7 @@ export function registerPlugin(program: Command): void {
 
   plugin
     .command("create")
-    .description("Scaffold a new AO plugin package")
+    .description("Scaffold a new CAHI plugin package")
     .argument("[directory]", "Target directory for the new plugin")
     .option("--name <name>", "Display/plugin name")
     .option(
@@ -405,7 +405,7 @@ export function registerPlugin(program: Command): void {
 
         if (isInteractive) {
           const clack = await import("@clack/prompts");
-          clack.intro(chalk.bgCyan(chalk.black(" ao plugin create ")));
+          clack.intro(chalk.bgCyan(chalk.black(" cahi plugin create ")));
 
           if (!name) {
             const value = await clack.text({
@@ -442,7 +442,7 @@ export function registerPlugin(program: Command): void {
           if (!description) {
             const value = await clack.text({
               message: "Short description:",
-              placeholder: `AO ${slot} plugin`,
+              placeholder: `CAHI ${slot} plugin`,
               validate: (input) => (!input ? "Description is required" : undefined),
             });
             if (clack.isCancel(value)) {

@@ -7,8 +7,8 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
     id: "evt-1",
     type: "reaction.escalated",
     priority: "urgent",
-    sessionId: "ao-5",
-    projectId: "ao",
+    sessionId: "cahi-5",
+    projectId: "cahi",
     timestamp: new Date("2026-03-20T12:00:00Z"),
     message: "CI failed after 5 retries",
     data: { attempts: 5, reason: "ci_failed" },
@@ -19,7 +19,7 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
 function makeV3Data(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     schemaVersion: 3,
-    subject: { session: { id: "ao-5", projectId: "ao" } },
+    subject: { session: { id: "cahi-5", projectId: "cahi" } },
     ...overrides,
   };
 }
@@ -78,8 +78,8 @@ describe("notifier-discord", () => {
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
     const fields = body.embeds[0].fields;
-    expect(fields).toContainEqual(expect.objectContaining({ name: "Project", value: "ao" }));
-    expect(fields).toContainEqual(expect.objectContaining({ name: "Session", value: "ao-5" }));
+    expect(fields).toContainEqual(expect.objectContaining({ name: "Project", value: "cahi" }));
+    expect(fields).toContainEqual(expect.objectContaining({ name: "Session", value: "cahi-5" }));
     expect(fields).toContainEqual(expect.objectContaining({ name: "Priority", value: "Urgent" }));
   });
 
@@ -92,7 +92,7 @@ describe("notifier-discord", () => {
       makeEvent({
         data: makeV3Data({
           subject: {
-            session: { id: "ao-5", projectId: "ao" },
+            session: { id: "cahi-5", projectId: "cahi" },
             pr: { number: 42, url: "https://github.com/org/repo/pull/42" },
           },
         }),
@@ -168,10 +168,10 @@ describe("notifier-discord", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const notifier = create({ webhookUrl: "https://discord.com/api/webhooks/123/abc" });
-    await notifier.post!("Session ao-5 completed successfully");
+    await notifier.post!("Session cahi-5 completed successfully");
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.content).toBe("Session ao-5 completed successfully");
+    expect(body.content).toBe("Session cahi-5 completed successfully");
     expect(body.allowed_mentions).toEqual({ parse: [] });
     expect(body.embeds).toBeUndefined();
   });
@@ -182,12 +182,12 @@ describe("notifier-discord", () => {
 
     const notifier = create({
       webhookUrl: "https://discord.com/api/webhooks/123/abc",
-      username: "AO Bot",
+      username: "CAHI Bot",
     });
     await notifier.notify(makeEvent());
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.username).toBe("AO Bot");
+    expect(body.username).toBe("CAHI Bot");
   });
 
   it("includes avatar_url when configured", async () => {
@@ -258,10 +258,10 @@ describe("notifier-discord", () => {
         message: "PR #1579 is ready to merge",
         data: makeV3Data({
           subject: {
-            session: { id: "ao-5", projectId: "ao" },
+            session: { id: "cahi-5", projectId: "cahi" },
             pr: {
               number: 1579,
-              title: "Normalize AO notifier payloads",
+              title: "Normalize CAHI notifier payloads",
               url: "https://github.com/org/repo/pull/1579",
               branch: "feat/notifiers",
               baseBranch: "main",
@@ -279,7 +279,7 @@ describe("notifier-discord", () => {
     expect(embed.title).toContain("PR #1579 ready to merge");
     expect(embed.color).toBe(0x57f287);
     expect(embed.url).toBe("https://github.com/org/repo/pull/1579");
-    expect(embed.description).toContain("Normalize AO notifier payloads");
+    expect(embed.description).toContain("Normalize CAHI notifier payloads");
     expect(embed.fields).toContainEqual(expect.objectContaining({ name: "CI" }));
     expect(embed.fields).toContainEqual(
       expect.objectContaining({ name: "Review", value: "Approved" }),

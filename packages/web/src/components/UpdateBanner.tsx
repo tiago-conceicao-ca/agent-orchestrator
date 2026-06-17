@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const DISMISS_KEY = "ao.updateBanner.dismissedFor";
+const DISMISS_KEY = "cahi.updateBanner.dismissedFor";
 
 interface VersionResponse {
   current: string;

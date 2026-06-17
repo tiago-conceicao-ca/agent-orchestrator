@@ -179,7 +179,7 @@ export interface ActivityDetection {
   timestamp?: Date;
 }
 
-/** A single entry in the AO activity JSONL log, written by agent plugins. */
+/** A single entry in the CAHI activity JSONL log, written by agent plugins. */
 export interface ActivityLogEntry {
   /** ISO 8601 timestamp */
   ts: string;
@@ -404,7 +404,7 @@ export interface SessionSpawnConfig {
    * branch) instead of creating a fresh one. Sessions that attached do NOT own
    * the worktree — killing them never destroys the shared checkout.
    *
-   * Undefined (the DEFAULT for every normal `ao spawn` worker) preserves the
+   * Undefined (the DEFAULT for every normal `cahi spawn` worker) preserves the
    * one-isolated-worktree-per-session behavior exactly.
    */
   worktreeKey?: string;
@@ -452,7 +452,7 @@ export interface Runtime {
 
   /**
    * Optional: validate that this runtime's prerequisites are present before
-   * it is exercised by `ao spawn`. Throw with an actionable, human-readable
+   * it is exercised by `cahi spawn`. Throw with an actionable, human-readable
    * message; the CLI catches and formats the error.
    */
   preflight?(context: PreflightContext): Promise<void>;
@@ -577,7 +577,7 @@ export interface Agent {
 
   /**
    * Optional: Set up agent-specific hooks/config in the workspace for automatic metadata updates.
-   * Called once per workspace during ao start and when creating new worktrees.
+   * Called once per workspace during cahi start and when creating new worktrees.
    *
    * Each agent plugin implements this for their own config format:
    * - Claude Code: writes .claude/settings.json with PostToolUse hook
@@ -605,7 +605,7 @@ export interface Agent {
 
   /**
    * Optional: validate that this agent's prerequisites are present before
-   * it is exercised by `ao spawn`. Throw with an actionable error message.
+   * it is exercised by `cahi spawn`. Throw with an actionable error message.
    */
   preflight?(context: PreflightContext): Promise<void>;
 }
@@ -701,7 +701,7 @@ export interface Workspace {
   list(projectId: string): Promise<WorkspaceInfo[]>;
 
   /**
-   * Optional: find a pre-existing AO-managed workspace that already tracks the
+   * Optional: find a pre-existing CAHI-managed workspace that already tracks the
    * requested branch and can be adopted instead of creating a fresh workspace.
    */
   findManagedWorkspace?(config: WorkspaceCreateConfig): Promise<WorkspaceInfo | null>;
@@ -717,7 +717,7 @@ export interface Workspace {
 
   /**
    * Optional: validate that this workspace's prerequisites (e.g. git in PATH,
-   * write access to the worktree root) are present before `ao spawn`.
+   * write access to the worktree root) are present before `cahi spawn`.
    */
   preflight?(context: PreflightContext): Promise<void>;
 }
@@ -791,7 +791,7 @@ export interface Tracker {
 
   /**
    * Optional: validate that this tracker's prerequisites (auth tokens, CLI
-   * tools) are present before `ao spawn` runs. Throw with an actionable
+   * tools) are present before `cahi spawn` runs. Throw with an actionable
    * error message.
    */
   preflight?(context: PreflightContext): Promise<void>;
@@ -941,7 +941,7 @@ export interface SCM {
 
   /**
    * Optional: validate that this SCM's prerequisites (auth, CLI tools) are
-   * present before `ao spawn` runs. Plugins should consult
+   * present before `cahi spawn` runs. Plugins should consult
    * `context.intent.willClaimExistingPR` and skip PR-write prereqs when the
    * spawn won't exercise them.
    */
@@ -1394,11 +1394,11 @@ export interface ReactionResult {
 
 /**
  * Power management configuration.
- * Controls system sleep behavior while AO is running.
+ * Controls system sleep behavior while CAHI is running.
  */
 export interface PowerConfig {
   /**
-   * Prevent macOS idle sleep while AO is running.
+   * Prevent macOS idle sleep while CAHI is running.
    * Uses `caffeinate -i -w <pid>` to hold an assertion.
    * Defaults to true on macOS, no-op on other platforms.
    */
@@ -1410,7 +1410,7 @@ export interface LifecycleConfig {
   /**
    * When a session's PR is detected as merged, automatically tear down the
    * tmux runtime, remove the worktree, and archive the session metadata.
-   * Defaults to true so `ao status` does not retain stale merged entries.
+   * Defaults to true so `cahi status` does not retain stale merged entries.
    */
   autoCleanupOnMerge: boolean;
   /**
@@ -1684,7 +1684,7 @@ export interface TrackerConfig {
    * input before validation. Downstream code can safely assume non-null after validation.
    */
   plugin?: string;
-  /** npm package name for external plugins (e.g. "@acme/ao-plugin-tracker-jira") */
+  /** npm package name for external plugins (e.g. "@acme/cahi-plugin-tracker-jira") */
   package?: string;
   /** Local filesystem path for external plugins (relative to config file or absolute) */
   path?: string;
@@ -1704,7 +1704,7 @@ export interface SCMConfig {
    * input before validation. Downstream code can safely assume non-null after validation.
    */
   plugin?: string;
-  /** npm package name for external plugins (e.g. "@acme/ao-plugin-scm-bitbucket") */
+  /** npm package name for external plugins (e.g. "@acme/cahi-plugin-scm-bitbucket") */
   package?: string;
   /** Local filesystem path for external plugins (relative to config file or absolute) */
   path?: string;
@@ -1734,7 +1734,7 @@ export interface NotifierConfig {
    * Downstream code can safely assume non-null after validation.
    */
   plugin?: string;
-  /** npm package name for external plugins (e.g. "@acme/ao-plugin-notifier-teams") */
+  /** npm package name for external plugins (e.g. "@acme/cahi-plugin-notifier-teams") */
   package?: string;
   /** Local filesystem path for external plugins (relative to config file or absolute) */
   path?: string;
@@ -1863,8 +1863,8 @@ export interface PreflightContext {
 /**
  * Session metadata stored as JSON files under projects/{projectId}/sessions/.
  *
- * Session files are named with user-facing session IDs (e.g., "ao-1.json").
- * The tmuxName field matches the session ID (e.g., "ao-1") — no hash prefix.
+ * Session files are named with user-facing session IDs (e.g., "cahi-1.json").
+ * The tmuxName field matches the session ID (e.g., "cahi-1") — no hash prefix.
  */
 export interface SessionMetadata {
   worktree: string;
@@ -1877,7 +1877,7 @@ export interface SessionMetadata {
    */
   worktreeShared?: string;
   lifecycle?: CanonicalSessionLifecycle;
-  tmuxName?: string; // Tmux session name (matches session ID, e.g. "ao-1")
+  tmuxName?: string; // Tmux session name (matches session ID, e.g. "cahi-1")
   issue?: string;
   issueTitle?: string; // Issue title for event enrichment
   pr?: string;
@@ -1906,7 +1906,7 @@ export interface SessionMetadata {
    *
    * Populated automatically at spawn time from the best available task context
    * (issue title, user prompt, or orchestrator system prompt). Can be
-   * overwritten later via the dashboard rename UI — the session ID (`ao-N`)
+   * overwritten later via the dashboard rename UI — the session ID (`cahi-N`)
    * remains the canonical identifier; only display surfaces are affected.
    *
    * Whether this value should beat PR/issue titles in the dashboard depends
@@ -2128,7 +2128,7 @@ export class SessionNotFoundError extends Error {
 /** Thrown when no cahi.yaml config file can be found. */
 export class ConfigNotFoundError extends Error {
   constructor(message?: string) {
-    super(message ?? "No cahi.yaml found. Run `ao start` to create one.");
+    super(message ?? "No cahi.yaml found. Run `cahi start` to create one.");
     this.name = "ConfigNotFoundError";
   }
 }
@@ -2180,7 +2180,7 @@ export interface PortfolioPreferences {
   }>;
 }
 
-/** Registered projects (explicit `ao project add`) */
+/** Registered projects (explicit `cahi project add`) */
 export interface PortfolioRegistered {
   version: 1;
   projects: Array<{

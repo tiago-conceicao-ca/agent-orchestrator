@@ -187,7 +187,7 @@ async function resolveInteractiveSetup(
 
   while (true) {
     const limitInput = await clack.text({
-      message: "How many dashboard notifications should AO keep?",
+      message: "How many dashboard notifications should CAHI keep?",
       placeholder: String(DEFAULT_DASHBOARD_NOTIFICATION_LIMIT),
       initialValue: stringValue(opts.limit) ?? String(existingLimit),
       validate: (value) => {
@@ -281,11 +281,11 @@ export async function runDashboardSetupAction(opts: DashboardSetupOptions): Prom
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("Dashboard setup complete!")} AO will retain the latest ${resolved.limit} dashboard notifications.\n` +
-        chalk.dim("  Test it with: ao notify test --to dashboard --template basic"),
+      `${chalk.green("Dashboard setup complete!")} CAHI will retain the latest ${resolved.limit} dashboard notifications.\n` +
+        chalk.dim("  Test it with: cahi notify test --to dashboard --template basic"),
     );
   } else {
     console.log(chalk.green("\nDashboard setup complete."));
-    console.log(chalk.dim("Test it with: ao notify test --to dashboard --template basic"));
+    console.log(chalk.dim("Test it with: cahi notify test --to dashboard --template basic"));
   }
 }

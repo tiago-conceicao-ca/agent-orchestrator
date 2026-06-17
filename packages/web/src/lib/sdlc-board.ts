@@ -18,7 +18,7 @@ export interface KanbanCard {
   status: string;
 }
 
-/** A dispatched AO session linked to a task (metadata.sdlcTaskId === task.id). */
+/** A dispatched CAHI session linked to a task (metadata.sdlcTaskId === task.id). */
 export interface LinkedSession {
   sessionId: string;
   projectId: string;

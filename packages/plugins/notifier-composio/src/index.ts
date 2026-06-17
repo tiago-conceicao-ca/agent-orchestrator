@@ -946,24 +946,24 @@ function formatEmailSubject(event: OrchestratorEvent): string {
 
   switch (event.type) {
     case "ci.failing":
-      return pr ? `[AO] CI failing on PR #${pr.number}` : "[AO] CI failing";
+      return pr ? `[CAHI] CI failing on PR #${pr.number}` : "[CAHI] CI failing";
     case "merge.ready":
-      return pr ? `[AO] PR #${pr.number} ready to merge` : "[AO] Merge ready";
+      return pr ? `[CAHI] PR #${pr.number} ready to merge` : "[CAHI] Merge ready";
     case "review.changes_requested":
-      return pr ? `[AO] Changes requested on PR #${pr.number}` : "[AO] Review changes requested";
+      return pr ? `[CAHI] Changes requested on PR #${pr.number}` : "[CAHI] Review changes requested";
     case "session.needs_input":
-      return `[AO] Agent needs input: ${event.sessionId}`;
+      return `[CAHI] Agent needs input: ${event.sessionId}`;
     case "session.stuck":
-      return `[AO] Agent stuck: ${event.sessionId}`;
+      return `[CAHI] Agent stuck: ${event.sessionId}`;
     case "session.killed":
     case "session.exited":
-      return `[AO] Agent exited: ${event.sessionId}`;
+      return `[CAHI] Agent exited: ${event.sessionId}`;
     case "pr.closed":
-      return pr ? `[AO] PR #${pr.number} closed` : "[AO] PR closed";
+      return pr ? `[CAHI] PR #${pr.number} closed` : "[CAHI] PR closed";
     case "summary.all_complete":
-      return "[AO] All sessions complete";
+      return "[CAHI] All sessions complete";
     default:
-      return `[AO] ${titleCaseStatus(event.type)}: ${event.sessionId}`;
+      return `[CAHI] ${titleCaseStatus(event.type)}: ${event.sessionId}`;
   }
 }
 
@@ -1442,11 +1442,11 @@ function formatComposioError(err: unknown, app: ComposioApp, discordMode?: Disco
 function setupCommandForApp(app: ComposioApp, discordMode?: DiscordMode): string {
   if (app === "discord") {
     return discordMode === "webhook"
-      ? "ao setup composio-discord"
-      : "ao setup composio-discord-bot";
+      ? "cahi setup composio-discord"
+      : "cahi setup composio-discord-bot";
   }
-  if (app === "gmail") return "ao setup composio-mail";
-  return "ao setup composio";
+  if (app === "gmail") return "cahi setup composio-mail";
+  return "cahi setup composio";
 }
 
 function buildToolArgs(
@@ -1670,7 +1670,7 @@ export function create(config?: Record<string, unknown>): Notifier {
   function assertGmailConnectedAccount(): void {
     if (defaultApp === "gmail" && !connectedAccountId) {
       throw new Error(
-        '[notifier-composio] connectedAccountId is required when defaultApp is "gmail". Connect Gmail in Composio, then run `ao setup composio-mail`, or set notifiers.<name>.connectedAccountId.',
+        '[notifier-composio] connectedAccountId is required when defaultApp is "gmail". Connect Gmail in Composio, then run `cahi setup composio-mail`, or set notifiers.<name>.connectedAccountId.',
       );
     }
   }

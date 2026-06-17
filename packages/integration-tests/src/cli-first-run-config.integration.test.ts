@@ -26,7 +26,7 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
   let originalAoConfigPath: string | undefined;
 
   beforeEach(async () => {
-    tmpHome = await realpath(await mkdtemp(join(tmpdir(), "ao-first-run-int-")));
+    tmpHome = await realpath(await mkdtemp(join(tmpdir(), "cahi-first-run-int-")));
     repoPath = join(tmpHome, "first-run-repo");
     globalConfigPath = join(tmpHome, "global-cahi.yaml");
 
@@ -44,7 +44,7 @@ describe.skipIf(!canRun)("CLI first-run config generation (integration)", () => 
     await execFileAsync("git", ["branch", "-M", "main"], { cwd: repoPath });
     await execFileAsync(
       "git",
-      ["remote", "add", "origin", "https://github.com/ComposioHQ/ao-first-run-fixture.git"],
+      ["remote", "add", "origin", "https://github.com/ComposioHQ/cahi-first-run-fixture.git"],
       { cwd: repoPath },
     );
     writeFileSync(join(repoPath, "README.md"), "# first-run integration\n");

@@ -14,7 +14,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { recordActivityEvent } from "@contaazul/cahi-core";
 
-/** Keys that AO agents commonly need and OpenClaw may already store. */
+/** Keys that CAHI agents commonly need and OpenClaw may already store. */
 const RESOLVABLE_KEYS = [
   "ANTHROPIC_API_KEY",
   "OPENAI_API_KEY",

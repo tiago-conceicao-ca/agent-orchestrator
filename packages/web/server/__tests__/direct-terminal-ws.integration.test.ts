@@ -15,8 +15,8 @@ import { findTmux } from "../tmux-utils.js";
 import { createDirectTerminalServer, type DirectTerminalServer } from "../direct-terminal-ws.js";
 
 const TMUX = findTmux();
-const TEST_SESSION = `ao-test-integration-${process.pid}`;
-const TEST_HASH_SESSION = `abcdef123456-ao-test-hash-${process.pid}`;
+const TEST_SESSION = `cahi-test-integration-${process.pid}`;
+const TEST_HASH_SESSION = `abcdef123456-cahi-test-hash-${process.pid}`;
 const TEST_SPACED_TARGET = `abcdef123456-my project-${process.pid}`;
 
 // These integration tests require a running tmux — skip on Windows where tmux is unavailable
@@ -180,11 +180,11 @@ describeWithTmux("WebSocket upgrade routing", () => {
     ws.close();
   });
 
-  it("accepts connections on /ao-terminal-mux (alias for /mux)", async () => {
+  it("accepts connections on /cahi-terminal-mux (alias for /mux)", async () => {
     // The dashboard's MuxProvider uses this path on standard-port deployments
     // so a path-routing reverse proxy can forward it here without a rewrite.
     const ws = await new Promise<WebSocket>((resolve, reject) => {
-      const sock = new WebSocket(`ws://localhost:${port}/ao-terminal-mux`);
+      const sock = new WebSocket(`ws://localhost:${port}/cahi-terminal-mux`);
       sock.on("open", () => resolve(sock));
       sock.on("error", reject);
       setTimeout(() => reject(new Error("WebSocket connect timeout")), 5000);
@@ -271,7 +271,7 @@ describeWithTmux("mux terminal open", () => {
   });
 
   it("uses an explicit exact tmuxName for hash-prefixed sessions", async () => {
-    const hashOnlyId = `ao-test-hash-${process.pid}`;
+    const hashOnlyId = `cahi-test-hash-${process.pid}`;
     const ws = await connectMux();
 
     ws.send(
@@ -284,7 +284,7 @@ describeWithTmux("mux terminal open", () => {
     ws.close();
   });
 
-  it("allows a legacy tmuxName that is not a valid AO session id", async () => {
+  it("allows a legacy tmuxName that is not a valid CAHI session id", async () => {
     const ws = await connectMux();
 
     ws.send(
@@ -322,7 +322,7 @@ describeWithTmux("mux terminal open", () => {
     // unref'd in a way that prevents firing, or the wrong reference is
     // compared, or a future change clears it too eagerly), step 3 will
     // either time out waiting for "exited" or never reach the cap.
-    const RECOVERY_TEST_SESSION = `ao-test-recovery-${process.pid}`;
+    const RECOVERY_TEST_SESSION = `cahi-test-recovery-${process.pid}`;
     if (!TMUX) return; // describeWithTmux already skips on Windows; this narrows the type
     execFileSync(TMUX, ["new-session", "-d", "-s", RECOVERY_TEST_SESSION, "-x", "80", "-y", "24"], {
       timeout: 5000,
@@ -357,7 +357,7 @@ describeWithTmux("mux terminal open", () => {
 
   it("bounds re-attach attempts when tmux session dies mid-subscription (issue #1639)", async () => {
     // Reproduces the runaway re-attach loop that exhausts the system PTY
-    // pool in seconds when `ao stop` kills the tmux session out from
+    // pool in seconds when `cahi stop` kills the tmux session out from
     // under a still-subscribed dashboard.
     //
     // Pre-fix behaviour: each "successful" re-attach reset reattachAttempts
@@ -368,7 +368,7 @@ describeWithTmux("mux terminal open", () => {
     // Post-fix: the counter is only reset by a 5-second grace timer, so a
     // PTY that exits in ~40 ms can never reset it. After 3 attempts the
     // server gives up and emits "exited".
-    const RUNAWAY_TEST_SESSION = `ao-test-runaway-${process.pid}`;
+    const RUNAWAY_TEST_SESSION = `cahi-test-runaway-${process.pid}`;
     if (!TMUX) return; // describeWithTmux already skips on Windows; this narrows the type
     execFileSync(TMUX, ["new-session", "-d", "-s", RUNAWAY_TEST_SESSION, "-x", "80", "-y", "24"], {
       timeout: 5000,

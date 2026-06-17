@@ -3,7 +3,7 @@ import type { ProjectConfig } from "@contaazul/cahi-core";
 /**
  * An available-siblings catalog entry (#1095): a registered project that a
  * session can mount as a sibling repo. `id` is the registered project id (the
- * value `ao session sibling add` / the web API resolve against); `repo`/`path`
+ * value `cahi session sibling add` / the web API resolve against); `repo`/`path`
  * identify the source repo.
  */
 export interface SiblingCatalogEntry {
@@ -17,7 +17,7 @@ export interface SiblingCatalogEntry {
 /**
  * Build the available-siblings catalog (#1095) from the registered projects.
  *
- * The catalog is purely *derived* from config — establishing it at `ao start`
+ * The catalog is purely *derived* from config — establishing it at `cahi start`
  * creates no worktree (a shared sibling worktree at start would reintroduce the
  * #1095 collision). Sessions mount siblings on demand via the core's per-session
  * isolated worktree.
@@ -38,7 +38,7 @@ export function buildSiblingCatalog(
     }));
 }
 
-/** One-line `id (repo)` summary of the catalog for `ao start` output. Empty → null. */
+/** One-line `id (repo)` summary of the catalog for `cahi start` output. Empty → null. */
 export function formatSiblingCatalog(catalog: SiblingCatalogEntry[]): string | null {
   if (catalog.length === 0) return null;
   return catalog.map((entry) => (entry.repo ? `${entry.id} (${entry.repo})` : entry.id)).join(", ");

@@ -46,7 +46,7 @@ describe("/api/projects/[id]", () => {
     });
     oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     oldHome = process.env["HOME"];
-    tempRoot = mkdtempSync(path.join(tmpdir(), "ao-project-detail-route-"));
+    tempRoot = mkdtempSync(path.join(tmpdir(), "cahi-project-detail-route-"));
     configPath = path.join(tempRoot, "config.yaml");
     process.env["CAHI_GLOBAL_CONFIG"] = configPath;
     process.env["HOME"] = tempRoot;
@@ -368,7 +368,7 @@ describe("/api/projects/[id]", () => {
     });
   });
 
-  it("DELETE removes the registry entry and AO storage but preserves the repository path", async () => {
+  it("DELETE removes the registry entry and CAHI storage but preserves the repository path", async () => {
     const repoDir = path.join(tempRoot, "demo");
     mkdirSync(repoDir, { recursive: true });
     const effectiveId = registerProjectInGlobalConfig("demo", "Demo", repoDir);
@@ -483,7 +483,7 @@ describe("/api/projects/[id]", () => {
 
     const { stopStaleWindowsPtyHosts } = await import("@/lib/windows-pty-cleanup");
     await stopStaleWindowsPtyHosts(
-      "C:\\Users\\priya\\.cahi\\projects\\ao-windows-test-2-b8fv",
+      "C:\\Users\\priya\\.cahi\\projects\\cahi-windows-test-2-b8fv",
       {
         platform: "win32",
         execFileStdout,

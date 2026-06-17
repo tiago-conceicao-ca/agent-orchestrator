@@ -5,7 +5,7 @@ import { isTmuxAvailable, killSessionsByPrefix } from "./helpers/tmux.js";
 import { sleep } from "./helpers/polling.js";
 
 const tmuxOk = await isTmuxAvailable();
-const SESSION_PREFIX = "ao-inttest-tmux-";
+const SESSION_PREFIX = "cahi-inttest-tmux-";
 
 describe.skipIf(!tmuxOk)("runtime-tmux (integration)", () => {
   const runtime = tmuxPlugin.create();

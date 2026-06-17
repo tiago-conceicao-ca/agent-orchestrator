@@ -162,7 +162,7 @@ esac\nexit 0`,
     },
   );
 
-  it.skipIf(process.platform === "win32")("uses forced npm link so stale global ao shims are overwritten", () => {
+  it.skipIf(process.platform === "win32")("uses forced npm link so stale global cahi shims are overwritten", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-stale-shim-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });

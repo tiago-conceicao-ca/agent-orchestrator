@@ -1,6 +1,6 @@
 /**
  * Writes the current package version to .next/CAHI_VERSION after a Next.js build.
- * This stamp is compared at `ao start` to detect stale runtime caches from
+ * This stamp is compared at `cahi start` to detect stale runtime caches from
  * a previous version and clear them automatically.
  */
 

@@ -1,9 +1,9 @@
 /**
- * `ao start` and `ao stop` commands — unified orchestrator startup.
+ * `cahi start` and `cahi stop` commands — unified orchestrator startup.
  *
  * Supports two modes:
- *   1. `ao start [project]` — start from existing config
- *   2. `ao start <url>` — clone repo, auto-generate config, then start
+ *   1. `cahi start [project]` — start from existing config
+ *   2. `cahi start <url>` — clone repo, auto-generate config, then start
  *
  * The orchestrator prompt is passed to the agent via --append-system-prompt
  * (or equivalent flag) at launch time — no file writing required.
@@ -280,14 +280,14 @@ async function resolveProject(
     return { projectId, project: config.projects[projectId], config };
   } else {
     throw new Error(
-      `Multiple projects configured. Specify which one to ${action}:\n  ${projectIds.map((id) => `ao ${action} ${id}`).join("\n  ")}`,
+      `Multiple projects configured. Specify which one to ${action}:\n  ${projectIds.map((id) => `cahi ${action} ${id}`).join("\n  ")}`,
     );
   }
 }
 
 /**
  * Resolve project from config by matching against a repo URL's ownerRepo.
- * Used when `ao start <url>` loads an existing multi-project config — the user
+ * Used when `cahi start <url>` loads an existing multi-project config — the user
  * can't pass both a URL and a project name since they share the same arg slot.
  *
  * Falls back to `resolveProject` (which handles single-project configs or
@@ -507,7 +507,7 @@ export async function autoCreateConfig(workingDir: string): Promise<Orchestrator
   if (!env.isGitRepo) {
     throw new Error(
       `"${workingDir}" is not a git repository.\n` +
-        `  ao requires a git repo to manage worktrees and branches.\n` +
+        `  cahi requires a git repo to manage worktrees and branches.\n` +
         `  Run \`git init\` first, then try again.`,
     );
   }
@@ -840,7 +840,7 @@ async function startDashboard(
     const formatted = formatCommandError(err, {
       cmd,
       args,
-      action: "start the AO dashboard",
+      action: "start the CAHI dashboard",
       installHints: genericInstallHints(cmd),
     });
     console.error(chalk.red("Dashboard failed to start:"), formatted.message);
@@ -871,14 +871,14 @@ async function runStartup(
 ): Promise<number> {
   await runtimePreflight(config);
 
-  // Ask about the auto-update channel once on first `ao start` after this
+  // Ask about the auto-update channel once on first `cahi start` after this
   // feature ships. No-op on subsequent runs (idempotent — guarded by the
   // presence of `updateChannel` in the global config).
   await maybePromptForUpdateChannel();
 
   // Install the parent shutdown path before spawning any managed children.
   // This guarantees a SIGINT/SIGTERM in the middle of startup still performs
-  // the full AO cleanup instead of relying on Node's default signal exit.
+  // the full CAHI cleanup instead of relying on Node's default signal exit.
   installShutdownHandlers({ configPath: config.configPath, projectId });
 
   const shouldStartLifecycle = opts?.dashboard !== false || opts?.orchestrator !== false;
@@ -973,7 +973,7 @@ async function runStartup(
   }
 
   // Expose the available-siblings catalog (#1095): the other registered projects
-  // that sessions here can mount via `ao session sibling add`. Establishing the
+  // that sessions here can mount via `cahi session sibling add`. Establishing the
   // catalog is a pure derivation from config — it creates NO worktree at start
   // (a shared sibling worktree would reintroduce the #1095 collision).
   const siblingCatalogSummary = formatSiblingCatalog(
@@ -1012,7 +1012,7 @@ async function runStartup(
     }
   }
 
-  // Check for sessions from last `ao stop` and restore/prompt/skip based on caller intent.
+  // Check for sessions from last `cahi stop` and restore/prompt/skip based on caller intent.
   if (opts?.restore !== false && (opts?.restore === true || isHumanCaller())) {
     try {
       const lastStop = await readLastStop();
@@ -1140,7 +1140,7 @@ async function runStartup(
 
             // Preserve restore state for sessions that failed (transient
             // workspace/runtime errors). Without this, a single failure on
-            // the first `ao start` would erase the only persisted record
+            // the first `cahi start` would erase the only persisted record
             // and the remaining sessions would never be retryable. When
             // every session restored (or was skipped), clear the file.
             if (failedSessionIds.size > 0) {
@@ -1252,11 +1252,11 @@ async function runStartup(
  * Uses platform adapter to find the process listening on the port, then kills it.
  * Best effort — if it fails, just warn the user.
  */
-/** Pattern matching AO dashboard processes (production and dev mode). */
+/** Pattern matching CAHI dashboard processes (production and dev mode). */
 const DASHBOARD_CMD_PATTERN = /next-server|start-all\.js|next dev|cahi-web/;
 
 /**
- * Check whether a process listening on the given port is an AO dashboard
+ * Check whether a process listening on the given port is an CAHI dashboard
  * (next-server, start-all.js, or next dev).  Only kills matching PIDs,
  * leaving unrelated co-listeners (sidecars, SO_REUSEPORT) untouched.
  */
@@ -1294,7 +1294,7 @@ async function stopDashboard(port: number): Promise<void> {
   // 2. Fallback: scan nearby ports to find an orphaned dashboard
   //    that was auto-reassigned when the original port was busy.
   //    Uses killDashboardOnPort to verify the process is actually an
-  //    AO dashboard before killing, avoiding collateral damage.
+  //    CAHI dashboard before killing, avoiding collateral damage.
   for (let p = port + 1; p <= port + MAX_PORT_SCAN; p++) {
     if (await killDashboardOnPort(p)) {
       console.log(chalk.green(`Dashboard stopped (was on port ${p})`));
@@ -1336,16 +1336,16 @@ async function maybeSweepAoOrphansOnStart(reapOrphans: boolean | undefined): Pro
   if (!reapOrphans && isHumanCaller()) {
     console.log(
       chalk.yellow(
-        `\n  Found ${orphans.length} orphaned AO child process(es): ${describeAoOrphans(orphans)}`,
+        `\n  Found ${orphans.length} orphaned CAHI child process(es): ${describeAoOrphans(orphans)}`,
       ),
     );
-    reapOrphans = await promptConfirm("Kill orphaned AO child processes before starting?", true);
+    reapOrphans = await promptConfirm("Kill orphaned CAHI child processes before starting?", true);
   }
 
   if (!reapOrphans) {
     console.log(
       chalk.yellow(
-        `  Found ${orphans.length} orphaned AO child process(es). Run \`cahi start --reap-orphans\` to clean them up.`,
+        `  Found ${orphans.length} orphaned CAHI child process(es). Run \`cahi start --reap-orphans\` to clean them up.`,
       ),
     );
     return;
@@ -1354,7 +1354,7 @@ async function maybeSweepAoOrphansOnStart(reapOrphans: boolean | undefined): Pro
   const result = await reapAoOrphans(orphans);
   console.log(
     chalk.green(
-      `  Reaped ${result.attempted} orphaned AO child process(es): ${formatSweepSummary(result)}`,
+      `  Reaped ${result.attempted} orphaned CAHI child process(es): ${formatSweepSummary(result)}`,
     ),
   );
 }
@@ -1386,7 +1386,7 @@ async function attachAndSpawnOrchestrator(opts: {
     chalk.dim(
       justCreated
         ? "\n  Spawning orchestrator session...\n"
-        : "\n  Attaching to running AO instance...\n",
+        : "\n  Attaching to running CAHI instance...\n",
     ),
   );
 
@@ -1445,7 +1445,7 @@ export function registerStart(program: Command): void {
     .option("--rebuild", "Clean and rebuild dashboard before starting")
     .option("--dev", "Use Next.js dev server with hot reload (for dashboard UI development)")
     .option("--interactive", "Prompt to configure config settings")
-    .option("--reap-orphans", "Kill orphaned AO child processes before starting")
+    .option("--reap-orphans", "Kill orphaned CAHI child processes before starting")
     .option("--restore", "Restore sessions from last cahi stop without prompting")
     .option("--no-restore", "Skip restoring sessions from last cahi stop")
     .action(
@@ -1465,7 +1465,7 @@ export function registerStart(program: Command): void {
           source: "cli",
           kind: "cli.start_invoked",
           level: "info",
-          summary: "ao start invoked",
+          summary: "cahi start invoked",
           data: {
             projectArg: projectArg ?? null,
             dashboard: opts?.dashboard !== false,
@@ -1509,8 +1509,8 @@ export function registerStart(program: Command): void {
             if (!isHumanCaller() && !isProjectId) {
               // Non-human caller, no arg or URL/path arg: print info and
               // exit. Project-id args fall through to attach+spawn so
-              // automation can `ao start <id>` against a live daemon.
-              console.log(`AO is already running.`);
+              // automation can `cahi start <id>` against a live daemon.
+              console.log(`CAHI is already running.`);
               console.log(`Dashboard: ${dashboardUrl(running.port)}`);
               console.log(`PID: ${running.pid}`);
               console.log(`Projects: ${running.projects.join(", ")}`);
@@ -1520,7 +1520,7 @@ export function registerStart(program: Command): void {
             }
 
             if (isHumanCaller() && !projectArg) {
-              console.log(chalk.cyan(`\nℹ AO is already running.`));
+              console.log(chalk.cyan(`\nℹ CAHI is already running.`));
               console.log(`  Dashboard: ${chalk.cyan(dashboardUrl(running.port))}`);
               console.log(`  PID: ${running.pid} | Up since: ${running.startedAt}`);
               console.log(`  Projects: ${running.projects.join(", ")}\n`);
@@ -1548,7 +1548,7 @@ export function registerStart(program: Command): void {
                   : [];
 
               const choice = await promptSelect(
-                "AO is already running. What do you want to do?",
+                "CAHI is already running. What do you want to do?",
                 [
                   { value: "open", label: "Open dashboard", hint: "Keep the current instance" },
                   {
@@ -1583,7 +1583,7 @@ export function registerStart(program: Command): void {
                 // .yaml, the project is appended there. This matches the
                 // pre-B.2 behavior — the menu's "add" path deliberately does
                 // not spawn an orchestrator session, so the user can review
-                // the registration and start one explicitly via `ao start
+                // the registration and start one explicitly via `cahi start
                 // <id>` or the "new" menu choice.
                 const loadedCfg = loadConfig();
                 const addedId = await addProjectToConfig(loadedCfg, cwdResolved);
@@ -1717,7 +1717,7 @@ export function registerStart(program: Command): void {
               !resolvedProject.justCreated &&
               running.projects.includes(projectId)
             ) {
-              console.log(chalk.cyan(`\nℹ AO is already running.`));
+              console.log(chalk.cyan(`\nℹ CAHI is already running.`));
               console.log(`  Dashboard: ${chalk.cyan(dashboardUrl(running.port))}`);
               console.log(`  Project "${projectId}" is already registered and running.\n`);
               openUrl(dashboardUrl(running.port));
@@ -1839,7 +1839,7 @@ export function registerStart(program: Command): void {
           });
           unlockStartup();
 
-          // Start the Bun-extracted /tmp/.*.{so,dylib} janitor once per AO
+          // Start the Bun-extracted /tmp/.*.{so,dylib} janitor once per CAHI
           // process. Single-instance is enforced by running.json + the
           // startup lock above, so this call site is reached at most once
           // per process. The janitor uses an unref'd interval timer, so it
@@ -1858,7 +1858,7 @@ export function registerStart(program: Command): void {
             },
           });
 
-          // Ctrl+C and `ao stop` (which sends SIGTERM) perform a full
+          // Ctrl+C and `cahi stop` (which sends SIGTERM) perform a full
           // graceful shutdown via the handler installed inside runStartup().
         } catch (err) {
           if (!isCliFailureEventRecordedError(err)) {
@@ -1866,7 +1866,7 @@ export function registerStart(program: Command): void {
               source: "cli",
               kind: "cli.start_failed",
               level: "error",
-              summary: `ao start action failed`,
+              summary: `cahi start action failed`,
               data: {
                 reason: "outer",
                 errorMessage: err instanceof Error ? err.message : String(err),
@@ -1903,11 +1903,11 @@ function isLocalPath(arg: string): boolean {
 
 /**
  * Lazy import + invoke the runtime-process plugin's Windows pty-host sweep.
- * Kept lazy so non-Windows users don't pay the import cost on every `ao stop`,
+ * Kept lazy so non-Windows users don't pay the import cost on every `cahi stop`,
  * and so the cli isn't tightly coupled to the plugin's surface.
  *
- * Errors are swallowed: a sweep failure must not prevent `ao stop` from killing
- * the parent process — the user explicitly asked us to stop AO.
+ * Errors are swallowed: a sweep failure must not prevent `cahi stop` from killing
+ * the parent process — the user explicitly asked us to stop CAHI.
  */
 async function sweepWindowsPtyHostsBeforeParentKill(): Promise<void> {
   if (!isWindows()) return;
@@ -1933,7 +1933,7 @@ async function sweepWindowsPtyHostsBeforeParentKill(): Promise<void> {
       );
     }
   } catch {
-    /* sweep is best-effort; don't block ao stop on it */
+    /* sweep is best-effort; don't block cahi stop on it */
   }
 }
 
@@ -1942,14 +1942,14 @@ export function registerStop(program: Command): void {
     .command("stop [project]")
     .description("Stop orchestrator agent and dashboard")
     .option("--purge-session", "Delete mapped OpenCode session when stopping")
-    .option("--all", "Stop all running AO instances")
+    .option("--all", "Stop all running CAHI instances")
     .option("-y, --yes", "Confirm stopping active sessions without prompting")
     .action(async (projectArg?: string, opts: { purgeSession?: boolean; all?: boolean; yes?: boolean } = {}) => {
       recordActivityEvent({
         source: "cli",
         kind: "cli.stop_invoked",
         level: "info",
-        summary: "ao stop invoked",
+        summary: "cahi stop invoked",
         data: {
           projectArg: projectArg ?? null,
           all: opts.all === true,
@@ -1974,16 +1974,16 @@ export function registerStop(program: Command): void {
             // and process groups on Unix; it swallows "already dead" internally.
             await killProcessTree(running.pid, "SIGTERM");
             await unregister();
-            console.log(chalk.green(`\n✓ Stopped AO on port ${running.port}`));
+            console.log(chalk.green(`\n✓ Stopped CAHI on port ${running.port}`));
             console.log(chalk.dim(`  Projects: ${running.projects.join(", ")}\n`));
           } else {
-            console.log(chalk.yellow("No running AO instance found in running.json."));
+            console.log(chalk.yellow("No running CAHI instance found in running.json."));
           }
           return;
         }
 
         let config = loadConfig();
-        // ao stop affects all projects (it kills the parent ao start process),
+        // cahi stop affects all projects (it kills the parent cahi start process),
         // so load the global config which has all registered projects.
         // When a specific project is targeted, only fall back to global if
         // the project isn't in the local config.
@@ -2015,12 +2015,12 @@ export function registerStop(program: Command): void {
         if (projectArg) {
           console.log(chalk.bold(`\nStopping orchestrator for ${chalk.cyan(project.name)}\n`));
         } else {
-          console.log(chalk.bold(`\nStopping AO across all projects\n`));
+          console.log(chalk.bold(`\nStopping CAHI across all projects\n`));
         }
 
         const sm = await getSessionManager(config);
         try {
-          // When no explicit project is given, list ALL sessions — ao stop
+          // When no explicit project is given, list ALL sessions — cahi stop
           // kills the parent process which affects all projects. When a
           // specific project is targeted, scope to that project only.
           const stopAll = !projectArg;
@@ -2044,7 +2044,7 @@ export function registerStop(program: Command): void {
           if (activeSessions.length > 0) {
             if (!projectArg && opts.yes !== true && isHumanCaller()) {
               const confirmed = await promptConfirm(
-                `Stop AO and ${activeSessions.length} active session(s)?`,
+                `Stop CAHI and ${activeSessions.length} active session(s)?`,
                 false,
               );
               if (!confirmed) {
@@ -2068,7 +2068,7 @@ export function registerStop(program: Command): void {
                   source: "cli",
                   kind: "cli.stop_session_failed",
                   level: "warn",
-                  summary: `failed to kill session during ao stop`,
+                  summary: `failed to kill session during cahi stop`,
                   data: { errorMessage: err instanceof Error ? err.message : String(err) },
                 });
                 warnings.push(
@@ -2108,7 +2108,7 @@ export function registerStop(program: Command): void {
             console.log(chalk.yellow(`No active sessions found`));
           }
 
-          // Record stopped sessions for restore on next `ao start`
+          // Record stopped sessions for restore on next `cahi start`
           if (killedSessionIds.length > 0) {
             const otherProjects: Array<{ projectId: string; sessionIds: string[] }> = [];
             for (const [pid, ids] of otherByProject) {
@@ -2143,7 +2143,7 @@ export function registerStop(program: Command): void {
                 source: "cli",
                 kind: "cli.last_stop_write_failed",
                 level: "error",
-                summary: `failed to write last-stop state during ao stop`,
+                summary: `failed to write last-stop state during cahi stop`,
                 data: {
                   targetSessionCount: targetSessionIds.length,
                   otherProjectCount: otherProjects.length,
@@ -2166,11 +2166,11 @@ export function registerStop(program: Command): void {
           );
         }
 
-        // Only kill the parent `ao start` process and dashboard when stopping
+        // Only kill the parent `cahi start` process and dashboard when stopping
         // everything (no project arg). When targeting a specific project, the
         // parent process and dashboard serve all projects and must stay alive.
         if (!projectArg) {
-          // Lifecycle polling runs in-process inside the `ao start` process
+          // Lifecycle polling runs in-process inside the `cahi start` process
           // (registered via `running.json`). Sending SIGTERM to that PID below
           // triggers the shared shutdown handler in `lifecycle-service`, which
           // stops every per-project loop. No explicit stop call needed here —
@@ -2190,7 +2190,7 @@ export function registerStop(program: Command): void {
                 source: "cli",
                 kind: "cli.daemon_killed",
                 level: "info",
-                summary: `SIGTERM sent to parent ao start`,
+                summary: `SIGTERM sent to parent cahi start`,
                 data: { pid: running.pid, port: running.port },
               });
             } catch (err) {
@@ -2199,7 +2199,7 @@ export function registerStop(program: Command): void {
                 source: "cli",
                 kind: "cli.daemon_killed",
                 level: "warn",
-                summary: `parent ao start was already dead`,
+                summary: `parent cahi start was already dead`,
                 data: {
                   pid: running.pid,
                   errorMessage: err instanceof Error ? err.message : String(err),
@@ -2229,7 +2229,7 @@ export function registerStop(program: Command): void {
           source: "cli",
           kind: "cli.stop_failed",
           level: "error",
-          summary: `ao stop action failed`,
+          summary: `cahi stop action failed`,
           data: {
             projectArg: projectArg ?? null,
             errorMessage: err instanceof Error ? err.message : String(err),

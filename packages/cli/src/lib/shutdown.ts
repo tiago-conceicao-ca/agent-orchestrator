@@ -1,15 +1,15 @@
 /**
- * SIGINT/SIGTERM shutdown handler for the long-running `ao start` process.
+ * SIGINT/SIGTERM shutdown handler for the long-running `cahi start` process.
  *
  * Installs `process.once` listeners that perform a full graceful shutdown:
  * stop lifecycle workers, kill all active sessions, record last-stop state
- * for restore on next `ao start`, unregister from running.json, await the
+ * for restore on next `cahi start`, unregister from running.json, await the
  * bun-tmp janitor's final sweep, then exit.
  *
  * Lives in its own module so the orchestration is testable in isolation
- * and so the equivalent kill-and-record logic in `ao stop` can converge
+ * and so the equivalent kill-and-record logic in `cahi stop` can converge
  * here in a later refactor (today the two paths duplicate the core loop;
- * see ao-118 plan PR B).
+ * see cahi-118 plan PR B).
  */
 
 import {
@@ -31,7 +31,7 @@ export interface ShutdownContext {
   /** Path to the orchestrator config; re-read at shutdown time so any
    *  config edits since startup are honored. */
   configPath: string;
-  /** Project this `ao start` invocation owns; used to scope last-stop's
+  /** Project this `cahi start` invocation owns; used to scope last-stop's
    *  primary `sessionIds` field (other projects go to `otherProjects`). */
   projectId: string;
 }

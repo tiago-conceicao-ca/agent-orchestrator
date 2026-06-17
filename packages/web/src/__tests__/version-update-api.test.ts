@@ -68,8 +68,8 @@ describe("GET /api/version", () => {
     vi.clearAllMocks();
     mockGlobalConfig.value = null;
     // Per-test cache dir, deterministic.
-    tmpCacheDir = mkdtempSync(join(tmpdir(), "ao-version-test-"));
-    mkdirSync(join(tmpCacheDir, "ao"), { recursive: true });
+    tmpCacheDir = mkdtempSync(join(tmpdir(), "cahi-version-test-"));
+    mkdirSync(join(tmpCacheDir, "cahi"), { recursive: true });
     origXdg = process.env["XDG_CACHE_HOME"];
     process.env["XDG_CACHE_HOME"] = tmpCacheDir;
   });
@@ -83,7 +83,7 @@ describe("GET /api/version", () => {
 
   function writeCache(data: object) {
     writeFileSync(
-      join(tmpCacheDir, "ao", "update-check.json"),
+      join(tmpCacheDir, "cahi", "update-check.json"),
       JSON.stringify(data),
     );
   }
@@ -225,7 +225,7 @@ describe("POST /api/update", () => {
     const body = (await res.json()) as { ok: boolean; activeSessions?: number; message: string };
     expect(body.ok).toBe(false);
     expect(body.activeSessions).toBe(2);
-    expect(body.message).toMatch(/ao stop/);
+    expect(body.message).toMatch(/cahi stop/);
     expect(mockSpawn).not.toHaveBeenCalled();
   });
 

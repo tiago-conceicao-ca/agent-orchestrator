@@ -31,8 +31,8 @@ const execFileAsync = promisify(execFile);
  *
  * Verified against Claude Code's actual on-disk slugs: every non-alphanumeric
  * character (other than `-`) is replaced with `-`. That includes `/`, `.`,
- * `:`, and crucially `_` — AO's per-project data dirs are named like
- * `<sanitized>_<hash>`, and without underscore folding the slug AO computes
+ * `:`, and crucially `_` — CAHI's per-project data dirs are named like
+ * `<sanitized>_<hash>`, and without underscore folding the slug CAHI computes
  * misses the directory Claude actually wrote (issue #1611).
  *
  * Windows: `C:\Users\dev\project` → `C--Users-dev-project` — Claude leaves the
@@ -46,13 +46,13 @@ export function toClaudeProjectPath(workspacePath: string): string {
 }
 
 /**
- * Resolve a workspace path through any symlinks BEFORE slugifying so AO's
+ * Resolve a workspace path through any symlinks BEFORE slugifying so CAHI's
  * computed Claude project dir matches what Claude itself writes.
  *
- * Without this, if AO records `workspacePath` as a symlink (e.g.
+ * Without this, if CAHI records `workspacePath` as a symlink (e.g.
  * `/Users/me/symlinks/repo`) and Claude resolves it to the target
  * (`/Users/me/code/repo`) before computing its on-disk slug, the two slugs
- * diverge — AO looks in an empty `~/.claude/projects/<wrong-slug>/` dir
+ * diverge — CAHI looks in an empty `~/.claude/projects/<wrong-slug>/` dir
  * forever and the session looks permanently `idle`. Falls back to the
  * literal path on error (dangling symlink, race, etc.).
  */
@@ -121,7 +121,7 @@ export async function findLatestSessionFile(
         warnedReaddirPaths.add(projectDir);
         const code = (err as NodeJS.ErrnoException).code;
         console.warn(
-          `[claude-code] failed to read ${projectDir} (${code}): ${err.message}. Session activity will fall back to AO JSONL only. (This warning is shown once per path for the process lifetime.)`,
+          `[claude-code] failed to read ${projectDir} (${code}): ${err.message}. Session activity will fall back to CAHI JSONL only. (This warning is shown once per path for the process lifetime.)`,
         );
       }
     }
@@ -312,10 +312,10 @@ export function classifyTerminalOutput(_terminalOutput: string): ActivityState {
  * entries just from being inspected.
  *
  * When one of these is the literal last JSONL entry, treat it as a "no
- * signal" — fall through to the AO activity-JSONL pipeline (terminal-
+ * signal" — fall through to the CAHI activity-JSONL pipeline (terminal-
  * derived signal) rather than letting noise mtime decide the activity.
  *
- * Concrete bug this prevents: ao-144 had 73 trailing `permission-mode` +
+ * Concrete bug this prevents: cahi-144 had 73 trailing `permission-mode` +
  * 73 trailing `ai-title` entries written over 6 dormant days. Without
  * this skip, dashboard oscillated between `ready` (recent noise mtime)
  * and `idle` (old noise mtime) instead of staying `idle`.
@@ -331,7 +331,7 @@ const NOISE_JSONL_TYPES: ReadonlySet<string> = new Set([
   "agent-color",
   "agent-name",
   "custom-title",
-  // pr-link is also re-snapshot noise — verified on ao-160's JSONL where the
+  // pr-link is also re-snapshot noise — verified on cahi-160's JSONL where the
   // SAME PR (#1911) was written as a `pr-link` entry three times within
   // minutes (count: 33 pr-link vs 21 user messages in the last 200 lines).
   // The first emission is real; subsequent re-emissions are state snapshots.
@@ -347,14 +347,14 @@ const NOISE_JSONL_TYPES: ReadonlySet<string> = new Set([
  * Cascade:
  *  1. Process check (returns null on INDETERMINATE, exited on dead)
  *  2. Native JSONL: read last entry, map type+mtime → state
- *  3. AO activity JSONL: `checkActivityLogState` for actionable states
+ *  3. CAHI activity JSONL: `checkActivityLogState` for actionable states
  *     (waiting_input/blocked) terminal regex picked up
- *  4. AO activity JSONL: `getActivityFallbackState` for age-decayed fallback
+ *  4. CAHI activity JSONL: `getActivityFallbackState` for age-decayed fallback
  *  5. Stale native (entry predates session) returned only if nothing else
  *
  * Note: Claude does NOT emit `permission_request` or top-level `error`
  * as JSONL types. `waiting_input` flows through the terminal regex →
- * AO activity JSONL path. `blocked` is detected from native JSONL via
+ * CAHI activity JSONL path. `blocked` is detected from native JSONL via
  * `{type:"system", level:"error"}` (Claude's api_error shape).
  */
 export async function getClaudeActivityState(
@@ -387,14 +387,14 @@ export async function getClaudeActivityState(
     const entry = await readLastJsonlEntry(sessionFile);
     if (entry) {
       // If the JSONL entry predates this session, it's from a previous session
-      // in the same worktree. Fall through to the AO safety net first: the
+      // in the same worktree. Fall through to the CAHI safety net first: the
       // terminal may have already surfaced waiting_input/blocked before
       // Claude writes this session's first native JSONL entry.
       if (session.createdAt && entry.modifiedAt < session.createdAt) {
         staleNativeState = { state: "idle", timestamp: session.createdAt };
       } else if (entry.lastType && NOISE_JSONL_TYPES.has(entry.lastType)) {
         // Last entry is UI-state noise (permission-mode / ai-title / etc.)
-        // that doesn't reflect actual activity. Fall through to the AO
+        // that doesn't reflect actual activity. Fall through to the CAHI
         // activity-JSONL pipeline for a terminal-derived answer; if that's
         // also empty, the staleNativeState below returns idle.
         staleNativeState = { state: "idle", timestamp: session.createdAt };
@@ -448,18 +448,18 @@ export async function getClaudeActivityState(
         }
       }
     }
-    // Session file exists but no parseable entry — fall through to AO JSONL
+    // Session file exists but no parseable entry — fall through to CAHI JSONL
     // checks below instead of returning early, so terminal-derived
     // waiting_input/blocked can still be detected.
   }
 
-  // Fallback: check AO activity JSONL (terminal-derived) for
+  // Fallback: check CAHI activity JSONL (terminal-derived) for
   // waiting_input/blocked when Claude's native JSONL is unavailable.
   const activityResult = await readLastActivityEntry(session.workspacePath);
   const activityState = checkActivityLogState(activityResult);
   if (activityState) return activityState;
 
-  // Last fallback: use the AO entry with age-based decay when native
+  // Last fallback: use the CAHI entry with age-based decay when native
   // session lookup is missing or unparseable (e.g. Claude project slug drift).
   const activeWindowMs = Math.min(DEFAULT_ACTIVE_WINDOW_MS, threshold);
   const fallback = getActivityFallbackState(activityResult, activeWindowMs, threshold);

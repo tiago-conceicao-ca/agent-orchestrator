@@ -73,7 +73,7 @@ describe("notify test helper", () => {
   let originalUserProfile: string | undefined;
 
   beforeEach(() => {
-    tempRoot = join(tmpdir(), `ao-notify-test-${randomUUID()}`);
+    tempRoot = join(tmpdir(), `cahi-notify-test-${randomUUID()}`);
     mkdirSync(tempRoot, { recursive: true });
     originalHome = process.env["HOME"];
     originalUserProfile = process.env["USERPROFILE"];
@@ -294,7 +294,7 @@ describe("notify test helper", () => {
       expect(request?.json).toMatchObject({
         type: "notification",
         event: {
-          message: "Test notification from ao notify test",
+          message: "Test notification from cahi notify test",
         },
       });
     } finally {

@@ -45,6 +45,6 @@ export function getRecoveryLogPath(_configPath: string, projectId?: string): str
   if (projectId) {
     return join(getProjectDir(projectId), "recovery.log");
   }
-  // Fallback: store at the AO base dir level (not under projects/)
+  // Fallback: store at the CAHI base dir level (not under projects/)
   return join(getAoBaseDir(), "recovery.log");
 }

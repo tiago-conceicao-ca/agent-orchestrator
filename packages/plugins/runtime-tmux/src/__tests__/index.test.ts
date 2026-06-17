@@ -224,7 +224,7 @@ describe("runtime.create()", () => {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-launch-test-uuid-1234.sh"),
+      expect.stringContaining("cahi-launch-test-uuid-1234.sh"),
       expect.stringContaining(longCommand),
       { encoding: "utf-8", mode: 0o700 },
     );
@@ -461,8 +461,8 @@ describe("runtime.sendMessage()", () => {
       [
         "load-buffer",
         "-b",
-        "ao-test-uuid-1234",
-        expect.stringContaining("ao-send-test-uuid-1234.txt"),
+        "cahi-test-uuid-1234",
+        expect.stringContaining("cahi-send-test-uuid-1234.txt"),
       ],
       expectedTmuxOptions,
     );
@@ -471,20 +471,20 @@ describe("runtime.sendMessage()", () => {
     expect(mockExecFileCustom).toHaveBeenNthCalledWith(
       3,
       "tmux",
-      ["paste-buffer", "-b", "ao-test-uuid-1234", "-t", "msg-long", "-d"],
+      ["paste-buffer", "-b", "cahi-test-uuid-1234", "-t", "msg-long", "-d"],
       expectedTmuxOptions,
     );
 
     // Verify writeFileSync was called with the message
     expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-send-test-uuid-1234.txt"),
+      expect.stringContaining("cahi-send-test-uuid-1234.txt"),
       longText,
       { encoding: "utf-8", mode: 0o600 },
     );
 
     // Verify unlinkSync was called for cleanup
     expect(fs.unlinkSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-send-test-uuid-1234.txt"),
+      expect.stringContaining("cahi-send-test-uuid-1234.txt"),
     );
   });
 
@@ -507,14 +507,14 @@ describe("runtime.sendMessage()", () => {
       [
         "load-buffer",
         "-b",
-        "ao-test-uuid-1234",
-        expect.stringContaining("ao-send-test-uuid-1234.txt"),
+        "cahi-test-uuid-1234",
+        expect.stringContaining("cahi-send-test-uuid-1234.txt"),
       ],
       expectedTmuxOptions,
     );
 
     expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-send-test-uuid-1234.txt"),
+      expect.stringContaining("cahi-send-test-uuid-1234.txt"),
       "line1\nline2\nline3",
       { encoding: "utf-8", mode: 0o600 },
     );
@@ -537,13 +537,13 @@ describe("runtime.sendMessage()", () => {
 
     // unlinkSync should still be called for temp file cleanup
     expect(fs.unlinkSync).toHaveBeenCalledWith(
-      expect.stringContaining("ao-send-test-uuid-1234.txt"),
+      expect.stringContaining("cahi-send-test-uuid-1234.txt"),
     );
 
     // delete-buffer should be called in finally block
     expect(mockExecFileCustom).toHaveBeenCalledWith(
       "tmux",
-      ["delete-buffer", "-b", "ao-test-uuid-1234"],
+      ["delete-buffer", "-b", "cahi-test-uuid-1234"],
       expectedTmuxOptions,
     );
   });

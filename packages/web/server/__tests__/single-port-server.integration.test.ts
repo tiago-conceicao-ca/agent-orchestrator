@@ -217,12 +217,12 @@ describe("single-port HTTP forwarding", () => {
 // =============================================================================
 
 describe("single-port WebSocket upgrade", () => {
-  it("tunnels /ao-terminal-mux to the terminal upstream's /mux", async () => {
+  it("tunnels /cahi-terminal-mux to the terminal upstream's /mux", async () => {
     const wsPort = await startWsUpstream();
     const { port } = await startProxy({ nextInternalPort: 1, directTerminalPort: wsPort });
 
     const ws = await new Promise<WebSocket>((resolve, reject) => {
-      const sock = new WebSocket(`ws://127.0.0.1:${port}/ao-terminal-mux`);
+      const sock = new WebSocket(`ws://127.0.0.1:${port}/cahi-terminal-mux`);
       sock.on("open", () => resolve(sock));
       sock.on("error", reject);
       setTimeout(() => reject(new Error("WS connect timeout")), 3000);
@@ -249,7 +249,7 @@ describe("single-port WebSocket upgrade", () => {
       const req = request({
         host: "127.0.0.1",
         port,
-        path: "/ao-terminal-mux",
+        path: "/cahi-terminal-mux",
         headers: {
           Connection: "Upgrade",
           Upgrade: "websocket",
@@ -290,7 +290,7 @@ describe("single-port shutdown", () => {
     });
 
     const ws = await new Promise<WebSocket>((resolve, reject) => {
-      const sock = new WebSocket(`ws://127.0.0.1:${port}/ao-terminal-mux`);
+      const sock = new WebSocket(`ws://127.0.0.1:${port}/cahi-terminal-mux`);
       sock.on("open", () => resolve(sock));
       sock.on("error", reject);
       setTimeout(() => reject(new Error("WS connect timeout")), 3000);

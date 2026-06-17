@@ -1,5 +1,5 @@
 /**
- * Tests for `ao start` and `ao stop` commands.
+ * Tests for `cahi start` and `cahi stop` commands.
  *
  * Uses --no-dashboard --no-orchestrator flags to isolate project resolution
  * and URL handling logic from dashboard/session infrastructure.
@@ -334,7 +334,7 @@ function createSpawnChild(options?: {
 }
 
 beforeEach(async () => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-start-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-start-test-"));
   originalAoGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
   process.env["CAHI_GLOBAL_CONFIG"] = join(tmpDir, "global-cahi.yaml");
 
@@ -534,7 +534,7 @@ function createFakeRepo(dir: string, remoteUrl: string, files?: Record<string, s
 }
 
 // ---------------------------------------------------------------------------
-// resolveProject (tested through `ao start` with --no-dashboard --no-orchestrator)
+// resolveProject (tested through `cahi start` with --no-dashboard --no-orchestrator)
 // ---------------------------------------------------------------------------
 
 describe("start command — project resolution", () => {
@@ -674,7 +674,7 @@ describe("start command — OpenClaw preflight", () => {
 });
 
 // ---------------------------------------------------------------------------
-// URL detection — `ao start <url>` triggers handleUrlStart
+// URL detection — `cahi start <url>` triggers handleUrlStart
 // ---------------------------------------------------------------------------
 
 describe("start command — URL argument", () => {
@@ -1110,7 +1110,7 @@ describe("start command — orchestrator session strategy display", () => {
   });
 
   it.each(["delete", "ignore", "delete-new", "ignore-new", "kill-previous"] as const)(
-    "uses ao session attach when strategy is %s and --no-dashboard",
+    "uses cahi session attach when strategy is %s and --no-dashboard",
     async (orchestratorSessionStrategy) => {
       mockConfigRef.current = makeConfig({
         "my-app": makeProject({ orchestratorSessionStrategy }),
@@ -1411,7 +1411,7 @@ describe("start command — orchestrator session strategy display", () => {
   it("ignores stale bare {projectId}-orchestrator records that lack role metadata", async () => {
     mockConfigRef.current = makeConfig({ "my-app": makeProject() });
 
-    // Legacy bare-named record from a pre-numbered AO version with no role
+    // Legacy bare-named record from a pre-numbered CAHI version with no role
     // metadata — must NOT be treated as an orchestrator, so spawnOrchestrator
     // still gets called and the user gets a fresh numbered id.
     mockSessionManager.list.mockResolvedValue([
@@ -1767,7 +1767,7 @@ describe("start command — orchestrator session strategy display", () => {
 });
 
 // ---------------------------------------------------------------------------
-// ao stop
+// cahi stop
 // ---------------------------------------------------------------------------
 
 describe("stop command", () => {
@@ -1786,7 +1786,7 @@ describe("stop command", () => {
 
   it("stops the actual numbered orchestrator session and dashboard", async () => {
     mockConfigRef.current = makeConfig({ "my-app": makeProject() });
-    // Issue #1048: ao stop must look up the real numbered orchestrator id
+    // Issue #1048: cahi stop must look up the real numbered orchestrator id
     // (e.g. app-orchestrator-3) via sm.list — never the phantom `${prefix}-orchestrator`.
     mockSessionManager.list.mockResolvedValue([
       {
@@ -1815,7 +1815,7 @@ describe("stop command", () => {
     expect(output).toContain("app-orchestrator-3");
   });
 
-  it("does not show the project picker for no-args ao stop across multiple projects", async () => {
+  it("does not show the project picker for no-args cahi stop across multiple projects", async () => {
     mockConfigRef.current = makeConfig({
       "project-1": makeProject({ name: "Project 1", sessionPrefix: "p1" }),
       "project-2": makeProject({ name: "Project 2", sessionPrefix: "p2" }),
@@ -1850,7 +1850,7 @@ describe("stop command", () => {
       expect.anything(),
       expect.anything(),
     );
-    expect(mockPromptConfirm).toHaveBeenCalledWith("Stop AO and 2 active session(s)?", false);
+    expect(mockPromptConfirm).toHaveBeenCalledWith("Stop CAHI and 2 active session(s)?", false);
     expect(mockSessionManager.kill).toHaveBeenCalledWith("p1-1", { purgeOpenCode: false });
     expect(mockSessionManager.kill).toHaveBeenCalledWith("p2-1", { purgeOpenCode: false });
   });
@@ -1929,7 +1929,7 @@ describe("stop command", () => {
     mockConfigRef.current = makeConfig({ "my-app": makeProject() });
     mockSessionManager.list.mockResolvedValue([]);
     mockFindPidByPort.mockResolvedValue("1234");
-    // killDashboardOnPort verifies the PID is an AO dashboard via `ps` on Unix
+    // killDashboardOnPort verifies the PID is an CAHI dashboard via `ps` on Unix
     // before killing. Stub it to return a matching cmdline so we reach the kill.
     mockExec.mockImplementation(async (cmd: string) => {
       if (cmd === "ps") return { stdout: "node /fake/web/dist-server/start-all.js", stderr: "" };
@@ -1954,7 +1954,7 @@ describe("stop command", () => {
   });
 
   // Recovers from issue #645: when the configured port was busy at start, the
-  // dashboard auto-reassigned to port+N and `ao stop` couldn't find it. The
+  // dashboard auto-reassigned to port+N and `cahi stop` couldn't find it. The
   // port-scan fallback in stopDashboard walks port+1..port+MAX_PORT_SCAN.
   // Skip on Windows: killDashboardOnPort skips the `ps` cmdline verification
   // there (uses netstat trust), so the assertions on `ps` output don't apply.
@@ -2165,7 +2165,7 @@ describe("start command — platform-aware runtime fallback", () => {
 
   // Regression for boundary-bug-hunter Phase 3 finding 2: targeted stop
   // used to call `removeProjectFromRunning` from a child CLI process, but
-  // the parent ao-start process's in-memory lifecycle worker for that
+  // the parent cahi-start process's in-memory lifecycle worker for that
   // project keeps polling. The state file then claimed "not polling"
   // while the live parent was still polling. Targeted stop must leave
   // `running.projects` intact so it remains a truthful signal.
@@ -2299,13 +2299,13 @@ describe("start command — platform-aware runtime fallback", () => {
     );
   });
 
-  // Regression: `ao stop <project>` then `ao start <project>` used to fall
+  // Regression: `cahi stop <project>` then `cahi start <project>` used to fall
   // through the projectNeedsRestart path into runStartup(), which spawned a
   // SECOND dashboard on a new port and clobbered running.json — leaving the
   // original parent process orphaned. Now it must attach to the running
   // daemon: ensureOrchestrator runs against the existing session manager,
   // running.json gets the project re-added, and runStartup is never called.
-  it("ao start <project> while daemon alive but project removed: attaches to existing daemon (no second dashboard)", async () => {
+  it("cahi start <project> while daemon alive but project removed: attaches to existing daemon (no second dashboard)", async () => {
     // Force the global-config fallback to use mockConfigRef.current rather
     // than reading the test machine's real ~/.cahi/config.yaml.
     const origGlobalEnv = process.env["CAHI_GLOBAL_CONFIG"];
@@ -2317,7 +2317,7 @@ describe("start command — platform-aware runtime fallback", () => {
         "project-2": makeProject({ name: "Project 2", sessionPrefix: "p2" }),
       });
 
-      // Daemon alive; project-2 was just removed by `ao stop project-2`.
+      // Daemon alive; project-2 was just removed by `cahi stop project-2`.
       mockIsAlreadyRunning.mockResolvedValue({
         pid: 99999,
         configPath: "/fake/config.yaml",
@@ -2353,7 +2353,7 @@ describe("start command — platform-aware runtime fallback", () => {
         .mocked(console.log)
         .mock.calls.map((c) => c.join(" "))
         .join("\n");
-      expect(output).toContain("Attaching to running AO instance");
+      expect(output).toContain("Attaching to running CAHI instance");
       expect(output).toContain("reattached to running daemon");
     } finally {
       if (origGlobalEnv === undefined) delete process.env["CAHI_GLOBAL_CONFIG"];
@@ -2479,7 +2479,7 @@ describe("start command — autoCreateConfig", () => {
 // ---------------------------------------------------------------------------
 
 describe("start command — already-running detection", () => {
-  it("exits immediately for non-TTY caller when AO is already running", async () => {
+  it("exits immediately for non-TTY caller when CAHI is already running", async () => {
     mockIsAlreadyRunning.mockResolvedValue({
       pid: 9999,
       configPath: "/fake/config.yaml",
@@ -2502,7 +2502,7 @@ describe("start command — already-running detection", () => {
       .mocked(console.log)
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
-    expect(output).toContain("AO is already running");
+    expect(output).toContain("CAHI is already running");
     expect(output).toContain("PID: 9999");
   });
 
@@ -2527,7 +2527,7 @@ describe("start command — already-running detection", () => {
       .mocked(console.log)
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
-    expect(output).toContain("AO is already running");
+    expect(output).toContain("CAHI is already running");
   });
 
   it("path arg already registered + running: opens dashboard without prompting and does not mutate YAML", async () => {
@@ -2570,7 +2570,7 @@ describe("start command — already-running detection", () => {
         .mocked(console.log)
         .mock.calls.map((c) => c.join(" "))
         .join("\n");
-      expect(output).toContain("AO is already running");
+      expect(output).toContain("CAHI is already running");
       expect(output).toContain("my-app");
       expect(output).toContain("already registered and running");
     } finally {
@@ -2579,7 +2579,7 @@ describe("start command — already-running detection", () => {
     }
   });
 
-  it("path arg unregistered + AO running: registers in global config and spawns orchestrator without showing the menu", async () => {
+  it("path arg unregistered + CAHI running: registers in global config and spawns orchestrator without showing the menu", async () => {
     const repoDir = join(tmpDir, "new-repo");
     createFakeRepo(repoDir, "https://github.com/org/new-repo.git");
 
@@ -2682,7 +2682,7 @@ describe("start command — already-running detection", () => {
     }
   });
 
-  it("offers to add cwd when AO is running and cwd is an unregistered git repo", async () => {
+  it("offers to add cwd when CAHI is running and cwd is an unregistered git repo", async () => {
     mockIsAlreadyRunning.mockResolvedValue({
       pid: 9999,
       configPath: "/fake/config.yaml",
@@ -2731,7 +2731,7 @@ describe("start command — already-running detection", () => {
       .mocked(console.log)
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
-    expect(output).toContain("AO is already running");
+    expect(output).toContain("CAHI is already running");
   });
 
   it("kills existing process and continues when human caller selects 'restart'", async () => {
@@ -2956,7 +2956,7 @@ describe("start command — already-running detection", () => {
       .mocked(console.log)
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
-    expect(output).toContain("AO is already running");
+    expect(output).toContain("CAHI is already running");
 
     // YAML should be unchanged — no duplicate entry added
     const afterYaml = readFileSync(configPath, "utf-8");

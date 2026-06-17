@@ -381,7 +381,7 @@ describe("workspace.create()", () => {
     expect(info).toBeNull();
   });
 
-  it("throws when the matching branch is checked out outside AO-managed worktree directories", async () => {
+  it("throws when the matching branch is checked out outside CAHI-managed worktree directories", async () => {
     const ws = create();
 
     mockGitSuccess(
@@ -394,7 +394,7 @@ describe("workspace.create()", () => {
     mockExistsSync.mockReturnValueOnce(true);
 
     await expect(ws.findManagedWorkspace?.(makeCreateConfig())).rejects.toThrow(
-      'outside AO-managed worktree directories',
+      'outside CAHI-managed worktree directories',
     );
   });
 
@@ -741,14 +741,14 @@ describe("workspace.create() — SDLC shared worktree (worktreeKey)", () => {
       makeCreateConfig({
         worktreeKey: "epic1__task",
         branch: "sdlc/epic1__task",
-        sessionId: "ao-5",
+        sessionId: "cahi-5",
       }),
     );
 
     expect(info.reused).toBe(true);
     // Path is keyed by the logical task, NOT the per-pass sessionId.
     expect(info.path).toBe("/mock-home/.worktrees/myproject/epic1__task");
-    expect(info.sessionId).toBe("ao-5");
+    expect(info.sessionId).toBe("cahi-5");
     expect(info.branch).toBe("sdlc/epic1__task");
     // Attach short-circuits: no `worktree add`, no stale-path teardown.
     const calls = mockExecFileAsync.mock.calls.map((c) => c[1] as string[]);
@@ -767,7 +767,7 @@ describe("workspace.create() — SDLC shared worktree (worktreeKey)", () => {
       makeCreateConfig({
         worktreeKey: "epic1__task",
         branch: "sdlc/epic1__task",
-        sessionId: "ao-4",
+        sessionId: "cahi-4",
       }),
     );
 

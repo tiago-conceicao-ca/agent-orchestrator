@@ -38,7 +38,7 @@ export function makeNormalizePlanExecutor(deps: NormalizePlanDeps): PhaseExecuto
       });
       for (const t of epic.tasks) await ctx.setTaskStatus(t.id, "backlog");
       // Write the normalized plan to a real file so the lens agent can Read it.
-      const artifactRef = join(tmpdir(), `ao-sdlc-${ctx.run.id}-plan.md`);
+      const artifactRef = join(tmpdir(), `cahi-sdlc-${ctx.run.id}-plan.md`);
       writeFileSync(artifactRef, planMarkdown, "utf-8");
       // Return the plan markdown so the engine persists it durably on the run
       // (the tmpdir file above is ephemeral — only the lens agent reads it).

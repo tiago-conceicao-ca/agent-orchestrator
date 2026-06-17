@@ -15,7 +15,7 @@ import {
 let tempDir: string | null = null;
 
 function makeTempPath(): string {
-  tempDir = mkdtempSync(join(tmpdir(), "ao-dashboard-notifications-"));
+  tempDir = mkdtempSync(join(tmpdir(), "cahi-dashboard-notifications-"));
   return join(tempDir, "dashboard-notifications.jsonl");
 }
 
@@ -54,7 +54,7 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
             isDraft: false,
           },
         ],
-        issueId: "AO-1",
+        issueId: "CAHI-1",
         issueTitle: "Fix dashboard notifications",
         summary: "Fix dashboard notifications",
         branch: "fix/dashboard-notifications",

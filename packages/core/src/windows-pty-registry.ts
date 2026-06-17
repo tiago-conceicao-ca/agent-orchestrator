@@ -9,12 +9,12 @@
  * Per-session JSON metadata also can't be the source of truth for cleanup:
  * if a worktree is rm-rf'd or session JSON is lost (legacy storage cleanup,
  * crash mid-write, manual recovery), the runtime-side processes become
- * unreachable and `ao stop` orphans them silently.
+ * unreachable and `cahi stop` orphans them silently.
  *
  * This registry is a flat list at `~/.cahi/windows-pty-hosts.json`
- * that AO writes on spawn and reads on `ao stop` (and on next `ao start`'s
+ * that CAHI writes on spawn and reads on `cahi stop` (and on next `cahi start`'s
  * orphan sweep, future work). It exists outside session JSON so cleanup of
- * sessions never severs AO's ability to find and graceful-kill the hosts.
+ * sessions never severs CAHI's ability to find and graceful-kill the hosts.
  *
  * Reads auto-prune entries whose PID is no longer alive.
  */

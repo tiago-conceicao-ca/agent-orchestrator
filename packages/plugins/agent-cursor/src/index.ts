@@ -265,7 +265,7 @@ function createCursorAgent(): Agent {
       // Process is running - check for activity signals
       if (!session.workspacePath) return null;
 
-      // 1. Check AO activity JSONL first (written by recordActivity from terminal output).
+      // 1. Check CAHI activity JSONL first (written by recordActivity from terminal output).
       //    This is the only source of waiting_input/blocked states for Cursor.
       const activityResult = await readLastActivityEntry(session.workspacePath);
       const activityState = checkActivityLogState(activityResult);

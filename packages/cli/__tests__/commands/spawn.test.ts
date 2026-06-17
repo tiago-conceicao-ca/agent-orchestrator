@@ -94,7 +94,7 @@ const recordedEvents = (): Array<Record<string, unknown>> =>
   vi.mocked(recordActivityEvent).mock.calls.map((c) => c[0] as Record<string, unknown>);
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-spawn-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-spawn-test-"));
   configPath = join(tmpDir, "cahi.yaml");
   writeFileSync(configPath, "projects: {}");
 
@@ -272,7 +272,7 @@ describe("spawn command", () => {
   });
 
   it("routes a <projectId>/<issue> identifier to the prefixed project", async () => {
-    // Multi-project config where AO is running for the default project
+    // Multi-project config where CAHI is running for the default project
     // but the issue belongs to a different project.
     (mockConfigRef.current as Record<string, unknown>).projects = {
       "cahi": {
@@ -280,7 +280,7 @@ describe("spawn command", () => {
         repo: "org/cahi",
         path: join(tmpDir, "cahi"),
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       },
       "x402-identity": {
         name: "x402 Identity",
@@ -334,7 +334,7 @@ describe("spawn command", () => {
         repo: "org/cahi",
         path: join(tmpDir, "cahi"),
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       },
       "x402-identity": {
         name: "x402 Identity",
@@ -902,7 +902,7 @@ describe("batch-spawn command", () => {
         repo: "org/cahi",
         path: join(tmpDir, "cahi"),
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       },
       "x402-identity": {
         name: "x402 Identity",
@@ -922,7 +922,7 @@ describe("batch-spawn command", () => {
     });
 
     mockSessionManager.spawn
-      .mockResolvedValueOnce(makeFakeSession({ id: "ao-1", projectId: "cahi" }))
+      .mockResolvedValueOnce(makeFakeSession({ id: "cahi-1", projectId: "cahi" }))
       .mockResolvedValueOnce(makeFakeSession({ id: "xid-1", projectId: "x402-identity" }));
 
     const program = setupBatch();
@@ -956,7 +956,7 @@ describe("batch-spawn command", () => {
         repo: "org/cahi",
         path: join(tmpDir, "cahi"),
         defaultBranch: "main",
-        sessionPrefix: "ao",
+        sessionPrefix: "cahi",
       },
       "x402-identity": {
         name: "x402 Identity",
@@ -991,7 +991,7 @@ describe("batch-spawn command", () => {
     });
 
     mockSessionManager.spawn.mockResolvedValueOnce(
-      makeFakeSession({ id: "ao-2", projectId: "cahi" }),
+      makeFakeSession({ id: "cahi-2", projectId: "cahi" }),
     );
 
     const program = setupBatch();
@@ -1012,7 +1012,7 @@ describe("batch-spawn command", () => {
 });
 
 describe("spawn daemon-polling enforcement", () => {
-  it("refuses to spawn when no AO daemon is running", async () => {
+  it("refuses to spawn when no CAHI daemon is running", async () => {
     mockGetRunning.mockResolvedValue(null);
 
     await expect(program.parseAsync(["node", "test", "spawn"])).rejects.toThrow(
@@ -1023,7 +1023,7 @@ describe("spawn daemon-polling enforcement", () => {
       .mocked(console.error)
       .mock.calls.map((c) => String(c[0]))
       .join("\n");
-    expect(errors).toContain("AO is not running");
+    expect(errors).toContain("CAHI is not running");
     expect(errors).toContain("cahi start");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
@@ -1060,7 +1060,7 @@ describe("batch-spawn daemon-polling enforcement", () => {
     registerBatchSpawn(batchProgram);
   });
 
-  it("refuses to batch-spawn when no AO daemon is running", async () => {
+  it("refuses to batch-spawn when no CAHI daemon is running", async () => {
     mockGetRunning.mockResolvedValue(null);
 
     await expect(
@@ -1071,7 +1071,7 @@ describe("batch-spawn daemon-polling enforcement", () => {
       .mocked(console.error)
       .mock.calls.map((c) => String(c[0]))
       .join("\n");
-    expect(errors).toContain("AO is not running");
+    expect(errors).toContain("CAHI is not running");
     expect(errors).toContain("cahi start");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });

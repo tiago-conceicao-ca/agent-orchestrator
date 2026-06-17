@@ -14,7 +14,7 @@ import {
 
 const { mockConfig, mockSessionManager } = vi.hoisted(() => ({
   mockConfig: {
-    configPath: "/tmp/ao/cahi.yaml",
+    configPath: "/tmp/cahi/cahi.yaml",
     readyThresholdMs: 300_000,
     defaults: { runtime: "tmux", agent: "codex", workspace: "worktree", notifiers: [] },
     projects: {
@@ -111,7 +111,7 @@ let tmpHome: string;
 let originalHome: string | undefined;
 
 beforeEach(() => {
-  tmpHome = mkdtempSync(join(tmpdir(), "ao-web-review-api-"));
+  tmpHome = mkdtempSync(join(tmpdir(), "cahi-web-review-api-"));
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpHome;
   createCodeReviewStore("app").deleteAll();

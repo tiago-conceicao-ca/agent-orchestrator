@@ -6,8 +6,8 @@ export function escapeRegex(str: string): string {
 
 /**
  * Strip optional 12-char hex hash prefix from a tmux session name.
- * "1686e4aaaeaa-ao-145" → "ao-145"
- * "ao-145" → "ao-145" (no-op if no hash prefix)
+ * "1686e4aaaeaa-cahi-145" → "cahi-145"
+ * "cahi-145" → "cahi-145" (no-op if no hash prefix)
  */
 export function stripHashPrefix(name: string): string {
   const match = name.match(/^[a-f0-9]{12}-(.+)$/);

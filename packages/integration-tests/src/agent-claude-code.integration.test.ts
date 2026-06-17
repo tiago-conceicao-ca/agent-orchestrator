@@ -41,7 +41,7 @@ const execFileAsync = promisify(execFile);
 // Prerequisites
 // ---------------------------------------------------------------------------
 
-const SESSION_PREFIX = "ao-inttest-claude-";
+const SESSION_PREFIX = "cahi-inttest-claude-";
 
 async function findClaudeBinary(): Promise<string | null> {
   for (const bin of ["claude"]) {
@@ -195,7 +195,7 @@ describe.skipIf(!canRun)("agent-claude-code (integration)", () => {
     await killSessionsByPrefix(SESSION_PREFIX);
 
     // Create temp workspace — resolve symlinks (macOS /tmp → /private/tmp)
-    const raw = await mkdtemp(join(tmpdir(), "ao-inttest-claude-"));
+    const raw = await mkdtemp(join(tmpdir(), "cahi-inttest-claude-"));
     tmpDir = await realpath(raw);
 
     // Spawn Claude with a task that generates observable activity (file creation)

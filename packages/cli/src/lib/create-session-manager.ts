@@ -36,7 +36,7 @@ export async function getPluginRegistry(config: OrchestratorConfig): Promise<Plu
   if (!registryPromise) {
     registryPromise = (async () => {
       const registry = createPluginRegistry();
-      // Prefer the AO-managed plugin store when a package is installed there,
+      // Prefer the CAHI-managed plugin store when a package is installed there,
       // but still fall back to the CLI/workspace dependency tree for built-ins.
       await registry.loadFromConfig(config, importPluginModuleFromSource);
       return registry;

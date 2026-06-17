@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic runner for the AO weekly release notes skill.
+"""Deterministic runner for the CAHI weekly release notes skill.
 
 Queries the GitHub API (via the `gh` CLI) for releases, merged PRs, commits,
 contributors, and star counts in a 7-day window, then renders a markdown
@@ -563,7 +563,7 @@ def truncate_if_needed(body: str, already_omitted: int) -> str:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate AO weekly release notes")
+    parser = argparse.ArgumentParser(description="Generate CAHI weekly release notes")
     parser.add_argument(
         "--mode",
         choices=("scheduled", "on-demand"),

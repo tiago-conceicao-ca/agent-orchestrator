@@ -30,8 +30,8 @@ export const dynamic = "force-dynamic";
  *
  * Examples:
  * - http://localhost:3000/dev/terminal-test (auto-picks two different sessions)
- * - http://localhost:3000/dev/terminal-test?old_session=ao-orchestrator&new_session=ao-20
- * - http://localhost:3000/dev/terminal-test?session=ao-20 (uses same session for both)
+ * - http://localhost:3000/dev/terminal-test?old_session=cahi-orchestrator&new_session=cahi-20
+ * - http://localhost:3000/dev/terminal-test?session=cahi-20 (uses same session for both)
  *
  * Note: Using different sessions for old/new avoids port conflicts when both render simultaneously.
  */
@@ -61,8 +61,8 @@ function TerminalTestPageContent() {
   const newSessionParam = searchParams.get("new_session");
 
   // If no params provided, use first two available sessions (or fallback to defaults)
-  const defaultOldSession = availableSessions[0] || "ao-orchestrator";
-  const defaultNewSession = availableSessions[1] || availableSessions[0] || "ao-orchestrator";
+  const defaultOldSession = availableSessions[0] || "cahi-orchestrator";
+  const defaultNewSession = availableSessions[1] || availableSessions[0] || "cahi-orchestrator";
 
   // Allow overriding individual sessions
   const oldSessionId = oldSessionParam || sessionParam || defaultOldSession;
@@ -356,7 +356,7 @@ function TerminalTestPageContent() {
               ⚠️ Using same session for both terminals. To avoid port conflicts, use different
               sessions:
               <code className="ml-1 rounded-[2px] bg-black px-1">
-                ?old_session=ao-orchestrator&new_session=ao-20
+                ?old_session=cahi-orchestrator&new_session=cahi-20
               </code>
             </div>
           )}

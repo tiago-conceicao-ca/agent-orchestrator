@@ -96,7 +96,7 @@ function createHealthyPath(binDir: string): void {
     "gh",
     'if [ "$1" = "--version" ]; then\n  printf "gh version 2.50.0\\n"\n  exit 0\nfi\nif [ "$1" = "auth" ] && [ "$2" = "status" ]; then\n  exit 0\nfi\nexit 0',
   );
-  createFakeBinary(binDir, "ao", 'printf "/fake/ao\\n" >/dev/null\nexit 0');
+  createFakeBinary(binDir, "cahi", 'printf "/fake/cahi\\n" >/dev/null\nexit 0');
 }
 
 // Skipped on Windows: bash is required to execute the doctor script and is not
@@ -144,7 +144,7 @@ describe.skipIf(process.platform === "win32")("cahi-doctor.sh", () => {
     mkdirSync(binDir, { recursive: true });
     createHealthyPath(binDir);
     createFakeBinary(binDir, "grep", 'exec /usr/bin/grep --color=always "$@"');
-    rmSync(join(binDir, "ao"), { force: true });
+    rmSync(join(binDir, "cahi"), { force: true });
 
     const npmLog = join(tempRoot, "npm.log");
     createFakeBinary(
@@ -167,7 +167,7 @@ describe.skipIf(process.platform === "win32")("cahi-doctor.sh", () => {
 
     const tmpRoot = join(tempRoot, "tmp-root");
     mkdirSync(tmpRoot, { recursive: true });
-    const staleFile = join(tmpRoot, "ao-stale.tmp");
+    const staleFile = join(tmpRoot, "cahi-stale.tmp");
     writeFileSync(staleFile, "stale\n");
     const oldTimestamp = new Date(Date.now() - 2 * 60 * 60 * 1000);
     utimesSync(staleFile, oldTimestamp, oldTimestamp);
@@ -203,14 +203,14 @@ describe.skipIf(process.platform === "win32")("cahi-doctor.sh", () => {
     expect(commentedWorktreeDirExists).toBe(false);
   });
 
-  it("repairs a dangling ao launcher shim in fix mode", () => {
+  it("repairs a dangling cahi launcher shim in fix mode", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-dangling-launcher-"));
     const fakeRepo = createHealthyRepo(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
     createHealthyPath(binDir);
 
-    const aoPath = join(binDir, "ao");
+    const aoPath = join(binDir, "cahi");
     rmSync(aoPath, { force: true });
     symlinkSync(join(tempRoot, "deleted-checkout", "dist", "index.js"), aoPath);
 

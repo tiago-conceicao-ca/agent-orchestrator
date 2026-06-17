@@ -19,17 +19,17 @@ describe("Terminal", () => {
   });
 
   it("loads the iframe terminal URL and supports fullscreen toggling", async () => {
-    const { container } = render(<Terminal sessionId="ao-77" />);
+    const { container } = render(<Terminal sessionId="cahi-77" />);
 
     await waitFor(() =>
-      expect(screen.getByTitle("Terminal: ao-77")).toHaveAttribute(
+      expect(screen.getByTitle("Terminal: cahi-77")).toHaveAttribute(
         "src",
         "http://localhost:14800/session/demo",
       ),
     );
 
     expect(fetch).toHaveBeenCalledWith(
-      `${window.location.protocol}//${window.location.hostname}:14800/terminal?session=ao-77`,
+      `${window.location.protocol}//${window.location.hostname}:14800/terminal?session=cahi-77`,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "fullscreen" }));

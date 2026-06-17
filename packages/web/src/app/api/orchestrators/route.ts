@@ -14,14 +14,14 @@ function classifySpawnError(
 
   if (
     message.includes("already exists and is still registered with git") ||
-    message.includes("outside AO-managed worktree directories") ||
+    message.includes("outside CAHI-managed worktree directories") ||
     message.includes('Found multiple worktrees for orchestrator branch "')
   ) {
     return {
       status: 409,
       payload: {
         error: [
-          `AO found an older orchestrator workspace for "${projectId}" but could not safely reuse it automatically.`,
+          `CAHI found an older orchestrator workspace for "${projectId}" but could not safely reuse it automatically.`,
           "Your repository is safe.",
           "Review the existing workspace, then either reuse it manually or remove it and create a fresh orchestrator workspace.",
         ].join(" "),

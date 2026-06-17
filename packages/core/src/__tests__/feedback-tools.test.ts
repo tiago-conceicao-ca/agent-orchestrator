@@ -15,7 +15,7 @@ const validPayload = {
   title: "Login failure for SSO users",
   body: "Users with Google SSO are looped back to login.",
   evidence: ["trace_id=abc123", "Video capture from session"],
-  session: "ao-22",
+  session: "cahi-22",
   source: "agent",
   confidence: 0.82,
 };
@@ -158,7 +158,7 @@ describe("feedback report store", () => {
   let reportsDir: string;
 
   beforeEach(() => {
-    reportsDir = join(tmpdir(), `ao-feedback-${randomUUID()}`);
+    reportsDir = join(tmpdir(), `cahi-feedback-${randomUUID()}`);
     mkdirSync(reportsDir, { recursive: true });
   });
 

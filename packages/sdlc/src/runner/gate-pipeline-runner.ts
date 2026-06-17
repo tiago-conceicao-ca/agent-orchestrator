@@ -137,7 +137,7 @@ function extractJson(text: string): string {
 }
 
 /**
- * Convenience: build a {@link GateAgentRunner} backed by a real AO worker session
+ * Convenience: build a {@link GateAgentRunner} backed by a real CAHI worker session
  * (reusing the #6 session runner + lens sentinel). Each gate agent writes its
  * verdict JSON to the lens sentinel, which this reads back.
  */

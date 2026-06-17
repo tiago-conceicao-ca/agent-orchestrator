@@ -1858,8 +1858,8 @@ describe("spawn", () => {
       const mockBin = installMockOpencode(
         tmpDir,
         JSON.stringify([
-          { id: "ses_old", title: "AO:app-orchestrator", updated: "2025-01-01T00:00:00.000Z" },
-          { id: "ses_new", title: "AO:app-orchestrator", updated: "2025-01-02T00:00:00.000Z" },
+          { id: "ses_old", title: "CAHI:app-orchestrator", updated: "2025-01-01T00:00:00.000Z" },
+          { id: "ses_new", title: "CAHI:app-orchestrator", updated: "2025-01-02T00:00:00.000Z" },
         ]),
         deleteLogPath,
       );
@@ -1920,7 +1920,7 @@ describe("spawn", () => {
         JSON.stringify([
           {
             id: "ses_discovered_orchestrator",
-            title: "AO:app-orchestrator",
+            title: "CAHI:app-orchestrator",
             updated: 1_772_777_000_000,
           },
         ]),
@@ -1969,7 +1969,7 @@ describe("spawn", () => {
         JSON.stringify([
           {
             id: "ses_existing",
-            title: "AO:app-orchestrator",
+            title: "CAHI:app-orchestrator",
             updated: 1_772_777_000_000,
           },
         ]),
@@ -2023,7 +2023,7 @@ describe("spawn", () => {
       const mockBin = installMockOpencode(
         tmpDir,
         JSON.stringify([
-          { id: "ses_existing", title: "AO:app-orchestrator", updated: 1_772_777_000_000 },
+          { id: "ses_existing", title: "CAHI:app-orchestrator", updated: 1_772_777_000_000 },
         ]),
         deleteLogPath,
       );
@@ -2073,7 +2073,7 @@ describe("spawn", () => {
       const mockBin = installMockOpencode(
         tmpDir,
         JSON.stringify([
-          { id: "ses_title_match", title: "AO:app-orchestrator", updated: 1_772_777_000_000 },
+          { id: "ses_title_match", title: "CAHI:app-orchestrator", updated: 1_772_777_000_000 },
         ]),
         deleteLogPath,
       );

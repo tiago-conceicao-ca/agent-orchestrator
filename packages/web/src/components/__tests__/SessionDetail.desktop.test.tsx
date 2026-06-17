@@ -458,7 +458,7 @@ describe("SessionDetail desktop layout", () => {
     render(
       <SessionDetail
         session={makeSession({
-          id: "ao-orchestrator",
+          id: "cahi-orchestrator",
           projectId: "cahi",
           status: "working",
           activity: "ready",
@@ -466,7 +466,7 @@ describe("SessionDetail desktop layout", () => {
         })}
         isOrchestrator
         orchestratorZones={{ merge: 0, respond: 0, review: 0, pending: 0, working: 1, done: 2 }}
-        projectOrchestratorId="ao-orchestrator"
+        projectOrchestratorId="cahi-orchestrator"
         projects={[
           { id: "cahi", name: "CAHI", path: "/tmp/cahi" },
         ]}

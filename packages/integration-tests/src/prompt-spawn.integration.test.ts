@@ -33,10 +33,10 @@ let configPath: string;
 let repoPath: string;
 let originalHome: string | undefined;
 const projectId = "test-project";
-const sessionPrefix = "ao-prompt-test";
+const sessionPrefix = "cahi-prompt-test";
 
 beforeAll(async () => {
-  const raw = await mkdtemp(join(tmpdir(), "ao-prompt-spawn-"));
+  const raw = await mkdtemp(join(tmpdir(), "cahi-prompt-spawn-"));
   tmpDir = await realpath(raw);
 
   // HOME isolation so getProjectSessionsDir resolves under tmpDir

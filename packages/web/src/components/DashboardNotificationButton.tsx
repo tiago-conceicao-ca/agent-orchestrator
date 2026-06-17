@@ -6,7 +6,7 @@ import type { DashboardNotificationRecord } from "@/lib/mux-protocol";
 import { projectSessionPath } from "@/lib/routes";
 import { useMuxOptional } from "@/providers/MuxProvider";
 
-const READ_STORAGE_KEY = "ao.dashboard.notifications.read.v1";
+const READ_STORAGE_KEY = "cahi.dashboard.notifications.read.v1";
 const TRUSTED_EXTERNAL_ORIGINS: Record<string, string> = {
   "github.com": "https://github.com",
   "gitlab.com": "https://gitlab.com",

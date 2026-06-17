@@ -24,7 +24,7 @@ import { sleep } from "./helpers/polling.js";
 
 const execFileAsync = promisify(execFile);
 
-const SESSION_PREFIX = "ao-inttest-ls-";
+const SESSION_PREFIX = "cahi-inttest-ls-";
 
 const tmuxOk = await isTmuxAvailable();
 
@@ -35,7 +35,7 @@ describe.skipIf(!tmuxOk)("CLI session listing (integration)", () => {
 
   beforeAll(async () => {
     await killSessionsByPrefix(SESSION_PREFIX);
-    const raw = await mkdtemp(join(tmpdir(), "ao-inttest-ls-"));
+    const raw = await mkdtemp(join(tmpdir(), "cahi-inttest-ls-"));
     tmpDir = await realpath(raw);
 
     // Create two sessions

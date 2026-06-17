@@ -465,7 +465,7 @@ describe("ProjectSidebar", () => {
   });
 
   it("navigates session rows to the selected session detail route", () => {
-    mockPathname = "/sessions/ao-143";
+    mockPathname = "/sessions/cahi-143";
 
     render(
       <ProjectSidebar

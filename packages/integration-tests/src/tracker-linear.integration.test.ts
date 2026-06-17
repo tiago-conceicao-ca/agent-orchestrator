@@ -185,7 +185,7 @@ describe.skipIf(!canRun)("tracker-linear (integration)", () => {
       result = await retryExternal(() =>
         tracker.createIssue!(
           {
-            title: `[AO Integration Test] ${new Date().toISOString()}`,
+            title: `[CAHI Integration Test] ${new Date().toISOString()}`,
             description: "Automated integration test issue. Safe to delete if found lingering.",
             priority: 4, // Low
           },
@@ -274,7 +274,7 @@ describe.skipIf(!canRun)("tracker-linear (integration)", () => {
     const issue = await tracker.getIssue(issueIdentifier, project);
 
     expect(issue.id).toBe(issueIdentifier);
-    expect(issue.title).toContain("[AO Integration Test]");
+    expect(issue.title).toContain("[CAHI Integration Test]");
     expect(issue.description).toContain("Automated integration test");
     expect(issue.url).toMatch(/^https:\/\/linear\.app\//);
     expect(issue.state).toBe("open");
@@ -306,7 +306,7 @@ describe.skipIf(!canRun)("tracker-linear (integration)", () => {
     const prompt = await tracker.generatePrompt(issueIdentifier, project);
 
     expect(prompt).toContain(issueIdentifier);
-    expect(prompt).toContain("[AO Integration Test]");
+    expect(prompt).toContain("[CAHI Integration Test]");
     expect(prompt).toContain("Priority: Low");
     expect(prompt).toContain("implement the changes");
   });
@@ -322,7 +322,7 @@ describe.skipIf(!canRun)("tracker-linear (integration)", () => {
     );
 
     expect(found).toBeDefined();
-    expect(found!.title).toContain("[AO Integration Test]");
+    expect(found!.title).toContain("[CAHI Integration Test]");
   });
 
   it("updateIssue adds a comment", async () => {

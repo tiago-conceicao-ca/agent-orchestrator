@@ -1,13 +1,13 @@
 /**
- * `ao sdlc` — drive the SDLC workflow orchestrator.
+ * `cahi sdlc` — drive the SDLC workflow orchestrator.
  *
- *   ao sdlc start <planFileOrText>   normalize a plan into an epic, run the
+ *   cahi sdlc start <planFileOrText>   normalize a plan into an epic, run the
  *                                    ca-plan-to-backend workflow (pauses at the
  *                                    human gate after normalize-plan)
- *   ao sdlc approve <runId>          approve a run paused at a human gate (resume)
- *   ao sdlc status <runId>           print a run's status + per-task kanban state
+ *   cahi sdlc approve <runId>          approve a run paused at a human gate (resume)
+ *   cahi sdlc status <runId>           print a run's status + per-task kanban state
  *
- * The pure workflow engine lives in @contaazul/cahi-sdlc; this command wires AO's
+ * The pure workflow engine lives in @contaazul/cahi-sdlc; this command wires CAHI's
  * real SessionManager into the injected spawn/waitForDone seams and constructs
  * the V1 (ca-plan-to-backend) engine.
  */
@@ -84,7 +84,7 @@ const TASK_STALL_THRESHOLD_MS =
   Number(process.env.CAHI_SDLC_STALL_THRESHOLD_MS) || 20 * 60 * 1_000;
 
 /**
- * Map an AO session's terminal state to the engine's done/failed outcome.
+ * Map an CAHI session's terminal state to the engine's done/failed outcome.
  *
  * A successful agent that has OPENED a PR (CI green/pending) is "done" — a merge
  * is NOT required. Only a still-working session with no PR yet keeps polling.
@@ -291,7 +291,7 @@ async function buildLiveEngine(
     sessionManager,
     projectId: resolvedProjectId,
     onRunEvent,
-    // Run each lens as a real, interactive AO worker session (visible/attachable
+    // Run each lens as a real, interactive CAHI worker session (visible/attachable
     // on the board) instead of a headless `claude -p`. The session writes its
     // verdict JSON to a sentinel file the runner reads on completion.
     // When --skip-lens is set, the lens runner returns a trivially-passing
@@ -404,7 +404,7 @@ export function registerSdlc(program: Command): void {
           console.log(chalk.green(`Started SDLC run ${chalk.bold(run.id)} (${run.status}).`));
           printRun(run);
           if (run.status === "awaiting_approval") {
-            console.log(chalk.yellow(`\nApprove with: ao sdlc approve ${run.id}`));
+            console.log(chalk.yellow(`\nApprove with: cahi sdlc approve ${run.id}`));
           }
         } catch (err) {
           console.error(chalk.red(err instanceof Error ? err.message : String(err)));

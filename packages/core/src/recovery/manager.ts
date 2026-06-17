@@ -140,7 +140,7 @@ function recordRecoverySessionFailed(
   result: RecoveryResult,
 ): string {
   const errorMessage = result.error || "Unknown error";
-  // Forensic event so RCA can answer: did `ao recover` actually fix
+  // Forensic event so RCA can answer: did `cahi recover` actually fix
   // anything? Which sessions did it skip? B22: one event per failed
   // session, not per probe step.
   recordActivityEvent({

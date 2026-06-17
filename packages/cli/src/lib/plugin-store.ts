@@ -13,7 +13,7 @@ interface PluginStoreManifest {
 }
 
 const STORE_MANIFEST: PluginStoreManifest = {
-  name: "ao-plugin-store",
+  name: "cahi-plugin-store",
   private: true,
   type: "module",
 };
@@ -50,7 +50,7 @@ async function runNpmInStore(args: string[]): Promise<void> {
     throw formatCommandError(err, {
       cmd: "npm",
       args,
-      action: "manage AO marketplace plugins",
+      action: "manage CAHI marketplace plugins",
       installHints: ["Install Node.js/npm from https://nodejs.org/ and re-run the command."],
     });
   }
@@ -93,7 +93,7 @@ export async function installPackageIntoStore(
 
   const installedVersion = readInstalledPackageVersion(packageName);
   if (!installedVersion) {
-    throw new Error(`Package ${packageName} was installed into the AO plugin store but no version was resolved afterwards.`);
+    throw new Error(`Package ${packageName} was installed into the CAHI plugin store but no version was resolved afterwards.`);
   }
 
   return installedVersion;

@@ -26,7 +26,7 @@ const PREFERRED_GH_BIN_DIR = "/usr/local/bin";
 export const PREFERRED_GH_PATH = `${PREFERRED_GH_BIN_DIR}/gh`;
 
 /**
- * Get the shared bin directory for ao shell wrappers (prepended to PATH).
+ * Get the shared bin directory for cahi shell wrappers (prepended to PATH).
  * Computed lazily to avoid calling homedir() at module load time,
  * which breaks test mocks that replace homedir after import.
  */
@@ -117,7 +117,7 @@ update_cahi_metadata() {
     */* | *..*) return 0 ;;
   esac
 
-  # Validate: ao_dir must be an absolute path under known ao directories or /tmp
+  # Validate: ao_dir must be an absolute path under known cahi directories or /tmp
   case "\$ao_dir" in
     "\$HOME"/.cahi/* | /tmp/*) ;;
     *) return 0 ;;
@@ -253,7 +253,7 @@ ao_cache_write() {
  * See D4-wrapper-cache-plan.md for full design rationale.
  */
 export const GH_WRAPPER = `#!/usr/bin/env bash
-# ao gh wrapper — caches reads + auto-updates metadata on writes
+# cahi gh wrapper — caches reads + auto-updates metadata on writes
 
 # Find real gh by removing our wrapper directory from PATH
 ao_bin_dir="\$(cd "\$(dirname "\$0")" && pwd)"
@@ -261,7 +261,7 @@ clean_path="\$(echo "\$PATH" | tr ':' '\\n' | grep -Fxv "\$ao_bin_dir" | grep . 
 clean_path="\${clean_path%:}"
 real_gh=""
 
-# Prefer explicit gh path when provided by AO environment.
+# Prefer explicit gh path when provided by CAHI environment.
 # Guard against recursive self-reference to the wrapper in ~/.cahi/bin.
 if [[ -n "\${GH_PATH:-}" && -x "\$GH_PATH" ]]; then
   gh_dir="\$(cd "\$(dirname "\$GH_PATH")" 2>/dev/null && pwd)"
@@ -275,7 +275,7 @@ if [[ -z "\$real_gh" ]]; then
 fi
 
 if [[ -z "\$real_gh" ]]; then
-  echo "ao-wrapper: gh not found in PATH" >&2
+  echo "cahi-wrapper: gh not found in PATH" >&2
   exit 127
 fi
 
@@ -317,7 +317,7 @@ log_gh_invocation() {
   local args_json
   args_json="\$(_ao_redact_args "\$@" | jq -Rsc 'split("\n")[:-1]')" || return 0
 
-  # Compute operation: gh.{arg1}.{arg2} (mirrors AO-side extractOperation)
+  # Compute operation: gh.{arg1}.{arg2} (mirrors CAHI-side extractOperation)
   local _ao_op="gh"
   [[ \$# -ge 1 ]] && _ao_op="gh.\$1"
   [[ \$# -ge 2 && "\$2" != -* ]] && _ao_op="gh.\$1.\$2"
@@ -586,7 +586,7 @@ esac
  * Matches the same heuristic as Claude Code's PostToolUse hook.
  */
 export const GIT_WRAPPER = `#!/usr/bin/env bash
-# ao git wrapper — auto-updates session metadata on branch operations
+# cahi git wrapper — auto-updates session metadata on branch operations
 
 # Find real git by removing our wrapper directory from PATH
 ao_bin_dir="\$(cd "\$(dirname "\$0")" && pwd)"
@@ -595,7 +595,7 @@ clean_path="\${clean_path%:}"
 real_git="\$(PATH="\$clean_path" command -v git 2>/dev/null)"
 
 if [[ -z "\$real_git" ]]; then
-  echo "ao-wrapper: git not found in PATH" >&2
+  echo "cahi-wrapper: git not found in PATH" >&2
   exit 127
 fi
 
@@ -726,7 +726,7 @@ function updateAoMetadata(key, value) {
 
 function buildGhNodeWrapper(realBinaryPath: string): string {
   return `#!/usr/bin/env node
-// ao gh wrapper (Windows Node.js) — auto-updates session metadata on PR operations
+// cahi gh wrapper (Windows Node.js) — auto-updates session metadata on PR operations
 "use strict";
 const { spawnSync } = require("child_process");
 const fs = require("fs");
@@ -773,7 +773,7 @@ ${NODE_UPDATE_CAHI_METADATA}
 // ---------------------------------------------------------------------------
 const realGh = ${realBinaryPath ? `(fs.existsSync(${JSON.stringify(realBinaryPath)}) ? ${JSON.stringify(realBinaryPath)} : findRealGh())` : "findRealGh()"};
 if (!realGh) {
-  process.stderr.write("ao-wrapper: gh not found in PATH\\n");
+  process.stderr.write("cahi-wrapper: gh not found in PATH\\n");
   process.exit(127);
 }
 
@@ -840,7 +840,7 @@ if (key === "pr/create" || key === "pr/merge") {
 
 function buildGitNodeWrapper(realBinaryPath: string): string {
   return `#!/usr/bin/env node
-// ao git wrapper (Windows Node.js) — auto-updates session metadata on branch operations
+// cahi git wrapper (Windows Node.js) — auto-updates session metadata on branch operations
 "use strict";
 const { spawnSync } = require("child_process");
 const fs = require("fs");
@@ -877,7 +877,7 @@ ${NODE_UPDATE_CAHI_METADATA}
 // ---------------------------------------------------------------------------
 const realGit = ${realBinaryPath ? `(fs.existsSync(${JSON.stringify(realBinaryPath)}) ? ${JSON.stringify(realBinaryPath)} : findRealGit())` : "findRealGit()"};
 if (!realGit) {
-  process.stderr.write("ao-wrapper: git not found in PATH\\n");
+  process.stderr.write("cahi-wrapper: git not found in PATH\\n");
   process.exit(127);
 }
 
@@ -948,7 +948,7 @@ async function atomicWriteFile(filePath: string, content: string, mode: number):
 }
 
 /**
- * Install PATH-based shell wrappers and append an AO section to AGENTS.md.
+ * Install PATH-based shell wrappers and append an CAHI section to AGENTS.md.
  *
  * This is the standard workspace setup for agents that don't have native hook
  * systems (Codex, Aider, OpenCode). Call this from both `setupWorkspaceHooks`
@@ -998,7 +998,7 @@ export async function setupPathWrapperWorkspace(workspacePath: string): Promise<
     await atomicWriteFile(markerPath, WRAPPER_VERSION, 0o644);
   }
 
-  // 2. Write AO session context to .cahi/AGENTS.md (gitignored) so agents
+  // 2. Write CAHI session context to .cahi/AGENTS.md (gitignored) so agents
   //    can discover they're in a managed session. We don't modify the
   //    repo-tracked AGENTS.md to avoid polluting worktrees with dirty state.
   const aoAgentsMdPath = join(workspacePath, ".cahi", "AGENTS.md");

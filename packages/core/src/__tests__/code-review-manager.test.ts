@@ -28,7 +28,7 @@ let storeDir: string;
 let store: CodeReviewStore;
 
 const config: OrchestratorConfig = {
-  configPath: "/tmp/ao/cahi.yaml",
+  configPath: "/tmp/cahi/cahi.yaml",
   readyThresholdMs: 300_000,
   defaults: { runtime: "tmux", agent: "codex", workspace: "worktree", notifiers: [] },
   projects: {
@@ -142,7 +142,7 @@ function makeSessionManager(
 }
 
 beforeEach(() => {
-  storeDir = join(tmpdir(), `ao-test-code-review-manager-${randomUUID()}`);
+  storeDir = join(tmpdir(), `cahi-test-code-review-manager-${randomUUID()}`);
   mkdirSync(storeDir, { recursive: true });
   store = createCodeReviewStore("app", { storeDir });
 });
@@ -573,7 +573,7 @@ describe("sendCodeReviewFindingsToAgent", () => {
 
     expect(sentMessages).toHaveLength(1);
     expect(sentMessages[0]?.sessionId).toBe("app-1");
-    expect(sentMessages[0]?.message).toContain("AO reviewer app-rev-1 found 2 open issues");
+    expect(sentMessages[0]?.message).toContain("CAHI reviewer app-rev-1 found 2 open issues");
     expect(sentMessages[0]?.message).toContain("Review run:");
     expect(sentMessages[0]?.message).toContain("[error] Broken save path");
     expect(sentMessages[0]?.message).toContain("Location: src/save.ts:12");
@@ -653,7 +653,7 @@ describe("runCodexCodeReview", () => {
 
 describe("prepareGitReviewerWorkspace", () => {
   it("prunes stale git worktree metadata when the reviewer workspace directory is gone", async () => {
-    const tmpHome = join(tmpdir(), `ao-test-review-worktree-${randomUUID()}`);
+    const tmpHome = join(tmpdir(), `cahi-test-review-worktree-${randomUUID()}`);
     const originalHome = process.env["HOME"];
     process.env["HOME"] = tmpHome;
 
@@ -667,10 +667,10 @@ describe("prepareGitReviewerWorkspace", () => {
         cwd: repoPath,
         env: {
           ...process.env,
-          GIT_AUTHOR_NAME: "AO Test",
-          GIT_AUTHOR_EMAIL: "ao@example.com",
-          GIT_COMMITTER_NAME: "AO Test",
-          GIT_COMMITTER_EMAIL: "ao@example.com",
+          GIT_AUTHOR_NAME: "CAHI Test",
+          GIT_AUTHOR_EMAIL: "cahi@example.com",
+          GIT_COMMITTER_NAME: "CAHI Test",
+          GIT_COMMITTER_EMAIL: "cahi@example.com",
         },
       });
 

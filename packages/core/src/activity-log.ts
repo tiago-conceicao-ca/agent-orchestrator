@@ -125,7 +125,7 @@ export async function readLastActivityEntry(
 }
 
 /**
- * Check the AO activity JSONL for actionable states only.
+ * Check the CAHI activity JSONL for actionable states only.
  *
  * Only returns `waiting_input`/`blocked`.
  * Non-critical states (`active`, `ready`, `idle`) always return `null` so

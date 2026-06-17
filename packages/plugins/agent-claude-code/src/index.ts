@@ -314,7 +314,7 @@ if (CAHI_SESSION.includes("/") || CAHI_SESSION.includes("\\\\") || CAHI_SESSION.
   process.exit(0);
 }
 
-// Validate CAHI_DATA_DIR is within an allowed base directory (mirrors ao-metadata-helper.sh)
+// Validate CAHI_DATA_DIR is within an allowed base directory (mirrors cahi-metadata-helper.sh)
 const home = os.homedir();
 let resolvedAoDir;
 try { resolvedAoDir = realpathSync(CAHI_DATA_DIR); } catch { resolvedAoDir = resolvePath(CAHI_DATA_DIR); }
@@ -432,7 +432,7 @@ process.exit(0);
 // =============================================================================
 
 /**
- * Bash hook script that translates Claude Code lifecycle hooks into AO activity
+ * Bash hook script that translates Claude Code lifecycle hooks into CAHI activity
  * JSONL entries. Registered on every event whose firing carries activity
  * information (SessionStart, UserPromptSubmit, PreToolUse, PostToolUse,
  * PermissionRequest, Notification, Stop, SubagentStop, StopFailure, PreCompact,
@@ -904,7 +904,7 @@ function upsertHookEntry(
     const hooksList = entry["hooks"] as Array<Record<string, unknown>>;
     hooksList[foundDefIdx]!["command"] = reg.command;
     hooksList[foundDefIdx]!["timeout"] = reg.timeout;
-    // Only refresh the matcher when the entry is clearly owned by AO
+    // Only refresh the matcher when the entry is clearly owned by CAHI
     // (single hook def == ours). With multiple defs the entry is shared
     // with a user hook; changing the matcher would change when their hook
     // fires.

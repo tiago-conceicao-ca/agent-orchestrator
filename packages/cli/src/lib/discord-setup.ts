@@ -148,11 +148,11 @@ function effectiveWebhookUrl(webhookUrl: string, threadId?: string): string {
 function buildSetupPayload(resolved: ResolvedDiscordSetup): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     username: resolved.username,
-    content: "AO Discord notifications are ready.",
+    content: "CAHI Discord notifications are ready.",
     embeds: [
       {
-        title: "AO Discord notifications are ready",
-        description: "This channel is now configured to receive AO notifications.",
+        title: "CAHI Discord notifications are ready",
+        description: "This channel is now configured to receive CAHI notifications.",
         color: 0x57f287,
         timestamp: new Date().toISOString(),
         footer: { text: "CAHI" },
@@ -331,7 +331,7 @@ async function promptChangeWebhookUrl(
         {
           value: "need-url",
           label: "Show me how to create a new webhook",
-          hint: "AO will print Discord steps and wait",
+          hint: "CAHI will print Discord steps and wait",
         },
         {
           value: "back",
@@ -388,7 +388,7 @@ async function resolveInteractiveWebhookUrl(
             {
               value: "need-url",
               label: "Show me how to create a new webhook",
-              hint: "AO will print Discord steps and wait",
+              hint: "CAHI will print Discord steps and wait",
             },
             {
               value: "cancel",
@@ -408,7 +408,7 @@ async function resolveInteractiveWebhookUrl(
             {
               value: "need-url",
               label: "No, show me how to create one",
-              hint: "AO will print Discord steps and wait",
+              hint: "CAHI will print Discord steps and wait",
             },
             {
               value: "cancel",
@@ -460,7 +460,7 @@ async function resolveInteractiveSetup(
     const resolvedWebhookUrl = await resolveInteractiveWebhookUrl(clack, opts, existingWebhookUrl);
 
     const usernameInput = await clack.text({
-      message: "Display name AO should request for Discord messages:",
+      message: "Display name CAHI should request for Discord messages:",
       placeholder: DEFAULT_USERNAME,
       initialValue:
         stringValue(opts.username) ?? stringValue(existingDiscord["username"]) ?? DEFAULT_USERNAME,
@@ -743,11 +743,11 @@ export async function runDiscordSetupAction(opts: DiscordSetupOptions): Promise<
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("Discord setup complete!")} AO will send notifications through the configured Discord webhook.\n` +
-        chalk.dim("  Test it with: ao notify test --to discord --template basic"),
+      `${chalk.green("Discord setup complete!")} CAHI will send notifications through the configured Discord webhook.\n` +
+        chalk.dim("  Test it with: cahi notify test --to discord --template basic"),
     );
   } else {
     console.log(chalk.green("\n✓ Discord setup complete."));
-    console.log(chalk.dim("Test it with: ao notify test --to discord --template basic"));
+    console.log(chalk.dim("Test it with: cahi notify test --to discord --template basic"));
   }
 }

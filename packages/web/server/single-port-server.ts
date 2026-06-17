@@ -1,6 +1,6 @@
 /**
  * Single-port server (opt-in) — a thin HTTP + WebSocket proxy that puts
- * Next.js and the `/ao-terminal-mux` WebSocket upgrade on the same public
+ * Next.js and the `/cahi-terminal-mux` WebSocket upgrade on the same public
  * port. Spawned by start-all.ts when CAHI_PATH_BASED_MUX=1, in front of a
  * Next.js process that has shifted to an internal port.
  *
@@ -8,7 +8,7 @@
  *     │ proxy on PORT        │───────▶│ next start           │
  *     │ (this file)          │        │ on NEXT_INTERNAL_PORT │
  *     │                      │        └──────────────────────┘
- *     │                      │  WS upgrade /ao-terminal-mux
+ *     │                      │  WS upgrade /cahi-terminal-mux
  *     │                      │───────▶┌──────────────────────┐
  *     │                      │        │ direct-terminal-ws   │
  *     │                      │        │ on DIRECT_TERMINAL   │
@@ -21,16 +21,16 @@
  * (see `packages/web/src/providers/MuxProvider.tsx`):
  *
  *   1. proxyWsPath (TERMINAL_WS_PATH) — explicit path-based routing
- *   2. standard port (loc.port "" / 443 / 80) — `/ao-terminal-mux` on same host
+ *   2. standard port (loc.port "" / 443 / 80) — `/cahi-terminal-mux` on same host
  *   3. fallback — direct connection to `:DIRECT_TERMINAL_PORT/mux`
  *
  * Path #1 and #3 require the operator to do something at the proxy layer
  * (path rewrite or per-port routing). Path #2 only works if *something* is
- * listening for the `/ao-terminal-mux` upgrade on the dashboard port. Until
+ * listening for the `/cahi-terminal-mux` upgrade on the dashboard port. Until
  * now, nothing was — Next.js doesn't handle upgrades, so the request fell
  * through to its 404 handler. This server is that something.
  *
- * Use this when the reverse proxy in front of AO can only forward one
+ * Use this when the reverse proxy in front of CAHI can only forward one
  * hostname:port pair upstream (e.g. Cloudflare Tunnel pointed at one
  * `service:` URL with no path-based ingress). With this enabled, a single
  * proxy rule pointing at PORT is sufficient — the WS path is multiplexed
@@ -53,7 +53,7 @@ import type { Socket } from "node:net";
 import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const MUX_PATH = "/ao-terminal-mux";
+const MUX_PATH = "/cahi-terminal-mux";
 const SHUTDOWN_TIMEOUT_MS = 5_000;
 
 /**

@@ -32,7 +32,7 @@ function isTTY(): boolean {
 }
 
 /**
- * The dashboard's POST /api/update spawns `ao update` with `stdio: "ignore"`,
+ * The dashboard's POST /api/update spawns `cahi update` with `stdio: "ignore"`,
  * which makes `isTTY()` return false. That used to be fatal: handleNpmUpdate
  * fell into the "non-interactive — print and return" branch and never invoked
  * the install. The route would respond 202 "started" and absolutely nothing
@@ -50,7 +50,7 @@ function isApiInvoked(): boolean {
 
 /**
  * Statuses that mean "the agent is doing real work right now and updating
- * `ao` would yank the rug out from under it."
+ * `cahi` would yank the rug out from under it."
  *
  * Mirrors the design doc (release-process.html §07): refuse, never auto-stop.
  */
@@ -64,11 +64,11 @@ const ACTIVE_SESSION_STATUSES = new Set<Session["status"]>([
 export function registerUpdate(program: Command): void {
   program
     .command("update")
-    .description("Check for updates and upgrade AO to the latest version")
+    .description("Check for updates and upgrade CAHI to the latest version")
     .option("--skip-smoke", "Skip smoke tests after rebuilding (git installs only)")
     .option("--smoke-only", "Run smoke tests without fetching or rebuilding (git installs only)")
     .option("--check", "Print version info as JSON without upgrading")
-    .option("--no-restore", "Restart AO after updating but do not restore stopped sessions")
+    .option("--no-restore", "Restart CAHI after updating but do not restore stopped sessions")
     .action(
       async (opts: {
         skipSmoke?: boolean;
@@ -92,12 +92,12 @@ export function registerUpdate(program: Command): void {
           source: "cli",
           kind: "cli.update_invoked",
           level: "info",
-          summary: `ao update invoked (method: ${method})`,
+          summary: `cahi update invoked (method: ${method})`,
           data: { method, options: opts },
         });
 
         // Reject git-only flags up front when the install isn't a git source.
-        // Without this, users copy/pasting `ao update --skip-smoke` from older
+        // Without this, users copy/pasting `cahi update --skip-smoke` from older
         // docs would silently no-op on npm/pnpm/bun installs (the flag would be
         // accepted, ignored, and the user would never know why smoke tests
         // didn't run — because they never ran on these install methods anyway).
@@ -141,7 +141,7 @@ async function handleCheck(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 /**
- * Best-effort snapshot used by `ao update` to pause and resume AO around the
+ * Best-effort snapshot used by `cahi update` to pause and resume CAHI around the
  * package-manager install. Missing/broken config should not block an update;
  * in that case we proceed without attempting a stop/start round trip.
  */
@@ -159,14 +159,14 @@ async function getUpdateLifecyclePlan(): Promise<UpdateLifecyclePlan> {
   let runningBeforeUpdate = false;
   try {
     // Live signal first: running.json lists whichever projects the active
-    // `ao start` daemon is currently polling. That can include local-only
+    // `cahi start` daemon is currently polling. That can include local-only
     // projects whose `cahi.yaml` is NOT in the global registry
-    // (Dhruv edge case: user runs `ao start` from a repo with a local config
+    // (Dhruv edge case: user runs `cahi start` from a repo with a local config
     // and no global registration — sessions live on disk, would be clobbered
-    // if `ao update` proceeded).
+    // if `cahi update` proceeded).
     //
     // If a daemon is running, trust its configPath — it's the source of
-    // truth for "which sessions does the running ao instance own?"
+    // truth for "which sessions does the running cahi instance own?"
     const running = await getRunning();
     if (running && running.projects.length > 0) {
       runningBeforeUpdate = true;
@@ -181,7 +181,7 @@ async function getUpdateLifecyclePlan(): Promise<UpdateLifecyclePlan> {
       sessions = await sm.list();
     } else {
       // No live daemon. Fall back to the global registry — covers the case
-      // where the user ran `ao stop` (running.json gone) but stale sessions
+      // where the user ran `cahi stop` (running.json gone) but stale sessions
       // sit on disk under ~/.cahi/{hash}-{projectId}/. The
       // SessionManager's enrichment will reconcile any stale-runtime
       // sessions to `killed`, so terminal statuses don't block the update.
@@ -233,7 +233,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
       console.log(chalk.dim(`    … and ${plan.activeSessions.length - 5} more`));
     }
   } else {
-    console.log(chalk.dim("\nAO is running; it will be restarted after the update."));
+    console.log(chalk.dim("\nCAHI is running; it will be restarted after the update."));
   }
 
   const stopExit = await runAoLifecycleCommand(["stop", "--yes"], {
@@ -244,10 +244,10 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update failed: internal ao stop exited non-zero`,
+      summary: `cahi update failed: internal cahi stop exited non-zero`,
       data: { exitCode: stopExit },
     });
-    console.error(chalk.red(`\nAO update could not stop the running daemon (exit ${stopExit}).`));
+    console.error(chalk.red(`\nCAHI update could not stop the running daemon (exit ${stopExit}).`));
     process.exit(stopExit);
   }
 
@@ -257,7 +257,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update failed: AO still appears active after internal ao stop`,
+      summary: `cahi update failed: CAHI still appears active after internal cahi stop`,
       data: {
         runningAfterStop: afterStop.runningBeforeUpdate,
         activeSessionCount: afterStop.activeSessions.length,
@@ -266,7 +266,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
     });
     console.error(
       chalk.red(
-        "\nAO update stopped before installing because AO still appears to be running after `cahi stop --yes`.",
+        "\nCAHI update stopped before installing because CAHI still appears to be running after `cahi stop --yes`.",
       ),
     );
     if (afterStop.activeSessions.length > 0) {
@@ -278,7 +278,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
         console.error(chalk.dim(`    … and ${afterStop.activeSessions.length - 5} more`));
       }
     }
-    console.error(chalk.dim("Run `cahi stop` and retry `cahi update` after AO is fully stopped."));
+    console.error(chalk.dim("Run `cahi stop` and retry `cahi update` after CAHI is fully stopped."));
     process.exit(1);
   }
 
@@ -293,19 +293,19 @@ async function restartAoAfterUpdate(
   if (plan.primaryProjectId) args.push(plan.primaryProjectId);
   args.push(opts.restore ? "--restore" : "--no-restore");
 
-  console.log(chalk.dim(`\nRestarting AO: ao ${args.join(" ")}`));
+  console.log(chalk.dim(`\nRestarting CAHI: cahi ${args.join(" ")}`));
   const exitCode = await runAoLifecycleCommand(args, { configPath: plan.configPath });
   if (exitCode !== 0) {
     recordActivityEvent({
       source: "cli",
       kind: "cli.update_restart_failed",
       level: "error",
-      summary: `ao update could not restart AO after install`,
+      summary: `cahi update could not restart CAHI after install`,
       data: { exitCode, args },
     });
     console.error(
       chalk.yellow(
-        `\nAO was updated, but \`ao ${args.join(" ")}\` failed with exit ${exitCode}. ` +
+        `\nCAHI was updated, but \`cahi ${args.join(" ")}\` failed with exit ${exitCode}. ` +
           `Run it manually to restore your sessions.`,
       ),
     );
@@ -325,7 +325,7 @@ function runAoLifecycleCommand(
       env: opts.configPath ? { ...process.env, CAHI_CONFIG_PATH: opts.configPath } : process.env,
     });
     child.on("error", (error) => {
-      console.error(chalk.yellow(`Could not run ao ${args.join(" ")}: ${error.message}`));
+      console.error(chalk.yellow(`Could not run cahi ${args.join(" ")}: ${error.message}`));
       resolveExit(1);
     });
     child.on("exit", (code, signal) => {
@@ -357,7 +357,7 @@ async function handleGitUpdate(opts: {
         source: "cli",
         kind: "cli.update_failed",
         level: "error",
-        summary: `ao update (git) failed: cahi-update.sh exited non-zero`,
+        summary: `cahi update (git) failed: cahi-update.sh exited non-zero`,
         data: { method: "git", exitCode },
       });
       if (shouldRestart) {
@@ -375,7 +375,7 @@ async function handleGitUpdate(opts: {
         source: "cli",
         kind: "cli.update_failed",
         level: "error",
-        summary: `ao update (git) failed: cahi-update.sh missing from bundled assets`,
+        summary: `cahi update (git) failed: cahi-update.sh missing from bundled assets`,
         data: { method: "git", reason: "script_missing" },
       });
       console.error(
@@ -395,7 +395,7 @@ async function handleGitUpdate(opts: {
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update (git) failed`,
+      summary: `cahi update (git) failed`,
       data: {
         method: "git",
         errorMessage: error instanceof Error ? error.message : String(error),
@@ -429,7 +429,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update (${method}) failed: npm registry lookup threw`,
+      summary: `cahi update (${method}) failed: npm registry lookup threw`,
       data: {
         method,
         channel,
@@ -446,7 +446,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update (${method}) failed: npm registry lookup returned no version`,
+      summary: `cahi update (${method}) failed: npm registry lookup returned no version`,
       data: { method, channel, reason: "registry_unreachable" },
     });
     console.error(chalk.red("Could not reach npm registry. Check your network and try again."));
@@ -463,7 +463,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
     !info.isOutdated && previousChannel !== undefined && previousChannel !== channel;
 
   // First-channel opt-in. previousChannel === undefined means we've never
-  // installed via the auto-updater. A user who just ran `ao config set
+  // installed via the auto-updater. A user who just ran `cahi config set
   // updateChannel nightly` (after a manual install) would otherwise see
   // "Already on latest nightly" because semver says prerelease < stable.
   // Treat any version mismatch as install-worthy in that case.
@@ -518,7 +518,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
     // Soft auto-install: when the user has opted into stable or nightly we
     // skip the confirm prompt — they've already said "keep me on this channel."
     // Manual users (and explicit channel switches / first opt-ins) still see
-    // the confirm so an unintended `ao update` doesn't wipe the version they
+    // the confirm so an unintended `cahi update` doesn't wipe the version they
     // pinned to.
     if (channel === "manual" || isChannelSwitch || isFirstChannelOptIn) {
       const promptText =
@@ -535,7 +535,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
   } else {
     // Non-TTY but also not API-invoked (piped output). Keep the old
     // "print the command and let the user run it" behavior so a script
-    // running `ao update | tee` doesn't get a surprise install.
+    // running `cahi update | tee` doesn't get a surprise install.
     console.log(`Run: ${chalk.cyan(command)}`);
     return;
   }
@@ -547,7 +547,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update (${method}) failed: install command exited non-zero`,
+      summary: `cahi update (${method}) failed: install command exited non-zero`,
       data: {
         method,
         command,
@@ -564,7 +564,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
       output: installResult.output,
     });
     if (shouldRestart) {
-      console.log(chalk.dim("\nRestarting AO with the existing installation..."));
+      console.log(chalk.dim("\nRestarting CAHI with the existing installation..."));
       await restartAoAfterUpdate(lifecyclePlan, opts);
     }
     process.exit(1);
@@ -576,7 +576,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
       source: "cli",
       kind: "cli.update_failed",
       level: "error",
-      summary: `ao update (${method}) failed: installed version verification failed`,
+      summary: `cahi update (${method}) failed: installed version verification failed`,
       data: {
         method,
         command,
@@ -585,12 +585,12 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
         output: verification.output,
       },
     });
-    console.error(chalk.red(`\nAO was not verified after install.`));
+    console.error(chalk.red(`\nCAHI was not verified after install.`));
     console.error(chalk.yellow(verification.message));
     console.error(chalk.dim(`Expected: ${info.latestVersion}`));
     console.error(chalk.dim(`Current before update: ${info.currentVersion}`));
     if (shouldRestart) {
-      console.log(chalk.dim("\nRestarting AO before exiting..."));
+      console.log(chalk.dim("\nRestarting CAHI before exiting..."));
       await restartAoAfterUpdate(lifecyclePlan, opts);
     }
     process.exit(1);
@@ -603,7 +603,7 @@ async function handleNpmUpdate(method: InstallMethod, opts: { restore: boolean }
   console.log(
     chalk.green(
       `\nUpdate complete: ${info.currentVersion} → ${verification.actualVersion}.` +
-        (shouldRestart ? " AO restarted." : ""),
+        (shouldRestart ? " CAHI restarted." : ""),
     ),
   );
 }
@@ -682,14 +682,14 @@ async function verifyInstalledVersion(
     return {
       ok: false,
       output,
-      message: `\`ao --version\` failed with exit ${result.exitCode}.`,
+      message: `\`cahi --version\` failed with exit ${result.exitCode}.`,
     };
   }
   if (!actualVersion) {
     return {
       ok: false,
       output,
-      message: `Could not parse \`ao --version\` output: ${output || "<empty>"}`,
+      message: `Could not parse \`cahi --version\` output: ${output || "<empty>"}`,
     };
   }
   if (actualVersion !== expectedVersion) {
@@ -699,8 +699,8 @@ async function verifyInstalledVersion(
       output,
       message:
         actualVersion === previousVersion
-          ? `The install command exited successfully, but AO is still on ${previousVersion}.`
-          : `The install command exited successfully, but AO reports ${actualVersion}.`,
+          ? `The install command exited successfully, but CAHI is still on ${previousVersion}.`
+          : `The install command exited successfully, but CAHI reports ${actualVersion}.`,
     };
   }
 
@@ -754,13 +754,13 @@ function classifyInstallFailure(output: string): { kind: string; guidance: strin
     return {
       kind: "registry",
       guidance:
-        "The npm registry rejected or failed the package request. Check registry configuration, auth tokens, and the selected AO update channel.",
+        "The npm registry rejected or failed the package request. Check registry configuration, auth tokens, and the selected CAHI update channel.",
     };
   }
   return {
     kind: "unknown",
     guidance:
-      "The package manager failed before AO could verify the new version. Retry `cahi update` after addressing the package-manager error below.",
+      "The package manager failed before CAHI could verify the new version. Retry `cahi update` after addressing the package-manager error below.",
   };
 }
 
@@ -776,7 +776,7 @@ function printInstallFailure(opts: {
   const fallbackCommand = getUpdateCommand("npm-global", opts.channel);
 
   console.error(
-    chalk.red(`\nAO was not updated. You are still on version ${opts.currentVersion}.`),
+    chalk.red(`\nCAHI was not updated. You are still on version ${opts.currentVersion}.`),
   );
   console.error(
     chalk.yellow(
@@ -805,10 +805,10 @@ async function handleHomebrewUpdate(): Promise<void> {
     console.log(`Latest version:  ${chalk.green(info.latestVersion)}`);
   }
   console.log();
-  console.log(`Homebrew installs are managed by brew. Run:\n  ${chalk.cyan("brew upgrade ao")}`);
+  console.log(`Homebrew installs are managed by brew. Run:\n  ${chalk.cyan("brew upgrade cahi")}`);
   console.log(
     chalk.dim(
-      "  (AO does not auto-install for brew installs because it would clobber brew's symlinks.)",
+      "  (CAHI does not auto-install for brew installs because it would clobber brew's symlinks.)",
     ),
   );
 }

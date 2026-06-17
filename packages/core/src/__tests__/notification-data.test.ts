@@ -15,7 +15,7 @@ const context: NotificationEventContext = {
     number: 42,
     url: "https://github.com/acme/app/pull/42",
     title: "Normalize notifier payloads",
-    branch: "ao/notifier-payloads",
+    branch: "cahi/notifier-payloads",
     baseBranch: "main",
     owner: "acme",
     repo: "app",
@@ -26,17 +26,17 @@ const context: NotificationEventContext = {
       number: 42,
       url: "https://github.com/acme/app/pull/42",
       title: "Normalize notifier payloads",
-      branch: "ao/notifier-payloads",
+      branch: "cahi/notifier-payloads",
       baseBranch: "main",
       owner: "acme",
       repo: "app",
       isDraft: false,
     },
   ],
-  issueId: "AO-42",
+  issueId: "CAHI-42",
   issueTitle: "Notifier payloads",
   summary: "Normalize notifier payloads",
-  branch: "ao/notifier-payloads",
+  branch: "cahi/notifier-payloads",
 };
 
 describe("notification data v3", () => {
@@ -56,7 +56,7 @@ describe("notification data v3", () => {
       subject: {
         session: { id: "worker-1", projectId: "demo" },
         pr: { number: 42, url: "https://github.com/acme/app/pull/42" },
-        issue: { id: "AO-42" },
+        issue: { id: "CAHI-42" },
       },
       transition: { kind: "session_status", from: "working", to: "needs_input" },
     });

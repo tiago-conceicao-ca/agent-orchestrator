@@ -22,7 +22,7 @@ export interface SpawnConfig {
 }
 export type SpawnFn = (cfg: SpawnConfig) => Promise<{ id: string; workspacePath?: string }>;
 /**
- * Polls AO until the spawned session completes; returns "done" | "failed" |
+ * Polls CAHI until the spawned session completes; returns "done" | "failed" |
  * "stalled". `workspacePath` is where the worker's completion sentinel
  * (`.cahi/sdlc-task-done.json`) is read from — the primary, PR-independent signal.
  * "stalled" lets the executor auto-retry before failing the run.

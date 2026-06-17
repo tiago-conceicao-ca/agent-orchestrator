@@ -591,13 +591,13 @@ describe("loadFromConfig", () => {
         {
           name: "goose",
           source: "npm",
-          package: "@example/ao-plugin-agent-goose",
+          package: "@example/cahi-plugin-agent-goose",
         },
       ],
     });
 
     await registry.loadFromConfig(config, async (specifier: string) => {
-      if (specifier === "@example/ao-plugin-agent-goose") {
+      if (specifier === "@example/cahi-plugin-agent-goose") {
         return { default: agentPlugin };
       }
       throw new Error(`Not found: ${specifier}`);
@@ -611,7 +611,7 @@ describe("loadFromConfig", () => {
 
   it("loads local plugins relative to the config file", async () => {
     const registry = createPluginRegistry();
-    const tmpConfigDir = mkdtempSync(join(tmpdir(), "ao-plugin-registry-"));
+    const tmpConfigDir = mkdtempSync(join(tmpdir(), "cahi-plugin-registry-"));
     const localPluginDir = join(tmpConfigDir, "plugins", "role-qa");
     mkdirSync(join(localPluginDir, "dist"), { recursive: true });
     writeFileSync(join(localPluginDir, "dist", "index.js"), "export default {};\n");
@@ -652,7 +652,7 @@ describe("loadFromConfig", () => {
         {
           name: "goose",
           source: "npm",
-          package: "@example/ao-plugin-agent-goose",
+          package: "@example/cahi-plugin-agent-goose",
           enabled: false,
         },
       ],
@@ -663,7 +663,7 @@ describe("loadFromConfig", () => {
 
     await registry.loadFromConfig(config, importFn);
 
-    expect(importFn).not.toHaveBeenCalledWith("@example/ao-plugin-agent-goose");
+    expect(importFn).not.toHaveBeenCalledWith("@example/cahi-plugin-agent-goose");
     expect(registry.get("agent", "goose")).toBeNull();
   });
 });
@@ -687,7 +687,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -696,7 +696,7 @@ describe("External plugin manifest validation", () => {
           name: "proj1",
           defaultBranch: "main",
           sessionPrefix: "test",
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -704,7 +704,7 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           expectedPluginName: "jira",
         },
       ],
@@ -733,7 +733,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -742,7 +742,7 @@ describe("External plugin manifest validation", () => {
           name: "proj1",
           defaultBranch: "main",
           sessionPrefix: "test",
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -750,7 +750,7 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           expectedPluginName: "jira",
         },
       ],
@@ -788,7 +788,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -798,7 +798,7 @@ describe("External plugin manifest validation", () => {
           defaultBranch: "main",
           sessionPrefix: "test",
           // Plugin field will be updated with manifest.name
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -806,7 +806,7 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           // No expectedPluginName - should accept any manifest.name
         },
       ],
@@ -838,7 +838,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "teams", source: "npm", package: "@acme/ao-plugin-notifier-teams", enabled: true },
+        { name: "teams", source: "npm", package: "@acme/cahi-plugin-notifier-teams", enabled: true },
       ],
       projects: {
         proj1: {
@@ -850,14 +850,14 @@ describe("External plugin manifest validation", () => {
         },
       },
       notifiers: {
-        myteams: { plugin: "teams", package: "@acme/ao-plugin-notifier-teams" },
+        myteams: { plugin: "teams", package: "@acme/cahi-plugin-notifier-teams" },
       },
       _externalPluginEntries: [
         {
           source: "notifiers.myteams",
           location: { kind: "notifier", notifierId: "myteams" },
           slot: "notifier",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           // No expectedPluginName - will accept any manifest.name
         },
       ],
@@ -890,7 +890,7 @@ describe("External plugin manifest validation", () => {
       configPath: "/test/config.yaml",
       plugins: [
         // Temp name is "teams" (from package name), but manifest.name is "ms-teams"
-        { name: "teams", source: "npm", package: "@acme/ao-plugin-notifier-teams", enabled: true },
+        { name: "teams", source: "npm", package: "@acme/cahi-plugin-notifier-teams", enabled: true },
       ],
       projects: {
         proj1: {
@@ -904,7 +904,7 @@ describe("External plugin manifest validation", () => {
       notifiers: {
         myteams: {
           plugin: "teams", // Temp name - will be updated to "ms-teams"
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           webhookUrl: "https://teams.webhook.url/abc123",
           channel: "#alerts",
         },
@@ -914,7 +914,7 @@ describe("External plugin manifest validation", () => {
           source: "notifiers.myteams",
           location: { kind: "notifier", notifierId: "myteams" },
           slot: "notifier",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           // No expectedPluginName - config.plugin will be updated to manifest.name
         },
       ],
@@ -957,18 +957,18 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "teams", source: "npm", package: "@acme/ao-plugin-notifier-teams", enabled: true },
+        { name: "teams", source: "npm", package: "@acme/cahi-plugin-notifier-teams", enabled: true },
       ],
       projects: {},
       notifiers: {
         alerts: {
           plugin: "teams",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           webhookUrl: "https://teams.example/alerts",
         },
         ops: {
           plugin: "teams",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           webhookUrl: "https://teams.example/ops",
         },
       },
@@ -977,13 +977,13 @@ describe("External plugin manifest validation", () => {
           source: "notifiers.alerts",
           location: { kind: "notifier", notifierId: "alerts" },
           slot: "notifier",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
         },
         {
           source: "notifiers.ops",
           location: { kind: "notifier", notifierId: "ops" },
           slot: "notifier",
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
         },
       ],
     });
@@ -1023,7 +1023,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -1032,7 +1032,7 @@ describe("External plugin manifest validation", () => {
           name: "proj1",
           defaultBranch: "main",
           sessionPrefix: "test",
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -1040,7 +1040,7 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker", // Expected tracker
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
         },
       ],
     });
@@ -1072,7 +1072,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -1081,7 +1081,7 @@ describe("External plugin manifest validation", () => {
           name: "proj1",
           defaultBranch: "main",
           sessionPrefix: "test1",
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
         proj2: {
           path: "/repos/test2",
@@ -1090,7 +1090,7 @@ describe("External plugin manifest validation", () => {
           defaultBranch: "main",
           sessionPrefix: "test2",
           // Same external plugin as proj1
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -1098,14 +1098,14 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           // No expectedPluginName - will accept any manifest.name
         },
         {
           source: "projects.proj2.tracker",
           location: { kind: "project", projectId: "proj2", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           // No expectedPluginName - will accept any manifest.name
         },
       ],
@@ -1138,7 +1138,7 @@ describe("External plugin manifest validation", () => {
     const config = makeOrchestratorConfig({
       configPath: "/test/config.yaml",
       plugins: [
-        { name: "jira", source: "npm", package: "@acme/ao-plugin-tracker-jira", enabled: true },
+        { name: "jira", source: "npm", package: "@acme/cahi-plugin-tracker-jira", enabled: true },
       ],
       projects: {
         proj1: {
@@ -1147,7 +1147,7 @@ describe("External plugin manifest validation", () => {
           name: "proj1",
           defaultBranch: "main",
           sessionPrefix: "test1",
-          tracker: { plugin: "jira", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "jira", package: "@acme/cahi-plugin-tracker-jira" },
         },
         proj2: {
           path: "/repos/test2",
@@ -1156,7 +1156,7 @@ describe("External plugin manifest validation", () => {
           defaultBranch: "main",
           sessionPrefix: "test2",
           // Same external plugin but with WRONG explicit plugin name
-          tracker: { plugin: "wrong-name", package: "@acme/ao-plugin-tracker-jira" },
+          tracker: { plugin: "wrong-name", package: "@acme/cahi-plugin-tracker-jira" },
         },
       },
       _externalPluginEntries: [
@@ -1164,14 +1164,14 @@ describe("External plugin manifest validation", () => {
           source: "projects.proj1.tracker",
           location: { kind: "project", projectId: "proj1", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           // No expectedPluginName - will accept any manifest.name
         },
         {
           source: "projects.proj2.tracker",
           location: { kind: "project", projectId: "proj2", configType: "tracker" },
           slot: "tracker",
-          package: "@acme/ao-plugin-tracker-jira",
+          package: "@acme/cahi-plugin-tracker-jira",
           expectedPluginName: "wrong-name", // Mismatches manifest.name "jira-cloud"
         },
       ],

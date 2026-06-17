@@ -62,7 +62,7 @@ describe.skipIf(!canRun)("daemon child reaping (integration)", () => {
   let port: number;
 
   beforeEach(async () => {
-    tmpHome = await realpath(await mkdtemp(join(tmpdir(), "ao-daemon-int-home-")));
+    tmpHome = await realpath(await mkdtemp(join(tmpdir(), "cahi-daemon-int-home-")));
     port = await getFreePort();
     repoPath = join(tmpHome, "repo");
     mkdirSync(repoPath, { recursive: true });
@@ -107,7 +107,7 @@ describe.skipIf(!canRun)("daemon child reaping (integration)", () => {
     await rm(tmpHome, { recursive: true, force: true }).catch(() => {});
   }, 30_000);
 
-  it("ao stop terminates children spawned by ao start", async () => {
+  it("cahi stop terminates children spawned by cahi start", async () => {
     const env = {
       ...process.env,
       HOME: tmpHome,

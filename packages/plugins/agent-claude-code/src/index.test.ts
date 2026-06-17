@@ -178,13 +178,13 @@ describe("toClaudeProjectPath", () => {
   });
 
   it("collapses dot directories like .worktrees into a leading double dash", () => {
-    expect(toClaudeProjectPath("/Users/dev/.worktrees/ao/ao-3")).toBe(
-      "-Users-dev--worktrees-ao-ao-3",
+    expect(toClaudeProjectPath("/Users/dev/.worktrees/cahi/cahi-3")).toBe(
+      "-Users-dev--worktrees-cahi-cahi-3",
     );
   });
 
   it("normalizes underscores to dashes (issue #1611)", () => {
-    // AO project data dirs are named `<sanitized>_<hash>`. Claude Code converts
+    // CAHI project data dirs are named `<sanitized>_<hash>`. Claude Code converts
     // underscores to dashes when computing its on-disk project slug; without
     // matching that here the slug points to a non-existent directory and
     // restore loses the conversation.
@@ -382,7 +382,7 @@ describe("isProcessRunning", () => {
 
   // Coverage for the broadened process regex — these are real install shapes
   // the previous narrow regex `/(?:^|\/)claude(?:\s|$)/` would have missed,
-  // causing AO to declare sessions `exited` while Claude was still running.
+  // causing CAHI to declare sessions `exited` while Claude was still running.
   it.each([
     ["bare binary", "claude"],
     ["absolute path", "/opt/homebrew/bin/claude"],
@@ -575,9 +575,9 @@ describe("getSessionInfo", () => {
   describe("path conversion", () => {
     it("converts workspace path to Claude project dir path", async () => {
       mockJsonlFiles('{"type":"user","message":{"content":"hello"}}');
-      await agent.getSessionInfo(makeSession({ workspacePath: "/Users/dev/.worktrees/ao/ao-3" }));
+      await agent.getSessionInfo(makeSession({ workspacePath: "/Users/dev/.worktrees/cahi/cahi-3" }));
       expect(mockReaddir).toHaveBeenCalledWith(
-        pathJoin("/mock/home", ".claude", "projects", "-Users-dev--worktrees-ao-ao-3"),
+        pathJoin("/mock/home", ".claude", "projects", "-Users-dev--worktrees-cahi-cahi-3"),
       );
     });
 
@@ -1364,7 +1364,7 @@ describe("setupWorkspaceHooks on win32", () => {
   });
 
   it("Node.js hook script validates CAHI_DATA_DIR against allowed directories", () => {
-    // Must contain the allowlist check mirroring ao-metadata-helper.sh and
+    // Must contain the allowlist check mirroring cahi-metadata-helper.sh and
     // the Node.js wrappers in agent-workspace-hooks.ts (C-1 security fix)
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("allowedBases");
     expect(METADATA_UPDATER_SCRIPT_NODE).toContain("realpathSync");

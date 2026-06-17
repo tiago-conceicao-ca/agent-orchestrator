@@ -42,7 +42,7 @@ describe("POST /api/projects", () => {
     invalidatePortfolioServicesCache.mockReset();
     oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     oldConfigPath = process.env["CAHI_CONFIG_PATH"];
-    tempRoot = mkdtempSync(path.join(tmpdir(), "ao-projects-route-"));
+    tempRoot = mkdtempSync(path.join(tmpdir(), "cahi-projects-route-"));
     configPath = path.join(tempRoot, "config.yaml");
     process.env["CAHI_GLOBAL_CONFIG"] = configPath;
     process.env["CAHI_CONFIG_PATH"] = configPath;
@@ -257,10 +257,10 @@ describe("POST /api/projects", () => {
     );
 
     const { POST } = await import("@/app/api/projects/route");
-    await POST(makeRequest({ projectId: "cahi", name: "AO A", path: repoA }));
+    await POST(makeRequest({ projectId: "cahi", name: "CAHI A", path: repoA }));
 
     const response = await POST(
-      makeRequest({ projectId: "cahi", name: "AO B", path: repoB }),
+      makeRequest({ projectId: "cahi", name: "CAHI B", path: repoB }),
     );
 
     const idA = generateExternalId(
@@ -278,11 +278,11 @@ describe("POST /api/projects", () => {
     const saved = loadGlobalConfig(configPath);
     expect(saved?.projects[idA]).toMatchObject({
       path: realpathSync(repoA),
-      displayName: "AO A",
+      displayName: "CAHI A",
     });
     expect(saved?.projects[idB]).toMatchObject({
       path: realpathSync(repoB),
-      displayName: "AO B",
+      displayName: "CAHI B",
     });
   });
 
@@ -301,12 +301,12 @@ describe("POST /api/projects", () => {
     );
 
     const { POST } = await import("@/app/api/projects/route");
-    await POST(makeRequest({ projectId: "cahi", name: "AO A", path: repoA }));
+    await POST(makeRequest({ projectId: "cahi", name: "CAHI A", path: repoA }));
 
     const response = await POST(
       makeRequest({
         projectId: "cahi",
-        name: "AO B",
+        name: "CAHI B",
         path: repoB,
         useDefaultProjectId: true,
       }),
@@ -323,7 +323,7 @@ describe("POST /api/projects", () => {
     const saved = loadGlobalConfig(configPath);
     expect(saved?.projects[idB]).toMatchObject({
       path: realpathSync(repoB),
-      displayName: "AO B",
+      displayName: "CAHI B",
       sessionPrefix: "cahi-1",
     });
   });
@@ -340,7 +340,7 @@ describe("POST /api/projects/reload", () => {
     invalidatePortfolioServicesCache.mockReset();
     oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     oldConfigPath = process.env["CAHI_CONFIG_PATH"];
-    tempRoot = mkdtempSync(path.join(tmpdir(), "ao-projects-reload-"));
+    tempRoot = mkdtempSync(path.join(tmpdir(), "cahi-projects-reload-"));
     configPath = path.join(tempRoot, "config.yaml");
     process.env["CAHI_GLOBAL_CONFIG"] = configPath;
     process.env["CAHI_CONFIG_PATH"] = configPath;

@@ -1,4 +1,4 @@
-export const FONT_SIZE_KEY = "ao-terminal-font-size";
+export const FONT_SIZE_KEY = "cahi-terminal-font-size";
 export const FONT_SIZE_MIN = 9;
 export const FONT_SIZE_MAX = 18;
 export const FONT_SIZE_DEFAULT = 13;

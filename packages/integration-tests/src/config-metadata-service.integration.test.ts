@@ -31,7 +31,7 @@ describe("config → metadata service integration (real filesystem)", () => {
   let repoPath: string;
 
   beforeAll(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-config-meta-integ-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-config-meta-integ-"));
 
     repoPath = join(tmpDir, "my-repo");
     mkdirSync(repoPath, { recursive: true });

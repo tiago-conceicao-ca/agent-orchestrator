@@ -100,7 +100,7 @@ export interface SiblingAdjacency {
 
 /**
  * Resolve a project's configured `siblings` entries to their adjacency view, so
- * every renderer (orchestrator prompt, worker prompt, `ao status`) agrees on the
+ * every renderer (orchestrator prompt, worker prompt, `cahi status`) agrees on the
  * names. Each entry is a registered project id or "owner/name" repo, matched via
  * the shared matchSiblingProjectId rule. Self-references, unresolvable entries,
  * and duplicates are skipped.

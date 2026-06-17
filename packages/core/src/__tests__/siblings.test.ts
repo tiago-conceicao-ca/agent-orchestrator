@@ -15,14 +15,14 @@ describe("siblings metadata serialization (#1095, mirrors prs #1821)", () => {
   const sample: SiblingRef[] = [
     {
       repo: "ca-starters-front",
-      path: "/home/u/.cahi/projects/svc/worktrees/ao-10__sib__ca-starters-front",
+      path: "/home/u/.cahi/projects/svc/worktrees/cahi-10__sib__ca-starters-front",
       branch: "master",
       mode: "readonly-symlink",
     },
     {
       repo: "svc-infra",
-      path: "/home/u/.cahi/projects/svc/worktrees/ao-10__sib__svc-infra",
-      branch: "sib/ao-10/svc-infra",
+      path: "/home/u/.cahi/projects/svc/worktrees/cahi-10__sib__svc-infra",
+      branch: "sib/cahi-10/svc-infra",
       mode: "worktree",
     },
   ];
@@ -75,21 +75,21 @@ describe("assembled adjacency view paths (#1095 Decision 3)", () => {
   const worktreeDir = "/home/u/.cahi/projects/svc/worktrees";
 
   it("assembledViewDir is the per-session __ws dir", () => {
-    expect(assembledViewDir(worktreeDir, "ao-10")).toBe(
-      join(worktreeDir, `ao-10${SIBLING_ASSEMBLED_SUFFIX}`),
+    expect(assembledViewDir(worktreeDir, "cahi-10")).toBe(
+      join(worktreeDir, `cahi-10${SIBLING_ASSEMBLED_SUFFIX}`),
     );
     expect(SIBLING_ASSEMBLED_SUFFIX).toBe("__ws");
   });
 
   it("assembledPrimaryViewPath nests the primary repo name under __ws", () => {
-    expect(assembledPrimaryViewPath(worktreeDir, "ao-10", "cahi")).toBe(
-      join(worktreeDir, "ao-10__ws", "cahi"),
+    expect(assembledPrimaryViewPath(worktreeDir, "cahi-10", "cahi")).toBe(
+      join(worktreeDir, "cahi-10__ws", "cahi"),
     );
   });
 
   it("two parallel sessions get distinct __ws dirs (no collision)", () => {
-    expect(assembledViewDir(worktreeDir, "ao-10")).not.toBe(
-      assembledViewDir(worktreeDir, "ao-11"),
+    expect(assembledViewDir(worktreeDir, "cahi-10")).not.toBe(
+      assembledViewDir(worktreeDir, "cahi-11"),
     );
   });
 
@@ -98,13 +98,13 @@ describe("assembled adjacency view paths (#1095 Decision 3)", () => {
   });
 
   it("siblingNameFromPath strips the {sessionId}__sib__ prefix to the real repo name", () => {
-    const path = join(worktreeDir, "ao-10__sib__svc-infra");
-    expect(siblingNameFromPath("ao-10", path)).toBe("svc-infra");
+    const path = join(worktreeDir, "cahi-10__sib__svc-infra");
+    expect(siblingNameFromPath("cahi-10", path)).toBe("svc-infra");
   });
 
   it("siblingNameFromPath returns null when the segment does not match the session prefix", () => {
-    expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-11__sib__svc-infra"))).toBeNull();
-    expect(siblingNameFromPath("ao-10", join(worktreeDir, "ao-10"))).toBeNull();
+    expect(siblingNameFromPath("cahi-10", join(worktreeDir, "cahi-11__sib__svc-infra"))).toBeNull();
+    expect(siblingNameFromPath("cahi-10", join(worktreeDir, "cahi-10"))).toBeNull();
   });
 });
 

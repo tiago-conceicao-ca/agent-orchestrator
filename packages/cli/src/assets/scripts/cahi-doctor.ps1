@@ -306,7 +306,7 @@ function Check-StaleTempFiles {
     }
     $cutoff = (Get-Date).AddMinutes(-60)
     $stale = Get-ChildItem -Path $tempRoot -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.LastWriteTime -lt $cutoff -and ($_.Name -like 'ao-*.tmp' -or $_.Name -like 'ao-*.pid' -or $_.Name -like 'ao-*.lock') }
+        Where-Object { $_.LastWriteTime -lt $cutoff -and ($_.Name -like 'cahi-*.tmp' -or $_.Name -like 'cahi-*.pid' -or $_.Name -like 'cahi-*.lock') }
 
     if (-not $stale -or $stale.Count -eq 0) {
         Write-Pass "no stale temp files were detected under $tempRoot"

@@ -19,13 +19,13 @@ export function formatCommandError(err: unknown, options: CommandErrorOptions): 
 
   if (code === "ENOENT") {
     return new Error(
-      `${options.cmd} is not installed or not on PATH, so AO could not ${action}.${formatHints(options.installHints)}`,
+      `${options.cmd} is not installed or not on PATH, so CAHI could not ${action}.${formatHints(options.installHints)}`,
     );
   }
 
   if (code === "EACCES") {
     return new Error(
-      `${options.cmd} exists but AO could not execute it due to a permission error while trying to ${action}. ` +
+      `${options.cmd} exists but CAHI could not execute it due to a permission error while trying to ${action}. ` +
         `Check that the binary is executable and accessible to this user.${formatHints(options.installHints)}`,
     );
   }

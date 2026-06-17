@@ -1,5 +1,5 @@
 /**
- * Shared cache-layer primitives for the AO update pipeline.
+ * Shared cache-layer primitives for the CAHI update pipeline.
  *
  * Single source of truth for:
  *   - the on-disk path of the update-check cache
@@ -22,7 +22,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * Wire-format of `~/.cache/ao/update-check.json`.
+ * Wire-format of `~/.cache/cahi/update-check.json`.
  *
  * Kept loose (all fields optional) because:
  *   1. Legacy entries predate install-method scoping and lack `installMethod`.
@@ -47,12 +47,12 @@ export interface UpdateCheckCacheRaw {
 
 /**
  * Resolve the canonical path of `update-check.json`. Honors `$XDG_CACHE_HOME`,
- * falling back to `~/.cache/ao/update-check.json`.
+ * falling back to `~/.cache/cahi/update-check.json`.
  */
 export function getUpdateCheckCachePath(): string {
   const xdg = process.env["XDG_CACHE_HOME"];
   const base = xdg || join(homedir(), ".cache");
-  return join(base, "ao", "update-check.json");
+  return join(base, "cahi", "update-check.json");
 }
 
 /** Raw cache read with no semantic validation. Returns null on missing/corrupt. */

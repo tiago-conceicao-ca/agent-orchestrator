@@ -20,7 +20,7 @@ let bashScript: string;
 let nodeScript: string;
 
 beforeAll(() => {
-  scratchDir = mkdtempSync(join(tmpdir(), "ao-activity-hook-"));
+  scratchDir = mkdtempSync(join(tmpdir(), "cahi-activity-hook-"));
   bashScript = join(scratchDir, "activity-updater.sh");
   nodeScript = join(scratchDir, "activity-updater.cjs");
   writeFileSync(bashScript, ACTIVITY_UPDATER_SCRIPT, { mode: 0o755 });

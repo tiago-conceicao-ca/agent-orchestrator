@@ -40,7 +40,7 @@ describe("buildAgentPath", () => {
     mockIsWindows.mockReturnValue(false);
   });
 
-  it("prepends ao bin dir to PATH", () => {
+  it("prepends cahi bin dir to PATH", () => {
     const result = buildAgentPath("/usr/bin:/bin");
     expect(result).toContain(CAHI_BIN_DIR);
     expect(result.startsWith(CAHI_BIN_DIR)).toBe(true);
@@ -79,7 +79,7 @@ describe("setupPathWrapperWorkspace (Unix)", () => {
     mockReadFile.mockRejectedValue(new Error("ENOENT"));
   });
 
-  it("creates ao bin directory", async () => {
+  it("creates cahi bin directory", async () => {
     await setupPathWrapperWorkspace("/workspace");
     expect(mockMkdir).toHaveBeenCalledWith(CAHI_BIN_DIR, { recursive: true });
   });
@@ -216,7 +216,7 @@ describe("setupPathWrapperWorkspace (Windows)", () => {
     expect(result).toContain(";");
     expect(result).toContain("C:\\tools");
     expect(result).toContain("C:\\Windows\\System32");
-    // The ao bin dir should be first entry (joined with ;)
+    // The cahi bin dir should be first entry (joined with ;)
     const entries = result.split(";");
     expect(entries[0]).toBe(CAHI_BIN_DIR);
   });

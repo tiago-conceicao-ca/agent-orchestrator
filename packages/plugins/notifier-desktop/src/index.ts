@@ -257,7 +257,7 @@ function nativeNotificationId(event: OrchestratorEvent, sequence: number): strin
 }
 
 function nativeThreadId(): string {
-  return "ao.notifications";
+  return "cahi.notifications";
 }
 
 function detectAoNotifierApp(appPath: string): boolean {
@@ -424,7 +424,7 @@ function sendNotification(
 
       if (backend === "cahi-app") {
         if (!detectAoNotifierApp(options.mac.appPath)) {
-          reject(new Error("Cahi Notifier.app is not installed. Run: ao setup desktop"));
+          reject(new Error("Cahi Notifier.app is not installed. Run: cahi setup desktop"));
           return;
         }
 

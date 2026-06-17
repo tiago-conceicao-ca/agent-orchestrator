@@ -90,11 +90,11 @@ if (running) {
   if (matchingPid) {
     const checkoutDetail =
       process.platform === "win32"
-        ? "AO dashboard is running on the configured port"
-        : "AO dashboard is running from this checkout";
+        ? "CAHI dashboard is running on the configured port"
+        : "CAHI dashboard is running from this checkout";
     console.error(
       `Refusing to delete production dashboard artifacts while ${checkoutDetail} (PID ${matchingPid}, port ${running.port}).\n` +
-        "Stop it first with `ao stop`, or rebuild through `ao start --rebuild` / `ao dashboard --rebuild` so AO can stop the old dashboard safely.",
+        "Stop it first with `cahi stop`, or rebuild through `cahi start --rebuild` / `cahi dashboard --rebuild` so CAHI can stop the old dashboard safely.",
     );
     process.exit(1);
   }

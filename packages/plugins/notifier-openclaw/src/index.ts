@@ -17,7 +17,7 @@ import {
 import { isRetryableHttpStatus, normalizeRetryConfig, validateUrl } from "@contaazul/cahi-core/utils";
 
 /**
- * Read the hooks token from OpenClaw's config. AO treats OpenClaw as the
+ * Read the hooks token from OpenClaw's config. CAHI treats OpenClaw as the
  * owner of hooks.token; setup only points the notifier at this file.
  */
 function expandHomePath(path: string): string {
@@ -176,13 +176,13 @@ async function postWithRetry(
             plugin: "notifier-openclaw",
             status: response.status,
             url,
-            fixHint: "ao setup openclaw",
+            fixHint: "cahi setup openclaw",
           },
         });
         lastError = new Error(
           `OpenClaw rejected the auth token (HTTP ${response.status}).\n` +
-            `  Check that hooks.token in your OpenClaw config matches the token configured for AO.\n` +
-            `  Reconfigure: ao setup openclaw`,
+            `  Check that hooks.token in your OpenClaw config matches the token configured for CAHI.\n` +
+            `  Reconfigure: cahi setup openclaw`,
         );
         shouldRethrowResponseError = true;
         throw lastError;
@@ -222,7 +222,7 @@ async function postWithRetry(
         throw new Error(
           `Can't reach OpenClaw gateway at ${url}.\n` +
             `  Is OpenClaw running? Check: openclaw status\n` +
-            `  Wrong URL? Run: ao setup openclaw`,
+            `  Wrong URL? Run: cahi setup openclaw`,
           { cause: err },
         );
       }
@@ -256,7 +256,7 @@ function eventHeadline(event: OrchestratorEvent): string {
     warning: "WARNING",
     info: "INFO",
   };
-  return `**AO ${priorityTag[event.priority]}** \`${event.type}\``;
+  return `**CAHI ${priorityTag[event.priority]}** \`${event.type}\``;
 }
 
 function isPrimitive(value: unknown): value is string | number | boolean {
@@ -424,7 +424,7 @@ function formatActionsLine(actions: NotifyAction[]): string {
 
 /**
  * Resolve a token value that may be a `${ENV_VAR}` placeholder (as written
- * into cahi.yaml by `ao setup openclaw`) or a literal string.
+ * into cahi.yaml by `cahi setup openclaw`) or a literal string.
  * Returns undefined for empty/unresolvable values so callers can chain `??`.
  */
 function resolveEnvVarToken(raw: unknown): string | undefined {
@@ -444,9 +444,9 @@ export function create(config?: Record<string, unknown>): Notifier {
     resolveEnvVarToken(config?.token) ??
     readTokenFromOpenClawConfig(openclawConfigPath) ??
     process.env.OPENCLAW_HOOKS_TOKEN;
-  const senderName = typeof config?.name === "string" ? config.name : "AO";
+  const senderName = typeof config?.name === "string" ? config.name : "CAHI";
   const sessionKeyPrefix =
-    typeof config?.sessionKeyPrefix === "string" ? config.sessionKeyPrefix : "hook:ao:";
+    typeof config?.sessionKeyPrefix === "string" ? config.sessionKeyPrefix : "hook:cahi:";
   const wakeMode: WakeMode = config?.wakeMode === "next-heartbeat" ? "next-heartbeat" : "now";
   const deliver = typeof config?.deliver === "boolean" ? config.deliver : true;
   const healthSummaryPath = getHealthSummaryPath(config);
@@ -459,7 +459,7 @@ export function create(config?: Record<string, unknown>): Notifier {
     console.warn(
       "[notifier-openclaw] No token configured.\n" +
         "  Add hooks.token to your OpenClaw config, or set notifiers.openclaw.openclawConfigPath.\n" +
-        "  Run: ao setup openclaw",
+        "  Run: cahi setup openclaw",
     );
   }
 

@@ -125,8 +125,8 @@ describe("completion commands", () => {
     await program.parseAsync(["node", "test", "completion", "zsh"]);
 
     const output = stdoutSpy.mock.calls.map(([chunk]) => String(chunk)).join("");
-    expect(output).toContain("#compdef ao");
-    expect(output).toContain("command ao __complete");
+    expect(output).toContain("#compdef cahi");
+    expect(output).toContain("command cahi __complete");
     expect(output).toContain("_ao_complete_projects");
     expect(output).toContain("_ao_completion");
     expect(output).toContain("_ao_completion_zsh");

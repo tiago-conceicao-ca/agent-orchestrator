@@ -103,13 +103,13 @@ function formatFetchError(error: unknown): string {
 function buildSetupPayload(resolved: ResolvedSlackSetup): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     username: resolved.username,
-    text: "AO Slack notifications are ready.",
+    text: "CAHI Slack notifications are ready.",
     blocks: [
       {
         type: "header",
         text: {
           type: "plain_text",
-          text: "AO Slack notifications are ready",
+          text: "CAHI Slack notifications are ready",
           emoji: true,
         },
       },
@@ -117,7 +117,7 @@ function buildSetupPayload(resolved: ResolvedSlackSetup): Record<string, unknown
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "This channel is now configured to receive AO notifications.",
+          text: "This channel is now configured to receive CAHI notifications.",
         },
       },
     ],
@@ -186,7 +186,7 @@ function printManualWebhookInstructions(): void {
   console.log("  2. Create a new app, or select an existing app.");
   console.log("  3. Open Incoming Webhooks and activate them.");
   console.log("  4. Click Add New Webhook to Workspace.");
-  console.log("  5. Pick the channel AO should post to and authorize.");
+  console.log("  5. Pick the channel CAHI should post to and authorize.");
   console.log("  6. Copy the generated webhook URL and paste it here.");
   console.log(
     chalk.dim("For private channels, the installing Slack user must already be in the channel."),
@@ -296,7 +296,7 @@ async function promptChangeWebhookUrl(
         {
           value: "need-url",
           label: "Show me how to create a new webhook",
-          hint: "AO will print the Slack app URL and steps",
+          hint: "CAHI will print the Slack app URL and steps",
         },
         {
           value: "back",
@@ -353,7 +353,7 @@ async function resolveInteractiveWebhookUrl(
             {
               value: "need-url",
               label: "Show me how to create a new webhook",
-              hint: "AO will print the Slack app URL and steps",
+              hint: "CAHI will print the Slack app URL and steps",
             },
             {
               value: "cancel",
@@ -373,7 +373,7 @@ async function resolveInteractiveWebhookUrl(
             {
               value: "need-url",
               label: "No, show me how to create one",
-              hint: "AO will print the Slack app URL and steps",
+              hint: "CAHI will print the Slack app URL and steps",
             },
             {
               value: "cancel",
@@ -618,11 +618,11 @@ export async function runSlackSetupAction(opts: SlackSetupOptions): Promise<void
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("Slack setup complete!")} AO will send notifications through the configured Slack webhook.\n` +
-        chalk.dim("  Test it with: ao notify test --to slack --template basic"),
+      `${chalk.green("Slack setup complete!")} CAHI will send notifications through the configured Slack webhook.\n` +
+        chalk.dim("  Test it with: cahi notify test --to slack --template basic"),
     );
   } else {
     console.log(chalk.green("\n✓ Slack setup complete."));
-    console.log(chalk.dim("Test it with: ao notify test --to slack --template basic"));
+    console.log(chalk.dim("Test it with: cahi notify test --to slack --template basic"));
   }
 }

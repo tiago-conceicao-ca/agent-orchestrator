@@ -31,7 +31,7 @@ describe("TerminalTestPage", () => {
       "fetch",
       vi.fn(async () => ({
         json: async () => ({
-          sessions: [{ id: "ao-orchestrator" }, { id: "ao-20" }],
+          sessions: [{ id: "cahi-orchestrator" }, { id: "cahi-20" }],
         }),
       })),
     );
@@ -45,18 +45,18 @@ describe("TerminalTestPage", () => {
     expect(screen.getByRole("button", { name: /hide side-by-side comparison/i })).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByTestId("legacy-terminal-ao-orchestrator")).toBeInTheDocument();
-      expect(screen.getByTestId("direct-terminal-ao-20")).toBeInTheDocument();
+      expect(screen.getByTestId("legacy-terminal-cahi-orchestrator")).toBeInTheDocument();
+      expect(screen.getByTestId("direct-terminal-cahi-20")).toBeInTheDocument();
     });
   });
 
   it("shows the same-session warning when both panes target one session", async () => {
-    searchParams = new URLSearchParams("session=ao-20");
+    searchParams = new URLSearchParams("session=cahi-20");
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         json: async () => ({
-          sessions: [{ id: "ao-20" }],
+          sessions: [{ id: "cahi-20" }],
         }),
       })),
     );
@@ -65,6 +65,6 @@ describe("TerminalTestPage", () => {
     render(<TerminalTestPage />);
 
     expect(screen.getByText(/Using same session for both terminals/i)).toBeInTheDocument();
-    expect(screen.getByText("?old_session=ao-orchestrator&new_session=ao-20")).toBeInTheDocument();
+    expect(screen.getByText("?old_session=cahi-orchestrator&new_session=cahi-20")).toBeInTheDocument();
   });
 });

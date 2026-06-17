@@ -13,7 +13,7 @@ import { create, manifest } from "./index.js";
 let tempDir: string | null = null;
 
 function makeConfigPath(): string {
-  tempDir = mkdtempSync(join(tmpdir(), "ao-dashboard-plugin-"));
+  tempDir = mkdtempSync(join(tmpdir(), "cahi-dashboard-plugin-"));
   return join(tempDir, "cahi.yaml");
 }
 

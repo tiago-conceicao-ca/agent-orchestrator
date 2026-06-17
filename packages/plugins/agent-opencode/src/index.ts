@@ -141,7 +141,7 @@ process.stdin.on('data', c => input += c).on('end', () => {
 // =============================================================================
 
 /**
- * Query OpenCode's session list and find the matching session for this AO session.
+ * Query OpenCode's session list and find the matching session for this CAHI session.
  * Tries metadata `opencodeSessionId` first, then falls back to title matching.
  */
 async function findOpenCodeSession(
@@ -158,7 +158,7 @@ async function findOpenCodeSession(
 
     // Fallback: title match — pick the most recently updated session
     // to avoid binding to a stale session when titles collide.
-    const titleMatches = sessions.filter((s) => s.title === `AO:${session.id}`);
+    const titleMatches = sessions.filter((s) => s.title === `CAHI:${session.id}`);
     if (titleMatches.length === 0) return null;
     if (titleMatches.length === 1) return titleMatches[0]!;
     return titleMatches.reduce((best, s) => {
@@ -222,7 +222,7 @@ function createOpenCodeAgent(): Agent {
           "--format",
           "json",
           "--title",
-          shellEscape(`AO:${config.sessionId}`),
+          shellEscape(`CAHI:${config.sessionId}`),
           ...sharedOptions,
         ];
         const captureScript = buildSessionIdCaptureScript();
@@ -231,11 +231,11 @@ function createOpenCodeAgent(): Agent {
         const resumeOptions = [...(promptValue ? ["--prompt", promptValue] : []), ...sharedOptions];
         const resumeOptionsSuffix = resumeOptions.length > 0 ? ` ${resumeOptions.join(" ")}` : "";
         const missingSessionError = shellEscape(
-          `failed to discover OpenCode session ID for AO:${config.sessionId}`,
+          `failed to discover OpenCode session ID for CAHI:${config.sessionId}`,
         );
         return [
           `SES_ID=$(${runCommand} | node -e ${shellEscape(captureScript)})`,
-          `if [ -z "$SES_ID" ]; then SES_ID=$(opencode session list --format json | node -e ${shellEscape(fallbackScript)} ${shellEscape(`AO:${config.sessionId}`)}); fi`,
+          `if [ -z "$SES_ID" ]; then SES_ID=$(opencode session list --format json | node -e ${shellEscape(fallbackScript)} ${shellEscape(`CAHI:${config.sessionId}`)}); fi`,
           `[ -n "$SES_ID" ] && exec opencode --session "$SES_ID"${resumeOptionsSuffix}; echo ${missingSessionError} >&2; exit 1`,
         ].join("; ");
       }
@@ -257,7 +257,7 @@ function createOpenCodeAgent(): Agent {
         env["CAHI_ISSUE_ID"] = config.issueId;
       }
 
-      // Point Bun's embedded shared-library extraction at an AO-owned temp
+      // Point Bun's embedded shared-library extraction at an CAHI-owned temp
       // dir so the cli-side janitor only needs to sweep our own files
       // (issue #1046). Setting all three keys covers POSIX (TMPDIR) and
       // Windows fallbacks; opencode itself ships POSIX-only today.
@@ -304,7 +304,7 @@ function createOpenCodeAgent(): Agent {
       if (running === PROCESS_PROBE_INDETERMINATE) return null;
       if (!running) return { state: "exited", timestamp: exitedAt };
 
-      // 1. Check AO activity JSONL first (written by recordActivity from terminal output).
+      // 1. Check CAHI activity JSONL first (written by recordActivity from terminal output).
       //    This is the only source of waiting_input/blocked states for OpenCode.
       let activityResult: Awaited<ReturnType<typeof readLastActivityEntry>> = null;
       if (session.workspacePath) {

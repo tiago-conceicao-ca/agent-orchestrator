@@ -33,7 +33,7 @@ function assertPortfolioEnabled(): void {
 export function registerProjectCommand(program: Command): void {
   const project = program.command("project").description("Manage portfolio projects");
 
-  // ao project ls
+  // cahi project ls
   project
     .command("ls")
     .description("List all portfolio projects")
@@ -74,7 +74,7 @@ export function registerProjectCommand(program: Command): void {
       console.log();
     });
 
-  // ao project add <path>
+  // cahi project add <path>
   project
     .command("add <path>")
     .description("Register a project path in the portfolio")
@@ -99,7 +99,7 @@ export function registerProjectCommand(program: Command): void {
             source: "cli",
             kind: "cli.project_register_failed",
             level: "warn",
-            summary: `ao project add: no cahi config found`,
+            summary: `cahi project add: no cahi config found`,
             data: { resolvedPath, reason: "no_config_found" },
           });
           console.error(chalk.red(`No cahi.yaml found at ${resolvedPath}`));
@@ -112,7 +112,7 @@ export function registerProjectCommand(program: Command): void {
             source: "cli",
             kind: "cli.project_register_failed",
             level: "warn",
-            summary: `ao project add: found old-format config requiring migration`,
+            summary: `cahi project add: found old-format config requiring migration`,
             data: {
               resolvedPath,
               configPath: existingConfigPath,
@@ -129,7 +129,7 @@ export function registerProjectCommand(program: Command): void {
             source: "cli",
             kind: "cli.project_register_failed",
             level: "error",
-            summary: `ao project add: config load failed`,
+            summary: `cahi project add: config load failed`,
             data: {
               resolvedPath,
               configPath: existingConfigPath,
@@ -155,7 +155,7 @@ export function registerProjectCommand(program: Command): void {
       console.log(chalk.green(`Registered project "${effectiveId}" at ${resolvedPath}`));
     });
 
-  // ao project rm <id>
+  // cahi project rm <id>
   project
     .command("rm <id>")
     .description("Remove a project from the portfolio")
@@ -172,7 +172,7 @@ export function registerProjectCommand(program: Command): void {
       console.log(chalk.green(`Removed project "${id}" from portfolio`));
     });
 
-  // ao project set-default <id>
+  // cahi project set-default <id>
   project
     .command("set-default <id>")
     .description("Set the default project for the portfolio")

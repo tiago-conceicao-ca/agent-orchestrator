@@ -24,7 +24,7 @@ describe("workspace-clone (integration)", () => {
 
   beforeAll(async () => {
     // Create a temp repo with initial commit
-    const rawRepo = await mkdtemp(join(tmpdir(), "ao-inttest-clone-repo-"));
+    const rawRepo = await mkdtemp(join(tmpdir(), "cahi-inttest-clone-repo-"));
     repoDir = await realpath(rawRepo);
 
     await git(repoDir, "init", "-b", "main");
@@ -38,7 +38,7 @@ describe("workspace-clone (integration)", () => {
     await git(repoDir, "remote", "add", "origin", repoDir);
 
     // Create clone base dir
-    const rawBase = await mkdtemp(join(tmpdir(), "ao-inttest-clone-base-"));
+    const rawBase = await mkdtemp(join(tmpdir(), "cahi-inttest-clone-base-"));
     cloneBaseDir = await realpath(rawBase);
 
     workspace = clonePlugin.create({ cloneDir: cloneBaseDir });

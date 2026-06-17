@@ -55,7 +55,7 @@ export {
   type SiblingAdjacency,
 } from "./utils/siblings.js";
 
-// AO-local code review store
+// CAHI-local code review store
 export { CodeReviewStore, createCodeReviewStore } from "./code-review-store.js";
 export type {
   CodeReviewFinding,
@@ -191,7 +191,7 @@ export type { LifecycleManagerDeps } from "./lifecycle-manager.js";
 export { buildPrompt, BASE_AGENT_PROMPT, BASE_AGENT_PROMPT_NO_REPO } from "./prompt-builder.js";
 export type { PromptBuildConfig } from "./prompt-builder.js";
 
-// Orchestrator prompt — generates orchestrator context for `ao start`
+// Orchestrator prompt — generates orchestrator context for `cahi start`
 export { generateOrchestratorPrompt } from "./orchestrator-prompt.js";
 export type { OrchestratorPromptConfig } from "./orchestrator-prompt.js";
 

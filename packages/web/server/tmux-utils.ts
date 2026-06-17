@@ -51,7 +51,7 @@ const defaultFs: FsAdapter = {
 };
 
 /**
- * Find every storageKey that owns a given sessionId by scanning the AO
+ * Find every storageKey that owns a given sessionId by scanning the CAHI
  * base directory for projects whose `sessions/{sessionId}` file exists.
  *
  * This is the authoritative disambiguation step: tmux names alone are
@@ -142,7 +142,7 @@ export type ExecFileAsync = (
  * Check whether a tmux session with the given name exists.
  *
  * Uses `=` exact-match prefix so the lookup never falls back to tmux's
- * default prefix matching (where "ao-1" would match "ao-15"). The caller
+ * default prefix matching (where "cahi-1" would match "cahi-15"). The caller
  * must already have the canonical tmux session name (typically the value
  * returned by `resolveTmuxSession`).
  *
@@ -173,12 +173,12 @@ export async function tmuxHasSession(
 /**
  * Resolve a user-facing session ID to its actual tmux session name.
  *
- * ao-core names tmux sessions as `{storageKey}-{sessionId}`, where
+ * cahi-core names tmux sessions as `{storageKey}-{sessionId}`, where
  * storageKey is either `{12-hex}` (bare hash) or `{12-hex}-{projectName}`
  * (legacy wrapped format). This function:
  *
  * 1. Tries exact match using tmux's `=` prefix syntax to prevent
- *    prefix matching (where "ao-1" would incorrectly match "ao-15").
+ *    prefix matching (where "cahi-1" would incorrectly match "cahi-15").
  * 2. Looks up the storageKey owning this sessionId on disk (under
  *    `~/.cahi/{storageKey}/sessions/{sessionId}`) and asks
  *    tmux whether the exact `{storageKey}-{sessionId}` session exists.
@@ -189,7 +189,7 @@ export async function tmuxHasSession(
  *    whose remainder equals the sessionId (bare-hash only), so behavior
  *    stays correct even if the on-disk session record is absent.
  *
- * @param sessionId - User-facing session ID (e.g., "ao-15")
+ * @param sessionId - User-facing session ID (e.g., "cahi-15")
  * @param tmuxPath - Full path to tmux binary
  * @param execFn - Injectable execFileSync for testing. Defaults to child_process.execFileSync.
  * @param fs - Injectable filesystem adapter for testing.
@@ -203,8 +203,8 @@ export function resolveTmuxSession(
   projectId?: string,
 ): string | null {
   if (!tmuxPath) return null;
-  // Try exact match first using = prefix for exact matching (e.g., "ao-orchestrator")
-  // Without =, tmux uses prefix matching: "ao-1" would match "ao-15"
+  // Try exact match first using = prefix for exact matching (e.g., "cahi-orchestrator")
+  // Without =, tmux uses prefix matching: "cahi-1" would match "cahi-15"
   try {
     execFn(tmuxPath, ["has-session", "-t", `=${sessionId}`], { timeout: 5000 });
     return sessionId;
@@ -261,7 +261,7 @@ export function resolveTmuxSession(
  * V1 layout (legacy fallback): line-delimited key=value at
  *   `~/.cahi/{storageKey}/sessions/{sessionId}` where
  *   storageKey is bare 12-hex or `{hash}-{projectName}`. Kept so users
- *   who haven't run `ao migrate-storage` still see live sessions.
+ *   who haven't run `cahi migrate-storage` still see live sessions.
  *
  * When `projectId` is provided, only that project's metadata file is read.
  * Without it (legacy callers), walks all projects and returns the first

@@ -17,7 +17,7 @@ const active = new Map<string, ActiveLoop>();
 
 // Note: no SIGINT/SIGTERM listeners are installed here. Adding a listener for
 // those signals removes Node.js's default "exit on signal" behavior, which
-// would leave `ao start` hanging when `ao stop` sends SIGTERM (the setInterval
+// would leave `cahi start` hanging when `cahi stop` sends SIGTERM (the setInterval
 // keeps the event loop alive forever). Default signal handling terminates the
 // process cleanly; the OS reclaims the interval timer. Callers that need to
 // flush state explicitly before exit can call `stopAllLifecycleWorkers()`.

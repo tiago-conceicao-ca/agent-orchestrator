@@ -53,7 +53,7 @@ function withKeepAliveShell(command: string): string {
 }
 
 function writeLaunchScript(command: string): string {
-  const scriptPath = join(tmpdir(), `ao-launch-${randomUUID()}.sh`);
+  const scriptPath = join(tmpdir(), `cahi-launch-${randomUUID()}.sh`);
   const content = `#!/usr/bin/env bash\nrm -- "$0" 2>/dev/null || true\n${withKeepAliveShell(command)}\n`;
   writeFileSync(scriptPath, content, { encoding: "utf-8", mode: 0o700 });
   return `bash ${shellEscape(scriptPath)}`;
@@ -157,8 +157,8 @@ export function create(): Runtime {
       // For long or multiline messages, use load-buffer + paste-buffer
       // Use randomUUID to avoid temp file collisions on concurrent sends
       if (message.includes("\n") || message.length > 200) {
-        const bufferName = `ao-${randomUUID()}`;
-        const tmpPath = join(tmpdir(), `ao-send-${randomUUID()}.txt`);
+        const bufferName = `cahi-${randomUUID()}`;
+        const tmpPath = join(tmpdir(), `cahi-send-${randomUUID()}.txt`);
         writeFileSync(tmpPath, message, { encoding: "utf-8", mode: 0o600 });
         try {
           await tmux("load-buffer", "-b", bufferName, tmpPath);

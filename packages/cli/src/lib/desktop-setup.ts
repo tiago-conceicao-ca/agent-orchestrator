@@ -203,7 +203,7 @@ function printStatus(): void {
   const configDashboardUrl = stringValue(context.existingDesktop["dashboardUrl"]);
   const configAppPath = stringValue(context.existingDesktop["appPath"]);
 
-  console.log(chalk.bold("AO desktop notifier"));
+  console.log(chalk.bold("CAHI desktop notifier"));
   console.log(`  platform: ${os}`);
   if (context.configPath) {
     console.log(`  config: ${context.configPath}`);
@@ -294,7 +294,7 @@ function sendAoAppSetupNotification(appPath: string, dashboardUrl?: string): voi
       type: "setup.desktop",
       priority: "info",
       sessionId: "setup",
-      projectId: "ao",
+      projectId: "cahi",
       timestamp: new Date().toISOString(),
     },
     actions: dashboardUrl ? [{ label: "Open Dashboard", url: dashboardUrl }] : [],
@@ -383,12 +383,12 @@ async function chooseDesktopBackend(
       {
         value: "cahi-app",
         label: existingBackend === "cahi-app" ? "Cahi Notifier.app (current)" : "Cahi Notifier.app (recommended)",
-        hint: "Native macOS app with actions and AO-specific behavior",
+        hint: "Native macOS app with actions and CAHI-specific behavior",
       },
       {
         value: "auto",
         label: existingBackend === "auto" ? "Auto fallback (current)" : "Auto fallback",
-        hint: "AO app if installed, then terminal-notifier, then osascript",
+        hint: "CAHI app if installed, then terminal-notifier, then osascript",
       },
       {
         value: "terminal-notifier",
@@ -670,7 +670,7 @@ function uninstallDesktopApp(): void {
   const appPath = getInstalledNotifierAppPath();
   rmSync(appPath, { recursive: true, force: true });
   console.log(chalk.green(`✓ Removed ${appPath}`));
-  console.log(chalk.dim("AO config was not changed."));
+  console.log(chalk.dim("CAHI config was not changed."));
 }
 
 export async function runDesktopSetupAction(opts: DesktopSetupOptions): Promise<void> {
@@ -715,11 +715,11 @@ export async function runDesktopSetupAction(opts: DesktopSetupOptions): Promise<
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("Desktop setup complete!")} AO will use ${resolved.backend} for desktop notifications.\n` +
-        chalk.dim("  Test it with: ao notify test --to desktop --template basic"),
+      `${chalk.green("Desktop setup complete!")} CAHI will use ${resolved.backend} for desktop notifications.\n` +
+        chalk.dim("  Test it with: cahi notify test --to desktop --template basic"),
     );
   } else {
     console.log(chalk.green("\n✓ Desktop setup complete."));
-    console.log(chalk.dim("Test it with: ao notify test --to desktop --template basic"));
+    console.log(chalk.dim("Test it with: cahi notify test --to desktop --template basic"));
   }
 }

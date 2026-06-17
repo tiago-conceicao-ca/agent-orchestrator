@@ -182,7 +182,7 @@ async function readJsonlPrefixLines(filePath: string, maxLines: number): Promise
 
 /**
  * Normalize a path for cross-platform comparison. Codex's JSONL may emit
- * forward-slash paths or vary drive-letter case on Windows; AO constructs
+ * forward-slash paths or vary drive-letter case on Windows; CAHI constructs
  * workspace paths via path.join which yields backslashes on Windows. Compare
  * via a canonical form: forward slashes throughout, lowercased drive letter.
  */
@@ -464,7 +464,7 @@ async function resolveCodexBinaryWindows(): Promise<string> {
     }
   }
 
-  // Fall back to common npm/Cargo install locations so AO works even when
+  // Fall back to common npm/Cargo install locations so CAHI works even when
   // the user installed Codex into a directory not currently on PATH.
   const appData = process.env["APPDATA"];
   const home = homedir();
@@ -638,7 +638,7 @@ function createCodexAgent(): Agent {
       }
 
       // PATH and GH_PATH are injected by session-manager for all agents.
-      // Disable Codex's version check/update prompt for non-interactive AO sessions.
+      // Disable Codex's version check/update prompt for non-interactive CAHI sessions.
       env["CODEX_DISABLE_UPDATE_CHECK"] = "1";
 
       return env;
@@ -736,12 +736,12 @@ function createCodexAgent(): Agent {
           }
         }
 
-        // Session file exists but no parseable entry — fall through to AO JSONL
+        // Session file exists but no parseable entry — fall through to CAHI JSONL
         // checks below instead of returning early, so waiting_input/blocked
         // from terminal parsing can still be detected.
       }
 
-      // 2. Fallback: check AO activity JSONL (terminal-derived) for waiting_input/blocked
+      // 2. Fallback: check CAHI activity JSONL (terminal-derived) for waiting_input/blocked
       //    that the native JSONL may not have captured.
       const activityResult = session.workspacePath
         ? await readLastActivityEntry(session.workspacePath)

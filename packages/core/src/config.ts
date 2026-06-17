@@ -316,7 +316,7 @@ const InstalledPluginConfigSchema = z
 const PowerConfigSchema = z
   .object({
     /**
-     * Prevent macOS idle sleep while AO is running.
+     * Prevent macOS idle sleep while CAHI is running.
      * Uses `caffeinate -i -w <pid>` to hold an assertion.
      * Defaults to true on macOS, no-op on other platforms.
      */
@@ -333,7 +333,7 @@ const LifecycleConfigSchema = z
     /**
      * When a session's PR is detected as merged, automatically tear down the
      * tmux runtime, remove the worktree, and archive the session metadata.
-     * Defaults to true so `ao status` does not retain stale merged entries.
+     * Defaults to true so `cahi status` does not retain stale merged entries.
      */
     autoCleanupOnMerge: z.boolean().default(true),
     /**
@@ -412,26 +412,26 @@ function expandPaths(config: OrchestratorConfig): OrchestratorConfig {
  * Generate a temporary plugin name from a package or path specifier.
  * This name is used until the actual manifest.name is discovered during plugin loading.
  * Format: extract the plugin name from the package/path, removing common prefixes.
- * e.g., "@acme/ao-plugin-tracker-jira" -> "jira"
- * e.g., "@acme/ao-plugin-tracker-jira-cloud" -> "jira-cloud"
+ * e.g., "@acme/cahi-plugin-tracker-jira" -> "jira"
+ * e.g., "@acme/cahi-plugin-tracker-jira-cloud" -> "jira-cloud"
  * e.g., "./plugins/my-tracker" -> "my-tracker"
  * e.g., "my-tracker" (local path without slashes) -> "my-tracker"
  */
 function generateTempPluginName(pkg?: string, path?: string): string {
   if (pkg) {
-    // Extract package name without scope: "@acme/ao-plugin-tracker-jira" -> "ao-plugin-tracker-jira"
+    // Extract package name without scope: "@acme/cahi-plugin-tracker-jira" -> "cahi-plugin-tracker-jira"
     const slashParts = pkg.split("/");
     const packageName = slashParts[slashParts.length - 1] ?? pkg;
 
-    // Extract plugin name after ao-plugin-{slot}- prefix, preserving multi-word names like "jira-cloud"
+    // Extract plugin name after cahi-plugin-{slot}- prefix, preserving multi-word names like "jira-cloud"
     const prefixMatch = packageName.match(
-      /^ao-plugin-(?:runtime|agent|workspace|tracker|scm|notifier|terminal)-(.+)$/,
+      /^cahi-plugin-(?:runtime|agent|workspace|tracker|scm|notifier|terminal)-(.+)$/,
     );
     if (prefixMatch?.[1]) {
       return prefixMatch[1];
     }
 
-    // Non-standard package name (doesn't follow ao-plugin convention): use the full package name
+    // Non-standard package name (doesn't follow cahi-plugin convention): use the full package name
     // to avoid collisions. "plugin" from "custom-tracker-plugin" would collide with other packages
     // that also end in "-plugin". The temp name is replaced with manifest.name after loading anyway.
     return packageName;

@@ -307,7 +307,7 @@ describe("claimPR", () => {
     expect(app1!["status"]).toBe("working");
   });
 
-  it("keeps AO metadata updated even if GitHub assignment fails", async () => {
+  it("keeps CAHI metadata updated even if GitHub assignment fails", async () => {
     const mockSCM = makeSCM({
       assignPRToCurrentUser: vi.fn().mockRejectedValue(new Error("permission denied")),
     });

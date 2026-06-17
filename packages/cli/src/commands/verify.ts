@@ -134,7 +134,7 @@ export function registerVerify(program: Command): void {
 
         // Verify/fail mode: requires an issue argument
         if (!issue) {
-          console.error(chalk.red("Issue number is required. Usage: ao verify <issue>"));
+          console.error(chalk.red("Issue number is required. Usage: cahi verify <issue>"));
           process.exit(1);
         }
 

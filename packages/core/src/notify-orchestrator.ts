@@ -7,7 +7,7 @@ export type OrchestratorNotifier = Pick<SessionManager, "send">;
 
 /**
  * Best-effort notify a project's orchestrator session over the same
- * `SessionManager.send` back-channel a worker uses with `ao send`.
+ * `SessionManager.send` back-channel a worker uses with `cahi send`.
  *
  * No-ops when no orchestrator session exists on disk for the project —
  * existence-on-disk of the canonical orchestrator metadata is the signal that

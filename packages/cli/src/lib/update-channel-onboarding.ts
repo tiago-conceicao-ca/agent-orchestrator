@@ -1,7 +1,7 @@
 /**
  * Update-channel onboarding helpers.
  *
- * On first `ao start`, prompt the user once for an `updateChannel` and persist
+ * On first `cahi start`, prompt the user once for an `updateChannel` and persist
  * it to ~/.cahi/config.yaml. Never re-prompt — if they dismiss
  * (Ctrl+C / Esc), default to `manual` so we don't surprise-install anything.
  *
@@ -76,7 +76,7 @@ export function persistUpdateChannel(channel: UpdateChannel): void {
  *
  * Skipped silently when:
  *   - The choice was already made (idempotent — never re-prompts).
- *   - The caller is not interactive (CI, scripted ao start).
+ *   - The caller is not interactive (CI, scripted cahi start).
  *
  * On dismissal, persists `manual` so we don't ask again — surprise auto-installs
  * are worse than a quiet manual default.
@@ -88,7 +88,7 @@ export async function maybePromptForUpdateChannel(deps: PromptDeps = {}): Promis
 
   // No global config yet — skip. autoCreateConfig() handles full bootstrap
   // (creating the global config and registering the project) during first run.
-  // On the next `ao start` the global config will exist and the prompt fires.
+  // On the next `cahi start` the global config will exist and the prompt fires.
   // Skipping here avoids writing an empty husk that poisons the dashboard.
   if (!existsSync(getGlobalConfigPath())) return;
 

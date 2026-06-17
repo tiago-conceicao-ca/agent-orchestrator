@@ -167,7 +167,7 @@ function createKimicodeAgent(): Agent {
         parts.push("--model", shellEscape(config.model));
       }
 
-      // Route AO-level subagent selection to kimi's `--agent NAME`
+      // Route CAHI-level subagent selection to kimi's `--agent NAME`
       // (built-in agents: default, okabe, or custom via --agent-file).
       if (config.subagent) {
         parts.push("--agent", shellEscape(config.subagent));
@@ -179,7 +179,7 @@ function createKimicodeAgent(): Agent {
       // post-launch sendMessage() delay.
       //
       // kimi has no documented system-prompt flag. `--agent-file` looked like
-      // the closest fit but requires a YAML agent spec — passing AO's plain
+      // the closest fit but requires a YAML agent spec — passing CAHI's plain
       // markdown prompt file makes kimi exit with a YAML parse error. Inline
       // the file contents into --prompt instead. When both are provided, the
       // system instructions come first so the agent reads them before the task.
@@ -261,7 +261,7 @@ function createKimicodeAgent(): Agent {
 
       if (!session.workspacePath) return null;
 
-      // 2. Actionable states (waiting_input / blocked) sourced from the AO
+      // 2. Actionable states (waiting_input / blocked) sourced from the CAHI
       //    activity JSONL written by recordActivity. Kimi's native JSONL format
       //    is not publicly documented, so terminal-derived state is our only
       //    reliable source for approval/error detection.
@@ -280,7 +280,7 @@ function createKimicodeAgent(): Agent {
         return { state: "idle", timestamp: match.mtime };
       }
 
-      // 4. JSONL entry fallback (MANDATORY) — uses the last AO activity entry
+      // 4. JSONL entry fallback (MANDATORY) — uses the last CAHI activity entry
       //    with age-based decay when the native signal is unavailable.
       const fallback = getActivityFallbackState(activityResult, activeWindowMs, threshold);
       if (fallback) return fallback;
@@ -412,7 +412,7 @@ function createKimicodeAgent(): Agent {
     // out forever. Discovery would then return null permanently.
     //
     // No-op on restore — captureKimiBaseline only writes the file when it
-    // doesn't already exist, so the original "what was here before AO
+    // doesn't already exist, so the original "what was here before CAHI
     // started" partition stays stable across the session lifetime.
     async preLaunchSetup(workspacePath: string): Promise<void> {
       await captureKimiBaseline(workspacePath);

@@ -12,7 +12,7 @@ import type { DashboardSession } from "../types";
 
 function makeSession(overrides?: Partial<DashboardSession>): DashboardSession {
   return {
-    id: "ao-42",
+    id: "cahi-42",
     projectId: "test",
     status: "working",
     activity: "active",
@@ -66,25 +66,25 @@ describe("humanizeBranch", () => {
   });
 
   it("handles session/ prefix", () => {
-    expect(humanizeBranch("session/ao-52")).toBe("Ao 52");
+    expect(humanizeBranch("session/cahi-52")).toBe("Cahi 52");
   });
 
   it("handles orchestrator/ prefix", () => {
-    expect(humanizeBranch("orchestrator/ao-orchestrator-8")).toBe("Ao Orchestrator 8");
+    expect(humanizeBranch("orchestrator/cahi-orchestrator-8")).toBe("Cahi Orchestrator 8");
   });
 
   it("returns empty when the branch is just the session ID (session/)", () => {
     // Signals to getSessionTitle that this branch carries no task info.
-    expect(humanizeBranch("session/ao-42", "ao-42")).toBe("");
+    expect(humanizeBranch("session/cahi-42", "cahi-42")).toBe("");
   });
 
   it("returns empty when the branch is just the session ID (orchestrator/)", () => {
-    expect(humanizeBranch("orchestrator/ao-orchestrator-8", "ao-orchestrator-8")).toBe("");
+    expect(humanizeBranch("orchestrator/cahi-orchestrator-8", "cahi-orchestrator-8")).toBe("");
   });
 
   it("keeps real content when the branch contains more than the session ID", () => {
-    // feat/INT-1327 is a meaningful branch even if the session is ao-5.
-    expect(humanizeBranch("feat/INT-1327", "ao-5")).toBe("INT 1327");
+    // feat/INT-1327 is a meaningful branch even if the session is cahi-5.
+    expect(humanizeBranch("feat/INT-1327", "cahi-5")).toBe("INT 1327");
   });
 
   it("handles underscores", () => {
@@ -244,7 +244,7 @@ describe("getSessionTitle", () => {
 
   it("returns displayName when no PR / issue title / user prompt", () => {
     const session = makeSession({
-      id: "ao-5",
+      id: "cahi-5",
       summary: null,
       issueTitle: null,
       userPrompt: null,
@@ -262,12 +262,12 @@ describe("getSessionTitle", () => {
     // would show the raw multi-line text and the deriveDisplayName cleanup
     // would never surface.
     const session = makeSession({
-      id: "ao-42",
+      id: "cahi-42",
       summary: null,
       issueTitle: null,
       userPrompt: "Add rate limiting to /api/upload\n\nUse a sliding-window counter keyed by IP.",
       displayName: "Add rate limiting to /api/upload",
-      branch: "session/ao-42",
+      branch: "session/cahi-42",
     });
     expect(getSessionTitle(session)).toBe("Add rate limiting to /api/upload");
   });
@@ -279,8 +279,8 @@ describe("getSessionTitle", () => {
       issueTitle: null,
       displayName: null,
       userPrompt: "Fix the race condition",
-      branch: "session/ao-42",
-      id: "ao-42",
+      branch: "session/cahi-42",
+      id: "cahi-42",
     });
     expect(getSessionTitle(session)).toBe("Fix the race condition");
   });
@@ -301,39 +301,39 @@ describe("getSessionTitle", () => {
     // Repro of the original bug: an orchestrator used to render as
     // "Orchestrator/Ao Orchestrator 8". displayName fixes that.
     const session = makeSession({
-      id: "ao-orchestrator-8",
+      id: "cahi-orchestrator-8",
       summary: null,
       issueTitle: null,
       userPrompt: null,
       displayName: "Audit test coverage for session-manager",
-      branch: "orchestrator/ao-orchestrator-8",
+      branch: "orchestrator/cahi-orchestrator-8",
     });
     expect(getSessionTitle(session)).toBe("Audit test coverage for session-manager");
   });
 
   it("skips branch fallback when it is just the session ID and falls through to summary", () => {
     const session = makeSession({
-      id: "ao-42",
+      id: "cahi-42",
       summary: "Exploring the cache invalidation path",
       summaryIsFallback: false,
       issueTitle: null,
       userPrompt: null,
       displayName: null,
-      branch: "session/ao-42",
+      branch: "session/cahi-42",
     });
-    // The branch "session/ao-42" would previously have rendered as "Ao 42".
+    // The branch "session/cahi-42" would previously have rendered as "Ao 42".
     // Now it returns empty and we fall through to the quality summary.
     expect(getSessionTitle(session)).toBe("Exploring the cache invalidation path");
   });
 
   it("skips branch fallback when it is just the orchestrator session ID", () => {
     const session = makeSession({
-      id: "ao-orchestrator-8",
+      id: "cahi-orchestrator-8",
       summary: null,
       issueTitle: null,
       userPrompt: null,
       displayName: null,
-      branch: "orchestrator/ao-orchestrator-8",
+      branch: "orchestrator/cahi-orchestrator-8",
       status: "working",
     });
     // No other signal: fall all the way to status.

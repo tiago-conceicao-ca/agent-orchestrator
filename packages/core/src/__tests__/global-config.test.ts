@@ -23,7 +23,7 @@ describe("global-config storage identity", () => {
   beforeEach(() => {
     tempRoot = join(
       tmpdir(),
-      `ao-global-config-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      `cahi-global-config-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     );
     mkdirSync(tempRoot, { recursive: true });
     configPath = join(tempRoot, "config.yaml");
@@ -70,7 +70,7 @@ describe("global-config storage identity", () => {
       path: repoPath,
       defaultBranch: "main",
       sessionPrefix: "demo",
-      source: "ao-project-add",
+      source: "cahi-project-add",
       repo: {
         owner: "OpenAI",
         name: "demo",
@@ -147,14 +147,14 @@ describe("global-config storage identity", () => {
 
     const idA = registerProjectInGlobalConfig(
       "cahi",
-      "AO A",
+      "CAHI A",
       repoA,
       { sessionPrefix: "aoa" },
       configPath,
     );
     const idB = registerProjectInGlobalConfig(
       "cahi",
-      "AO B",
+      "CAHI B",
       repoB,
       { sessionPrefix: "aob" },
       configPath,
@@ -194,14 +194,14 @@ describe("global-config storage identity", () => {
 
     const idA = registerProjectInGlobalConfig(
       "cahi",
-      "AO A",
+      "CAHI A",
       repoA,
       undefined,
       configPath,
     );
     const idB = registerProjectInGlobalConfig(
       "cahi",
-      "AO B",
+      "CAHI B",
       repoB,
       undefined,
       configPath,
@@ -256,7 +256,7 @@ describe("global-config storage identity", () => {
       expect(rewritten.projects.legacy).not.toHaveProperty("runtime");
       expect(rewritten.projects.legacy).not.toHaveProperty("_shadowSyncedAt");
       expect(consoleInfo).toHaveBeenCalledWith(
-        "[ao] stripped 3 legacy project registry fields from 1 project: legacy (3)",
+        "[cahi] stripped 3 legacy project registry fields from 1 project: legacy (3)",
       );
     } finally {
       consoleInfo.mockRestore();

@@ -61,11 +61,11 @@ beforeEach(() => {
   }) as typeof process.exit);
 });
 
-describe("ao project ls", () => {
+describe("cahi project ls", () => {
   it("prints message when portfolio is empty", async () => {
     mockGetPortfolio.mockReturnValue([]);
 
-    await program.parseAsync(["node", "ao", "project", "ls"]);
+    await program.parseAsync(["node", "cahi", "project", "ls"]);
 
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("No projects in portfolio"));
   });
@@ -79,7 +79,7 @@ describe("ao project ls", () => {
     });
     mockLoadPreferences.mockReturnValue({ defaultProjectId: null });
 
-    await program.parseAsync(["node", "ao", "project", "ls"]);
+    await program.parseAsync(["node", "cahi", "project", "ls"]);
 
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("app-1"));
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("3 sessions"));
@@ -94,17 +94,17 @@ describe("ao project ls", () => {
     });
     mockLoadPreferences.mockReturnValue({ defaultProjectId: "app-1" });
 
-    await program.parseAsync(["node", "ao", "project", "ls"]);
+    await program.parseAsync(["node", "cahi", "project", "ls"]);
 
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("default"));
   });
 });
 
-describe("ao project add", () => {
+describe("cahi project add", () => {
   it("registers a valid project path", async () => {
     mockLoadLocalProjectConfig.mockReturnValue({ projects: {} });
 
-    await program.parseAsync(["node", "ao", "project", "add", "/tmp/my-project"]);
+    await program.parseAsync(["node", "cahi", "project", "add", "/tmp/my-project"]);
 
     expect(mockRegisterProject).toHaveBeenCalledWith(
       expect.stringContaining("my-project"),
@@ -118,7 +118,7 @@ describe("ao project add", () => {
     mockLoadLocalProjectConfig.mockReturnValue(null);
 
     await expect(
-      program.parseAsync(["node", "ao", "project", "add", "/tmp/no-config"]),
+      program.parseAsync(["node", "cahi", "project", "add", "/tmp/no-config"]),
     ).rejects.toThrow();
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("No cahi.yaml"));
@@ -129,7 +129,7 @@ describe("ao project add", () => {
 
     await program.parseAsync([
       "node",
-      "ao",
+      "cahi",
       "project",
       "add",
       "/tmp/my-project",
@@ -149,7 +149,7 @@ describe("ao project add", () => {
 
     await program.parseAsync([
       "node",
-      "ao",
+      "cahi",
       "project",
       "add",
       "/tmp/cahi",
@@ -172,18 +172,18 @@ describe("ao project add", () => {
     });
 
     await expect(
-      program.parseAsync(["node", "ao", "project", "add", "/tmp/my-project"]),
+      program.parseAsync(["node", "cahi", "project", "add", "/tmp/my-project"]),
     ).rejects.toThrow();
 
     expect(mockRegisterProject).toHaveBeenCalledTimes(1);
   });
 });
 
-describe("ao project rm", () => {
+describe("cahi project rm", () => {
   it("removes an existing project", async () => {
     mockGetPortfolio.mockReturnValue([{ id: "app-1", name: "App One", source: "/tmp/app-1" }]);
 
-    await program.parseAsync(["node", "ao", "project", "rm", "app-1"]);
+    await program.parseAsync(["node", "cahi", "project", "rm", "app-1"]);
 
     expect(mockUnregisterProject).toHaveBeenCalledWith("app-1");
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Removed"));
@@ -193,19 +193,19 @@ describe("ao project rm", () => {
     mockGetPortfolio.mockReturnValue([]);
 
     await expect(
-      program.parseAsync(["node", "ao", "project", "rm", "nonexistent"]),
+      program.parseAsync(["node", "cahi", "project", "rm", "nonexistent"]),
     ).rejects.toThrow();
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not found"));
   });
 });
 
-describe("ao project set-default", () => {
+describe("cahi project set-default", () => {
   it("sets default project", async () => {
     mockGetPortfolio.mockReturnValue([{ id: "app-1", name: "App One", source: "/tmp/app-1" }]);
     mockLoadPreferences.mockReturnValue({ defaultProjectId: null });
 
-    await program.parseAsync(["node", "ao", "project", "set-default", "app-1"]);
+    await program.parseAsync(["node", "cahi", "project", "set-default", "app-1"]);
 
     expect(mockSavePreferences).toHaveBeenCalledWith({ defaultProjectId: "app-1" });
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Set default"));
@@ -215,7 +215,7 @@ describe("ao project set-default", () => {
     mockGetPortfolio.mockReturnValue([]);
 
     await expect(
-      program.parseAsync(["node", "ao", "project", "set-default", "nonexistent"]),
+      program.parseAsync(["node", "cahi", "project", "set-default", "nonexistent"]),
     ).rejects.toThrow();
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not found"));

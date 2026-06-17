@@ -1462,7 +1462,7 @@ describe("listDashboardOrchestrators (issue #1048)", () => {
   } as unknown as Record<string, ProjectConfig>;
 
   it("excludes stale {projectId}-orchestrator legacy records that lack role metadata", () => {
-    // Pre-numbered AO version wrote bare-named records without `role`. After
+    // Pre-numbered CAHI version wrote bare-named records without `role`. After
     // tightening isOrchestratorSession, these must NOT leak into the dashboard's
     // orchestrator list, otherwise the dashboard link points at a stale id while
     // the CLI prints a different (numbered) id.
@@ -1528,7 +1528,7 @@ describe("listDashboardOrchestrators (issue #1048)", () => {
     const now = Date.now();
     const sessions: Session[] = [
       createCoreSession({
-        id: "ao-orchestrator-9",
+        id: "cahi-orchestrator-9",
         projectId: "my-app",
         status: "killed",
         activity: "exited",
@@ -1536,7 +1536,7 @@ describe("listDashboardOrchestrators (issue #1048)", () => {
         metadata: { role: "orchestrator" },
       }),
       createCoreSession({
-        id: "ao-orchestrator-26",
+        id: "cahi-orchestrator-26",
         projectId: "my-app",
         status: "working",
         activity: "active",
@@ -1548,7 +1548,7 @@ describe("listDashboardOrchestrators (issue #1048)", () => {
     const result = listDashboardOrchestrators(sessions, projects);
 
     expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe("ao-orchestrator-26");
+    expect(result[0]?.id).toBe("cahi-orchestrator-26");
   });
 
   it("prefers the most recently active live orchestrator when multiple are running", () => {

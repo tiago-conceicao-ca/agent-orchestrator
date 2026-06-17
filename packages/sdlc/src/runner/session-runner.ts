@@ -40,7 +40,7 @@ const DEFAULT_TIMEOUT_MS = 10 * 60 * 1_000; // 10 min — matches the headless `
 const DEFAULT_POLL_INTERVAL_MS = 2_000;
 
 /**
- * Run an SDLC analysis step (plan write / lens review) as a real, interactive AO
+ * Run an SDLC analysis step (plan write / lens review) as a real, interactive CAHI
  * worker session instead of a headless `claude -p` subprocess.
  *
  * Spawns a session tagged with `sdlcRunId`/`sdlcPhase`/`sdlcRole`, then polls for

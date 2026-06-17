@@ -135,10 +135,10 @@ function createGitRepo(path: string): void {
     cwd: path,
     env: {
       ...process.env,
-      GIT_AUTHOR_NAME: "AO Test",
-      GIT_AUTHOR_EMAIL: "ao@example.com",
-      GIT_COMMITTER_NAME: "AO Test",
-      GIT_COMMITTER_EMAIL: "ao@example.com",
+      GIT_AUTHOR_NAME: "CAHI Test",
+      GIT_AUTHOR_EMAIL: "cahi@example.com",
+      GIT_COMMITTER_NAME: "CAHI Test",
+      GIT_COMMITTER_EMAIL: "cahi@example.com",
     },
   });
 }
@@ -153,7 +153,7 @@ import { registerReview } from "../../src/commands/review.js";
 let program: Command;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-cli-review-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-cli-review-test-"));
   reviewStoreRootRef.current = join(tmpDir, "review-store");
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpDir;
@@ -362,7 +362,7 @@ describe("review command", () => {
         sentFindingCount: 1,
       },
     });
-    expect(payload.message).toContain("AO reviewer app-rev-1 found 1 open issue");
+    expect(payload.message).toContain("CAHI reviewer app-rev-1 found 1 open issue");
     expect(payload.message).toContain("Location: src/app.ts:12");
     expect(mockSessionManager.send).toHaveBeenCalledWith(
       "app-1",

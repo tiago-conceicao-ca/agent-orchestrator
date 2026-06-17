@@ -27,7 +27,7 @@ function setPlatform(p: NodeJS.Platform): void {
 }
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-preflight-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-preflight-test-"));
   originalPlatform = Object.getOwnPropertyDescriptor(process, "platform");
   mockAskYesNo.mockReset();
   mockExecSilent.mockReset();

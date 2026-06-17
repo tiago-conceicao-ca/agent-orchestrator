@@ -674,7 +674,7 @@ describe("get", () => {
       JSON.stringify([
         {
           id: "ses_get_discovered",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -706,8 +706,8 @@ describe("get", () => {
     const mockBin = installMockOpencode(
       tmpDir,
       JSON.stringify([
-        { id: "ses_get_discovered_1", title: "AO:app-1" },
-        { id: "ses_get_discovered_2", title: "AO:app-2" },
+        { id: "ses_get_discovered_1", title: "CAHI:app-1" },
+        { id: "ses_get_discovered_2", title: "CAHI:app-2" },
       ]),
       deleteLogPath,
       0,

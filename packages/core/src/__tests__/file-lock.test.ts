@@ -11,7 +11,7 @@ describe("withFileLockSync", () => {
   let lockPath: string;
 
   beforeEach(() => {
-    tempRoot = join(tmpdir(), `ao-file-lock-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    tempRoot = join(tmpdir(), `cahi-file-lock-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     mkdirSync(tempRoot, { recursive: true });
     lockPath = join(tempRoot, "config.lock");
   });

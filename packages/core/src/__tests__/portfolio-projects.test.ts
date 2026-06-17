@@ -26,7 +26,7 @@ describe("portfolio-projects", () => {
   let oldUserProfile: string | undefined;
 
   beforeEach(() => {
-    tempRoot = join(tmpdir(), `ao-portfolio-projects-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    tempRoot = join(tmpdir(), `cahi-portfolio-projects-${Date.now()}-${Math.random().toString(16).slice(2)}`);
     mkdirSync(tempRoot, { recursive: true });
     oldGlobalConfig = process.env["CAHI_GLOBAL_CONFIG"];
     oldConfigPath = process.env["CAHI_CONFIG_PATH"];

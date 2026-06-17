@@ -1,8 +1,8 @@
 /**
  * Agent Report — explicit workflow transitions declared by the worker agent.
  *
- * Stage 3 of the state-machine redesign. Agents run `ao acknowledge` and
- * `ao report <state>` from inside a managed session to declare the workflow
+ * Stage 3 of the state-machine redesign. Agents run `cahi acknowledge` and
+ * `cahi report <state>` from inside a managed session to declare the workflow
  * phase they are entering. The lifecycle manager prefers fresh agent reports
  * over weak inference, but runtime evidence (process death, merged PR) and
  * SCM ground-truth (CI, review decisions) still take precedence.
@@ -52,7 +52,7 @@ import { validateStatus } from "./utils/validation.js";
  * - `completed`         — finished research/non-coding work (not "merged")
  *
  * Note: agents cannot self-report `done`, `terminated`, or terminal PR states
- * like `merged` / `closed`. Those remain owned by AO so ground-truth sources
+ * like `merged` / `closed`. Those remain owned by CAHI so ground-truth sources
  * (SCM, runtime) stay authoritative.
  */
 export const AGENT_REPORTED_STATES = [
@@ -128,7 +128,7 @@ export const AGENT_REPORT_CLOCK_SKEW_TOLERANCE_MS = 60_000; // 60 seconds
  * CLI surface accepts these hyphen/underscore aliases for convenience.
  *
  * Note: `done` is intentionally NOT an alias — agents cannot self-report
- * terminal `done` state (AO owns that transition via SCM ground truth). Use
+ * terminal `done` state (CAHI owns that transition via SCM ground truth). Use
  * `completed` for finished non-coding research/analysis work.
  */
 const INPUT_ALIASES: Record<string, AgentReportedState> = {

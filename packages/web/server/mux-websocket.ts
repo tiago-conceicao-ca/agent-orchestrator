@@ -699,7 +699,7 @@ export class TerminalManager {
       // after every attach (e.g. resource exhaustion or a broken tmux session).
       // The counter is reset by a delayed timer in open() once the new PTY has
       // survived REATTACH_RESET_GRACE_MS — see the comment on that constant.
-      // Resetting here would defeat the cap: when ao stop kills the tmux session
+      // Resetting here would defeat the cap: when cahi stop kills the tmux session
       // out from under a still-subscribed dashboard, attach-session exits ~40 ms
       // after spawn and the loop runs at ~80 spawns/sec, exhausting the system
       // PTY pool in seconds (issue #1639).

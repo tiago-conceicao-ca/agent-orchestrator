@@ -10,7 +10,7 @@ export function stringToHue(s: string): number {
 }
 
 export function sanitizeIconName(rawName: string): string {
-  return rawName.replace(/[^\w\s-]/g, "").slice(0, 50) || "AO";
+  return rawName.replace(/[^\w\s-]/g, "").slice(0, 50) || "CAHI";
 }
 
 /** Render a colored icon element with the first letter of the given name. */

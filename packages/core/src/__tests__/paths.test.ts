@@ -36,22 +36,22 @@ describe("paths", () => {
   it("keeps session prefix generation unchanged", () => {
     expect(generateSessionPrefix("my-cool-project")).toBe("mcp");
     expect(generateSessionPrefix("Integrator")).toBe("int");
-    expect(generateSessionName("ao", 7)).toBe("ao-7");
+    expect(generateSessionName("cahi", 7)).toBe("cahi-7");
   });
 
   it("uses the storage key as the tmux hash segment", () => {
-    const tmuxName = generateTmuxName(storageKey, "ao", 3);
-    expect(tmuxName).toBe("aaaaaaaaaaaa-ao-3");
+    const tmuxName = generateTmuxName(storageKey, "cahi", 3);
+    expect(tmuxName).toBe("aaaaaaaaaaaa-cahi-3");
     expect(parseTmuxName(tmuxName)).toEqual({
       hash: storageKey,
-      prefix: "ao",
+      prefix: "cahi",
       num: 3,
     });
   });
 
   it("keeps parseTmuxName strict about the 12-hex storage key", () => {
-    expect(parseTmuxName("not-a-key-ao-1")).toBeNull();
-    expect(parseTmuxName("abc-ao-1")).toBeNull();
+    expect(parseTmuxName("not-a-key-cahi-1")).toBeNull();
+    expect(parseTmuxName("abc-cahi-1")).toBeNull();
   });
 });
 
@@ -76,7 +76,7 @@ describe("V2 paths", () => {
   });
 
   it("getSessionPath returns projects/{projectId}/sessions/{sessionId}.json", () => {
-    expect(getSessionPath("my-app", "ao-7")).toBe(join(aoBase, "projects", "my-app", "sessions", "ao-7.json"));
+    expect(getSessionPath("my-app", "cahi-7")).toBe(join(aoBase, "projects", "my-app", "sessions", "cahi-7.json"));
   });
 
   it("assertSafeProjectId rejects unsafe project IDs", () => {
@@ -115,7 +115,7 @@ describe("generateProjectId", () => {
 
 describe("parseTmuxNameV2", () => {
   it("parses V2 format {prefix}-{num}", () => {
-    expect(parseTmuxNameV2("ao-84")).toEqual({ prefix: "ao", num: 84 });
+    expect(parseTmuxNameV2("cahi-84")).toEqual({ prefix: "cahi", num: 84 });
     expect(parseTmuxNameV2("my_app-1")).toEqual({ prefix: "my_app", num: 1 });
     expect(parseTmuxNameV2("my-app-1")).toEqual({ prefix: "my-app", num: 1 });
     expect(parseTmuxNameV2("my-app-orchestrator-5")).toEqual({ prefix: "my-app-orchestrator", num: 5 });
@@ -124,7 +124,7 @@ describe("parseTmuxNameV2", () => {
 
   it("returns null for invalid formats", () => {
     expect(parseTmuxNameV2("")).toBeNull();
-    expect(parseTmuxNameV2("ao")).toBeNull();
+    expect(parseTmuxNameV2("cahi")).toBeNull();
     expect(parseTmuxNameV2("-5")).toBeNull();
   });
 });

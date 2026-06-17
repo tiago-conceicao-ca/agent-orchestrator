@@ -2,9 +2,9 @@
  * Shared update service — install detection, version checking, cache management.
  *
  * Single source of truth consumed by:
- *   - `ao update` (install-aware routing)
+ *   - `cahi update` (install-aware routing)
  *   - Startup notifier (synchronous cache read)
- *   - `ao doctor` (version freshness check)
+ *   - `cahi doctor` (version freshness check)
  *   - Dashboard (`/api/version` route)
  */
 
@@ -155,16 +155,16 @@ export function isAoCliPackageRoot(root: string): boolean {
  * Classify a resolved file path as one of the known install methods.
  *
  * Order matters — Homebrew installs typically nest the npm tree under
- * `/Cellar/ao/.../libexec/lib/node_modules/`, so we check for `/Cellar/ao/`
+ * `/Cellar/cahi/.../libexec/lib/node_modules/`, so we check for `/Cellar/cahi/`
  * BEFORE classifying as `npm-global`. Bun's global store sits under
  * `~/.bun/install/global/` and is detected the same way.
  */
 export function classifyInstallPath(resolvedPath: string): InstallMethod {
-  // Homebrew installs of the `ao` formula land under /Cellar/ao/<version>/.
+  // Homebrew installs of the `cahi` formula land under /Cellar/cahi/<version>/.
   // Detect this BEFORE the generic node_modules walk, because brew installs
   // also live under .../lib/node_modules/. We don't auto-install for brew —
   // that would clobber the symlinks brew owns.
-  if (resolvedPath.includes("/Cellar/ao/") || resolvedPath.includes("\\Cellar\\ao\\")) {
+  if (resolvedPath.includes("/Cellar/cahi/") || resolvedPath.includes("\\Cellar\\cahi\\")) {
     return "homebrew";
   }
 
@@ -198,7 +198,7 @@ export function classifyInstallPath(resolvedPath: string): InstallMethod {
   return "unknown";
 }
 
-/** Detect how the running `ao` binary was installed. Honors `installMethod` override. */
+/** Detect how the running `cahi` binary was installed. Honors `installMethod` override. */
 export function detectInstallMethod(): InstallMethod {
   const override = resolveInstallMethodOverride();
   if (override) return override;
@@ -249,7 +249,7 @@ export function getGitUpdateRef(): string {
 /**
  * Map an install method + channel to the command the user should run.
  *
- * Git installs always run `ao update` (which delegates to `cahi-update.sh`)
+ * Git installs always run `cahi update` (which delegates to `cahi-update.sh`)
  * regardless of channel — the channel only affects npm-published builds.
  *
  * Homebrew is special: we never auto-install. We surface the brew command as
@@ -270,7 +270,7 @@ export function getUpdateCommand(method: InstallMethod, channel: UpdateChannel =
     case "bun-global":
       return `bun add -g @contaazul/cahi@${tag}`;
     case "homebrew":
-      return "brew upgrade ao";
+      return "brew upgrade cahi";
     case "unknown":
       return `npm install -g @contaazul/cahi@${tag}`;
   }
@@ -293,7 +293,7 @@ export function isOutdatedForChannel(
 // Cache
 // ---------------------------------------------------------------------------
 
-/** Directory holding the update cache. Re-exported for ao doctor / CLI smoke tests. */
+/** Directory holding the update cache. Re-exported for cahi doctor / CLI smoke tests. */
 export function getCacheDir(): string {
   // dirname(getUpdateCheckCachePath()) keeps this in lock-step with core's
   // canonical path resolver.
@@ -570,7 +570,7 @@ export async function checkForUpdate(opts?: {
  * Print an update notice to stderr if a newer version is cached.
  *
  * Skipped entirely when channel is "manual" — the user opted out of nudges.
- * Stable users see "Run: ao update". Nightly users get the same nudge but
+ * Stable users see "Run: cahi update". Nightly users get the same nudge but
  * the suggested install command picks `@nightly` instead of `@latest`.
  */
 export function maybeShowUpdateNotice(): void {

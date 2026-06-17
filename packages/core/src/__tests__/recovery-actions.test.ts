@@ -23,7 +23,7 @@ let fakeHome: string;
 let originalHome: string | undefined;
 let originalUserProfile: string | undefined;
 beforeAll(() => {
-  fakeHome = join(tmpdir(), `ao-recovery-home-${randomUUID()}`);
+  fakeHome = join(tmpdir(), `cahi-recovery-home-${randomUUID()}`);
   mkdirSync(fakeHome, { recursive: true });
   originalHome = process.env["HOME"];
   originalUserProfile = process.env["USERPROFILE"];
@@ -132,7 +132,7 @@ describe("recoverSession", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
@@ -259,7 +259,7 @@ describe("escalateSession", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
@@ -305,7 +305,7 @@ describe("cleanupSession", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
@@ -438,7 +438,7 @@ describe("recovery actions update lifecycle for V2 sessions", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-lifecycle-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-lifecycle-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");
@@ -597,7 +597,7 @@ describe("recovery manager and scanner", () => {
   let previousHome: string | undefined;
 
   beforeEach(() => {
-    rootDir = join(tmpdir(), `ao-recovery-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     mkdirSync(join(rootDir, "project"), { recursive: true });
     writeFileSync(join(rootDir, "cahi.yaml"), "projects: {}\n", "utf-8");

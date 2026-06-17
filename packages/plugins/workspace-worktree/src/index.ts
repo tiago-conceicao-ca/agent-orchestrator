@@ -65,7 +65,7 @@ function toComparablePath(p: string): string {
  * .git/index.lock) still hold handles inside the worktree. rmSync(force: true)
  * deletes individual files but the directory rmdir blocks with EBUSY/ENOTEMPTY/EPERM
  * until the kernel drains those handles — typically 100 ms–2 min. Without retry,
- * AO leaves an empty orphan directory that confuses the next git worktree
+ * CAHI leaves an empty orphan directory that confuses the next git worktree
  * operation and shows up as residue under the project's worktrees directory.
  */
 async function removeDirWithRetry(target: string): Promise<void> {
@@ -464,7 +464,7 @@ export function create(config?: Record<string, unknown>): Workspace {
       const match = matches[0]!;
       if (!allowedPaths.has(match.path)) {
         throw new Error(
-          `Found existing worktree for orchestrator branch "${cfg.branch}" at "${match.path}", but it is outside AO-managed worktree directories. Reuse it manually or remove it and try again.`,
+          `Found existing worktree for orchestrator branch "${cfg.branch}" at "${match.path}", but it is outside CAHI-managed worktree directories. Reuse it manually or remove it and try again.`,
         );
       }
 

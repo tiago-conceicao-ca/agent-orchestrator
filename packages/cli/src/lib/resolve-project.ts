@@ -1,5 +1,5 @@
 /**
- * Unified project resolution for `ao start`.
+ * Unified project resolution for `cahi start`.
  *
  * Replaces the per-arg-shape dispatch that lived inline in start.ts (URL →
  * handleUrlStart, path → addProjectToConfig, none → loadConfig/autoCreate +
@@ -111,12 +111,12 @@ export interface ResolveDeps {
  * `targetGlobalRegistry`:
  *   When `true`, URL and path arguments resolve and register against the
  *   global config (`~/.cahi/config.yaml`) rather than a cwd-
- *   local one. Used when an `ao` daemon is already running — the daemon's
+ *   local one. Used when an `cahi` daemon is already running — the daemon's
  *   project supervisor reads from the global registry, so anything we
  *   freshly clone or add must land there to be visible.
  *
  *   When `false` (default), the resolver behaves as if this were the very
- *   first `ao start`: URL clones generate a wrapped (`projects:`) yaml in
+ *   first `cahi start`: URL clones generate a wrapped (`projects:`) yaml in
  *   the cloned repo, paths register against whatever config the cwd walks
  *   up to find.
  */
@@ -127,7 +127,7 @@ export interface ResolveOptions {
 /**
  * Decide whether `arg` looks like a path (rather than a project id).
  * Matches start.ts's `isLocalPath` — including Windows drive-letter and
- * UNC patterns so e.g. `ao start C:\path\to\repo` is correctly classified.
+ * UNC patterns so e.g. `cahi start C:\path\to\repo` is correctly classified.
  */
 function isLocalPath(arg: string): boolean {
   if (arg.startsWith("/") || arg.startsWith("~") || arg.startsWith("./") || arg.startsWith("..")) {
@@ -164,7 +164,7 @@ async function detectClonedRepoDefaultBranch(repoPath: string): Promise<string |
  * the global registry so the daemon's project supervisor can see it.
  *
  * Mirrors the inline clone+register block that previously lived in start.ts
- * for the "AO already running + URL arg" case.
+ * for the "CAHI already running + URL arg" case.
  */
 async function fromUrlIntoGlobal(arg: string, deps: ResolveDeps): Promise<Resolved> {
   const parsed = parseRepoUrl(arg);
@@ -222,7 +222,7 @@ async function fromUrlIntoGlobal(arg: string, deps: ResolveDeps): Promise<Resolv
   if (!detectedBranch) {
     throw new Error(
       `Repository "${parsed.ownerRepo}" appears to be empty (no commits or refs).\n` +
-        `  AO needs at least one commit on the default branch to spawn an orchestrator.\n` +
+        `  CAHI needs at least one commit on the default branch to spawn an orchestrator.\n` +
         `  Push an initial commit, then re-run \`cahi start ${arg}\`.`,
     );
   }
@@ -371,7 +371,7 @@ async function fromPath(arg: string, deps: ResolveDeps, opts: ResolveOptions): P
     // pathsEqual canonicalizes via realpathSync so symlinked paths (e.g.
     // macOS /tmp -> /private/tmp) match an entry stored under the
     // resolved target, and lowercases on Windows so drive-letter / 8.3
-    // case mismatches don't slip through. Without this, `ao start
+    // case mismatches don't slip through. Without this, `cahi start
     // /tmp/foo` against a daemon whose global config has /private/tmp/foo
     // would fail to dedupe and double-register the project.
     const existingEntry = Object.entries(globalConfig.projects).find(([, p]) =>
@@ -547,7 +547,7 @@ async function fromCwdOrId(
 }
 
 /**
- * Resolve (and create if necessary) the project a given `ao start [arg]`
+ * Resolve (and create if necessary) the project a given `cahi start [arg]`
  * invocation refers to.
  *
  * Dispatches by arg shape:
@@ -560,7 +560,7 @@ async function fromCwdOrId(
  * The same `Resolved` shape comes back regardless of source; callers use
  * `source` and `justCreated` for hints (e.g. dashboard cache invalidation).
  *
- * Pass `opts.targetGlobalRegistry: true` when an `ao` daemon is already
+ * Pass `opts.targetGlobalRegistry: true` when an `cahi` daemon is already
  * running so URL/path args register the project in the global config the
  * daemon supervises rather than into a fresh cwd-local one.
  */

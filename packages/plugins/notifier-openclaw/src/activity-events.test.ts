@@ -27,8 +27,8 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
     id: "evt-1",
     type: "reaction.escalated",
     priority: "urgent",
-    sessionId: "ao-5",
-    projectId: "ao",
+    sessionId: "cahi-5",
+    projectId: "cahi",
     timestamp: new Date("2026-03-08T12:00:00Z"),
     message: "Reaction escalated",
     data: {},
@@ -61,7 +61,7 @@ describe("notifier.auth_failed (MUST emit)", () => {
         source: "notifier",
         kind: "notifier.auth_failed",
         level: "error",
-        sessionId: "ao-5",
+        sessionId: "cahi-5",
         data: expect.objectContaining({
           plugin: "notifier-openclaw",
           status: 401,
@@ -103,7 +103,7 @@ describe("notifier.unreachable (SHOULD emit)", () => {
           source: "notifier",
           kind: "notifier.unreachable",
           level: "warn",
-          sessionId: "ao-5",
+          sessionId: "cahi-5",
           data: expect.objectContaining({
             plugin: "notifier-openclaw",
             errorMessage: expect.stringContaining(code),

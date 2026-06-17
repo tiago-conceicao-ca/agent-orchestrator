@@ -1,7 +1,7 @@
 /**
  * Orchestrator Prompt Generator - generates orchestrator prompt content.
  *
- * This is injected via `ao start` to provide orchestrator-specific context
+ * This is injected via `cahi start` to provide orchestrator-specific context
  * when the orchestrator agent runs.
  */
 

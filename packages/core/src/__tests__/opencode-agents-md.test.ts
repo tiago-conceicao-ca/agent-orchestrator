@@ -8,7 +8,7 @@ import {
 } from "../opencode-agents-md.js";
 
 describe("opencode-agents-md", () => {
-  const root = mkdtempSync(join(tmpdir(), "ao-opencode-agents-md-"));
+  const root = mkdtempSync(join(tmpdir(), "cahi-opencode-agents-md-"));
 
   afterEach(() => {
     rmSync(root, { recursive: true, force: true });
@@ -46,7 +46,7 @@ describe("opencode-agents-md", () => {
     );
   });
 
-  it("replaces only the existing AO block when rewriting", () => {
+  it("replaces only the existing CAHI block when rewriting", () => {
     const workspacePath = join(root, "workspace");
     mkdirSync(workspacePath, { recursive: true });
     writeFileSync(

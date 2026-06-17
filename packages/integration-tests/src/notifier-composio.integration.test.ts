@@ -128,7 +128,7 @@ describe("notifier-composio integration", () => {
           version: "20260506_01",
           arguments: expect.objectContaining({
             recipient_email: "admin@example.com",
-            subject: "[AO] Session Spawned: app-1",
+            subject: "[CAHI] Session Spawned: app-1",
             is_html: true,
           }),
         }),

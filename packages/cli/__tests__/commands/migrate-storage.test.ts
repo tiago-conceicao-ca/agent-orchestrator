@@ -26,7 +26,7 @@ import { registerMigrateStorage } from "../../src/commands/migrate-storage.js";
 const recordedEvents = (): Array<Record<string, unknown>> =>
   vi.mocked(AoCore.recordActivityEvent).mock.calls.map((c) => c[0] as Record<string, unknown>);
 
-describe("ao migrate-storage — activity events", () => {
+describe("cahi migrate-storage — activity events", () => {
   let program: Command;
   let exitSpy: ReturnType<typeof vi.spyOn>;
   let consoleErrSpy: ReturnType<typeof vi.spyOn>;
@@ -69,7 +69,7 @@ describe("ao migrate-storage — activity events", () => {
       return { projects: 1 };
     });
 
-    await program.parseAsync(["node", "ao", "migrate-storage", "--dry-run", "--force"]);
+    await program.parseAsync(["node", "cahi", "migrate-storage", "--dry-run", "--force"]);
 
     expect(mockMigrateStorage).toHaveBeenCalledOnce();
   });
@@ -77,7 +77,7 @@ describe("ao migrate-storage — activity events", () => {
   it("emits cli.migration_failed when migrateStorage throws", async () => {
     mockMigrateStorage.mockRejectedValue(new Error("disk full"));
 
-    await program.parseAsync(["node", "ao", "migrate-storage"]);
+    await program.parseAsync(["node", "cahi", "migrate-storage"]);
 
     const events = recordedEvents();
     expect(events).toContainEqual(
@@ -96,7 +96,7 @@ describe("ao migrate-storage — activity events", () => {
   it("emits cli.migration_failed when rollbackStorage throws", async () => {
     mockRollbackStorage.mockRejectedValue(new Error("rollback boom"));
 
-    await program.parseAsync(["node", "ao", "migrate-storage", "--rollback"]);
+    await program.parseAsync(["node", "cahi", "migrate-storage", "--rollback"]);
 
     const events = recordedEvents();
     expect(events).toContainEqual(

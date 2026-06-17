@@ -91,7 +91,7 @@ export function resolveScriptPath(scriptName: string): string {
 // Common Git Bash install locations on Windows. WSL's bash.exe is intentionally
 // excluded: when invoked from Windows-native Node, the spawned WSL bash sees
 // Linux paths (/mnt/c/...) while cwd is a Windows path (D:\...), which silently
-// breaks repo scripts. Users on WSL run `ao` as a Linux process anyway, where
+// breaks repo scripts. Users on WSL run `cahi` as a Linux process anyway, where
 // process.platform === "linux" and this branch never executes.
 const WINDOWS_BASH_CANDIDATES = [
   "C:\\Program Files\\Git\\bin\\bash.exe",

@@ -701,7 +701,7 @@ describe("Config Validation - External Plugin Schema", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
             teamId: "TEAM-123",
           },
         },
@@ -711,7 +711,7 @@ describe("Config Validation - External Plugin Schema", () => {
     const validated = validateConfig(config);
     // Plugin name should be auto-generated from package
     expect(validated.projects.proj1.tracker?.plugin).toBe("jira");
-    expect(validated.projects.proj1.tracker?.package).toBe("@acme/ao-plugin-tracker-jira");
+    expect(validated.projects.proj1.tracker?.package).toBe("@acme/cahi-plugin-tracker-jira");
   });
 
   it("accepts tracker with path only (local plugin)", () => {
@@ -743,7 +743,7 @@ describe("Config Validation - External Plugin Schema", () => {
           defaultBranch: "main",
           tracker: {
             plugin: "jira",
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -751,7 +751,7 @@ describe("Config Validation - External Plugin Schema", () => {
 
     const validated = validateConfig(config);
     expect(validated.projects.proj1.tracker?.plugin).toBe("jira");
-    expect(validated.projects.proj1.tracker?.package).toBe("@acme/ao-plugin-tracker-jira");
+    expect(validated.projects.proj1.tracker?.package).toBe("@acme/cahi-plugin-tracker-jira");
   });
 
   it("rejects tracker with neither plugin nor package/path", () => {
@@ -779,7 +779,7 @@ describe("Config Validation - External Plugin Schema", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
             path: "./plugins/my-tracker",
           },
         },
@@ -797,7 +797,7 @@ describe("Config Validation - External Plugin Schema", () => {
           repo: "org/test",
           defaultBranch: "main",
           scm: {
-            package: "@acme/ao-plugin-scm-bitbucket",
+            package: "@acme/cahi-plugin-scm-bitbucket",
           },
         },
       },
@@ -818,7 +818,7 @@ describe("Config Validation - External Plugin Schema", () => {
       },
       notifiers: {
         teams: {
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
           webhookUrl: "https://teams.webhook.url",
         },
       },
@@ -826,7 +826,7 @@ describe("Config Validation - External Plugin Schema", () => {
 
     const validated = validateConfig(config);
     expect(validated.notifiers["teams"]?.plugin).toBe("teams");
-    expect(validated.notifiers["teams"]?.package).toBe("@acme/ao-plugin-notifier-teams");
+    expect(validated.notifiers["teams"]?.package).toBe("@acme/cahi-plugin-notifier-teams");
   });
 
   it("preserves plugin-specific config alongside package", () => {
@@ -837,7 +837,7 @@ describe("Config Validation - External Plugin Schema", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
             host: "https://jira.company.com",
             teamId: "TEAM-123",
           },
@@ -864,7 +864,7 @@ describe("collectExternalPluginConfigs", () => {
           defaultBranch: "main",
           tracker: {
             plugin: "jira",
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -877,7 +877,7 @@ describe("collectExternalPluginConfigs", () => {
       source: "projects.proj1.tracker",
       location: { kind: "project", projectId: "proj1", configType: "tracker" },
       slot: "tracker",
-      package: "@acme/ao-plugin-tracker-jira",
+      package: "@acme/cahi-plugin-tracker-jira",
       expectedPluginName: "jira", // User explicitly specified plugin - will be validated
     });
   });
@@ -921,7 +921,7 @@ describe("collectExternalPluginConfigs", () => {
       },
       notifiers: {
         teams: {
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
         },
       },
     });
@@ -933,7 +933,7 @@ describe("collectExternalPluginConfigs", () => {
       source: "notifiers.teams",
       location: { kind: "notifier", notifierId: "teams" },
       slot: "notifier",
-      package: "@acme/ao-plugin-notifier-teams",
+      package: "@acme/cahi-plugin-notifier-teams",
     });
     // expectedPluginName should be undefined when plugin is not explicitly specified
     expect(entries[0].expectedPluginName).toBeUndefined();
@@ -947,7 +947,7 @@ describe("collectExternalPluginConfigs", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
           scm: {
             path: "./plugins/my-scm",
@@ -956,7 +956,7 @@ describe("collectExternalPluginConfigs", () => {
       },
       notifiers: {
         teams: {
-          package: "@acme/ao-plugin-notifier-teams",
+          package: "@acme/cahi-plugin-notifier-teams",
         },
       },
     });
@@ -996,7 +996,7 @@ describe("collectExternalPluginConfigs", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -1007,7 +1007,7 @@ describe("collectExternalPluginConfigs", () => {
     expect(config.plugins).toContainEqual(
       expect.objectContaining({
         source: "npm",
-        package: "@acme/ao-plugin-tracker-jira",
+        package: "@acme/cahi-plugin-tracker-jira",
         enabled: true,
       }),
     );
@@ -1022,7 +1022,7 @@ describe("collectExternalPluginConfigs", () => {
           defaultBranch: "main",
           tracker: {
             plugin: "jira",
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -1046,7 +1046,7 @@ describe("External Plugin Name Generation", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -1063,7 +1063,7 @@ describe("External Plugin Name Generation", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "ao-plugin-tracker-jira",
+            package: "cahi-plugin-tracker-jira",
           },
         },
       },
@@ -1115,7 +1115,7 @@ describe("External Plugin Name Generation", () => {
           defaultBranch: "main",
           tracker: {
             plugin: "my-custom-name",
-            package: "@acme/ao-plugin-tracker-jira",
+            package: "@acme/cahi-plugin-tracker-jira",
           },
         },
       },
@@ -1150,7 +1150,7 @@ describe("External Plugin Name Generation", () => {
           repo: "org/test",
           defaultBranch: "main",
           tracker: {
-            package: "@acme/ao-plugin-tracker-jira-cloud",
+            package: "@acme/cahi-plugin-tracker-jira-cloud",
           },
         },
       },
@@ -1168,7 +1168,7 @@ describe("External Plugin Name Generation", () => {
           repo: "org/test",
           defaultBranch: "main",
           scm: {
-            package: "ao-plugin-scm-azure-devops",
+            package: "cahi-plugin-scm-azure-devops",
           },
         },
       },

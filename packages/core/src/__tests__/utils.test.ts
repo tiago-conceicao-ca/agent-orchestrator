@@ -19,7 +19,7 @@ describe("readLastJsonlEntry", () => {
   });
 
   function setup(content: string): string {
-    tmpDir = mkdtempSync(join(tmpdir(), "ao-utils-test-"));
+    tmpDir = mkdtempSync(join(tmpdir(), "cahi-utils-test-"));
     const filePath = join(tmpDir, "test.jsonl");
     writeFileSync(filePath, content, "utf-8");
     return filePath;
@@ -31,7 +31,7 @@ describe("readLastJsonlEntry", () => {
   });
 
   it("returns null for nonexistent file", async () => {
-    expect(await readLastJsonlEntry("/tmp/nonexistent-ao-test.jsonl")).toBeNull();
+    expect(await readLastJsonlEntry("/tmp/nonexistent-cahi-test.jsonl")).toBeNull();
   });
 
   it("reads last entry type from single-line JSONL", async () => {

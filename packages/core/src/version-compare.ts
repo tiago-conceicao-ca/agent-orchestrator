@@ -1,5 +1,5 @@
 /**
- * Channel-aware semver comparison for the AO release pipeline.
+ * Channel-aware semver comparison for the CAHI release pipeline.
  *
  * Lives in core (not the CLI) because both the CLI's update-check and the
  * dashboard's `/api/version` route compare versions and must stay in lockstep.
@@ -94,7 +94,7 @@ function parseVersion(version: string): { parts: number[]; prerelease: string | 
  *     mismatch here means the installed copy is behind by construction —
  *     return -1 unconditionally for non-numeric differences so the update
  *     banner surfaces. (Caveat: this would over-fire if a user manually
- *     installed `0.5.0-beta` when the registry only has `0.5.0-alpha`. AO's
+ *     installed `0.5.0-beta` when the registry only has `0.5.0-alpha`. CAHI's
  *     release pipeline only emits SHA-suffixed nightly prereleases, so the
  *     scenario doesn't occur in practice.)
  */

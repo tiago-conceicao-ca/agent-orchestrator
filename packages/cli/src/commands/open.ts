@@ -43,23 +43,23 @@ function spawnDetached(cmd: string, args: string[]): boolean {
 }
 
 /**
- * Open a new attached console window running `ao session attach <id>`.
+ * Open a new attached console window running `cahi session attach <id>`.
  * Tries Windows Terminal first (matches the iTerm-tab feel on Mac), falls
  * back to a plain `cmd /k` window which works on every Windows install.
  *
- * Both paths route through `cmd /k` rather than invoking `ao` directly:
+ * Both paths route through `cmd /k` rather than invoking `cahi` directly:
  * `wt new-tab` and `start` both call CreateProcess on the first token, and
- * CreateProcess does not honor PATHEXT — so `ao` (really `ao.cmd`, an npm
+ * CreateProcess does not honor PATHEXT — so `cahi` (really `cahi.cmd`, an npm
  * shim) is reported as ERROR_FILE_NOT_FOUND (0x80070002). Letting cmd.exe
  * be the first token lets it do the .cmd resolution.
  *
  * `cwd` should be the project directory (where cahi.yaml lives)
- * so the spawned `ao session attach` can resolve config via loadConfig's
+ * so the spawned `cahi session attach` can resolve config via loadConfig's
  * upward search. Without it the new console inherits the user's homedir and
  * attach fails with "No cahi.yaml found".
  */
 function openWindowsConsole(sessionId: string, cwd: string | undefined): boolean {
-  const title = `ao:${sessionId}`;
+  const title = `cahi:${sessionId}`;
   const inner = ["cahi", "session", "attach", sessionId];
 
   const wtArgs = ["-w", "0", "new-tab", "--title", title];
@@ -124,7 +124,7 @@ export function registerOpen(program: Command): void {
       if (!running && !opts.browser) {
         console.log(
           chalk.dim(
-            "Note: AO daemon does not appear to be running — dashboard URL fallback may not load.",
+            "Note: CAHI daemon does not appear to be running — dashboard URL fallback may not load.",
           ),
         );
       }
@@ -173,7 +173,7 @@ export function registerOpen(program: Command): void {
             continue;
           }
         } else if (isWindows()) {
-          // The spawned `ao session attach` does loadConfig() which searches
+          // The spawned `cahi session attach` does loadConfig() which searches
           // upward from cwd for cahi.yaml. Anchor the new
           // console at the project's path (where the yaml lives); if that
           // isn't in config, fall back to the worktree (yaml may live in a

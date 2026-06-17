@@ -123,7 +123,7 @@ describe("killExistingDaemon", () => {
     mockWaitForExit.mockResolvedValueOnce(false);
     mockWaitForExit.mockResolvedValueOnce(false);
     await expect(killExistingDaemon(fakeRunning)).rejects.toThrow(
-      /Failed to stop AO process \(PID 12345\)/,
+      /Failed to stop CAHI process \(PID 12345\)/,
     );
     expect(mockUnregister).not.toHaveBeenCalled();
   });

@@ -44,17 +44,17 @@ describe("TestDirectPage", () => {
 
     expect(screen.getByText("DirectTerminal Test - XDA Clipboard Support")).toBeInTheDocument();
     expect(screen.getByText("Testing:")).toBeInTheDocument();
-    expect(screen.getByText("ao-orchestrator")).toBeInTheDocument();
-    expect(screen.getByTestId("direct-terminal")).toHaveTextContent("ao-orchestrator:false");
+    expect(screen.getByText("cahi-orchestrator")).toBeInTheDocument();
+    expect(screen.getByTestId("direct-terminal")).toHaveTextContent("cahi-orchestrator:false");
   });
 
   it("passes session and fullscreen params to the terminal", async () => {
-    searchParams = new URLSearchParams("session=ao-20&fullscreen=true");
+    searchParams = new URLSearchParams("session=cahi-20&fullscreen=true");
     const { default: TestDirectPage } = await import("./page");
 
     render(<TestDirectPage />);
 
-    expect(screen.getByTestId("direct-terminal")).toHaveTextContent("ao-20:true");
+    expect(screen.getByTestId("direct-terminal")).toHaveTextContent("cahi-20:true");
     expect(screen.getByText(/clipboard works without iTerm2 attachment/i)).toBeInTheDocument();
   });
 });

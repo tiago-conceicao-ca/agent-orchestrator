@@ -19,7 +19,7 @@ const PLAN_OUTPUT_INSTRUCTION =
   `(create the \`.cahi\` directory if it does not exist).`;
 
 /**
- * Build the lens-gate runner that evaluates a plan in a real, interactive AO
+ * Build the lens-gate runner that evaluates a plan in a real, interactive CAHI
  * worker session. `makeLensGate` passes the lens-labelled phase (`lens:<name>`)
  * via `ctx`; the artifact path is already substituted into `prompt`.
  */
@@ -36,7 +36,7 @@ export function makeSessionLensRunner(sm: SdlcSessionSpawn, timeoutMs?: number):
 }
 
 /**
- * Build the plan-write runner that drafts the tm-style plan in a real AO worker
+ * Build the plan-write runner that drafts the tm-style plan in a real CAHI worker
  * session. Wrapped by `makeInputAdapter`, which appends the Task-Graph hint and
  * retries; this runner spawns one session per attempt.
  */

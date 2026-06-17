@@ -156,7 +156,7 @@ export async function killProcessTree(
   signal: "SIGTERM" | "SIGKILL" = "SIGTERM",
 ): Promise<void> {
   // pid=0 means "current process group" on Unix (-0 === 0 in JS), which would
-  // kill AO itself. pid<0 is never valid. Guard both.
+  // kill CAHI itself. pid<0 is never valid. Guard both.
   if (pid <= 0) return;
   if (isWindows()) {
     // Always use /F (force) on Windows. taskkill without /F sends WM_CLOSE, which

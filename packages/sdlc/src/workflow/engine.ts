@@ -21,7 +21,7 @@ export interface EngineDeps {
    * Optional run-event sink, invoked (best-effort) at every attention-worthy
    * RUN-level transition. Defaults to undefined → no-op, so headless/test runs
    * behave exactly as before. A throwing hook is caught and never alters run
-   * state. The engine imports no AO internals — the wiring owns the side effects.
+   * state. The engine imports no CAHI internals — the wiring owns the side effects.
    */
   onRunEvent?: (event: SdlcRunEvent) => void | Promise<void>;
 }
@@ -119,7 +119,7 @@ export class WorkflowEngine {
   }
 
   /**
-   * Re-spawn a SINGLE task's worker (for `ao sdlc retry`), reusing the persisted
+   * Re-spawn a SINGLE task's worker (for `cahi sdlc retry`), reusing the persisted
    * epic. Idempotent against already-pushed work (the worker resumes/no-ops and
    * signals via the sentinel). Does not restart the run or touch other tasks.
    */

@@ -32,11 +32,11 @@ describe("escapeRegex", () => {
 
 describe("stripHashPrefix", () => {
   it("strips 12-char hex hash prefix", () => {
-    expect(stripHashPrefix("1686e4aaaeaa-ao-145")).toBe("ao-145");
+    expect(stripHashPrefix("1686e4aaaeaa-cahi-145")).toBe("cahi-145");
   });
 
   it("returns plain session ID unchanged", () => {
-    expect(stripHashPrefix("ao-145")).toBe("ao-145");
+    expect(stripHashPrefix("cahi-145")).toBe("cahi-145");
   });
 
   it("returns orchestrator session name unchanged", () => {

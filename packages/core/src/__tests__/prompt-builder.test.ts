@@ -14,7 +14,7 @@ let tmpDir: string;
 let project: ProjectConfig;
 
 beforeEach(() => {
-  tmpDir = join(tmpdir(), `ao-prompt-test-${randomUUID()}`);
+  tmpDir = join(tmpdir(), `cahi-prompt-test-${randomUUID()}`);
   mkdirSync(tmpDir, { recursive: true });
 
   project = {
@@ -84,7 +84,7 @@ describe("buildPrompt split output", () => {
     // No env vars or shell-syntax variants — literal ID only.
     expect(systemPrompt).not.toContain("CAHI_ORCHESTRATOR_SESSION_ID");
     expect(systemPrompt).not.toContain("$env:");
-    expect(systemPrompt).not.toContain("%AO");
+    expect(systemPrompt).not.toContain("%CAHI");
   });
 
   it("renders the same back-channel in the no-repo prompt when orchestrator exists", () => {

@@ -164,7 +164,7 @@ let program: Command;
 let consoleSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-session-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-session-test-"));
   originalHome = process.env["HOME"];
   process.env["HOME"] = tmpDir;
 

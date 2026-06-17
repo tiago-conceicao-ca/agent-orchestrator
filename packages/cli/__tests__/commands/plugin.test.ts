@@ -50,7 +50,7 @@ vi.mock("../../src/commands/setup.js", () => ({
 import { registerPlugin } from "../../src/commands/plugin.js";
 
 const OPENCLAW_PACKAGE = "@contaazul/cahi-plugin-notifier-openclaw";
-const GOOSE_PACKAGE = "@example/ao-plugin-agent-goose";
+const GOOSE_PACKAGE = "@example/cahi-plugin-agent-goose";
 
 function makePlugin(slot: PluginManifest["slot"], name: string): PluginModule {
   return {
@@ -97,7 +97,7 @@ describe("plugin command", () => {
   const storeVersions = new Map<string, string>();
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "ao-plugin-command-test-"));
+    tempDir = mkdtempSync(join(tmpdir(), "cahi-plugin-command-test-"));
     configPath = join(tempDir, "cahi.yaml");
     registryCachePath = join(tempDir, "plugin-registry-cache.json");
     writeConfig(configPath);
@@ -159,7 +159,7 @@ describe("plugin command", () => {
       json: async () => [
         {
           id: "tracker-jira",
-          package: "@example/ao-plugin-tracker-jira",
+          package: "@example/cahi-plugin-tracker-jira",
           slot: "tracker",
           description: "Tracker plugin: Jira issues",
           source: "registry",
@@ -209,7 +209,7 @@ describe("plugin command", () => {
       "--author",
       "Alice",
       "--package-name",
-      "@alice/ao-plugin-notifier-acme-alerts",
+      "@alice/cahi-plugin-notifier-acme-alerts",
       "--non-interactive",
     ]);
 
@@ -222,7 +222,7 @@ describe("plugin command", () => {
       author?: string;
       dependencies?: Record<string, string>;
     };
-    expect(packageJson.name).toBe("@alice/ao-plugin-notifier-acme-alerts");
+    expect(packageJson.name).toBe("@alice/cahi-plugin-notifier-acme-alerts");
     expect(packageJson.author).toBe("Alice");
     expect(packageJson.dependencies?.["@contaazul/cahi-core"]).toBe("^0.2.0");
 
@@ -231,7 +231,7 @@ describe("plugin command", () => {
     expect(entrypoint).toContain('name: "acme-alerts"');
   });
 
-  it("installs a marketplace plugin through the AO-managed store before writing config", async () => {
+  it("installs a marketplace plugin through the CAHI-managed store before writing config", async () => {
     const program = createProgram();
 
     await program.parseAsync(["node", "test", "plugin", "install", "notifier-openclaw"]);

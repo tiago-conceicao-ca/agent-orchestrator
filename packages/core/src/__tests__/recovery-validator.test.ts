@@ -18,7 +18,7 @@ describe("recovery validator", () => {
   });
 
   it("uses role-specific orchestrator agent fallback when metadata is missing agent", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -125,7 +125,7 @@ describe("recovery validator", () => {
   });
 
   it("sets runtimeAlive to false when runtime.isAlive throws an error", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -220,7 +220,7 @@ describe("recovery validator", () => {
   });
 
   it("escalates when runtime and process signals disagree", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -313,7 +313,7 @@ describe("recovery validator", () => {
   });
 
   it("uses agent activity as liveness fallback when process probing says not running", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -406,7 +406,7 @@ describe("recovery validator", () => {
   });
 
   it("keeps terminal metadata unrecoverable even when probes are uncertain", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -477,7 +477,7 @@ describe("recovery validator", () => {
   });
 
   it("recovers healthy sessions even if stale metadata still says detecting", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -569,7 +569,7 @@ describe("recovery validator", () => {
   });
 
   it("treats missing runtime handle plus missing workspace as dead metadata", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });
@@ -640,7 +640,7 @@ describe("recovery validator", () => {
   });
 
   it("respects escalatePartial=false for non-disagreement partial sessions", async () => {
-    rootDir = join(tmpdir(), `ao-recovery-validator-${randomUUID()}`);
+    rootDir = join(tmpdir(), `cahi-recovery-validator-${randomUUID()}`);
     mkdirSync(rootDir, { recursive: true });
     const projectPath = join(rootDir, "project");
     mkdirSync(projectPath, { recursive: true });

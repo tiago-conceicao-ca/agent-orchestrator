@@ -123,11 +123,11 @@ function buildSetupPayload(): Record<string, unknown> {
       type: "setup.webhook",
       priority: "info",
       sessionId: "setup",
-      projectId: "ao",
+      projectId: "cahi",
       timestamp: new Date().toISOString(),
-      message: "AO webhook notifications are ready.",
+      message: "CAHI webhook notifications are ready.",
       data: {
-        source: "ao-setup-webhook",
+        source: "cahi-setup-webhook",
       },
     },
   };
@@ -199,7 +199,7 @@ async function promptWebhookUrl(
 ): Promise<string> {
   const urlInput = await clack.text({
     message: "Webhook URL:",
-    placeholder: "https://example.com/ao-events",
+    placeholder: "https://example.com/cahi-events",
     initialValue,
     validate: (value) => {
       if (!value) return "URL is required";
@@ -526,11 +526,11 @@ export async function runWebhookSetupAction(opts: WebhookSetupOptions): Promise<
   if (!nonInteractive) {
     const clack = await import("@clack/prompts");
     clack.outro(
-      `${chalk.green("Webhook setup complete!")} AO will send notifications to ${resolved.url}.\n` +
-        chalk.dim("  Test it with: ao notify test --to webhook --template basic"),
+      `${chalk.green("Webhook setup complete!")} CAHI will send notifications to ${resolved.url}.\n` +
+        chalk.dim("  Test it with: cahi notify test --to webhook --template basic"),
     );
   } else {
     console.log(chalk.green("\n✓ Webhook setup complete."));
-    console.log(chalk.dim("Test it with: ao notify test --to webhook --template basic"));
+    console.log(chalk.dim("Test it with: cahi notify test --to webhook --template basic"));
   }
 }

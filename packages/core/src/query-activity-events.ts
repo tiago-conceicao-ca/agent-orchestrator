@@ -3,7 +3,7 @@
  *
  * queryActivityEvents: structured filter-based retrieval.
  * searchActivityEvents: FTS5 natural-language search.
- * getActivityEventStats: aggregate counts for `ao events stats`.
+ * getActivityEventStats: aggregate counts for `cahi events stats`.
  */
 
 import { getDb, isActivityEventsFtsEnabled } from "./events-db.js";
@@ -162,7 +162,7 @@ export function searchActivityEvents(rawQuery: string, projectId?: string, limit
 }
 
 /**
- * Aggregate stats for `ao events stats`. Returns null if DB is unavailable.
+ * Aggregate stats for `cahi events stats`. Returns null if DB is unavailable.
  */
 export function getActivityEventStats(): ActivityEventStats | null {
   const db = getDb();

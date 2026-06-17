@@ -10,7 +10,7 @@ import {
 
 // Siblings are configured per project and mounted at spawn (#1095) — sessions
 // are read-only consumers, so this route only lists. Mutations go through
-// PATCH /api/projects/[id] (siblings array) or the `ao session sibling` CLI.
+// PATCH /api/projects/[id] (siblings array) or the `cahi session sibling` CLI.
 
 /** GET /api/sessions/:id/siblings — list a session's mounted siblings (#1095). */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

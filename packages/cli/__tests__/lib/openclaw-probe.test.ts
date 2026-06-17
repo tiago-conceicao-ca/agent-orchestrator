@@ -245,8 +245,8 @@ describe("openclaw-probe", () => {
 
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
       expect(body.message).toContain("Connection test");
-      expect(body.name).toBe("AO");
-      expect(body.sessionKey).toBe("hook:ao:setup-test");
+      expect(body.name).toBe("CAHI");
+      expect(body.sessionKey).toBe("hook:cahi:setup-test");
       expect(body.wakeMode).toBe("now");
       expect(body.deliver).toBe(false);
     });

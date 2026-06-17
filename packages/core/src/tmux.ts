@@ -98,8 +98,8 @@ export async function sendKeys(
     const { join } = await import("node:path");
     const { randomUUID } = await import("node:crypto");
 
-    const bufferName = `ao-${randomUUID().slice(0, 8)}`;
-    const tmpFile = join(tmpdir(), `ao-tmux-${bufferName}.txt`);
+    const bufferName = `cahi-${randomUUID().slice(0, 8)}`;
+    const tmpFile = join(tmpdir(), `cahi-tmux-${bufferName}.txt`);
     writeFileSync(tmpFile, text, { encoding: "utf-8", mode: 0o600 });
 
     try {

@@ -424,7 +424,7 @@ function parseMetricBucketKey(bucketKey: string): { projectId?: string; metric: 
   };
 }
 
-export function createCorrelationId(prefix = "ao"): string {
+export function createCorrelationId(prefix = "cahi"): string {
   return `${prefix}-${randomUUID()}`;
 }
 
@@ -449,7 +449,7 @@ export function createProjectObserver(
       }
     } catch (error) {
       const payload = {
-        source: "ao-observability",
+        source: "cahi-observability",
         timestamp: nowIso(),
         component: normalizedComponent,
         outcome: "failure",
@@ -526,7 +526,7 @@ export function createProjectObserver(
         {
           level,
           payload: {
-            source: "ao-observability",
+            source: "cahi-observability",
             timestamp,
             component: normalizedComponent,
             metric: input.metric,
@@ -588,7 +588,7 @@ export function createProjectObserver(
         {
           level,
           payload: {
-            source: "ao-observability",
+            source: "cahi-observability",
             timestamp,
             component: normalizedComponent,
             operation: input.operation,
@@ -623,7 +623,7 @@ export function createProjectObserver(
         {
           level: input.status === "error" ? "error" : input.status === "warn" ? "warn" : "info",
           payload: {
-            source: "ao-observability",
+            source: "cahi-observability",
             timestamp: updatedAt,
             component: normalizedComponent,
             surface: input.surface,

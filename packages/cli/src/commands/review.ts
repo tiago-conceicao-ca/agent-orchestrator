@@ -91,7 +91,7 @@ function getNextQueuedRun(
 }
 
 export function registerReview(program: Command): void {
-  const review = program.command("review").description("Manage AO-local reviewer runs");
+  const review = program.command("review").description("Manage CAHI-local reviewer runs");
 
   review
     .command("run")
@@ -161,7 +161,7 @@ export function registerReview(program: Command): void {
 
   review
     .command("execute")
-    .description("Execute a queued AO-local reviewer run")
+    .description("Execute a queued CAHI-local reviewer run")
     .argument("[project]", "Project ID (searches all projects if omitted)")
     .option("--run <run>", "Review run ID or reviewer session ID")
     .option("--command <command>", "Shell command to execute as the reviewer")
@@ -219,7 +219,7 @@ export function registerReview(program: Command): void {
 
   review
     .command("send")
-    .description("Send open AO-local review findings to the linked coding worker")
+    .description("Send open CAHI-local review findings to the linked coding worker")
     .argument("<run>", "Review run ID or reviewer session ID")
     .option("-p, --project <project>", "Project ID (searches all projects if omitted)")
     .option("--json", "Output as JSON")
@@ -260,7 +260,7 @@ export function registerReview(program: Command): void {
 
   review
     .command("list")
-    .description("List AO-local reviewer runs")
+    .description("List CAHI-local reviewer runs")
     .argument("[project]", "Project ID (lists all projects if omitted)")
     .option("--json", "Output as JSON")
     .action(async (projectId: string | undefined, opts: { json?: boolean }) => {

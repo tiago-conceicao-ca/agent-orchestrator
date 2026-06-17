@@ -187,7 +187,7 @@ async function discoverOpenCodeSessionIdsByTitle(
   sessionListPromise?: Promise<OpenCodeSessionListEntry[]>,
 ): Promise<string[]> {
   const sessions = await (sessionListPromise ?? fetchOpenCodeSessionList(timeoutMs));
-  const title = `AO:${sessionId}`;
+  const title = `CAHI:${sessionId}`;
   return sessions
     .filter((entry) => entry.title === title)
     .sort((a, b) => {
@@ -1658,7 +1658,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
       // itself is the session's writable repo.
       // Load the GLOBAL registered-projects catalog once for this spawn and
       // reuse it across every per-sibling resolution (cache per spawn). This is
-      // what lets a globally-registered sibling resolve even when AO was started
+      // what lets a globally-registered sibling resolve even when CAHI was started
       // from a single-project local config.
       const siblingCatalog = loadGlobalProjectCatalog();
       // An attaching SDLC pass reuses the worktree (+ adjacency) the owning pass
@@ -1670,7 +1670,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
           // (unregistered or removed) must NOT brick the spawn — the previous
           // hard-fail rolled the whole spawn back, taking down every session for
           // the project. Skip it, let the spawn proceed, and record a prominent
-          // warning naming the offender so the dashboard / ao status surfaces it
+          // warning naming the offender so the dashboard / cahi status surfaces it
           // and the user can fix the config. Valid siblings still mount below.
           recordActivityEvent({
             projectId: spawnConfig.projectId,
@@ -2026,7 +2026,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
     }
 
     // Get agent launch config — uses systemPromptFile, no issue/tracker interaction.
-    // Orchestrator ALWAYS gets permissionless mode — it must run ao CLI commands autonomously.
+    // Orchestrator ALWAYS gets permissionless mode — it must run cahi CLI commands autonomously.
     const agentLaunchConfig = {
       sessionId,
       projectConfig: {
@@ -3720,7 +3720,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
         updateMetadata(sessionsDir, sessionId, {
           restoreFallbackReason: reason,
         });
-        // Surface that AO fell back to a fresh launch instead of native restore.
+        // Surface that CAHI fell back to a fresh launch instead of native restore.
         recordActivityEvent({
           projectId,
           sessionId,
@@ -3845,7 +3845,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
    * Degrades gracefully: returns `{}` when the global config is absent or
    * unreadable, so sibling resolution falls back to `config.projects` only.
    * Loaded fresh by the caller (threaded through `resolveSiblingSource` as
-   * `catalog`) so a project registered AFTER this AO started still resolves —
+   * `catalog`) so a project registered AFTER this CAHI started still resolves —
    * never cached across spawns.
    */
   function loadGlobalProjectCatalog(): Record<string, ProjectConfig> {
@@ -3863,7 +3863,7 @@ export function createSessionManager(deps: SessionManagerDeps): OpenCodeSessionM
    * registered-projects catalog. The catalog is the GLOBAL registry merged with
    * the running `config.projects` — local entries win for the active project,
    * the global registry supplies every other registered project. This is the
-   * root-cause fix: when AO is started from a single-project local config,
+   * root-cause fix: when CAHI is started from a single-project local config,
    * `config.projects` alone does not contain other globally-registered projects,
    * so a sidebar-added global sibling (e.g. taskmaster) would never resolve.
    *

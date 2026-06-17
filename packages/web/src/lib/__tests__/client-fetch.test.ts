@@ -18,8 +18,8 @@ describe("dedupFetch", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const first = dedupFetch("/api/sessions/ao-187");
-    const second = dedupFetch("/api/sessions/ao-187");
+    const first = dedupFetch("/api/sessions/cahi-187");
+    const second = dedupFetch("/api/sessions/cahi-187");
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -37,8 +37,8 @@ describe("dedupFetch", () => {
       .mockResolvedValueOnce(new Response("{}", { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await dedupFetch("/api/sessions/ao-187");
-    await dedupFetch("/api/sessions/ao-187");
+    await dedupFetch("/api/sessions/cahi-187");
+    await dedupFetch("/api/sessions/cahi-187");
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -51,8 +51,8 @@ describe("dedupFetch", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await Promise.all([
-      dedupFetch("/api/sessions/ao-187", { headers: { Accept: "application/json" } }),
-      dedupFetch("/api/sessions/ao-187", { headers: { Accept: "text/plain" } }),
+      dedupFetch("/api/sessions/cahi-187", { headers: { Accept: "application/json" } }),
+      dedupFetch("/api/sessions/cahi-187", { headers: { Accept: "text/plain" } }),
     ]);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -72,7 +72,7 @@ describe("dedupFetch", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const request = dedupFetch("/api/sessions/ao-187", { signal: controller.signal });
+    const request = dedupFetch("/api/sessions/cahi-187", { signal: controller.signal });
     controller.abort();
 
     await expect(request).rejects.toMatchObject({ name: "AbortError" });
@@ -93,7 +93,7 @@ describe("dedupFetch", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const request = fetchJsonWithTimeout("/api/sessions/ao-187", {
+    const request = fetchJsonWithTimeout("/api/sessions/cahi-187", {
       timeoutMs: 100,
       timeoutMessage: "session timed out",
     });

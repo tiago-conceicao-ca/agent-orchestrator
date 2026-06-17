@@ -55,7 +55,7 @@ const COLUMN_HINTS: Record<ReviewBoardColumn, string> = {
   reviewing: "A reviewer is reading a snapshot.",
   triage: "Findings need a human decision.",
   waiting: "Feedback is with the coding worker.",
-  clean: "No open AO findings remain.",
+  clean: "No open CAHI findings remain.",
   failed: "Reviewer runs that need retry or inspection.",
   outdated: "Runs superseded by newer worker commits.",
 };
@@ -695,14 +695,14 @@ function ReviewDashboardInner({
                   {projectName ? `${projectName} Reviews` : "Reviews"}
                 </h1>
                 <p className="dashboard-main__subtitle">
-                  AO-local reviewer runs, findings, and worker handoffs
+                  CAHI-local reviewer runs, findings, and worker handoffs
                   {allProjectsView ? " across all projects" : " for this project"}.
                 </p>
               </div>
               <div className="dashboard-stat-cards dashboard-stat-cards--persist-mobile">
                 <ReviewMetric label="Runs" value={reviewRuns.length} meta="Total review runs" />
                 <ReviewMetric label="Active" value={activeRunCount} meta="Open review loops" />
-                <ReviewMetric label="Findings" value={openFindingCount} meta="Open AO findings" />
+                <ReviewMetric label="Findings" value={openFindingCount} meta="Open CAHI findings" />
               </div>
             </div>
 
@@ -863,7 +863,7 @@ function ReviewCard({
   const secondaryText =
     run.summary ??
     (run.status === "clean"
-      ? "Reviewer completed without open AO findings."
+      ? "Reviewer completed without open CAHI findings."
       : `Review requested for ${run.linkedSessionId}.`);
   const truthLine = `${status} · ${totalFindingLabel}${
     run.dismissedFindingCount > 0 ? ` · ${pluralize(run.dismissedFindingCount, "dismissed")}` : ""

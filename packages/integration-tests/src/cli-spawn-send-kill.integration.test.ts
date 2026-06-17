@@ -26,7 +26,7 @@ import { sleep } from "./helpers/polling.js";
 
 const execFileAsync = promisify(execFile);
 
-const SESSION_PREFIX = "ao-inttest-cli-";
+const SESSION_PREFIX = "cahi-inttest-cli-";
 
 const tmuxOk = await isTmuxAvailable();
 
@@ -36,7 +36,7 @@ describe.skipIf(!tmuxOk)("CLI spawn-send-kill workflow (integration)", () => {
 
   beforeAll(async () => {
     await killSessionsByPrefix(SESSION_PREFIX);
-    const raw = await mkdtemp(join(tmpdir(), "ao-inttest-cli-"));
+    const raw = await mkdtemp(join(tmpdir(), "cahi-inttest-cli-"));
     tmpDir = await realpath(raw);
   }, 30_000);
 
@@ -101,7 +101,7 @@ describe.skipIf(!tmuxOk)("CLI metadata integration (integration)", () => {
   let tmpDir: string;
 
   beforeAll(async () => {
-    const raw = await mkdtemp(join(tmpdir(), "ao-inttest-meta-"));
+    const raw = await mkdtemp(join(tmpdir(), "cahi-inttest-meta-"));
     tmpDir = await realpath(raw);
   }, 10_000);
 

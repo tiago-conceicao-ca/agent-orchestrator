@@ -11,8 +11,8 @@ function makeProjects(): Record<string, ProjectConfig> {
     "cahi": {
       ...baseProject,
       name: "CAHI",
-      path: "/tmp/ao",
-      sessionPrefix: "ao",
+      path: "/tmp/cahi",
+      sessionPrefix: "cahi",
     },
     "x402-identity": {
       ...baseProject,

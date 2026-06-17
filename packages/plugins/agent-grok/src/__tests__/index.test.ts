@@ -191,11 +191,11 @@ describe("getLaunchCommand", () => {
     const cmd = agent.getLaunchCommand(
       makeLaunchConfig({
         model: "grok-4.1",
-        systemPromptFile: "/tmp/ao prompt.md",
+        systemPromptFile: "/tmp/cahi prompt.md",
       }),
     );
     expect(cmd).toBe(
-      "grok --no-alt-screen --worktree --model 'grok-4.1' --rules '@/tmp/ao prompt.md'",
+      "grok --no-alt-screen --worktree --model 'grok-4.1' --rules '@/tmp/cahi prompt.md'",
     );
   });
 
@@ -228,7 +228,7 @@ describe("getLaunchCommand", () => {
 describe("getEnvironment", () => {
   const agent = create();
 
-  it("writes AO session keys and leaves shared wrapper paths to session-manager", () => {
+  it("writes CAHI session keys and leaves shared wrapper paths to session-manager", () => {
     const env = agent.getEnvironment(makeLaunchConfig());
     expect(env["CAHI_SESSION_ID"]).toBe("sess-1");
     expect(env["CAHI_ISSUE_ID"]).toBeUndefined();
@@ -501,13 +501,13 @@ describe("workspace hooks", () => {
     });
 
     await agent.postLaunchSetup?.(
-      makeSession({ workspacePath: "/workspace/test", runtimeHandle: makeTmuxHandle("ao-smoke") }),
+      makeSession({ workspacePath: "/workspace/test", runtimeHandle: makeTmuxHandle("cahi-smoke") }),
     );
 
     expect(mockSetupPathWrapperWorkspace).toHaveBeenCalledWith("/workspace/test");
     expect(mockExecFileAsync).toHaveBeenCalledWith(
       "tmux",
-      ["capture-pane", "-t", "ao-smoke", "-p", "-S", "-120"],
+      ["capture-pane", "-t", "cahi-smoke", "-p", "-S", "-120"],
       { timeout: 5_000 },
     );
   });

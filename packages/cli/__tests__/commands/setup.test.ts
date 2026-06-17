@@ -85,8 +85,8 @@ function testHttpsUrl(hostParts: string[], path: string): string {
   return `https://${hostParts.join(".")}${path}`;
 }
 
-const EXAMPLE_WEBHOOK_URL = testHttpsUrl(["example", "com"], "/ao-events");
-const NEW_EXAMPLE_WEBHOOK_URL = testHttpsUrl(["new", "example", "com"], "/ao-events");
+const EXAMPLE_WEBHOOK_URL = testHttpsUrl(["example", "com"], "/cahi-events");
+const NEW_EXAMPLE_WEBHOOK_URL = testHttpsUrl(["new", "example", "com"], "/cahi-events");
 const SLACK_SECRET_WEBHOOK_URL = testHttpsUrl(
   ["hooks", "slack", "com"],
   "/services/T000/B000/secret",
@@ -425,7 +425,7 @@ describe("setup composio command", () => {
 
     await program.parseAsync(["node", "test", "setup", "composio"]);
 
-    expect(mockClack.intro).toHaveBeenCalledWith("AO Composio notifier setup");
+    expect(mockClack.intro).toHaveBeenCalledWith("CAHI Composio notifier setup");
     expect(mockClack.select).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
@@ -588,7 +588,7 @@ notifiers:
     defaultApp: discord
     mode: webhook
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     webhookUrl: https://discord.com/api/webhooks/old/webhook-token
     connectedAccountId: ca_discord_existing
 projects:
@@ -615,7 +615,7 @@ projects:
     };
     expect(parsed.notifiers?.["composio"]).toMatchObject({
       webhookUrl: "https://discord.com/api/webhooks/old/webhook-token",
-      userId: "ao-existing",
+      userId: "cahi-existing",
       connectedAccountId: "ca_discord_existing",
     });
   });
@@ -656,7 +656,7 @@ notifiers:
     plugin: composio
     defaultApp: slack
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     channelName: agents
     connectedAccountId: ca_slack_old
     emailTo: old@example.com
@@ -687,7 +687,7 @@ projects:
       defaultApp: "discord",
       mode: "webhook",
       webhookUrl: "https://discord.com/api/webhooks/333/webhook-token",
-      userId: "ao-existing",
+      userId: "cahi-existing",
       connectedAccountId: "ca_discord_123",
     });
     expect(parsed.notifiers?.["composio"]?.channelName).toBeUndefined();
@@ -705,7 +705,7 @@ notifiers:
     defaultApp: discord
     mode: webhook
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     webhookUrl: https://discord.com/api/webhooks/old/webhook-token
     channelName: stale-channel
     emailTo: old@example.com
@@ -742,7 +742,7 @@ projects:
       credentials: { token: "bot-token" },
     });
     expect(mockConnectedAccountsInitiate).toHaveBeenCalledWith(
-      "ao-existing",
+      "cahi-existing",
       "auth_discord_created",
       {
         allowMultiple: true,
@@ -766,7 +766,7 @@ projects:
       defaultApp: "discord",
       mode: "bot",
       channelId: "1234567890",
-      userId: "ao-existing",
+      userId: "cahi-existing",
       connectedAccountId: "ca_discord_123",
       toolVersion: "20260429_01",
     });
@@ -786,7 +786,7 @@ notifiers:
     defaultApp: discord
     mode: bot
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     channelId: "1234567890"
     connectedAccountId: ca_discord_existing
 projects:
@@ -822,7 +822,7 @@ projects:
       mode: "bot",
       channelId: "1234567890",
       connectedAccountId: "ca_discord_existing",
-      userId: "ao-existing",
+      userId: "cahi-existing",
     });
   });
 
@@ -835,7 +835,7 @@ notifiers:
     defaultApp: discord
     mode: webhook
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     webhookUrl: https://discord.com/api/webhooks/old/webhook-token
     channelName: stale-channel
 projects:
@@ -876,7 +876,7 @@ projects:
     await program.parseAsync(["node", "test", "setup", "composio"]);
 
     expect(mockConnectedAccountsList).toHaveBeenCalledWith({
-      userIds: ["ao-existing"],
+      userIds: ["cahi-existing"],
       toolkitSlugs: ["gmail"],
       statuses: ["ACTIVE"],
       limit: 25,
@@ -890,7 +890,7 @@ projects:
       plugin: "composio",
       defaultApp: "gmail",
       emailTo: "admin@example.com",
-      userId: "ao-existing",
+      userId: "cahi-existing",
       connectedAccountId: "ca_gmail_123",
       toolVersion: "20260506_01",
     });
@@ -908,7 +908,7 @@ notifiers:
     plugin: composio
     defaultApp: gmail
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     emailTo: admin@example.com
     connectedAccountId: ca_gmail_existing
 projects:
@@ -945,7 +945,7 @@ projects:
       defaultApp: "gmail",
       emailTo: "admin@example.com",
       connectedAccountId: "ca_gmail_existing",
-      userId: "ao-existing",
+      userId: "cahi-existing",
     });
   });
 
@@ -1013,7 +1013,7 @@ notifiers:
     plugin: composio
     defaultApp: gmail
     composioApiKey: ak_existing
-    userId: ao-existing
+    userId: cahi-existing
     emailTo: admin@example.com
     connectedAccountId: ca_gmail_bad
 projects:
@@ -1319,7 +1319,7 @@ notifiers:
       "--api-key",
       "ak_test",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--channel",
       "iamasx",
       "--non-interactive",
@@ -1327,7 +1327,7 @@ notifiers:
 
     expect(mockComposioConstructorOptions).toEqual([{ apiKey: "ak_test" }]);
     expect(mockConnectedAccountsList).toHaveBeenCalledWith({
-      userIds: ["ao-user"],
+      userIds: ["cahi-user"],
       toolkitSlugs: ["slack"],
       statuses: ["ACTIVE"],
       limit: 25,
@@ -1344,7 +1344,7 @@ notifiers:
       plugin: "composio",
       defaultApp: "slack",
       composioApiKey: "ak_test",
-      userId: "ao-user",
+      userId: "cahi-user",
       channelName: "iamasx",
       connectedAccountId: "ca_slack_123",
     });
@@ -1365,7 +1365,7 @@ notifiers:
       "setup",
       "composio",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--non-interactive",
     ]);
 
@@ -1437,14 +1437,14 @@ notifiers:
       "--api-key",
       "ak_test",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--wait-ms",
       "1",
       "--non-interactive",
     ]);
 
     expect(mockAuthConfigsList).toHaveBeenCalledWith({ toolkit: "slack" });
-    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("ao-user", "auth_slack_123", {
+    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("cahi-user", "auth_slack_123", {
       allowMultiple: true,
     });
     expect(mockToolkitsAuthorize).not.toHaveBeenCalled();
@@ -1469,13 +1469,13 @@ notifiers:
       "--api-key",
       "ak_test",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--wait-ms",
       "1",
       "--non-interactive",
     ]);
 
-    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("ao-user", "auth_slack_123", {
+    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("cahi-user", "auth_slack_123", {
       allowMultiple: true,
     });
     expect(mockWriteFileSync).not.toHaveBeenCalled();
@@ -1494,7 +1494,7 @@ notifiers:
       "--api-key",
       "ak_test",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--wait-ms",
       "1",
       "--non-interactive",
@@ -1504,7 +1504,7 @@ notifiers:
       type: "use_composio_managed_auth",
       name: "Slack Auth Config",
     });
-    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("ao-user", "auth_slack_created", {
+    expect(mockConnectedAccountsLink).toHaveBeenCalledWith("cahi-user", "auth_slack_created", {
       allowMultiple: true,
     });
   });
@@ -1763,14 +1763,14 @@ projects:
       "--api-key",
       "ak_test",
       "--user-id",
-      "ao-user",
+      "cahi-user",
       "--email-to",
       "admin@example.com",
       "--non-interactive",
     ]);
 
     expect(mockConnectedAccountsList).toHaveBeenCalledWith({
-      userIds: ["ao-user"],
+      userIds: ["cahi-user"],
       toolkitSlugs: ["gmail"],
       statuses: ["ACTIVE"],
       limit: 25,
@@ -1787,7 +1787,7 @@ projects:
       plugin: "composio",
       defaultApp: "gmail",
       emailTo: "admin@example.com",
-      userId: "ao-user",
+      userId: "cahi-user",
       connectedAccountId: "ca_gmail_123",
       toolVersion: "20260506_01",
       composioApiKey: "ak_test",
@@ -2103,7 +2103,7 @@ describe("setup openclaw command", () => {
       expect(writtenYaml).toContain("${OPENCLAW_HOOKS_TOKEN}");
     });
 
-    it("reads token from OpenClaw config without copying it into AO config", async () => {
+    it("reads token from OpenClaw config without copying it into CAHI config", async () => {
       const openclawConfigPath = join(homedir(), ".openclaw", "openclaw.json");
       mockExistsSync.mockImplementation((path: string) => path === openclawConfigPath);
       mockReadFileSync.mockImplementation((path: string) => {
@@ -2880,7 +2880,7 @@ projects:
     expect(parsed.notifiers?.["desktop"]?.dashboardUrl).toBe("http://localhost:7777");
   });
 
-  it("installs and writes an explicit AO app path", async () => {
+  it("installs and writes an explicit CAHI app path", async () => {
     const customAppPath = "/tmp/custom/Cahi Notifier.app";
     const program = createProgram();
 
@@ -3176,7 +3176,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://old.example.com/ao-events
+    url: https://old.example.com/cahi-events
 projects:
   my-app:
     name: my-app
@@ -3195,7 +3195,7 @@ projects:
     expect(mockClack.text).not.toHaveBeenCalledWith(
       expect.objectContaining({ message: "Webhook URL:" }),
     );
-    expect(mockFetch).toHaveBeenCalledWith("https://old.example.com/ao-events", expect.any(Object));
+    expect(mockFetch).toHaveBeenCalledWith("https://old.example.com/cahi-events", expect.any(Object));
   });
 
   it("interactive setup can add a new webhook URL", async () => {
@@ -3204,7 +3204,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://old.example.com/ao-events
+    url: https://old.example.com/cahi-events
 projects:
   my-app:
     name: my-app
@@ -3221,7 +3221,7 @@ projects:
         message: "How do you want to configure the webhook URL?",
       }),
     );
-    expect(mockFetch).toHaveBeenCalledWith("https://new.example.com/ao-events", expect.any(Object));
+    expect(mockFetch).toHaveBeenCalledWith("https://new.example.com/cahi-events", expect.any(Object));
   });
 
   it("interactive setup can navigate back from adding a new webhook URL", async () => {
@@ -3230,7 +3230,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://old.example.com/ao-events
+    url: https://old.example.com/cahi-events
 projects:
   my-app:
     name: my-app
@@ -3252,7 +3252,7 @@ projects:
     expect(mockClack.text).not.toHaveBeenCalledWith(
       expect.objectContaining({ message: "Webhook URL:" }),
     );
-    expect(mockFetch).toHaveBeenCalledWith("https://old.example.com/ao-events", expect.any(Object));
+    expect(mockFetch).toHaveBeenCalledWith("https://old.example.com/cahi-events", expect.any(Object));
   });
 
   it("interactive setup can be cancelled before writing webhook config", async () => {
@@ -3261,7 +3261,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://old.example.com/ao-events
+    url: https://old.example.com/cahi-events
 projects:
   my-app:
     name: my-app
@@ -3296,7 +3296,7 @@ projects:
     ]);
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://example.com/ao-events",
+      "https://example.com/cahi-events",
       expect.objectContaining({
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -3313,7 +3313,7 @@ projects:
 
     expect(parsed.notifiers?.["webhook"]).toMatchObject({
       plugin: "webhook",
-      url: "https://example.com/ao-events",
+      url: "https://example.com/cahi-events",
     });
     expect(parsed.notifiers?.["webhook"]?.headers).toBeUndefined();
     expect(parsed.notificationRouting?.["urgent"]).toContain("webhook");
@@ -3338,7 +3338,7 @@ projects:
     ]);
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://example.com/ao-events",
+      "https://example.com/cahi-events",
       expect.objectContaining({
         headers: {
           "Content-Type": "application/json",
@@ -3410,7 +3410,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://old.example.com/ao-events
+    url: https://old.example.com/cahi-events
     headers:
       Authorization: Bearer existing-token
     retries: 5
@@ -3441,7 +3441,7 @@ projects:
     };
 
     expect(parsed.notifiers?.["webhook"]).toMatchObject({
-      url: "https://new.example.com/ao-events",
+      url: "https://new.example.com/cahi-events",
       headers: { Authorization: "Bearer existing-token" },
       retries: 5,
       retryDelayMs: 2500,
@@ -3454,7 +3454,7 @@ port: 3000
 notifiers:
   webhook:
     plugin: webhook
-    url: https://example.com/ao-events
+    url: https://example.com/cahi-events
 projects:
   my-app:
     name: my-app
@@ -3543,14 +3543,14 @@ notifiers:
     plugin: slack
     webhookUrl: https://hooks.slack.com/services/TOLD/BOLD/old
     channel: "#old-agents"
-    username: Existing AO
+    username: Existing CAHI
 projects:
   my-app:
     name: my-app
 `);
     Object.defineProperty(process.stdin, "isTTY", { value: true, configurable: true });
     mockClack.select.mockResolvedValue("use-existing");
-    mockClack.text.mockResolvedValueOnce("#agents").mockResolvedValueOnce("AO");
+    mockClack.text.mockResolvedValueOnce("#agents").mockResolvedValueOnce("CAHI");
     const program = createProgram();
 
     await program.parseAsync(["node", "test", "setup", "slack"]);
@@ -3575,7 +3575,7 @@ projects:
     mockClack.text
       .mockResolvedValueOnce(SLACK_SECRET_WEBHOOK_URL)
       .mockResolvedValueOnce("")
-      .mockResolvedValueOnce("AO");
+      .mockResolvedValueOnce("CAHI");
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const program = createProgram();
 
@@ -3607,7 +3607,7 @@ projects:
       .mockResolvedValueOnce("need-url")
       .mockResolvedValueOnce("back")
       .mockResolvedValueOnce("use-existing");
-    mockClack.text.mockResolvedValueOnce("").mockResolvedValueOnce("AO");
+    mockClack.text.mockResolvedValueOnce("").mockResolvedValueOnce("CAHI");
     const program = createProgram();
 
     await program.parseAsync(["node", "test", "setup", "slack"]);
@@ -3642,7 +3642,7 @@ projects:
       .mockResolvedValueOnce("change-url")
       .mockResolvedValueOnce("back")
       .mockResolvedValueOnce("use-existing");
-    mockClack.text.mockResolvedValueOnce("").mockResolvedValueOnce("AO");
+    mockClack.text.mockResolvedValueOnce("").mockResolvedValueOnce("CAHI");
     const program = createProgram();
 
     await program.parseAsync(["node", "test", "setup", "slack"]);
@@ -3705,7 +3705,7 @@ projects:
     };
     expect(payload).toMatchObject({
       username: "CAHI",
-      text: "AO Slack notifications are ready.",
+      text: "CAHI Slack notifications are ready.",
     });
     expect(payload.channel).toBeUndefined();
 
@@ -3743,7 +3743,7 @@ projects:
       "--channel",
       "#agents",
       "--username",
-      "AO",
+      "CAHI",
       "--non-interactive",
     ]);
 
@@ -3752,7 +3752,7 @@ projects:
       channel?: string;
     };
     expect(payload).toMatchObject({
-      username: "AO",
+      username: "CAHI",
       channel: "#agents",
     });
 
@@ -3761,7 +3761,7 @@ projects:
       notifiers?: Record<string, { username?: string; channel?: string }>;
     };
     expect(parsed.notifiers?.["slack"]).toMatchObject({
-      username: "AO",
+      username: "CAHI",
       channel: "#agents",
     });
   });
@@ -3820,7 +3820,7 @@ notifiers:
     plugin: slack
     webhookUrl: https://hooks.slack.com/services/TOLD/BOLD/old
     channel: "#old-agents"
-    username: AO
+    username: CAHI
 projects:
   my-app:
     name: my-app
@@ -3846,7 +3846,7 @@ projects:
     expect(parsed.notifiers?.["slack"]).toMatchObject({
       webhookUrl: "https://hooks.slack.com/services/TNEW/BNEW/new",
       channel: "#old-agents",
-      username: "AO",
+      username: "CAHI",
     });
   });
 
@@ -3940,7 +3940,7 @@ notifiers:
   discord:
     plugin: discord
     webhookUrl: https://discord.com/api/webhooks/existing/secret
-    username: Existing AO
+    username: Existing CAHI
 projects:
   my-app:
     name: my-app
@@ -3948,7 +3948,7 @@ projects:
     Object.defineProperty(process.stdin, "isTTY", { value: true, configurable: true });
     mockClack.select.mockResolvedValue("use-existing");
     mockClack.text
-      .mockResolvedValueOnce("AO")
+      .mockResolvedValueOnce("CAHI")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("2")
@@ -3976,7 +3976,7 @@ projects:
     mockClack.select.mockResolvedValueOnce("need-url").mockResolvedValueOnce("enter-url");
     mockClack.text
       .mockResolvedValueOnce("https://discord.com/api/webhooks/123/secret")
-      .mockResolvedValueOnce("AO")
+      .mockResolvedValueOnce("CAHI")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("2")
@@ -4015,7 +4015,7 @@ projects:
       .mockResolvedValueOnce("back")
       .mockResolvedValueOnce("use-existing");
     mockClack.text
-      .mockResolvedValueOnce("AO")
+      .mockResolvedValueOnce("CAHI")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("2")
@@ -4055,7 +4055,7 @@ projects:
       .mockResolvedValueOnce("back")
       .mockResolvedValueOnce("use-existing");
     mockClack.text
-      .mockResolvedValueOnce("AO")
+      .mockResolvedValueOnce("CAHI")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("")
       .mockResolvedValueOnce("2")
@@ -4122,7 +4122,7 @@ projects:
     };
     expect(payload).toMatchObject({
       username: "CAHI",
-      content: "AO Discord notifications are ready.",
+      content: "CAHI Discord notifications are ready.",
     });
     expect(payload.avatar_url).toBeUndefined();
 
@@ -4169,7 +4169,7 @@ projects:
       "--webhook-url",
       "https://discord.com/api/webhooks/123/secret",
       "--username",
-      "AO",
+      "CAHI",
       "--avatar-url",
       "https://example.com/avatar.png",
       "--thread-id",
@@ -4190,7 +4190,7 @@ projects:
       avatar_url?: string;
     };
     expect(payload).toMatchObject({
-      username: "AO",
+      username: "CAHI",
       avatar_url: "https://example.com/avatar.png",
     });
 
@@ -4208,7 +4208,7 @@ projects:
       >;
     };
     expect(parsed.notifiers?.["discord"]).toMatchObject({
-      username: "AO",
+      username: "CAHI",
       avatarUrl: "https://example.com/avatar.png",
       threadId: "987654321",
       retries: 4,
@@ -4269,7 +4269,7 @@ notifiers:
   discord:
     plugin: discord
     webhookUrl: https://discord.com/api/webhooks/old/old
-    username: AO
+    username: CAHI
     avatarUrl: https://example.com/avatar.png
     threadId: "111"
     retries: 5
@@ -4308,7 +4308,7 @@ projects:
 
     expect(parsed.notifiers?.["discord"]).toMatchObject({
       webhookUrl: "https://discord.com/api/webhooks/new/new",
-      username: "AO",
+      username: "CAHI",
       avatarUrl: "https://example.com/avatar.png",
       threadId: "111",
       retries: 5,

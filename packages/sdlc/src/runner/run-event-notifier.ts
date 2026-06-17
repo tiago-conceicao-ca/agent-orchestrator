@@ -3,13 +3,13 @@
  * {@link SdlcRunEvent} into the same three side-effects a worker session's
  * lifecycle transition produces, so the orchestrator no longer has to poll.
  *
- *   1. Notify the orchestrator session over the `ao send` back-channel.
+ *   1. Notify the orchestrator session over the `cahi send` back-channel.
  *   2. Record an activity event (source `sdlc`) for the dashboard feed.
  *   3. Route an OrchestratorEvent to the project's notifiers by priority.
  *
  * All three are independent and best-effort: one failing never blocks the
  * others or the run. The engine stays pure — this lives in the app wiring
- * (shared by the CLI and the web dashboard) and pulls in the AO internals.
+ * (shared by the CLI and the web dashboard) and pulls in the CAHI internals.
  */
 
 import { randomUUID } from "node:crypto";

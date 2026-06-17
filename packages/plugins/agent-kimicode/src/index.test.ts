@@ -351,7 +351,7 @@ describe("getLaunchCommand", () => {
     expect(cmd).toContain("Go");
   });
 
-  // Worktree-mode parity: when AO runs in worktree workspace mode,
+  // Worktree-mode parity: when CAHI runs in worktree workspace mode,
   // workspacePath (per-session checkout) differs from projectConfig.path
   // (the original repo root). --work-dir must take the workspacePath so
   // kimi's md5(cwd) bucket matches the one session-discovery scans.
@@ -587,7 +587,7 @@ describe("getActivityState", () => {
     expect(result?.state).toBe("exited");
   });
 
-  it("2. returns waiting_input from AO activity JSONL", async () => {
+  it("2. returns waiting_input from CAHI activity JSONL", async () => {
     mockTmuxWithProcess("kimi");
     mockReadLastActivityEntry.mockResolvedValueOnce({
       entry: { ts: new Date().toISOString(), state: "waiting_input", source: "terminal" },
@@ -600,7 +600,7 @@ describe("getActivityState", () => {
     expect(result?.state).toBe("waiting_input");
   });
 
-  it("3. returns blocked from AO activity JSONL", async () => {
+  it("3. returns blocked from CAHI activity JSONL", async () => {
     mockTmuxWithProcess("kimi");
     mockReadLastActivityEntry.mockResolvedValueOnce({
       entry: { ts: new Date().toISOString(), state: "blocked", source: "terminal" },
@@ -630,7 +630,7 @@ describe("getActivityState", () => {
       wireAgeMs: 2 * 60 * 1000,
     });
 
-    // AO session predates the kimi session — the createdAt floor must not
+    // CAHI session predates the kimi session — the createdAt floor must not
     // reject a legitimate mtime that's still within the ready window.
     const result = await agent.getActivityState(
       makeSession({
@@ -708,7 +708,7 @@ describe("getActivityState", () => {
 
   it("ignores UUIDs older than session.createdAt (stray/crash leftovers)", async () => {
     mockTmuxWithProcess("kimi");
-    // A UUID dir that belonged to a previous AO session. Must not attach
+    // A UUID dir that belonged to a previous CAHI session. Must not attach
     // to the current session — its summary/UUID would be wrong.
     writeKimiSession(workspace, "old-leftover", {
       contextAgeMs: 60 * 60 * 1000,
@@ -719,7 +719,7 @@ describe("getActivityState", () => {
       makeSession({
         runtimeHandle: makeTmuxHandle(),
         workspacePath: workspace,
-        // AO session started just now, 60min AFTER the leftover session's
+        // CAHI session started just now, 60min AFTER the leftover session's
         // last activity → leftover fails the createdAt - 60s floor.
         createdAt: new Date(),
       }),
@@ -751,18 +751,18 @@ describe("getActivityState", () => {
   it("first successful match writes the pin file (locks in the recency winner)", async () => {
     const realWorkspace = join(fakeHome, "workspace-pin-write");
     mkdirSync(realWorkspace, { recursive: true });
-    writeKimiSession(realWorkspace, "ao-spawned");
+    writeKimiSession(realWorkspace, "cahi-spawned");
 
     mockTmuxWithProcess("kimi");
     const info = await agent.getSessionInfo(
       makeSession({ workspacePath: realWorkspace }),
     );
-    expect(info?.agentSessionId).toBe("ao-spawned");
+    expect(info?.agentSessionId).toBe("cahi-spawned");
 
     const pin = JSON.parse(
       readFileSync(join(realWorkspace, ".cahi", "kimi-session-id.json"), "utf-8"),
     );
-    expect(pin.sessionId).toBe("ao-spawned");
+    expect(pin.sessionId).toBe("cahi-spawned");
     expect(typeof pin.pinnedAt).toBe("string");
   });
 
@@ -771,13 +771,13 @@ describe("getActivityState", () => {
   it("pin file holds even when a newer non-pinned UUID appears later", async () => {
     const realWorkspace = join(fakeHome, "workspace-pin-stable");
     mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
-    writeKimiSession(realWorkspace, "ao-original", {
+    writeKimiSession(realWorkspace, "cahi-original", {
       contextAgeMs: 2 * 60 * 1000,
       wireAgeMs: 2 * 60 * 1000,
     });
     writeFileSync(
       join(realWorkspace, ".cahi", "kimi-session-id.json"),
-      JSON.stringify({ sessionId: "ao-original", pinnedAt: "2026-04-01T00:00:00.000Z" }),
+      JSON.stringify({ sessionId: "cahi-original", pinnedAt: "2026-04-01T00:00:00.000Z" }),
     );
 
     // A manual kimi run lands a newer UUID in the same bucket.
@@ -788,7 +788,7 @@ describe("getActivityState", () => {
     const info = await agent.getSessionInfo(
       makeSession({ workspacePath: realWorkspace }),
     );
-    expect(info?.agentSessionId).toBe("ao-original");
+    expect(info?.agentSessionId).toBe("cahi-original");
   });
 
   it("negative cache window is short (~2s) — picks up a session that appears mid-poll", async () => {
@@ -818,8 +818,8 @@ describe("getActivityState", () => {
     const realWorkspace = join(fakeHome, "workspace-baseline-1");
     mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
-    writeKimiSession(realWorkspace, "manual-run-uuid"); // pre-AO
-    writeKimiSession(realWorkspace, "ao-launched-uuid"); // post-AO
+    writeKimiSession(realWorkspace, "manual-run-uuid"); // pre-CAHI
+    writeKimiSession(realWorkspace, "cahi-launched-uuid"); // post-CAHI
 
     writeFileSync(
       join(realWorkspace, ".cahi", "kimi-baseline.json"),
@@ -832,7 +832,7 @@ describe("getActivityState", () => {
     const info = await agent.getSessionInfo(
       makeSession({ workspacePath: realWorkspace }),
     );
-    expect(info?.agentSessionId).toBe("ao-launched-uuid");
+    expect(info?.agentSessionId).toBe("cahi-launched-uuid");
   });
 
   it("baseline file: returns null if every UUID was pre-existing", async () => {
@@ -862,20 +862,20 @@ describe("getActivityState", () => {
     const realWorkspace = join(fakeHome, "workspace-baseline-3");
     mkdirSync(realWorkspace, { recursive: true });
 
-    // Pre-existing UUID before AO ever ran.
+    // Pre-existing UUID before CAHI ever ran.
     writeKimiSession(realWorkspace, "pre-existing");
 
     // preLaunchSetup snapshots the bucket — captures "pre-existing" in baseline.
     await agent.preLaunchSetup!(realWorkspace);
 
-    // Later, AO's kimi spawn creates a new UUID dir.
-    writeKimiSession(realWorkspace, "ao-spawned");
+    // Later, CAHI's kimi spawn creates a new UUID dir.
+    writeKimiSession(realWorkspace, "cahi-spawned");
 
     mockTmuxWithProcess("kimi");
     const info = await agent.getSessionInfo(
       makeSession({ workspacePath: realWorkspace }),
     );
-    expect(info?.agentSessionId).toBe("ao-spawned");
+    expect(info?.agentSessionId).toBe("cahi-spawned");
   });
 
   // Regression: captureKimiBaseline used to run in postLaunchSetup, which
@@ -918,10 +918,10 @@ describe("getActivityState", () => {
       JSON.stringify(originalBaseline),
     );
 
-    // Add a UUID that would be in the bucket on restore (the one AO created
+    // Add a UUID that would be in the bucket on restore (the one CAHI created
     // during the original launch). If preLaunchSetup overwrote the baseline
     // here, this UUID would be partitioned out as "pre-existing" — wrong.
-    writeKimiSession(realWorkspace, "ao-created-on-first-launch");
+    writeKimiSession(realWorkspace, "cahi-created-on-first-launch");
 
     await agent.preLaunchSetup!(realWorkspace);
 
@@ -1220,11 +1220,11 @@ describe("getSessionInfo", () => {
     mkdirSync(join(realWorkspace, ".cahi"), { recursive: true });
 
     // "stale-uuid" was left in the bucket and in kimi.json by an earlier
-    // manual run. "ao-spawned" is the UUID kimi created for this AO session.
+    // manual run. "cahi-spawned" is the UUID kimi created for this CAHI session.
     writeKimiSession(realWorkspace, "stale-uuid");
-    writeKimiSession(realWorkspace, "ao-spawned");
+    writeKimiSession(realWorkspace, "cahi-spawned");
 
-    // Baseline (captured by preLaunchSetup) flags "stale-uuid" as pre-AO.
+    // Baseline (captured by preLaunchSetup) flags "stale-uuid" as pre-CAHI.
     writeFileSync(
       join(realWorkspace, ".cahi", "kimi-baseline.json"),
       JSON.stringify({
@@ -1234,7 +1234,7 @@ describe("getSessionInfo", () => {
     );
 
     // kimi.json still points at the stale UUID — kimi-cli hasn't yet
-    // updated last_session_id for the new AO-spawned session.
+    // updated last_session_id for the new CAHI-spawned session.
     writeFileSync(
       join(fakeHome, ".kimi", "kimi.json"),
       JSON.stringify({
@@ -1247,17 +1247,17 @@ describe("getSessionInfo", () => {
     const info = await agent.getSessionInfo(
       makeSession({ workspacePath: realWorkspace }),
     );
-    expect(info?.agentSessionId).toBe("ao-spawned");
+    expect(info?.agentSessionId).toBe("cahi-spawned");
 
-    // And the AO pin file must record "ao-spawned", not "stale-uuid" —
+    // And the CAHI pin file must record "cahi-spawned", not "stale-uuid" —
     // otherwise every later call would resolve to the wrong conversation.
     const pin = JSON.parse(
       readFileSync(join(realWorkspace, ".cahi", "kimi-session-id.json"), "utf-8"),
     );
-    expect(pin.sessionId).toBe("ao-spawned");
+    expect(pin.sessionId).toBe("cahi-spawned");
   });
 
-  // Companion case: kimi.json points at a UUID older than the AO session's
+  // Companion case: kimi.json points at a UUID older than the CAHI session's
   // createdAt. The soft-pin must be filtered by the createdAt floor too.
   it("rejects kimi.json soft-pin when its UUID predates session.createdAt", async () => {
     const realWorkspace = join(fakeHome, "workspace-kimijson-old");
@@ -1396,7 +1396,7 @@ describe("getRestoreCommand", () => {
     expect(result).toBe("kimi --resume 'sess-new'");
   });
 
-  // Worktree-mode end-to-end: AO's workspace plugin gives the session a
+  // Worktree-mode end-to-end: CAHI's workspace plugin gives the session a
   // per-session checkout (workspacePath) different from the project root
   // (projectConfig.path). kimi launched with --work-dir=<workspacePath>
   // hashes that path for its bucket — so discovery must hash the
@@ -1430,7 +1430,7 @@ describe("workspace hooks", () => {
   const agent = create();
 
   it("setupWorkspaceHooks delegates to setupPathWrapperWorkspace", async () => {
-    await agent.setupWorkspaceHooks!("/workspace/test", { dataDir: "/tmp/ao-data", sessionId: "s" });
+    await agent.setupWorkspaceHooks!("/workspace/test", { dataDir: "/tmp/cahi-data", sessionId: "s" });
     expect(mockSetupPathWrapperWorkspace).toHaveBeenCalledWith("/workspace/test");
   });
 

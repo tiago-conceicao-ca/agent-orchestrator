@@ -31,34 +31,34 @@ describe("dashboardUrl", () => {
   });
 
   it("uses CAHI_PUBLIC_URL when set", () => {
-    process.env.CAHI_PUBLIC_URL = "https://ao.example.com";
-    expect(dashboardUrl(3000)).toBe("https://ao.example.com");
+    process.env.CAHI_PUBLIC_URL = "https://cahi.example.com";
+    expect(dashboardUrl(3000)).toBe("https://cahi.example.com");
   });
 
   it("ignores the port argument when CAHI_PUBLIC_URL is set", () => {
-    process.env.CAHI_PUBLIC_URL = "https://ao.example.com";
-    expect(dashboardUrl(3000)).toBe("https://ao.example.com");
-    expect(dashboardUrl(8094)).toBe("https://ao.example.com");
+    process.env.CAHI_PUBLIC_URL = "https://cahi.example.com";
+    expect(dashboardUrl(3000)).toBe("https://cahi.example.com");
+    expect(dashboardUrl(8094)).toBe("https://cahi.example.com");
   });
 
   it("strips a trailing slash from CAHI_PUBLIC_URL", () => {
-    process.env.CAHI_PUBLIC_URL = "https://ao.example.com/";
-    expect(dashboardUrl(3000)).toBe("https://ao.example.com");
+    process.env.CAHI_PUBLIC_URL = "https://cahi.example.com/";
+    expect(dashboardUrl(3000)).toBe("https://cahi.example.com");
   });
 
   it("strips multiple trailing slashes from CAHI_PUBLIC_URL", () => {
-    process.env.CAHI_PUBLIC_URL = "https://ao.example.com///";
-    expect(dashboardUrl(3000)).toBe("https://ao.example.com");
+    process.env.CAHI_PUBLIC_URL = "https://cahi.example.com///";
+    expect(dashboardUrl(3000)).toBe("https://cahi.example.com");
   });
 
   it("preserves a sub-path in CAHI_PUBLIC_URL", () => {
-    process.env.CAHI_PUBLIC_URL = "https://example.com/ao";
-    expect(dashboardUrl(3000)).toBe("https://example.com/ao");
+    process.env.CAHI_PUBLIC_URL = "https://example.com/cahi";
+    expect(dashboardUrl(3000)).toBe("https://example.com/cahi");
   });
 
   it("trims surrounding whitespace from CAHI_PUBLIC_URL", () => {
-    process.env.CAHI_PUBLIC_URL = "  https://ao.example.com  ";
-    expect(dashboardUrl(3000)).toBe("https://ao.example.com");
+    process.env.CAHI_PUBLIC_URL = "  https://cahi.example.com  ";
+    expect(dashboardUrl(3000)).toBe("https://cahi.example.com");
   });
 
   it("supports a non-default port in CAHI_PUBLIC_URL", () => {

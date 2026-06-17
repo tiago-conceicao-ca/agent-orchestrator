@@ -240,7 +240,7 @@ describe("send", () => {
       JSON.stringify([
         {
           id: "ses_send_discovered",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -274,7 +274,7 @@ describe("send", () => {
       JSON.stringify([
         {
           id: "ses_send_discovered_valid",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -311,14 +311,14 @@ describe("send", () => {
         JSON.stringify([
           {
             id: "ses_send_confirmed",
-            title: "AO:app-1",
+            title: "CAHI:app-1",
             updated: "2026-01-01T00:00:00.000Z",
           },
         ]),
         JSON.stringify([
           {
             id: "ses_send_confirmed",
-            title: "AO:app-1",
+            title: "CAHI:app-1",
             updated: "2026-01-01T00:00:05.000Z",
           },
         ]),
@@ -364,7 +364,7 @@ describe("send", () => {
         JSON.stringify([
           {
             id: "ses_send_visibility_only",
-            title: "AO:app-1",
+            title: "CAHI:app-1",
             updated: "2026-01-01T00:00:00.000Z",
           },
         ]),
@@ -428,7 +428,7 @@ describe("remap", () => {
       JSON.stringify([
         {
           id: "ses_fresh",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -460,7 +460,7 @@ describe("remap", () => {
       JSON.stringify([
         {
           id: "ses_slow_discovery",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -503,14 +503,14 @@ describe("remap", () => {
     await expect(sm.remap("app-1")).rejects.toThrow("mapping is missing");
   });
 
-  it("discovers mapping by AO session title and persists it", async () => {
+  it("discovers mapping by CAHI session title and persists it", async () => {
     const deleteLogPath = join(tmpDir, "opencode-delete-remap.log");
     const mockBin = installMockOpencode(
       tmpDir,
       JSON.stringify([
         {
           id: "ses_discovered",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -541,7 +541,7 @@ describe("remap", () => {
       JSON.stringify([
         {
           id: "ses_discovered_valid",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,
@@ -573,7 +573,7 @@ describe("remap", () => {
       JSON.stringify([
         {
           id: "ses_project_agent",
-          title: "AO:app-1",
+          title: "CAHI:app-1",
         },
       ]),
       deleteLogPath,

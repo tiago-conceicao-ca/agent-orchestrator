@@ -112,7 +112,7 @@ describe("project-name fallback discovery", () => {
         "cahi": {
           name: "CAHI",
           path: "/Users/ashishhuddar/cahi",
-          sessionPrefix: "ao",
+          sessionPrefix: "cahi",
         },
       },
       degradedProjects: {},
@@ -155,7 +155,7 @@ describe("project-name fallback discovery", () => {
   });
 
   it("prefers the repo discovered from local config when the dashboard is running from packages/web", async () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-project-name-web-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-project-name-web-"));
     const repoRoot = join(tempRoot, "cahi");
     const webDir = join(repoRoot, "packages", "web");
     mkdirSync(webDir, { recursive: true });
@@ -173,7 +173,7 @@ describe("project-name fallback discovery", () => {
         "cahi": {
           name: "CAHI",
           path: repoRoot,
-          sessionPrefix: "ao",
+          sessionPrefix: "cahi",
         },
       },
       degradedProjects: {},
@@ -184,7 +184,7 @@ describe("project-name fallback discovery", () => {
         "cahi": {
           name: "CAHI",
           path: repoRoot,
-          sessionPrefix: "ao",
+          sessionPrefix: "cahi",
         },
       },
       degradedProjects: {},
@@ -208,7 +208,7 @@ describe("project-name fallback discovery", () => {
   });
 
   it("ignores ambient CAHI_CONFIG_PATH when discovering the local repo project", async () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-project-name-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-project-name-"));
     const repoRoot = join(tempRoot, "cahi");
     const webDir = join(repoRoot, "packages", "web");
     mkdirSync(webDir, { recursive: true });

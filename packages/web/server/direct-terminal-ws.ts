@@ -61,7 +61,7 @@ export function createDirectTerminalServer(tmuxPath?: string | null): DirectTerm
 
   // Manual upgrade routing — ws library doesn't support multiple WebSocketServer
   // instances with different `path` options on the same HTTP server.
-  // `/ao-terminal-mux` is accepted as an alias of `/mux` so deployments fronted
+  // `/cahi-terminal-mux` is accepted as an alias of `/mux` so deployments fronted
   // by a path-routing reverse proxy (e.g. cloudflared, nginx) can forward the
   // dashboard's path-based mux URL straight at this port without needing a
   // path-rewrite rule. The dashboard's MuxProvider already constructs that
@@ -69,7 +69,7 @@ export function createDirectTerminalServer(tmuxPath?: string | null): DirectTerm
   server.on("upgrade", (request, socket, head) => {
     const pathname = new URL(request.url ?? "/", "ws://localhost").pathname;
 
-    if ((pathname === "/mux" || pathname === "/ao-terminal-mux") && muxWss) {
+    if ((pathname === "/mux" || pathname === "/cahi-terminal-mux") && muxWss) {
       muxWss.handleUpgrade(request, socket, head, (ws) => {
         muxWss!.emit("connection", ws, request);
       });

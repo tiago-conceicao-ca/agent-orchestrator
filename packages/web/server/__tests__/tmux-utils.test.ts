@@ -15,14 +15,14 @@ import {
   SESSION_ID_PATTERN,
 } from "../tmux-utils.js";
 
-// Default fs adapter for resolveTmuxSession tests — empty AO base directory
+// Default fs adapter for resolveTmuxSession tests — empty CAHI base directory
 // so the on-disk storageKey lookup always misses and we exercise the
 // tmux-listing fallback. Tests that want to exercise the on-disk lookup
 // path provide their own FsAdapter explicitly.
 const emptyFs = {
   readdir: () => [],
   exists: () => false,
-  homedir: () => "/tmp/ao-test-home-that-does-not-exist",
+  homedir: () => "/tmp/cahi-test-home-that-does-not-exist",
 };
 
 // =============================================================================
@@ -32,13 +32,13 @@ const emptyFs = {
 describe("validateSessionId", () => {
   describe("accepts valid IDs", () => {
     it("accepts simple alphanumeric IDs", () => {
-      expect(validateSessionId("ao-15")).toBe(true);
+      expect(validateSessionId("cahi-15")).toBe(true);
       expect(validateSessionId("ao_orchestrator")).toBe(true);
       expect(validateSessionId("session123")).toBe(true);
     });
 
     it("accepts hash-prefixed IDs", () => {
-      expect(validateSessionId("8474d6f29887-ao-15")).toBe(true);
+      expect(validateSessionId("8474d6f29887-cahi-15")).toBe(true);
       expect(validateSessionId("abcdef123456-my-session")).toBe(true);
     });
 
@@ -61,7 +61,7 @@ describe("validateSessionId", () => {
     });
 
     it("accepts uppercase letters", () => {
-      expect(validateSessionId("AO-15")).toBe(true);
+      expect(validateSessionId("CAHI-15")).toBe(true);
       expect(validateSessionId("MySession")).toBe(true);
       expect(validateSessionId("ALLCAPS")).toBe(true);
     });
@@ -72,12 +72,12 @@ describe("validateSessionId", () => {
     });
 
     it("accepts realistic session names from the orchestrator", () => {
-      expect(validateSessionId("ao-orchestrator")).toBe(true);
-      expect(validateSessionId("ao-1")).toBe(true);
-      expect(validateSessionId("ao-99")).toBe(true);
+      expect(validateSessionId("cahi-orchestrator")).toBe(true);
+      expect(validateSessionId("cahi-1")).toBe(true);
+      expect(validateSessionId("cahi-99")).toBe(true);
       expect(validateSessionId("integrator-44")).toBe(true);
       expect(validateSessionId("splitly-3")).toBe(true);
-      expect(validateSessionId("8474d6f29887-ao-15")).toBe(true);
+      expect(validateSessionId("8474d6f29887-cahi-15")).toBe(true);
       expect(validateSessionId("deadbeef1234-integrator-7")).toBe(true);
     });
   });
@@ -88,16 +88,16 @@ describe("validateSessionId", () => {
     });
 
     it("rejects spaces", () => {
-      expect(validateSessionId("ao 15")).toBe(false);
-      expect(validateSessionId(" ao-15")).toBe(false);
-      expect(validateSessionId("ao-15 ")).toBe(false);
+      expect(validateSessionId("cahi 15")).toBe(false);
+      expect(validateSessionId(" cahi-15")).toBe(false);
+      expect(validateSessionId("cahi-15 ")).toBe(false);
       expect(validateSessionId(" ")).toBe(false);
     });
 
     it("rejects tabs and newlines", () => {
-      expect(validateSessionId("ao\t15")).toBe(false);
-      expect(validateSessionId("ao\n15")).toBe(false);
-      expect(validateSessionId("ao\r15")).toBe(false);
+      expect(validateSessionId("cahi\t15")).toBe(false);
+      expect(validateSessionId("cahi\n15")).toBe(false);
+      expect(validateSessionId("cahi\r15")).toBe(false);
       expect(validateSessionId("\t")).toBe(false);
     });
   });
@@ -105,85 +105,85 @@ describe("validateSessionId", () => {
   describe("rejects path traversal", () => {
     it("rejects dot-dot-slash sequences", () => {
       expect(validateSessionId("../etc/passwd")).toBe(false);
-      expect(validateSessionId("ao-15/../../secret")).toBe(false);
+      expect(validateSessionId("cahi-15/../../secret")).toBe(false);
       expect(validateSessionId("..")).toBe(false);
     });
 
     it("rejects forward slashes", () => {
-      expect(validateSessionId("ao/15")).toBe(false);
+      expect(validateSessionId("cahi/15")).toBe(false);
       expect(validateSessionId("/etc/passwd")).toBe(false);
       expect(validateSessionId("a/b")).toBe(false);
     });
 
     it("rejects backslashes", () => {
-      expect(validateSessionId("ao\\15")).toBe(false);
+      expect(validateSessionId("cahi\\15")).toBe(false);
       expect(validateSessionId("..\\..\\secret")).toBe(false);
     });
 
     it("rejects dots (current directory reference)", () => {
       expect(validateSessionId(".")).toBe(false);
-      expect(validateSessionId("ao.15")).toBe(false);
+      expect(validateSessionId("cahi.15")).toBe(false);
     });
   });
 
   describe("rejects shell injection", () => {
     it("rejects semicolons", () => {
-      expect(validateSessionId("ao-15; rm -rf /")).toBe(false);
+      expect(validateSessionId("cahi-15; rm -rf /")).toBe(false);
       expect(validateSessionId(";id")).toBe(false);
     });
 
     it("rejects command substitution", () => {
-      expect(validateSessionId("ao-15$(whoami)")).toBe(false);
+      expect(validateSessionId("cahi-15$(whoami)")).toBe(false);
       expect(validateSessionId("$(cat /etc/passwd)")).toBe(false);
     });
 
     it("rejects backticks", () => {
-      expect(validateSessionId("ao-15`id`")).toBe(false);
+      expect(validateSessionId("cahi-15`id`")).toBe(false);
       expect(validateSessionId("`rm -rf /`")).toBe(false);
     });
 
     it("rejects pipes", () => {
-      expect(validateSessionId("ao-15|cat /etc/passwd")).toBe(false);
+      expect(validateSessionId("cahi-15|cat /etc/passwd")).toBe(false);
       expect(validateSessionId("|id")).toBe(false);
     });
 
     it("rejects ampersands", () => {
-      expect(validateSessionId("ao-15&sleep 10")).toBe(false);
-      expect(validateSessionId("ao-15&&id")).toBe(false);
+      expect(validateSessionId("cahi-15&sleep 10")).toBe(false);
+      expect(validateSessionId("cahi-15&&id")).toBe(false);
     });
 
     it("rejects angle brackets (redirection)", () => {
-      expect(validateSessionId("ao-15>output")).toBe(false);
-      expect(validateSessionId("ao-15<input")).toBe(false);
+      expect(validateSessionId("cahi-15>output")).toBe(false);
+      expect(validateSessionId("cahi-15<input")).toBe(false);
     });
 
     it("rejects quotes", () => {
-      expect(validateSessionId("ao-15'")).toBe(false);
-      expect(validateSessionId('ao-15"')).toBe(false);
+      expect(validateSessionId("cahi-15'")).toBe(false);
+      expect(validateSessionId('cahi-15"')).toBe(false);
     });
 
     it("rejects dollar signs", () => {
       expect(validateSessionId("$HOME")).toBe(false);
-      expect(validateSessionId("ao-${15}")).toBe(false);
+      expect(validateSessionId("cahi-${15}")).toBe(false);
     });
 
     it("rejects parentheses", () => {
-      expect(validateSessionId("ao(15)")).toBe(false);
+      expect(validateSessionId("cahi(15)")).toBe(false);
       expect(validateSessionId("(id)")).toBe(false);
     });
 
     it("rejects hash/pound sign", () => {
-      expect(validateSessionId("ao#15")).toBe(false);
+      expect(validateSessionId("cahi#15")).toBe(false);
       expect(validateSessionId("#comment")).toBe(false);
     });
 
     it("rejects exclamation mark", () => {
-      expect(validateSessionId("ao!15")).toBe(false);
+      expect(validateSessionId("cahi!15")).toBe(false);
     });
 
     it("rejects asterisk and question mark (glob)", () => {
-      expect(validateSessionId("ao*")).toBe(false);
-      expect(validateSessionId("ao?15")).toBe(false);
+      expect(validateSessionId("cahi*")).toBe(false);
+      expect(validateSessionId("cahi?15")).toBe(false);
     });
 
     it("rejects tilde (home directory)", () => {
@@ -194,21 +194,21 @@ describe("validateSessionId", () => {
 
   describe("rejects other dangerous characters", () => {
     it("rejects null bytes", () => {
-      expect(validateSessionId("ao\x0015")).toBe(false);
+      expect(validateSessionId("cahi\x0015")).toBe(false);
     });
 
     it("rejects unicode", () => {
-      expect(validateSessionId("ao-\u00e9")).toBe(false);
-      expect(validateSessionId("ao-\u200b15")).toBe(false); // zero-width space
+      expect(validateSessionId("cahi-\u00e9")).toBe(false);
+      expect(validateSessionId("cahi-\u200b15")).toBe(false); // zero-width space
     });
 
     it("rejects control characters", () => {
-      expect(validateSessionId("ao\x01")).toBe(false);
-      expect(validateSessionId("ao\x7f")).toBe(false); // DEL
+      expect(validateSessionId("cahi\x01")).toBe(false);
+      expect(validateSessionId("cahi\x7f")).toBe(false); // DEL
     });
 
     it("rejects percent (URL encoding attempts)", () => {
-      expect(validateSessionId("ao%2F15")).toBe(false);
+      expect(validateSessionId("cahi%2F15")).toBe(false);
       expect(validateSessionId("%00")).toBe(false);
     });
 
@@ -217,30 +217,30 @@ describe("validateSessionId", () => {
     });
 
     it("rejects colons", () => {
-      expect(validateSessionId("ao:15")).toBe(false);
+      expect(validateSessionId("cahi:15")).toBe(false);
     });
 
     it("rejects equals sign", () => {
-      expect(validateSessionId("ao=15")).toBe(false);
+      expect(validateSessionId("cahi=15")).toBe(false);
     });
 
     it("rejects square brackets", () => {
-      expect(validateSessionId("ao[15]")).toBe(false);
+      expect(validateSessionId("cahi[15]")).toBe(false);
     });
 
     it("rejects curly braces", () => {
-      expect(validateSessionId("ao{15}")).toBe(false);
+      expect(validateSessionId("cahi{15}")).toBe(false);
     });
 
     it("rejects comma", () => {
-      expect(validateSessionId("ao,15")).toBe(false);
+      expect(validateSessionId("cahi,15")).toBe(false);
     });
   });
 
   describe("SESSION_ID_PATTERN export", () => {
     it("is exported and matches the same pattern", () => {
       expect(SESSION_ID_PATTERN).toBeInstanceOf(RegExp);
-      expect(SESSION_ID_PATTERN.test("ao-15")).toBe(true);
+      expect(SESSION_ID_PATTERN.test("cahi-15")).toBe(true);
       expect(SESSION_ID_PATTERN.test("../bad")).toBe(false);
     });
   });
@@ -374,25 +374,25 @@ describe("tmuxHasSession", () => {
   it("returns true when has-session resolves", async () => {
     const mockExec = vi.fn().mockResolvedValue({ stdout: "", stderr: "" });
 
-    await expect(tmuxHasSession(TMUX, "ao-104", mockExec)).resolves.toBe(true);
+    await expect(tmuxHasSession(TMUX, "cahi-104", mockExec)).resolves.toBe(true);
   });
 
   it("returns false when has-session rejects (session missing)", async () => {
     const mockExec = vi
       .fn()
-      .mockRejectedValue(new Error("can't find session: ao-104"));
+      .mockRejectedValue(new Error("can't find session: cahi-104"));
 
-    await expect(tmuxHasSession(TMUX, "ao-104", mockExec)).resolves.toBe(false);
+    await expect(tmuxHasSession(TMUX, "cahi-104", mockExec)).resolves.toBe(false);
   });
 
   it("uses the = exact-match prefix to avoid tmux prefix matching", async () => {
     const mockExec = vi.fn().mockResolvedValue({ stdout: "", stderr: "" });
 
-    await tmuxHasSession(TMUX, "ao-1", mockExec);
+    await tmuxHasSession(TMUX, "cahi-1", mockExec);
 
     expect(mockExec).toHaveBeenCalledWith(
       TMUX,
-      ["has-session", "-t", "=ao-1"],
+      ["has-session", "-t", "=cahi-1"],
       { timeout: 5000 },
     );
   });
@@ -400,7 +400,7 @@ describe("tmuxHasSession", () => {
   it("returns false when tmuxPath is null without invoking exec", async () => {
     const mockExec = vi.fn();
 
-    await expect(tmuxHasSession(null, "ao-104", mockExec)).resolves.toBe(false);
+    await expect(tmuxHasSession(null, "cahi-104", mockExec)).resolves.toBe(false);
     expect(mockExec).not.toHaveBeenCalled();
   });
 });
@@ -420,21 +420,21 @@ describe("resolveTmuxSession", () => {
     it("returns sessionId for exact match", () => {
       const mockExec = vi.fn().mockReturnValue("");
 
-      const result = resolveTmuxSession("ao-orchestrator", TMUX, mockExec, emptyFs);
+      const result = resolveTmuxSession("cahi-orchestrator", TMUX, mockExec, emptyFs);
 
-      expect(result).toBe("ao-orchestrator");
+      expect(result).toBe("cahi-orchestrator");
     });
 
     it("uses = prefix to prevent tmux prefix matching", () => {
-      // This is the critical bugbot fix: without =, "ao-1" matches "ao-15"
+      // This is the critical bugbot fix: without =, "cahi-1" matches "cahi-15"
       const mockExec = vi.fn().mockReturnValue("");
 
-      resolveTmuxSession("ao-1", TMUX, mockExec, emptyFs);
+      resolveTmuxSession("cahi-1", TMUX, mockExec, emptyFs);
 
-      // Must pass "=ao-1" not "ao-1" to has-session
+      // Must pass "=cahi-1" not "cahi-1" to has-session
       expect(mockExec).toHaveBeenCalledWith(
         TMUX,
-        ["has-session", "-t", "=ao-1"],
+        ["has-session", "-t", "=cahi-1"],
         { timeout: 5000 },
       );
     });
@@ -453,12 +453,12 @@ describe("resolveTmuxSession", () => {
     });
 
     it("prefers exact match over hash-prefixed match", () => {
-      // If "ao-15" exists as both exact and hash-prefixed, return exact
+      // If "cahi-15" exists as both exact and hash-prefixed, return exact
       const mockExec = vi.fn().mockReturnValue("");
 
-      const result = resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs);
+      const result = resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs);
 
-      expect(result).toBe("ao-15");
+      expect(result).toBe("cahi-15");
       // Should only call has-session, not list-sessions
       expect(mockExec).toHaveBeenCalledTimes(1);
     });
@@ -466,12 +466,12 @@ describe("resolveTmuxSession", () => {
     it("does not call list-sessions when exact match succeeds", () => {
       const mockExec = vi.fn().mockReturnValue("");
 
-      resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs);
+      resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs);
 
       expect(mockExec).toHaveBeenCalledTimes(1);
       expect(mockExec).toHaveBeenCalledWith(
         TMUX,
-        ["has-session", "-t", "=ao-15"],
+        ["has-session", "-t", "=cahi-15"],
         { timeout: 5000 },
       );
     });
@@ -488,25 +488,25 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "8474d6f29887-ao-15\na1b2c3d4e5f6-ao-16\nao-orchestrator\n";
+          return "8474d6f29887-cahi-15\na1b2c3d4e5f6-cahi-16\nao-orchestrator\n";
         });
 
-      const result = resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs);
+      const result = resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs);
 
-      expect(result).toBe("8474d6f29887-ao-15");
+      expect(result).toBe("8474d6f29887-cahi-15");
     });
 
     it("uses exact match after hash prefix (not endsWith)", () => {
-      // "ao-1" should NOT match "8474d6f29887-ao-15" because substring(13) is "ao-15" not "ao-1"
+      // "cahi-1" should NOT match "8474d6f29887-cahi-15" because substring(13) is "cahi-15" not "cahi-1"
       const mockExec = vi.fn()
         .mockImplementationOnce(() => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "8474d6f29887-ao-15\n8474d6f29887-ao-16\n";
+          return "8474d6f29887-cahi-15\n8474d6f29887-cahi-16\n";
         });
 
-      const result = resolveTmuxSession("ao-1", TMUX, mockExec, emptyFs);
+      const result = resolveTmuxSession("cahi-1", TMUX, mockExec, emptyFs);
 
       expect(result).toBeNull();
     });
@@ -535,16 +535,16 @@ describe("resolveTmuxSession", () => {
         .mockImplementationOnce(() => {
           // These look like hash-prefixed but aren't valid 12-char hex
           return [
-            "short-ao-15",                   // too short
-            "toolonghashprefix-ao-15",        // too long
-            "ABCDEF123456-ao-15",             // uppercase hex (not matching [a-f0-9])
-            "zzzzzzzzzzzz-ao-15",             // not hex chars
-            "8474d6f2988-ao-15",              // 11 chars (one short)
-            "8474d6f29887a-ao-15",            // 13 chars (one extra)
+            "short-cahi-15",                   // too short
+            "toolonghashprefix-cahi-15",        // too long
+            "ABCDEF123456-cahi-15",             // uppercase hex (not matching [a-f0-9])
+            "zzzzzzzzzzzz-cahi-15",             // not hex chars
+            "8474d6f2988-cahi-15",              // 11 chars (one short)
+            "8474d6f29887a-cahi-15",            // 13 chars (one extra)
           ].join("\n") + "\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("only matches valid 12-char lowercase hex prefix", () => {
@@ -553,10 +553,10 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "abcdef012345-ao-15\n";
+          return "abcdef012345-cahi-15\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBe("abcdef012345-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBe("abcdef012345-cahi-15");
     });
 
     it("matches the correct session among many", () => {
@@ -566,30 +566,30 @@ describe("resolveTmuxSession", () => {
         })
         .mockImplementationOnce(() => {
           return [
-            "aabbccddeef0-ao-1",
-            "112233445566-ao-15",
-            "ffeeddccbbaa-ao-2",
-            "a0b1c2d3e4f5-ao-orchestrator",
+            "aabbccddeef0-cahi-1",
+            "112233445566-cahi-15",
+            "ffeeddccbbaa-cahi-2",
+            "a0b1c2d3e4f5-cahi-orchestrator",
           ].join("\n") + "\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBe("112233445566-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBe("112233445566-cahi-15");
     });
 
-    it("matches ao-1 to hash-ao-1 (not hash-ao-15)", () => {
+    it("matches cahi-1 to hash-cahi-1 (not hash-cahi-15)", () => {
       const mockExec = vi.fn()
         .mockImplementationOnce(() => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
           return [
-            "aabbccddeef0-ao-1",
-            "112233445566-ao-15",
-            "ffeeddccbbaa-ao-2",
+            "aabbccddeef0-cahi-1",
+            "112233445566-cahi-15",
+            "ffeeddccbbaa-cahi-2",
           ].join("\n") + "\n";
         });
 
-      expect(resolveTmuxSession("ao-1", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-ao-1");
+      expect(resolveTmuxSession("cahi-1", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-cahi-1");
     });
 
     it("matches session with multiple hyphens in name", () => {
@@ -626,7 +626,7 @@ describe("resolveTmuxSession", () => {
           return "some-session\n";
         });
 
-      resolveTmuxSession("ao-99", TMUX, mockExec, emptyFs);
+      resolveTmuxSession("cahi-99", TMUX, mockExec, emptyFs);
 
       expect(mockExec).toHaveBeenNthCalledWith(2,
         TMUX,
@@ -636,35 +636,35 @@ describe("resolveTmuxSession", () => {
     });
 
     it("does NOT match if session name contains the ID but not after hash prefix", () => {
-      // e.g., "ao-15-extended" has no valid hash prefix
+      // e.g., "cahi-15-extended" has no valid hash prefix
       const mockExec = vi.fn()
         .mockImplementationOnce(() => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "ao-15-extended\nao-15-backup\n";
+          return "cahi-15-extended\nao-15-backup\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("does NOT match hash-prefixed session with extra suffix", () => {
-      // "aabbccddeef0-ao-15-backup" has valid hash but substring(13) is "ao-15-backup"
-      // which neither equals "ao-15" nor ends with "-ao-15".
+      // "aabbccddeef0-cahi-15-backup" has valid hash but substring(13) is "cahi-15-backup"
+      // which neither equals "cahi-15" nor ends with "-cahi-15".
       const mockExec = vi.fn()
         .mockImplementationOnce(() => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-15-backup\n";
+          return "aabbccddeef0-cahi-15-backup\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("resolves wrapped-storageKey session via on-disk lookup (issue #1486)", () => {
       // Issue #1486: when the project config uses a wrapped storageKey like
-      // "361287ebbad1-smx-foundation", ao-core names the tmux session
+      // "361287ebbad1-smx-foundation", cahi-core names the tmux session
       // "361287ebbad1-smx-foundation-sf-orchestrator-1". The resolver must
       // find the storageKey on disk (from the session file at
       // ~/.cahi/361287ebbad1-smx-foundation/sessions/sf-orchestrator-1)
@@ -697,7 +697,7 @@ describe("resolveTmuxSession", () => {
     it("resolves bare-hash session via on-disk lookup", () => {
       const fs = {
         readdir: () => ["aabbccddeef0"],
-        exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/ao-15"),
+        exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/cahi-15"),
         homedir: () => "/home/user",
       };
       const mockExec = vi.fn()
@@ -708,7 +708,7 @@ describe("resolveTmuxSession", () => {
           return "";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, fs)).toBe("aabbccddeef0-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, fs)).toBe("aabbccddeef0-cahi-15");
     });
 
     it("does NOT false-match app-1 against bare session my-app-1 (codex review concern)", () => {
@@ -769,14 +769,14 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-15\n";
+          return "aabbccddeef0-cahi-15\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-cahi-15");
     });
 
     it("does NOT match sessions without a valid hex hash prefix via fallback", () => {
-      // Safety: non-hex prefixes must never be treated as ao sessions.
+      // Safety: non-hex prefixes must never be treated as cahi sessions.
       const mockExec = vi.fn()
         .mockImplementationOnce(() => {
           throw new Error("session not found");
@@ -908,7 +908,7 @@ describe("resolveTmuxSession", () => {
       // strand these projects the same way the bare-hash-only regex did.
       const fs = {
         readdir: () => ["aabbccddeef0-My App (v2)"],
-        exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0-My App (v2)/sessions/ao-15"),
+        exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0-My App (v2)/sessions/cahi-15"),
         homedir: () => "/home/user",
       };
       const mockExec = vi.fn()
@@ -919,20 +919,20 @@ describe("resolveTmuxSession", () => {
           return "";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, fs))
-        .toBe("aabbccddeef0-My App (v2)-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, fs))
+        .toBe("aabbccddeef0-My App (v2)-cahi-15");
     });
 
-    it("ignores AO base directories that don't match the storageKey pattern", () => {
+    it("ignores CAHI base directories that don't match the storageKey pattern", () => {
       // Files like `.DS_Store`, `portfolio`, `{hash}-observability` exist in
-      // the AO base. Only `{12-hex}` and `{12-hex}-{projectName}` are valid
+      // the CAHI base. Only `{12-hex}` and `{12-hex}-{projectName}` are valid
       // storageKeys. Extraneous entries must not be probed for sessions.
       const probed: string[] = [];
       const fs = {
         readdir: () => [".DS_Store", "portfolio", "aabbccddeef0-observability", "aabbccddeef0"],
         exists: (p: string) => {
           probed.push(p);
-          return p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/ao-15");
+          return p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/cahi-15");
         },
         homedir: () => "/home/user",
       };
@@ -944,9 +944,9 @@ describe("resolveTmuxSession", () => {
           return "";
         });
 
-      const result = resolveTmuxSession("ao-15", TMUX, mockExec, fs);
+      const result = resolveTmuxSession("cahi-15", TMUX, mockExec, fs);
 
-      expect(result).toBe("aabbccddeef0-ao-15");
+      expect(result).toBe("aabbccddeef0-cahi-15");
       // observability dir is a valid storageKey-pattern match ({hash}-{name})
       // so it will be probed, but `.DS_Store` and `portfolio` must not be.
       expect(probed.some((p) => p.includes("/.DS_Store/"))).toBe(false);
@@ -960,11 +960,11 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-15\n112233445566-ao-15\n";
+          return "aabbccddeef0-cahi-15\n112233445566-cahi-15\n";
         });
 
       // find() returns the first match
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-ao-15");
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-cahi-15");
     });
   });
 
@@ -982,7 +982,7 @@ describe("resolveTmuxSession", () => {
           return "some-other-session\nanother-session\n";
         });
 
-      expect(resolveTmuxSession("ao-99", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-99", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("returns null when tmux is not running", () => {
@@ -990,7 +990,7 @@ describe("resolveTmuxSession", () => {
         throw new Error("no server running on /tmp/tmux-501/default");
       });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("returns null when list-sessions returns empty string", () => {
@@ -1002,7 +1002,7 @@ describe("resolveTmuxSession", () => {
           return "";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("returns null when list-sessions returns only newlines", () => {
@@ -1014,7 +1014,7 @@ describe("resolveTmuxSession", () => {
           return "\n\n\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("returns null when list-sessions throws (no sessions exist)", () => {
@@ -1026,7 +1026,7 @@ describe("resolveTmuxSession", () => {
           throw new Error("no sessions"); // list-sessions fails
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("returns null when has-session times out and list-sessions is empty", () => {
@@ -1038,7 +1038,7 @@ describe("resolveTmuxSession", () => {
           return "\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
   });
 
@@ -1077,10 +1077,10 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "xao-15\nnotahash-ao-15\n";
+          return "xao-15\nnotahash-cahi-15\n";
         });
 
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("handles Windows-style line endings in list-sessions output", () => {
@@ -1089,13 +1089,13 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-15\r\n112233445566-ao-16\r\n";
+          return "aabbccddeef0-cahi-15\r\n112233445566-cahi-16\r\n";
         });
 
       // \r will remain in the session name after split("\n")
-      // substring(13) of "aabbccddeef0-ao-15\r" is "ao-15\r" which !== "ao-15"
+      // substring(13) of "aabbccddeef0-cahi-15\r" is "cahi-15\r" which !== "cahi-15"
       // This documents the current behavior — tmux shouldn't produce \r\n on unix
-      expect(resolveTmuxSession("ao-15", TMUX, mockExec, emptyFs)).toBeNull();
+      expect(resolveTmuxSession("cahi-15", TMUX, mockExec, emptyFs)).toBeNull();
     });
 
     it("handles very long session list", () => {
@@ -1120,10 +1120,10 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-1\n112233445566-ao-2\nffeeddccbbaa-ao-3\na0b1c2d3e4f5-ao-target\n";
+          return "aabbccddeef0-cahi-1\n112233445566-cahi-2\nffeeddccbbaa-cahi-3\na0b1c2d3e4f5-cahi-target\n";
         });
 
-      expect(resolveTmuxSession("ao-target", TMUX, mockExec, emptyFs)).toBe("a0b1c2d3e4f5-ao-target");
+      expect(resolveTmuxSession("cahi-target", TMUX, mockExec, emptyFs)).toBe("a0b1c2d3e4f5-cahi-target");
     });
 
     it("handles session list where target is first entry", () => {
@@ -1132,10 +1132,10 @@ describe("resolveTmuxSession", () => {
           throw new Error("session not found");
         })
         .mockImplementationOnce(() => {
-          return "aabbccddeef0-ao-target\n112233445566-ao-2\nffeeddccbbaa-ao-3\n";
+          return "aabbccddeef0-cahi-target\n112233445566-cahi-2\nffeeddccbbaa-cahi-3\n";
         });
 
-      expect(resolveTmuxSession("ao-target", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-ao-target");
+      expect(resolveTmuxSession("cahi-target", TMUX, mockExec, emptyFs)).toBe("aabbccddeef0-cahi-target");
     });
 
     it("works with different tmux paths", () => {
@@ -1143,8 +1143,8 @@ describe("resolveTmuxSession", () => {
 
       for (const tmuxPath of paths) {
         const mockExec = vi.fn().mockReturnValue("");
-        resolveTmuxSession("ao-15", tmuxPath, mockExec, emptyFs);
-        expect(mockExec).toHaveBeenCalledWith(tmuxPath, ["has-session", "-t", "=ao-15"], { timeout: 5000 });
+        resolveTmuxSession("cahi-15", tmuxPath, mockExec, emptyFs);
+        expect(mockExec).toHaveBeenCalledWith(tmuxPath, ["has-session", "-t", "=cahi-15"], { timeout: 5000 });
       }
     });
   });
@@ -1161,38 +1161,38 @@ describe("resolvePipePath", () => {
     Object.defineProperty(process, "platform", { value: originalPlatform });
   });
 
-  const PIPE = "\\\\.\\pipe\\cahi-pty-aabbccddeef0-ao-1";
+  const PIPE = "\\\\.\\pipe\\cahi-pty-aabbccddeef0-cahi-1";
   const sessionFileContent =
-    "worktree=C:\\Users\\u\\.worktrees\\proj\\ao-1\n" +
-    "branch=session/ao-1\n" +
+    "worktree=C:\\Users\\u\\.worktrees\\proj\\cahi-1\n" +
+    "branch=session/cahi-1\n" +
     "status=spawning\n" +
-    `runtimeHandle={"id":"aabbccddeef0-ao-1","runtimeName":"process","data":{"pid":1234,"ptyHostPid":5678,"pipePath":"${PIPE.replace(/\\/g, "\\\\")}","createdAt":1}}\n`;
+    `runtimeHandle={"id":"aabbccddeef0-cahi-1","runtimeName":"process","data":{"pid":1234,"ptyHostPid":5678,"pipePath":"${PIPE.replace(/\\/g, "\\\\")}","createdAt":1}}\n`;
 
   it("returns null on non-Windows platforms", () => {
     Object.defineProperty(process, "platform", { value: "linux" });
-    expect(resolvePipePath("ao-1")).toBeNull();
+    expect(resolvePipePath("cahi-1")).toBeNull();
   });
 
   it("reads pipePath from session metadata when storageKey is bare hash", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
     const fs = {
       readdir: () => ["aabbccddeef0"],
-      exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/ao-1"),
+      exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0/sessions/cahi-1"),
       homedir: () => "/home/u",
       readFile: () => sessionFileContent,
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBe(PIPE);
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBe(PIPE);
   });
 
   it("reads pipePath from session metadata when storageKey is wrapped {hash}-{projectName}", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
     const fs = {
       readdir: () => ["aabbccddeef0-test-repo"],
-      exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0-test-repo/sessions/ao-1"),
+      exists: (p: string) => p.replace(/\\/g, "/").endsWith("/aabbccddeef0-test-repo/sessions/cahi-1"),
       homedir: () => "/home/u",
       readFile: () => sessionFileContent,
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBe(PIPE);
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBe(PIPE);
   });
 
   it("returns null when no storageKey owns the sessionId", () => {
@@ -1203,7 +1203,7 @@ describe("resolvePipePath", () => {
       homedir: () => "/home/u",
       readFile: () => sessionFileContent,
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBeNull();
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBeNull();
   });
 
   it("returns null when metadata is missing runtimeHandle line", () => {
@@ -1214,14 +1214,14 @@ describe("resolvePipePath", () => {
       homedir: () => "/home/u",
       readFile: () => "status=spawning\nbranch=foo\n",
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBeNull();
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBeNull();
   });
 
   it("reads V2 JSON metadata under projects/{projectId}/sessions/{sessionId}.json", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
-    const PIPE2 = "\\\\.\\pipe\\cahi-pty-ao-1";
+    const PIPE2 = "\\\\.\\pipe\\cahi-pty-cahi-1";
     const v2Json = JSON.stringify({
-      runtimeHandle: { id: "ao-1", runtimeName: "process", data: { pipePath: PIPE2 } },
+      runtimeHandle: { id: "cahi-1", runtimeName: "process", data: { pipePath: PIPE2 } },
     });
     const fs = {
       readdir: (p: string) =>
@@ -1229,13 +1229,13 @@ describe("resolvePipePath", () => {
       exists: (p: string) => {
         const u = p.replace(/\\/g, "/");
         return (
-          u.endsWith("/projects") || u.endsWith("/projects/my-app/sessions/ao-1.json")
+          u.endsWith("/projects") || u.endsWith("/projects/my-app/sessions/cahi-1.json")
         );
       },
       homedir: () => "/home/u",
       readFile: () => v2Json,
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBe(PIPE2);
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBe(PIPE2);
   });
 
   it("falls back to V1 layout when V2 has no matching session", () => {
@@ -1249,16 +1249,16 @@ describe("resolvePipePath", () => {
       },
       exists: (p: string) => {
         const u = p.replace(/\\/g, "/");
-        // V2 projects dir exists but its sessions dir doesn't have ao-1.json.
+        // V2 projects dir exists but its sessions dir doesn't have cahi-1.json.
         if (u.endsWith("/projects")) return true;
-        if (u.endsWith("/projects/my-app/sessions/ao-1.json")) return false;
+        if (u.endsWith("/projects/my-app/sessions/cahi-1.json")) return false;
         // V1 location does have the session file.
-        return u.endsWith("/aabbccddeef0/sessions/ao-1");
+        return u.endsWith("/aabbccddeef0/sessions/cahi-1");
       },
       homedir: () => "/home/u",
       readFile: () => sessionFileContent,
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBe(PIPE);
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBe(PIPE);
   });
 
   it("walks multiple candidate storageKeys and returns first with parseable pipePath", () => {
@@ -1269,16 +1269,16 @@ describe("resolvePipePath", () => {
       homedir: () => "/home/u",
       readFile: (p: string) => (p.includes("stale") ? "broken" : sessionFileContent),
     };
-    expect(resolvePipePath("ao-1", undefined, fs)).toBe(PIPE);
+    expect(resolvePipePath("cahi-1", undefined, fs)).toBe(PIPE);
   });
 
   it("uses projectId to disambiguate when two projects share a sessionId", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
-    const PIPE_A = "\\\\.\\pipe\\cahi-pty-projA-ao-1";
-    const PIPE_B = "\\\\.\\pipe\\cahi-pty-projB-ao-1";
+    const PIPE_A = "\\\\.\\pipe\\cahi-pty-projA-cahi-1";
+    const PIPE_B = "\\\\.\\pipe\\cahi-pty-projB-cahi-1";
     const metaFor = (pipe: string) =>
       JSON.stringify({
-        runtimeHandle: { id: "ao-1", runtimeName: "process", data: { pipePath: pipe } },
+        runtimeHandle: { id: "cahi-1", runtimeName: "process", data: { pipePath: pipe } },
       });
     const fs = {
       readdir: () => ["projA", "projB"],
@@ -1286,15 +1286,15 @@ describe("resolvePipePath", () => {
         const u = p.replace(/\\/g, "/");
         return (
           u.endsWith("/projects") ||
-          u.endsWith("/projects/projA/sessions/ao-1.json") ||
-          u.endsWith("/projects/projB/sessions/ao-1.json")
+          u.endsWith("/projects/projA/sessions/cahi-1.json") ||
+          u.endsWith("/projects/projB/sessions/cahi-1.json")
         );
       },
       homedir: () => "/home/u",
       readFile: (p: string) =>
         p.replace(/\\/g, "/").includes("/projects/projA/") ? metaFor(PIPE_A) : metaFor(PIPE_B),
     };
-    expect(resolvePipePath("ao-1", "projA", fs)).toBe(PIPE_A);
-    expect(resolvePipePath("ao-1", "projB", fs)).toBe(PIPE_B);
+    expect(resolvePipePath("cahi-1", "projA", fs)).toBe(PIPE_A);
+    expect(resolvePipePath("cahi-1", "projB", fs)).toBe(PIPE_B);
   });
 });

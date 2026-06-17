@@ -68,7 +68,7 @@ const SessionDot = memo(function SessionDot({ level }: { level: SessionDotLevel 
 // in practice. The entry is kept for exhaustiveness — TypeScript requires
 // every `AttentionLevel` variant to be present in this `Record` — and
 // as forward-compat in case the sidebar ever opts into simple mode.
-const SHOW_SESSION_ID_KEY = "ao:sidebar:show-session-id";
+const SHOW_SESSION_ID_KEY = "cahi:sidebar:show-session-id";
 
 function loadShowSessionId(): boolean {
   if (typeof window === "undefined") return false;
@@ -79,9 +79,9 @@ function loadShowSessionId(): boolean {
   }
 }
 
-const SHOW_KILLED_KEY = "ao:sidebar:show-killed";
-const SHOW_DONE_KEY = "ao:sidebar:show-done";
-const EXPANDED_PROJECTS_KEY = "ao:sidebar:expanded-projects";
+const SHOW_KILLED_KEY = "cahi:sidebar:show-killed";
+const SHOW_DONE_KEY = "cahi:sidebar:show-done";
+const EXPANDED_PROJECTS_KEY = "cahi:sidebar:expanded-projects";
 
 function loadShowKilled(): boolean {
   if (typeof window === "undefined") return false;
@@ -349,8 +349,8 @@ function ProjectSidebarInner({
   const router = useRouter();
   const _isLoading = loading || sessions === null;
   const { onPointerDown: onResizePointerDown, onDoubleClick: onResizeDoubleClick } = useResizable({
-    cssVar: "--ao-sidebar-w",
-    storageKey: "ao-sidebar-w",
+    cssVar: "--cahi-sidebar-w",
+    storageKey: "cahi-sidebar-w",
     defaultWidth: 240,
     min: 200,
     max: 420,
@@ -620,7 +620,7 @@ function ProjectSidebarInner({
     (url: string, session?: DashboardSession) => {
       if (session) {
         try {
-          sessionStorage.setItem(`ao-session-nav:${session.id}`, JSON.stringify(session));
+          sessionStorage.setItem(`cahi-session-nav:${session.id}`, JSON.stringify(session));
         } catch {
           // sessionStorage unavailable — silent fallback
         }
@@ -645,7 +645,7 @@ function ProjectSidebarInner({
 
   const handleRemoveProject = async (project: ProjectInfo) => {
     const confirmed = window.confirm(
-      `Remove project ${project.name} from AO? This clears its AO sessions/history and removes it from the portfolio, but keeps the repository folder on disk.`,
+      `Remove project ${project.name} from CAHI? This clears its CAHI sessions/history and removes it from the portfolio, but keeps the repository folder on disk.`,
     );
     if (!confirmed) return;
 

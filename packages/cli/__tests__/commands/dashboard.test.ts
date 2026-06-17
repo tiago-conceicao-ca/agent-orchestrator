@@ -36,7 +36,7 @@ vi.mock("ora", () => ({
 let tmpDir: string;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), "ao-dashboard-test-"));
+  tmpDir = mkdtempSync(join(tmpdir(), "cahi-dashboard-test-"));
   mockExec.mockReset();
   mockExecSilent.mockReset();
   mockFindPidByPort.mockReset();

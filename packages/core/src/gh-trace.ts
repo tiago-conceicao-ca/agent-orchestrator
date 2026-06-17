@@ -10,7 +10,7 @@ const execFileAsync = promisify(execFile);
 
 /**
  * Resolve the real gh binary path, bypassing ~/.cahi/bin wrapper.
- * AO-owned calls must NOT go through the wrapper (which is for agent sessions).
+ * CAHI-owned calls must NOT go through the wrapper (which is for agent sessions).
  *
  * Strips ~/.cahi/bin from PATH and resolves gh from the clean PATH.
  * Cached after first resolution.

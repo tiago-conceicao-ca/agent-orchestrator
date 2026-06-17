@@ -417,10 +417,10 @@ describe("notifier-slack", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const notifier = create({ webhookUrl: "https://hooks.slack.com/test" });
-      const result = await notifier.post!("Hello from AO");
+      const result = await notifier.post!("Hello from CAHI");
 
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-      expect(body.text).toBe("Hello from AO");
+      expect(body.text).toBe("Hello from CAHI");
       expect(result).toBeNull();
     });
 

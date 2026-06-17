@@ -29,7 +29,7 @@ const mockSessionManager = {
 } as unknown as SessionManager;
 
 const mockConfig: OrchestratorConfig = {
-  configPath: "/tmp/ao-test/cahi.yaml",
+  configPath: "/tmp/cahi-test/cahi.yaml",
   port: 3000,
   readyThresholdMs: 300_000,
   defaults: { runtime: "tmux", agent: "claude-code", workspace: "worktree", notifiers: [] },

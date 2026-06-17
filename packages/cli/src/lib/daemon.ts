@@ -1,7 +1,7 @@
 /**
  * Daemon attachment and lifecycle helpers.
  *
- * Pulls the "AO is already running" branches out of `start.ts` so the running
+ * Pulls the "CAHI is already running" branches out of `start.ts` so the running
  * vs. not-running fork in the entry command is a single decision point and
  * the per-branch operations (attach, kill, dashboard cache invalidation) can
  * be reused.
@@ -80,7 +80,7 @@ export function attachToDaemon(running: RunningState): AttachedDaemon {
 /**
  * Stop a running daemon synchronously: SIGTERM, wait up to 5s, SIGKILL if
  * still alive, wait another 3s. Throws if the process refuses to die.
- * Always unregisters `running.json` on success so the next `ao start` can
+ * Always unregisters `running.json` on success so the next `cahi start` can
  * spawn a fresh daemon without hitting the "already running" gate.
  *
  * Uses {@link killProcessTree} (not raw `process.kill`) so Windows actually
@@ -97,7 +97,7 @@ export async function killExistingDaemon(running: RunningState): Promise<void> {
     await killProcessTree(running.pid, "SIGKILL");
     if (!(await waitForExit(running.pid, 3000))) {
       throw new Error(
-        `Failed to stop AO process (PID ${running.pid}). Check permissions or stop it manually.`,
+        `Failed to stop CAHI process (PID ${running.pid}). Check permissions or stop it manually.`,
       );
     }
   }

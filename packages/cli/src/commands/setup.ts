@@ -83,7 +83,7 @@ export function registerSetup(program: Command): void {
     .option("--non-interactive", "Skip prompts and fail on config conflicts unless --force is set")
     .option("--force", "Repair the app install and replace conflicting desktop notifier config")
     .option("--status", "Show the native desktop notifier install and permission status")
-    .option("--uninstall", "Remove Cahi Notifier.app without changing AO config")
+    .option("--uninstall", "Remove Cahi Notifier.app without changing CAHI config")
     .action(async (opts: DesktopSetupOptions) => {
       try {
         await runDesktopSetupAction(opts);
@@ -98,7 +98,7 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("webhook")
-    .description("Connect AO notifications to a generic HTTP webhook")
+    .description("Connect CAHI notifications to a generic HTTP webhook")
     .option("--url <url>", "Webhook URL")
     .option("--auth-token <token>", "Bearer token to store in webhook Authorization header")
     .option("--routing-preset <preset>", "Routing preset: urgent-only | urgent-action | all")
@@ -121,13 +121,13 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("slack")
-    .description("Connect AO notifications to a Slack incoming webhook")
+    .description("Connect CAHI notifications to a Slack incoming webhook")
     .option("--webhook-url <url>", "Slack incoming webhook URL")
     .option(
       "--channel <name>",
       "Optional channel name; must match the channel selected for the webhook URL",
     )
-    .option("--username <name>", "Slack display name for AO messages")
+    .option("--username <name>", "Slack display name for CAHI messages")
     .option("--routing-preset <preset>", "Routing preset: urgent-only | urgent-action | all")
     .option("--refresh", "Refresh/reconfigure Slack notifier config")
     .option("--no-test", "Skip the setup test Slack message")
@@ -151,10 +151,10 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("discord")
-    .description("Connect AO notifications to a Discord incoming webhook")
+    .description("Connect CAHI notifications to a Discord incoming webhook")
     .option("--webhook-url <url>", "Discord incoming webhook URL")
-    .option("--username <name>", "Discord display name for AO messages")
-    .option("--avatar-url <url>", "Discord avatar image URL for AO messages")
+    .option("--username <name>", "Discord display name for CAHI messages")
+    .option("--avatar-url <url>", "Discord avatar image URL for CAHI messages")
     .option("--thread-id <id>", "Discord thread id to post into")
     .option("--retries <count>", "Retry count for rate limits, network errors, and 5xx")
     .option("--retry-delay-ms <ms>", "Base retry delay in milliseconds")
@@ -216,7 +216,7 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("composio-slack")
-    .description("Connect AO notifications to Slack through Composio")
+    .description("Connect CAHI notifications to Slack through Composio")
     .option("--api-key <key>", "Composio API key (otherwise uses COMPOSIO_API_KEY)")
     .option("--user-id <id>", "Composio user id for the Slack connected account")
     .option("--channel <name-or-id>", "Slack channel name or channel id")
@@ -240,7 +240,7 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("composio-discord")
-    .description("Connect AO notifications to Discord webhooks through Composio")
+    .description("Connect CAHI notifications to Discord webhooks through Composio")
     .option("--api-key <key>", "Composio API key (otherwise uses COMPOSIO_API_KEY)")
     .option("--user-id <id>", "Composio user id for tool execution")
     .option("--webhook-url <url>", "Discord webhook URL")
@@ -263,7 +263,7 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("composio-discord-bot")
-    .description("Connect AO notifications to a Discord bot through Composio")
+    .description("Connect CAHI notifications to a Discord bot through Composio")
     .option("--api-key <key>", "Composio API key (otherwise uses COMPOSIO_API_KEY)")
     .option("--user-id <id>", "Composio user id for the Discord connected account")
     .option("--channel-id <id>", "Discord channel id")
@@ -287,10 +287,10 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("composio-mail")
-    .description("Connect AO notifications to Gmail through Composio")
+    .description("Connect CAHI notifications to Gmail through Composio")
     .option("--api-key <key>", "Composio API key (otherwise uses COMPOSIO_API_KEY)")
     .option("--user-id <id>", "Composio user id for the Gmail connected account")
-    .option("--email-to <email>", "Recipient email address for AO notifications")
+    .option("--email-to <email>", "Recipient email address for CAHI notifications")
     .option("--connect", "Print a Composio Gmail connect URL when no account exists")
     .option("--auth-config-id <id>", "Existing Composio Gmail auth config id for --connect")
     .option("--connected-account-id <id>", "Existing Composio Gmail connected account id")
@@ -313,7 +313,7 @@ export function registerSetup(program: Command): void {
 
   setup
     .command("openclaw")
-    .description("Connect AO notifications to an OpenClaw gateway")
+    .description("Connect CAHI notifications to an OpenClaw gateway")
     .option("--url <url>", "OpenClaw webhook URL (e.g. http://127.0.0.1:18789/hooks/agent)")
     .option(
       "--token <token>",
@@ -337,7 +337,7 @@ export function registerSetup(program: Command): void {
           source: "cli",
           kind: "cli.setup_failed",
           level: "error",
-          summary: "ao setup openclaw failed",
+          summary: "cahi setup openclaw failed",
           data: {
             aborted: err instanceof OpenClawSetupError && err.exitCode === 0,
             errorMessage: err instanceof Error ? err.message : String(err),

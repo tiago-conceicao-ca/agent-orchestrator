@@ -32,7 +32,7 @@ const execFileAsync = promisify(execFile);
 // Prerequisites
 // ---------------------------------------------------------------------------
 
-const SESSION_PREFIX = "ao-inttest-codex-";
+const SESSION_PREFIX = "cahi-inttest-codex-";
 
 async function findCodexBinary(): Promise<string | null> {
   for (const bin of ["codex"]) {
@@ -71,7 +71,7 @@ describe.skipIf(!canRun)("agent-codex (integration)", () => {
 
   beforeAll(async () => {
     await killSessionsByPrefix(SESSION_PREFIX);
-    tmpDir = await mkdtemp(join(tmpdir(), "ao-inttest-codex-"));
+    tmpDir = await mkdtemp(join(tmpdir(), "cahi-inttest-codex-"));
 
     const cmd = `${codexBin} exec 'Say hello and nothing else'`;
     await createSession(sessionName, cmd, tmpDir);
