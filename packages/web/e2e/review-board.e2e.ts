@@ -232,7 +232,7 @@ async function startWebServer(fixture: Fixture): Promise<ServerHandle> {
       PORT: String(port),
       NEXT_TELEMETRY_DISABLED: "1",
       CAHI_NO_UPDATE_NOTIFIER: "1",
-      AGENT_ORCHESTRATOR_CI: "1",
+      CAHI_CI: "1",
     },
   });
 
@@ -419,7 +419,7 @@ function runAoCli(fixture: Fixture, args: string[]): string {
       CAHI_GLOBAL_CONFIG: fixture.globalConfigPath,
       CAHI_CONFIG_PATH: fixture.localConfigPath,
       CAHI_NO_UPDATE_NOTIFIER: "1",
-      AGENT_ORCHESTRATOR_CI: "1",
+      CAHI_CI: "1",
     },
   });
 }
@@ -435,7 +435,7 @@ function runAoCliAsync(fixture: Fixture, args: string[]): Promise<string> {
         CAHI_GLOBAL_CONFIG: fixture.globalConfigPath,
         CAHI_CONFIG_PATH: fixture.localConfigPath,
         CAHI_NO_UPDATE_NOTIFIER: "1",
-        AGENT_ORCHESTRATOR_CI: "1",
+        CAHI_CI: "1",
       },
     });
     let stdout = "";

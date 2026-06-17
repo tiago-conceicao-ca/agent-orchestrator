@@ -576,7 +576,7 @@ export async function checkForUpdate(opts?: {
 export function maybeShowUpdateNotice(): void {
   if (!process.stderr.isTTY) return;
   if (process.env["CAHI_NO_UPDATE_NOTIFIER"] === "1") return;
-  if (process.env["CI"] || process.env["AGENT_ORCHESTRATOR_CI"]) return;
+  if (process.env["CI"] || process.env["CAHI_CI"]) return;
 
   const skipArgs = ["update", "doctor", "--version", "-V", "--help", "-h"];
   if (process.argv.some((arg) => skipArgs.includes(arg))) return;

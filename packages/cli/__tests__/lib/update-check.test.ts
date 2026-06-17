@@ -1003,7 +1003,7 @@ describe("update-check", () => {
     let stderrSpy: ReturnType<typeof vi.spyOn>;
     let origIsTTY: boolean | undefined;
     let origCI: string | undefined;
-    let origAOCI: string | undefined;
+    let origCahiCi: string | undefined;
     let origNotifier: string | undefined;
     let origArgv: string[];
 
@@ -1011,12 +1011,12 @@ describe("update-check", () => {
       stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
       origIsTTY = process.stderr.isTTY;
       origCI = process.env["CI"];
-      origAOCI = process.env["AGENT_ORCHESTRATOR_CI"];
+      origCahiCi = process.env["CAHI_CI"];
       origNotifier = process.env["CAHI_NO_UPDATE_NOTIFIER"];
       origArgv = process.argv;
       Object.defineProperty(process.stderr, "isTTY", { value: true, configurable: true });
       delete process.env["CI"];
-      delete process.env["AGENT_ORCHESTRATOR_CI"];
+      delete process.env["CAHI_CI"];
       delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       process.argv = ["node", "cahi", "start"];
     });
@@ -1025,8 +1025,8 @@ describe("update-check", () => {
       Object.defineProperty(process.stderr, "isTTY", { value: origIsTTY, configurable: true });
       if (origCI !== undefined) process.env["CI"] = origCI;
       else delete process.env["CI"];
-      if (origAOCI !== undefined) process.env["AGENT_ORCHESTRATOR_CI"] = origAOCI;
-      else delete process.env["AGENT_ORCHESTRATOR_CI"];
+      if (origCahiCi !== undefined) process.env["CAHI_CI"] = origCahiCi;
+      else delete process.env["CAHI_CI"];
       if (origNotifier !== undefined) process.env["CAHI_NO_UPDATE_NOTIFIER"] = origNotifier;
       else delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       process.argv = origArgv;
@@ -1173,8 +1173,8 @@ describe("update-check", () => {
       expect(stderrSpy).not.toHaveBeenCalled();
     });
 
-    it("does not print when AGENT_ORCHESTRATOR_CI is set", () => {
-      process.env["AGENT_ORCHESTRATOR_CI"] = "1";
+    it("does not print when CAHI_CI is set", () => {
+      process.env["CAHI_CI"] = "1";
       maybeShowUpdateNotice();
       expect(stderrSpy).not.toHaveBeenCalled();
     });
@@ -1377,7 +1377,7 @@ describe("update-check", () => {
       const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
       Object.defineProperty(process.stderr, "isTTY", { value: true, configurable: true });
       delete process.env["CI"];
-      delete process.env["AGENT_ORCHESTRATOR_CI"];
+      delete process.env["CAHI_CI"];
       delete process.env["CAHI_NO_UPDATE_NOTIFIER"];
       const origArgv = process.argv;
       process.argv = ["node", "cahi", "start"];
