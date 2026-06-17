@@ -109,7 +109,7 @@ function sanitizeCliArg(arg: string): string {
 function tryRunAo(config: PluginConfig, args: string[], timeoutMs?: number) {
   // AO requires cwd to be the repo root where cahi.yaml lives
   const cwd = config.aoCwd || process.cwd();
-  return tryRun(config.aoPath || "ao", args, timeoutMs, cwd);
+  return tryRun(config.aoPath || "cahi", args, timeoutMs, cwd);
 }
 
 function tryRunGh(config: PluginConfig, args: string[], timeoutMs?: number) {
