@@ -1,5 +1,5 @@
 {
-  "name": "agent-orchestrator",
+  "name": "cahi",
   "version": "0.1.0",
   "private": true,
   "description": "Orchestrate parallel AI coding agents across any runtime, any repo, any issue tracker",

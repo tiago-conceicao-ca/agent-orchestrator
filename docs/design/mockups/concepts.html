@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AO — Design Direction Concepts</title>
+<title>CAHI — Design Direction Concepts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -227,7 +227,7 @@
 <body>
 
 <div class="switcher">
-  <div class="brand">AO <b>·</b> Direction Previews</div>
+  <div class="brand">CAHI <b>·</b> Direction Previews</div>
   <button class="tab active" data-t="A">A · Refined</button>
   <button class="tab" data-t="B">B · Terminal-craft</button>
   <button class="tab" data-t="C">C · Bold console</button>
@@ -243,11 +243,11 @@
 <script>
 const PROJECTS = [
   { name:"integrator", sel:false, count:5, open:false, sessions:[] },
-  { name:"Agent Orchestrator", sel:true, count:4, open:true, sessions:[
-    { dot:"s-working", id:"ao-204", branch:"session/ao-204" },
-    { dot:"s-review",  id:"ao-201", branch:"docs/architecture-doc" },
-    { dot:"s-idle",    id:"ao-202", branch:"docs/architecture-doc-claude" },
-    { dot:"s-merge",   id:"ao-203", branch:"test/onboarding-harness" },
+  { name:"CAHI", sel:true, count:4, open:true, sessions:[
+    { dot:"s-working", id:"cahi-204", branch:"session/cahi-204" },
+    { dot:"s-review",  id:"cahi-201", branch:"docs/architecture-doc" },
+    { dot:"s-idle",    id:"cahi-202", branch:"docs/architecture-doc-claude" },
+    { dot:"s-merge",   id:"cahi-203", branch:"test/onboarding-harness" },
   ]},
   { name:"mercury", sel:false, count:2, open:false, sessions:[] },
   { name:"WorkOS", sel:false, count:0, open:false, sessions:[] },
@@ -255,7 +255,7 @@ const PROJECTS = [
 ];
 
 const CARDS = [
-  { st:"s-working", label:"Working", pulse:true, branch:"session/ao-204", id:"ao-204", model:"Opus 4.7",
+  { st:"s-working", label:"Working", pulse:true, branch:"session/cahi-204", id:"cahi-204", model:"Opus 4.7",
     line:"Building three design-direction previews for the dashboard fleet board…",
     chips:[["PR #2051","pr"],["CI running","plain"]], cost:"$2.41", spark:[6,9,5,11,8,13,7,10,14,9], t:"now" },
   { st:"s-input", label:"Needs input", branch:"feat/int-6-api-key-auth", id:"int-6", model:"Sonnet 4.6",
@@ -264,13 +264,13 @@ const CARDS = [
   { st:"s-stuck", label:"CI failed", branch:"security/cortex-sanitize", id:"int-8", model:"Opus 4.7",
     line:"typecheck failed — 2 errors in plugin-registry.ts. Investigating.",
     chips:[["PR #2049","pr"],["CI failed","bad"]], cost:"$3.10", spark:[10,7,12,6,9,4,5,3,2,1], t:"6m" },
-  { st:"s-review", label:"In review", branch:"docs/architecture-doc", id:"ao-201", model:"Sonnet 4.6",
+  { st:"s-review", label:"In review", branch:"docs/architecture-doc", id:"cahi-201", model:"Sonnet 4.6",
     line:"2 review comments from @prateek — addressing nits in CROSS_PLATFORM.md.",
     chips:[["PR #2038","pr"],["CI passed","ok"]], cost:"$1.20", spark:[5,8,6,9,7,10,6,8,5,7], t:"4m" },
-  { st:"s-merge", label:"Mergeable", branch:"test/onboarding-harness", id:"ao-203", model:"Sonnet 4.6",
+  { st:"s-merge", label:"Mergeable", branch:"test/onboarding-harness", id:"cahi-203", model:"Sonnet 4.6",
     line:"All checks green, approved by 1 reviewer. Ready to merge.",
     chips:[["PR #2042","pr"],["CI passed","ok"],["+1 approve","plain"]], cost:"$0.64", spark:[3,4,3,5,4,6,4,3,2,1], t:"11m" },
-  { st:"s-idle", label:"Idle", branch:"docs/architecture-doc-claude", id:"ao-202", model:"Opus 4.7",
+  { st:"s-idle", label:"Idle", branch:"docs/architecture-doc-claude", id:"cahi-202", model:"Opus 4.7",
     line:"No activity for 18m. Last action: pushed commit 2f9717f.",
     chips:[["PR #2040","pr"],["CI passed","ok"]], cost:"$1.95", spark:[2,1,2,1,1,1,1,1,1,1], t:"18m" },
 ];

@@ -35,15 +35,15 @@ case "$PROJECT" in
         SESSION_DATA_DIR="$HOME/.splitly-sessions"
         GITHUB_REPO="UniverseOfThings/SafeSplit"
         ;;
-    agent-orchestrator|ao)
-        SESSION_PREFIX="ao"
-        SESSION_MANAGER="$HOME/claude-ao-session"
+    cahi|cahi)
+        SESSION_PREFIX="cahi"
+        SESSION_MANAGER="$HOME/claude-cahi-session"
         SESSION_DATA_DIR="$HOME/.cahi-sessions"
-        GITHUB_REPO="ComposioHQ/agent-orchestrator"
+        GITHUB_REPO="contaazul/cahi"
         ;;
     *)
         echo "Unknown project: $PROJECT"
-        echo "Use 'integrator' (or 'i'), 'splitly' (or 's'), or 'agent-orchestrator' (or 'ao')"
+        echo "Use 'integrator' (or 'i'), 'splitly' (or 's'), or 'cahi' (or 'cahi')"
         exit 1
         ;;
 esac

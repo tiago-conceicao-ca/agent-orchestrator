@@ -2835,19 +2835,19 @@ describe("start command — already-running detection", () => {
       configPath: "/fake/config.yaml",
       port: 3000,
       startedAt: "2026-01-01T00:00:00Z",
-      projects: ["agent-orchestrator_5dce9e3fe8"],
+      projects: ["cahi_5dce9e3fe8"],
     });
 
     mockPromptSelect.mockResolvedValue("new");
 
-    const repoDir = join(tmpDir, "agent-orchestrator");
-    createFakeRepo(repoDir, "https://github.com/org/agent-orchestrator.git");
+    const repoDir = join(tmpDir, "cahi");
+    createFakeRepo(repoDir, "https://github.com/org/cahi.git");
     const localConfigPath = join(repoDir, "cahi.yaml");
     writeFileSync(localConfigPath, "agent: claude-code\n");
 
     const projectId = generateExternalId(
       repoDir,
-      "https://github.com/org/agent-orchestrator.git",
+      "https://github.com/org/cahi.git",
     );
     const globalConfigPath = process.env["CAHI_GLOBAL_CONFIG"]!;
     const { stringify: yamlStringify } = await import("yaml");
@@ -2866,7 +2866,7 @@ describe("start command — already-running detection", () => {
               projectId,
               path: repoDir,
               defaultBranch: "main",
-              displayName: "Agent Orchestrator",
+              displayName: "CAHI",
               sessionPrefix: "app",
             },
           },
@@ -2877,7 +2877,7 @@ describe("start command — already-running detection", () => {
 
     mockConfigRef.current = makeConfig({
       [projectId]: makeProject({
-        name: "Agent Orchestrator",
+        name: "CAHI",
         path: repoDir,
         sessionPrefix: "app",
       }),

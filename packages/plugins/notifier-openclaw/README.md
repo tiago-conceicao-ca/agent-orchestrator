@@ -52,7 +52,7 @@ notifiers:
 
 ## Behavior
 
-- Sends `POST /hooks/agent` payloads with per-session key `hook:ao:<sessionId>`.
+- Sends `POST /hooks/agent` payloads with per-session key `hook:cahi:<sessionId>`.
 - Defaults `wakeMode: now` and `deliver: true`.
 - Retries on `429` and `5xx` responses with exponential backoff.
 

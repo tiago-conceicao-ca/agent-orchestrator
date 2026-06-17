@@ -225,7 +225,7 @@ describe("notifier-desktop", () => {
               pr: {
                 number: 1579,
                 title: "Normalize AO notifier payloads",
-                url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579",
+                url: "https://github.com/contaazul/cahi/pull/1579",
                 branch: "ao/demo-notifier-harness",
                 baseBranch: "main",
               },

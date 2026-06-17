@@ -8,7 +8,7 @@
  * - Cleanup completed sessions (PR merged / issue closed)
  * - Send messages to running sessions
  *
- * Reference: scripts/claude-ao-session, scripts/send-to-session
+ * Reference: scripts/claude-cahi-session, scripts/send-to-session
  */
 
 import { statSync, existsSync, writeFileSync, mkdirSync, utimesSync, unlinkSync } from "node:fs";

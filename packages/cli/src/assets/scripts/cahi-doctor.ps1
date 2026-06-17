@@ -1,9 +1,9 @@
-﻿# PowerShell port of ao-doctor.sh — Windows-native health checks for AO.
-# Invoked by `ao doctor` on Windows via runRepoScript().
+﻿# PowerShell port of cahi-doctor.sh — Windows-native health checks for AO.
+# Invoked by `cahi doctor` on Windows via runRepoScript().
 
 $ErrorActionPreference = 'Continue'
 
-# Manual arg parsing — matches ao-doctor.sh's `--fix` / `-h` / `--help` flags
+# Manual arg parsing — matches cahi-doctor.sh's `--fix` / `-h` / `--help` flags
 # rather than PowerShell's `-Fix` convention, so the calling contract is
 # identical on Linux/macOS/Windows.
 $Fix  = $false
@@ -22,7 +22,7 @@ foreach ($a in $args) {
 
 if ($Help) {
     @'
-Usage: ao doctor [--fix]
+Usage: cahi doctor [--fix]
 
 Checks install, PATH, binaries, service health, stale temp files, and runtime sanity.
 
@@ -227,8 +227,8 @@ function Check-InstallLayout {
         $checks = @(
             @{ Path = 'package.json';                    Label = 'CLI package metadata is present' }
             @{ Path = 'dist/index.js';                   Label = 'packaged CLI entrypoint exists' }
-            @{ Path = 'dist/assets/scripts/ao-doctor.ps1'; Label = 'bundled doctor script is available' }
-            @{ Path = 'dist/assets/scripts/ao-update.ps1'; Label = 'bundled update script is available' }
+            @{ Path = 'dist/assets/scripts/cahi-doctor.ps1'; Label = 'bundled doctor script is available' }
+            @{ Path = 'dist/assets/scripts/cahi-update.ps1'; Label = 'bundled update script is available' }
         )
         foreach ($c in $checks) {
             $full = Join-Path $RepoRoot $c.Path
@@ -262,7 +262,7 @@ function Check-RuntimeSanity {
         }
         & node $entry --version *> $null
         if ($LASTEXITCODE -eq 0) {
-            Write-Pass "packaged CLI runtime sanity check passed (ao --version)"
+            Write-Pass "packaged CLI runtime sanity check passed (cahi --version)"
         } else {
             Write-Fail "packaged CLI runtime sanity check failed. Fix: reinstall @contaazul/cahi"
         }
@@ -275,7 +275,7 @@ function Check-RuntimeSanity {
     }
     & node $entry --version *> $null
     if ($LASTEXITCODE -eq 0) {
-        Write-Pass "launcher runtime sanity check passed (ao --version)"
+        Write-Pass "launcher runtime sanity check passed (cahi --version)"
     } else {
         Write-Fail "launcher runtime sanity check failed. Fix: run pnpm build and refresh the launcher"
     }
@@ -284,7 +284,7 @@ function Check-RuntimeSanity {
 function Check-ConfigDirs {
     $configPath = Find-AoConfig
     if (-not $configPath) {
-        Write-Warn2 "No agent-orchestrator config was found. Fix: run ao init --auto in a target repo"
+        Write-Warn2 "No cahi config was found. Fix: run cahi init --auto in a target repo"
         return
     }
     Write-Pass "config found at $configPath"
@@ -299,7 +299,7 @@ function Check-ConfigDirs {
 }
 
 function Check-StaleTempFiles {
-    $tempRoot = if ($env:CAHI_DOCTOR_TMP_ROOT) { $env:CAHI_DOCTOR_TMP_ROOT } else { Join-Path $env:TEMP 'agent-orchestrator' }
+    $tempRoot = if ($env:CAHI_DOCTOR_TMP_ROOT) { $env:CAHI_DOCTOR_TMP_ROOT } else { Join-Path $env:TEMP 'cahi' }
     if (-not (Test-Path $tempRoot)) {
         Write-Pass "temp root exists check skipped because $tempRoot does not exist"
         return
@@ -324,10 +324,10 @@ function Check-StaleTempFiles {
         }
         return
     }
-    Write-Warn2 "$($stale.Count) stale temp files older than 60 minutes found under $tempRoot. Fix: rerun ao doctor --fix"
+    Write-Warn2 "$($stale.Count) stale temp files older than 60 minutes found under $tempRoot. Fix: rerun cahi doctor --fix"
 }
 
-Write-Host "Agent Orchestrator Doctor`n"
+Write-Host "CAHI Doctor`n"
 
 Check-Node
 Check-Git
@@ -348,5 +348,5 @@ if ($script:FailCount -gt 0) {
     exit 1
 }
 
-Write-Host "Environment looks healthy enough to run Agent Orchestrator."
+Write-Host "Environment looks healthy enough to run CAHI."
 exit 0

@@ -821,7 +821,7 @@ describe("restore", () => {
   it("does not inject OPENCODE_CONFIG when restoring OpenCode orchestrators", async () => {
     const wsPath = join(tmpDir, "ws-app-orchestrator-opencode-restore");
     mkdirSync(wsPath, { recursive: true });
-    writeFileSync(getWorkspaceAgentsMdPath(wsPath), "## Agent Orchestrator\n", "utf-8");
+    writeFileSync(getWorkspaceAgentsMdPath(wsPath), "## CAHI\n", "utf-8");
 
     const mockOpenCodeAgentWithRestore: Agent = {
       ...mockAgent,

@@ -67,7 +67,7 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 | `metadata.ts`          | Flat-file metadata read/write (key=value)                        | Metadata parsing in all session managers        |
 | `event-bus.ts`         | In-process pub/sub + JSONL persistence                           | New (inspired by OpenHands event stream)        |
 | `tmux.ts`              | tmux command wrappers (list, new, send-keys, capture-pane, kill) | All scripts that call tmux                      |
-| `session-manager.ts`   | Session CRUD: spawn, list, kill, cleanup, send message           | `claude-ao-session`                             |
+| `session-manager.ts`   | Session CRUD: spawn, list, kill, cleanup, send message           | `claude-cahi-session`                             |
 | `lifecycle-manager.ts` | State machine per session + reaction engine                      | `claude-review-check` + `claude-session-status` |
 
 **Key complexity**: session-manager.ts orchestrates Runtime + Agent + Workspace plugins together. lifecycle-manager.ts runs the polling loop and triggers reactions.
@@ -85,9 +85,9 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 
 | Plugin               | What                                                               | Reference                          |
 | -------------------- | ------------------------------------------------------------------ | ---------------------------------- |
-| `runtime-tmux`       | Create/destroy tmux sessions, send-keys, capture-pane, alive check | `claude-ao-session` new/kill       |
+| `runtime-tmux`       | Create/destroy tmux sessions, send-keys, capture-pane, alive check | `claude-cahi-session` new/kill       |
 | `runtime-process`    | Spawn child processes, stdin/stdout, signal handling               | New (for headless `claude -p`)     |
-| `workspace-worktree` | `git worktree add/remove/list`, branch naming, symlinks            | `claude-ao-session` worktree logic |
+| `workspace-worktree` | `git worktree add/remove/list`, branch naming, symlinks            | `claude-cahi-session` worktree logic |
 | `workspace-clone`    | `git clone`, cleanup                                               | New (for Docker/cloud runtimes)    |
 
 **Key complexity**: runtime-tmux must handle send-keys with proper escaping, busy detection, and the wait-for-idle pattern from `send-to-session`.
@@ -126,7 +126,7 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 | ---------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | `scm-github`     | PR detection, CI checks, review comments, automated comments, merge readiness, merge | `claude-review-check`, `claude-bugbot-fix`, dashboard PR fetching |
 | `tracker-github` | Issue fetch, completion check, branch naming, prompt generation                      | `claude-splitly-session` (GitHub Issues)                          |
-| `tracker-linear` | Issue fetch via GraphQL, completion check, branch naming                             | `claude-ao-session` + `claude-integrator-session` Linear checks   |
+| `tracker-linear` | Issue fetch via GraphQL, completion check, branch naming                             | `claude-cahi-session` + `claude-integrator-session` Linear checks   |
 
 **Key complexity**: `scm-github` is the largest — it covers PR state, CI checks (gh pr checks), review decision (gh pr view), inline review comments (gh api), automated bot comments (cursor[bot], bugbot), and merge readiness.
 
@@ -147,7 +147,7 @@ Creates the monorepo scaffold and ALL type definitions. After this, every agent 
 | `cahi status`                            | Colored terminal table of all sessions               | `claude-status`                     |
 | `cahi spawn <project> [issue]`           | Spawn single session                                 | `claude-spawn`                      |
 | `cahi batch-spawn <project> <issues...>` | Batch spawn with dedup                               | `claude-batch-spawn`                |
-| `cahi session ls\|kill\|cleanup`         | Session management                                   | `claude-ao-session` ls/kill/cleanup |
+| `cahi session ls\|kill\|cleanup`         | Session management                                   | `claude-cahi-session` ls/kill/cleanup |
 | `cahi send <session> <message>`          | Smart message delivery                               | `send-to-session`                   |
 | `cahi review-check [project]`            | Trigger PR review fixes                              | `claude-review-check`               |
 | `cahi dashboard`                         | Start web server                                     | `claude-dashboard`                  |
@@ -253,20 +253,20 @@ If core services are delayed, CLI and Web can't fully test. Mitigations:
 
 | Ticket | Title                                                                                 | Agent |
 | ------ | ------------------------------------------------------------------------------------- | ----- |
-| AO-10  | Implement core services (metadata, event-bus, session-manager, lifecycle-manager)     | 1     |
-| AO-11  | Implement runtime + workspace plugins (tmux, process, worktree, clone)                | 2     |
-| AO-12  | Implement agent plugins (claude-code, codex, aider)                                   | 3     |
-| AO-13  | Implement SCM + tracker plugins (github SCM, github tracker, linear tracker)          | 4     |
-| AO-14  | Implement CLI (cahi init, status, spawn, session, send, review-check, dashboard, open)  | 5     |
-| AO-15  | Implement web dashboard (Next.js, API routes, SSE, attention-zone UI, session detail) | 6     |
-| AO-16  | Implement notifier + terminal plugins (desktop, slack, webhook, iterm2, web)          | 7     |
+| CAHI-10  | Implement core services (metadata, event-bus, session-manager, lifecycle-manager)     | 1     |
+| CAHI-11  | Implement runtime + workspace plugins (tmux, process, worktree, clone)                | 2     |
+| CAHI-12  | Implement agent plugins (claude-code, codex, aider)                                   | 3     |
+| CAHI-13  | Implement SCM + tracker plugins (github SCM, github tracker, linear tracker)          | 4     |
+| CAHI-14  | Implement CLI (cahi init, status, spawn, session, send, review-check, dashboard, open)  | 5     |
+| CAHI-15  | Implement web dashboard (Next.js, API routes, SSE, attention-zone UI, session detail) | 6     |
+| CAHI-16  | Implement notifier + terminal plugins (desktop, slack, webhook, iterm2, web)          | 7     |
 
 ## Spawning Command
 
 After Phase 0 is committed to `main`:
 
 ```bash
-~/claude-batch-spawn ao AO-10 AO-11 AO-12 AO-13 AO-14 AO-15 AO-16
+~/claude-batch-spawn cahi CAHI-10 CAHI-11 CAHI-12 CAHI-13 CAHI-14 CAHI-15 CAHI-16
 ```
 
 Each agent gets its own worktree branched from main (which contains the scaffold + types).

@@ -28,23 +28,23 @@ function makeEvent(overrides: Partial<OrchestratorEvent> = {}): OrchestratorEven
 const prContext: NotificationEventContext = {
   pr: {
     number: 1579,
-    url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579",
+    url: "https://github.com/contaazul/cahi/pull/1579",
     title: "Normalize AO notifier payloads",
     branch: "ao/demo-notifier-harness",
     baseBranch: "main",
     owner: "ComposioHQ",
-    repo: "agent-orchestrator",
+    repo: "cahi",
     isDraft: false,
   },
   prs: [
     {
       number: 1579,
-      url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579",
+      url: "https://github.com/contaazul/cahi/pull/1579",
       title: "Normalize AO notifier payloads",
       branch: "ao/demo-notifier-harness",
       baseBranch: "main",
       owner: "ComposioHQ",
-      repo: "agent-orchestrator",
+      repo: "cahi",
       isDraft: false,
     },
   ],
@@ -210,7 +210,7 @@ describe("notifier-openclaw", () => {
               name: "typecheck",
               status: "failed",
               conclusion: "FAILURE",
-              url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579/checks",
+              url: "https://github.com/contaazul/cahi/pull/1579/checks",
             },
           ],
         }),
@@ -221,11 +221,11 @@ describe("notifier-openclaw", () => {
     expect(body.message).toContain("**AO ACTION** `ci.failing`");
     expect(body.message).toContain("**Pull Request**");
     expect(body.message).toContain(
-      "[#1579 - Normalize AO notifier payloads](https://github.com/ComposioHQ/agent-orchestrator/pull/1579)",
+      "[#1579 - Normalize AO notifier payloads](https://github.com/contaazul/cahi/pull/1579)",
     );
     expect(body.message).toContain("**Checks**");
     expect(body.message).toContain(
-      "- [typecheck](https://github.com/ComposioHQ/agent-orchestrator/pull/1579/checks): `failed/FAILURE`",
+      "- [typecheck](https://github.com/contaazul/cahi/pull/1579/checks): `failed/FAILURE`",
     );
     expect(body.message).not.toContain("Context: {");
   });
@@ -268,7 +268,7 @@ describe("notifier-openclaw", () => {
     expect(body.message).toContain("- Review: `approved`");
     expect(body.message).toContain("- Merge ready: yes");
     expect(body.message).toContain(
-      "- [Pull request](https://github.com/ComposioHQ/agent-orchestrator/pull/1579)",
+      "- [Pull request](https://github.com/contaazul/cahi/pull/1579)",
     );
   });
 

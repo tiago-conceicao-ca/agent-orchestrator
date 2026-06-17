@@ -8,7 +8,7 @@ export default function NotFound() {
           href="/"
           className="mb-14 inline-flex w-fit items-center gap-2 text-sm font-semibold text-white no-underline"
         >
-          <img src="/ao-logo.svg" alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7" />
+          <img src="/cahi-logo.svg" alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7" />
           CAHI
         </a>
 

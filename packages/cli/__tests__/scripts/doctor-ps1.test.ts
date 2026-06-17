@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 // runtime on a user's machine.
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scriptPath = join(packageRoot, "src", "assets", "scripts", "ao-doctor.ps1");
+const scriptPath = join(packageRoot, "src", "assets", "scripts", "cahi-doctor.ps1");
 
 function runPwsh(args: string[], extraEnv: Record<string, string> = {}) {
   return spawnSync(
@@ -24,18 +24,18 @@ function runPwsh(args: string[], extraEnv: Record<string, string> = {}) {
   );
 }
 
-describe.runIf(process.platform === "win32")("ao-doctor.ps1", () => {
+describe.runIf(process.platform === "win32")("cahi-doctor.ps1", () => {
   it("prints usage and exits 0 for --help", () => {
     const result = runPwsh(["--help"]);
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Usage: ao doctor");
+    expect(result.stdout).toContain("Usage: cahi doctor");
     expect(result.stdout).toContain("--fix");
   });
 
   it("prints usage and exits 0 for -h", () => {
     const result = runPwsh(["-h"]);
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Usage: ao doctor");
+    expect(result.stdout).toContain("Usage: cahi doctor");
   });
 
   it("rejects unknown flags with exit 1", () => {
@@ -52,7 +52,7 @@ describe.runIf(process.platform === "win32")("ao-doctor.ps1", () => {
     // must always print a final "Results: ... PASS, ... WARN, ... FAIL" line
     // and exit either 0 (no FAILs) or 1 (FAILs). This catches a script that
     // fails to parse or crashes mid-pipeline.
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-ps1-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-ps1-"));
     try {
       const result = runPwsh([], {
         CAHI_REPO_ROOT: tempRoot,
@@ -61,7 +61,7 @@ describe.runIf(process.platform === "win32")("ao-doctor.ps1", () => {
         CAHI_DOCTOR_TMP_ROOT: tempRoot,
       });
       expect([0, 1]).toContain(result.status);
-      expect(result.stdout).toContain("Agent Orchestrator Doctor");
+      expect(result.stdout).toContain("CAHI Doctor");
       expect(result.stdout).toMatch(/Results: \d+ PASS, \d+ WARN, \d+ FAIL, \d+ FIXED/);
     } finally {
       rmSync(tempRoot, { recursive: true, force: true });

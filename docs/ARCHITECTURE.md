@@ -23,7 +23,7 @@ graph TB
 
     subgraph MuxServer["② WebSocket Server — :14801  (separate Node process)"]
         MuxWS["ws://host:14801/mux\nMultiplexed — two sub-channels\nover one connection"]
-        TermMgr["TerminalManager (Unix)\n(node-pty → tmux PTY)\n— or —\nNamed-pipe relay (Windows)\nhandleWindowsPipeMessage →\n\\\\.\\pipe\\ao-pty-{id}"]
+        TermMgr["TerminalManager (Unix)\n(node-pty → tmux PTY)\n— or —\nNamed-pipe relay (Windows)\nhandleWindowsPipeMessage →\n\\\\.\\pipe\\cahi-pty-{id}"]
         Broadcaster["SessionBroadcaster\n(setInterval every 3s →\nGET /api/sessions/patches)"]
     end
 
@@ -164,7 +164,7 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph Host
-        CLI["ao CLI\n(packages/cli)"]
+        CLI["cahi CLI\n(packages/cli)"]
         Next["Next.js\npackages/web — :3000"]
         MuxSrv["Terminal WS Server\npackages/web/server — :14801"]
     end
@@ -182,7 +182,7 @@ graph LR
 
 The CLI (`cahi start`) forks two long-running processes:
 - **Next.js** on `:3000` — serves the dashboard and all REST routes
-- **Terminal WS server** on `:14801` — handles multiplexed WebSocket + PTY management + session patch polling. PTY transport is platform-specific: tmux via `node-pty` on Unix, named-pipe relay (`handleWindowsPipeMessage` → `\\.\pipe\ao-pty-{sessionId}`) on Windows. Both paths use the same outer mux protocol.
+- **Terminal WS server** on `:14801` — handles multiplexed WebSocket + PTY management + session patch polling. PTY transport is platform-specific: tmux via `node-pty` on Unix, named-pipe relay (`handleWindowsPipeMessage` → `\\.\pipe\cahi-pty-{sessionId}`) on Windows. Both paths use the same outer mux protocol.
 
 Both processes share no in-memory state; coordination happens through flat files in `~/.cahi/` and HTTP calls from the WS server to Next.js.
 
@@ -224,7 +224,7 @@ graph LR
     subgraph SessionWindows["CAHI Session (Windows)"]
         AOStart["cahi start / spawn"]
         PtyHost["pty-host.cjs<br/>(detached Node child)"]
-        Pipe["Named pipe<br/>\\.\pipe\ao-pty-{sessionId}"]
+        Pipe["Named pipe<br/>\\.\pipe\cahi-pty-{sessionId}"]
         ConPty["ConPTY<br/>(node-pty)"]
         Agent["Agent process<br/>(claude-code, codex, …)"]
     end
@@ -247,7 +247,7 @@ Implemented in `packages/plugins/runtime-process/src/pty-host.ts` (also runnable
 
 ### Pipe protocol
 
-The pty-host exposes a small binary protocol over `\\.\pipe\ao-pty-{sessionId}`. Messages share a 5-byte header — `[1-byte type][4-byte big-endian length]` — followed by the payload.
+The pty-host exposes a small binary protocol over `\\.\pipe\cahi-pty-{sessionId}`. Messages share a 5-byte header — `[1-byte type][4-byte big-endian length]` — followed by the payload.
 
 | Type | Direction | Meaning |
 |------|-----------|---------|
@@ -259,7 +259,7 @@ The pty-host exposes a small binary protocol over `\\.\pipe\ao-pty-{sessionId}`.
 | `0x08` `MSG_KILL_REQ` | client → host | Cooperative shutdown (host disposes ConPTY then exits) |
 
 Client helpers in `packages/plugins/runtime-process/src/pty-client.ts`:
-- `connectPtyHost`, `ptyHostSendMessage`, `ptyHostGetOutput`, `ptyHostIsAlive`, `ptyHostKill`, plus `getPipePath(sessionId)` → `\\.\pipe\ao-pty-{sessionId}`.
+- `connectPtyHost`, `ptyHostSendMessage`, `ptyHostGetOutput`, `ptyHostIsAlive`, `ptyHostKill`, plus `getPipePath(sessionId)` → `\\.\pipe\cahi-pty-{sessionId}`.
 - `MessageParser` skips interleaved data frames so request/response pairs work over a busy pipe.
 
 ### Mux WS server: tmux vs Windows pipe relay
@@ -273,7 +273,7 @@ Client helpers in `packages/plugins/runtime-process/src/pty-client.ts`:
 
 ### Pty-host registry — `~/.cahi/windows-pty-hosts.json`
 
-Because pty-hosts run detached, `taskkill /T` on the parent ao-start process cannot reach them. To allow `cahi stop` to find and clean them up, every spawned pty-host is recorded in a small JSON registry.
+Because pty-hosts run detached, `taskkill /T` on the parent cahi-start process cannot reach them. To allow `cahi stop` to find and clean them up, every spawned pty-host is recorded in a small JSON registry.
 
 `packages/core/src/windows-pty-registry.ts`:
 - `registerWindowsPtyHost(entry)` — write/replace the entry on spawn.
@@ -288,15 +288,15 @@ Because pty-hosts run detached, `taskkill /T` on the parent ao-start process can
 ```mermaid
 graph LR
     subgraph Host
-        CLI["ao CLI"]
+        CLI["cahi CLI"]
         Next["Next.js  :3000"]
         MuxSrv["Terminal WS  :14801"]
         Sweep["sweepWindowsPtyHosts()<br/>(called by cahi stop)"]
     end
 
     subgraph Sessions["Per-session pty-hosts (detached)"]
-        PH1["pty-host #1<br/>\\.\pipe\ao-pty-id1"]
-        PH2["pty-host #2<br/>\\.\pipe\ao-pty-id2"]
+        PH1["pty-host #1<br/>\\.\pipe\cahi-pty-id1"]
+        PH2["pty-host #2<br/>\\.\pipe\cahi-pty-id2"]
     end
 
     subgraph Storage["Flat files"]

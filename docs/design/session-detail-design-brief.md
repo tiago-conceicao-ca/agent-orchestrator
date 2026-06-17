@@ -28,9 +28,9 @@ The session detail page is a **single-task focused view**, not a dashboard. The 
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─ Header ────────────────────────────────────────────────────────────────┐
-│  ao-58  [● Active]                                                      │
+│  cahi-58  [● Active]                                                      │
 │  Implement UI/UX research dashboard                                     │
-│  [project-id] · [#104] · [session/ao-58] · [INT-58]                    │
+│  [project-id] · [#104] · [session/cahi-58] · [INT-58]                    │
 │  Working · Created 2h ago · Active 3m ago                               │
 └─────────────────────────────────────────────────────────────────────────┘
 
@@ -53,7 +53,7 @@ The session detail page is a **single-task focused view**, not a dashboard. The 
 ┌─ Terminal ──────────────────────────────────────────────────────────────┐
 │  TERMINAL                                                               │
 │ ┌─────────────────────────────────────────────────────────────────────┐ │
-│ │ ● ao-58  Connected  XDA             [fullscreen]                    │ │
+│ │ ● cahi-58  Connected  XDA             [fullscreen]                    │ │
 │ │─────────────────────────────────────────────────────────────────────│ │
 │ │                                                                     │ │
 │ │  $ claude --dangerously-skip-permissions                            │ │
@@ -86,9 +86,9 @@ padding: 0 32px;
 
 **Addition (not currently present)**: Show current session ID as a breadcrumb:
 ```
-← CAHI  /  ao-58
+← CAHI  /  cahi-58
 ```
-`ao-58` in monospace, `--text-muted`. Helps orient the user without reading the header.
+`cahi-58` in monospace, `--text-muted`. Helps orient the user without reading the header.
 
 ---
 
@@ -211,12 +211,12 @@ The terminal is rendered via `DirectTerminal.tsx` (xterm.js + WebSocket). Design
 
 Current:
 ```
-[● green] ao-58  Connected  XDA        [fullscreen]
+[● green] cahi-58  Connected  XDA        [fullscreen]
 ```
 
 Recommended additions:
 ```
-[● green] ao-58  Connected  [XDA]      ────────────  [↕ fullscreen]
+[● green] cahi-58  Connected  [XDA]      ────────────  [↕ fullscreen]
 ```
 
 - Connection status dot: green/red/amber pulsing — current correct, uses CSS classes from design token colors
@@ -295,7 +295,7 @@ Recommended:
 
 | Priority | Change | File | Notes |
 |----------|--------|------|-------|
-| 1 | Breadcrumb in nav: `← CAHI / ao-58` | `SessionDetail.tsx` | Orientation |
+| 1 | Breadcrumb in nav: `← CAHI / cahi-58` | `SessionDetail.tsx` | Orientation |
 | 2 | Activity indicator: CSS dot instead of emoji | `SessionDetail.tsx` — `activityLabel` map | Visual precision |
 | 3 | "Ready to merge" → banner card instead of text line | `SessionDetail.tsx` — `PRCard` | Primary action prominence |
 | 4 | Terminal theme: `#0A0A0F` bg, `#5B7EF8` cursor, JetBrains Mono | `DirectTerminal.tsx` | Terminal quality |

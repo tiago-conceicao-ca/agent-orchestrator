@@ -14,7 +14,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scriptPath = join(packageRoot, "src", "assets", "scripts", "ao-update.sh");
+const scriptPath = join(packageRoot, "src", "assets", "scripts", "cahi-update.sh");
 
 function writeExecutable(path: string, content: string): void {
   writeFileSync(path, content);
@@ -25,9 +25,9 @@ function createFakeBinary(binDir: string, name: string, body: string): void {
   writeExecutable(join(binDir, name), `#!/bin/bash\nset -e\n${body}\n`);
 }
 
-describe("ao-update.sh", () => {
+describe("cahi-update.sh", () => {
   it("falls back to origin when no upstream remote exists", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-script-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-script-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
     mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
@@ -95,7 +95,7 @@ esac\nexit 0`,
   it.skipIf(process.platform === "win32")(
     "syncs the fork with upstream via gh and fast-forwards the local checkout from upstream",
     () => {
-      const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-upstream-script-"));
+      const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-upstream-script-"));
       const fakeRepo = join(tempRoot, "repo");
       mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
       mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
@@ -107,8 +107,8 @@ esac\nexit 0`,
       createFakeBinary(
         binDir,
         "git",
-        `printf 'git %s\\n' "$*" >> ${JSON.stringify(commandLog)}\ncase "$*" in\n  "remote get-url origin") printf 'https://github.com/yyovil/agent-orchestrator.git\\n' ;;
-  "remote get-url upstream") printf 'https://github.com/ComposioHQ/agent-orchestrator.git\\n' ;;
+        `printf 'git %s\\n' "$*" >> ${JSON.stringify(commandLog)}\ncase "$*" in\n  "remote get-url origin") printf 'https://github.com/yyovil/cahi.git\\n' ;;
+  "remote get-url upstream") printf 'https://github.com/contaazul/cahi.git\\n' ;;
   "rev-parse --is-inside-work-tree") printf 'true\\n' ;;
   "status --porcelain") ;;
   "branch --show-current") printf 'main\\n' ;;
@@ -154,7 +154,7 @@ esac\nexit 0`,
 
       expect(result.status).toBe(0);
       expect(commands).toContain(
-        "gh repo sync yyovil/agent-orchestrator --source ComposioHQ/agent-orchestrator --branch main",
+        "gh repo sync yyovil/cahi --source contaazul/cahi --branch main",
       );
       expect(commands).toContain("git fetch upstream main");
       expect(commands).toContain("git pull --ff-only upstream main");
@@ -163,7 +163,7 @@ esac\nexit 0`,
   );
 
   it.skipIf(process.platform === "win32")("uses forced npm link so stale global ao shims are overwritten", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-stale-shim-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-stale-shim-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
     mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });
@@ -229,7 +229,7 @@ exit 0`,
   });
 
   it.skipIf(process.platform === "win32")("runs the built-in smoke commands in smoke-only mode", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-smoke-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-smoke-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cahi", "bin"), { recursive: true });
     writeFileSync(join(fakeRepo, "packages", "cahi", "bin", "cahi.js"), "#!/usr/bin/env node\n");
@@ -272,7 +272,7 @@ exit 0`,
   it.skipIf(process.platform === "win32")(
     "resolves the source checkout root when CAHI_REPO_ROOT is unset",
     () => {
-      const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-root-detect-"));
+      const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-root-detect-"));
       const binDir = join(tempRoot, "bin");
       mkdirSync(binDir, { recursive: true });
       const commandLog = join(tempRoot, "commands.log");
@@ -307,7 +307,7 @@ exit 0`,
   );
 
   it("fails fast on a dirty install repo with an actionable message", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-dirty-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-dirty-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(fakeRepo, { recursive: true });
 
@@ -353,7 +353,7 @@ exit 0`,
   });
 
   it.skipIf(process.platform === "win32")("skips rebuild but still runs smoke tests when local HEAD matches remote HEAD", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-already-latest-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-already-latest-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
     mkdirSync(join(fakeRepo, "packages", "cahi", "bin"), { recursive: true });
@@ -436,7 +436,7 @@ exit 0`,
   });
 
   it("reports when the update itself dirties the checkout", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-update-post-dirty-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-update-post-dirty-"));
     const fakeRepo = join(tempRoot, "repo");
     mkdirSync(join(fakeRepo, "packages", "cli"), { recursive: true });
     mkdirSync(join(fakeRepo, "packages", "cahi"), { recursive: true });

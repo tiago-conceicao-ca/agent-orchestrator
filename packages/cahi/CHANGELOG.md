@@ -20,7 +20,7 @@
 
 ### Patch Changes
 
-- d5d0f07: Rebuild missing better-sqlite3 native bindings during ao postinstall and replace noisy activity-events native-binding failures with a one-line diagnostic.
+- d5d0f07: Rebuild missing better-sqlite3 native bindings during cahi postinstall and replace noisy activity-events native-binding failures with a one-line diagnostic.
 - Updated dependencies [6d48022]
 - Updated dependencies [ecdf0c7]
 - Updated dependencies [fcedb25]
@@ -40,11 +40,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -54,7 +54,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -102,7 +102,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
     dismissal persists per-version in `localStorage`.
   - **Bun + Homebrew detection.** New install-method classifiers for
     `~/.bun/install/global/` (auto-installs `bun add -g @contaazul/cahi@<channel>`)
-    and `/Cellar/ao/` (notice only — `brew upgrade ao` to avoid clobbering
+    and `/Cellar/cahi/` (notice only — `brew upgrade cahi` to avoid clobbering
     brew's symlinks). `installMethod` config field overrides path detection.
 
   Supersedes #1525 (incorporates the canary + release infrastructure with the
@@ -150,7 +150,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Patch Changes
 
-- @composio/ao-cli@0.2.2
+- @composio/cahi-cli@0.2.2
 
 ## 0.2.1
 
@@ -163,15 +163,15 @@ in `POST /api/update` so the dashboard returns a structured 409.
   - Remove redundant agent runtime re-detection during config generation.
 
 - Updated dependencies [ac625c3]
-  - @composio/ao-cli@0.2.1
+  - @composio/cahi-cli@0.2.1
 
 ## 0.2.0
 
 ### Minor Changes
 
-- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/cahi`. Made `@composio/cahi-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 
 ### Patch Changes
 
 - Updated dependencies [3a650b0]
-  - @composio/ao-cli@0.2.0
+  - @composio/cahi-cli@0.2.0

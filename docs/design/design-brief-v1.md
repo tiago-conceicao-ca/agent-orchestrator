@@ -25,7 +25,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Status indicators**: Small colored circles — the Linear "state dot" became an industry pattern. Green for done/success, red for blocked/error.
 **Tone**: Engineered restraint. Every element earns its place. Nothing decorative.
 
-**Takeaway for ao**: The quaternary text hierarchy and named type scale enable information density without visual chaos. Adopt a similarly granular token system.
+**Takeaway for cahi**: The quaternary text hierarchy and named type scale enable information density without visual chaos. Adopt a similarly granular token system.
 
 ---
 
@@ -36,7 +36,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Status indicators**: Small colored dots (8–10px) inline with resource names. Unmistakable but minimal.
 **Tone**: Austere technical authority. "We don't need color to project confidence."
 
-**Takeaway for ao**: The deployment list row pattern (name + status dot + metadata on one line) is directly applicable to session cards in compact mode. Monochrome discipline keeps status colors maximally signal-to-noise.
+**Takeaway for cahi**: The deployment list row pattern (name + status dot + metadata on one line) is directly applicable to session cards in compact mode. Monochrome discipline keeps status colors maximally signal-to-noise.
 
 ---
 
@@ -46,7 +46,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Density**: Moderate. Services presented as visual cards in a grid. Shadow: `0 0 30px hsla(0,0%,30%,.25)` — diffuse ambient glow, not directional.
 **Tone**: Playful sophistication. "Ship software peacefully" — the vaporwave easter egg theme reveals a team with personality.
 
-**Takeaway for ao**: The purple-tinted dark base (`#13111C`) is more distinctive than pure black without being loud. Worth considering as the background. The ambient glow shadow on cards is more premium than flat borders.
+**Takeaway for cahi**: The purple-tinted dark base (`#13111C`) is more distinctive than pure black without being loud. Worth considering as the background. The ambient glow shadow on cards is more premium than flat borders.
 
 ---
 
@@ -55,7 +55,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Typography**: Fricolage Grotesque (quirky geometric grotesque) for headlines, Mackinac (warm serif) for body, Fragment Mono for code. The most typographically adventurous stack in the group.
 **Tone**: "Fearless confidence." Loud type choices signal that the team has opinions.
 
-**Takeaway for ao**: The adventurous type choice is a lesson about brand identity. ao should pick *one* distinctive typographic decision and commit to it.
+**Takeaway for cahi**: The adventurous type choice is a lesson about brand identity. cahi should pick *one* distinctive typographic decision and commit to it.
 
 ---
 
@@ -66,7 +66,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Cards**: Stone-900 background, top-border accent lines, `rounded-xl` (12px) radius.
 **Tone**: Warm enterprise. The stone palette (not cold gray) gives unexpected approachability.
 
-**Takeaway for ao**: The amber accent color for an infrastructure product is distinctive and memorable. Grid background textures at 0.3 opacity add depth without clutter.
+**Takeaway for cahi**: The amber accent color for an infrastructure product is distinctive and memorable. Grid background textures at 0.3 opacity add depth without clutter.
 
 ---
 
@@ -74,7 +74,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Palette**: Deep ultraviolet/indigo backdrop, star-grid hero pattern. Magenta `~#d946ef` CTAs. Green badge for system status.
 **Tone**: "Cosmic reliability." Rainbow gradients in testimonial sections break monochrome tension.
 
-**Takeaway for ao**: The star-grid subtle texture on a dark background is a quality signal without being decorative noise.
+**Takeaway for cahi**: The star-grid subtle texture on a dark background is a quality signal without being decorative noise.
 
 ---
 
@@ -83,7 +83,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Density**: Monitoring tools require extreme density — Grafana panels pack many metrics per square centimeter. Time-series panels, gauge panels, table panels all coexist at density levels that would horrify Linear's designers.
 **Tone**: OSS pragmatism. The white background is a deliberate "we are transparent and open" statement.
 
-**Takeaway for ao**: ao should reference Grafana for density targets, not aesthetic. The cahi dashboard with 30 sessions needs panel-level density discipline.
+**Takeaway for cahi**: cahi should reference Grafana for density targets, not aesthetic. The cahi dashboard with 30 sessions needs panel-level density discipline.
 
 ---
 
@@ -93,7 +93,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Cards**: `border-radius: 8–16px`. Explicit `1px solid #34373C` borders. Upward-direction box shadow: `0px -1px 16px rgba(10,14,21,0.5)`.
 **Tone**: Scientific gravitas meets ML ambition. Dense, trustworthy, research-credibility.
 
-**Takeaway for ao**: The `#1A1C1F` charcoal with `#34373C` explicit borders is the most production-battle-tested dark card system in this research. The upward shadow (rather than downward) creates a distinctive floating-from-below effect.
+**Takeaway for cahi**: The `#1A1C1F` charcoal with `#34373C` explicit borders is the most production-battle-tested dark card system in this research. The upward shadow (rather than downward) creates a distinctive floating-from-below effect.
 
 ---
 
@@ -104,7 +104,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Status system**: Hierarchical run tree with icon-based type indicators (chain icon for chain runs, LLM icon for LLM runs). Green ✓ / red ✗ for success/failure.
 **Tone**: Analytical transparency. "Know what your agents are really doing."
 
-**Takeaway for ao**: LangSmith is the closest design analogue to ao — it's a dashboard for understanding AI agent behavior. The hierarchical trace tree, dense row layout, and JetBrains Mono-first typography are all directly relevant. ao is LangSmith for the agent lifecycle rather than the agent's internal trace.
+**Takeaway for cahi**: LangSmith is the closest design analogue to cahi — it's a dashboard for understanding AI agent behavior. The hierarchical trace tree, dense row layout, and JetBrains Mono-first typography are all directly relevant. cahi is LangSmith for the agent lifecycle rather than the agent's internal trace.
 
 ---
 
@@ -114,7 +114,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Status for AI activity**: Animated ellipsis/spinner for "thinking"; static result for "complete." Undo controls appear after edit.
 **Tone**: "Capability amplification." UI recedes so work foregrounds.
 
-**Takeaway for ao**: The pattern of **transparent sequential step disclosure** (each tool call labeled and visible) is the right model for the terminal/activity panel. ao should show what the agent is doing in the same style: labeled steps, not a raw log dump.
+**Takeaway for cahi**: The pattern of **transparent sequential step disclosure** (each tool call labeled and visible) is the right model for the terminal/activity panel. cahi should show what the agent is doing in the same style: labeled steps, not a raw log dump.
 
 ---
 
@@ -122,7 +122,7 @@ Primary interaction model: **scan → identify → act**. Not explore, not brows
 **Palette**: `#3ECF8E` mint-green as brand-primary (also the success color). `#11181C` dark background. Built on Radix UI + Tailwind + shadcn/ui.
 **Tone**: "Radical developer empathy." Open source, portable, one of us.
 
-**Takeaway for ao**: The shadcn/ui + Tailwind stack is a practical choice for ao's implementation. Supabase's success with it validates the approach for a serious developer tool.
+**Takeaway for cahi**: The shadcn/ui + Tailwind stack is a practical choice for cahi's implementation. Supabase's success with it validates the approach for a serious developer tool.
 
 ---
 
@@ -314,12 +314,12 @@ The primary unit of the dashboard. Every card represents one agent session.
 ```
 ┌─╴[status-strip]╶──────────────────────────────────┐
 │                                                     │
-│  ● working    ao-58                    [···]        │  ← row 1: status + session ID + menu
+│  ● working    cahi-58                    [···]        │  ← row 1: status + session ID + menu
 │                                                     │
 │  Implement UI/UX research dashboard                 │  ← row 2: ticket title (14px, 500)
 │  GitHub #58                                         │
 │                                                     │
-│  ⎇ session/ao-58                      ↑ PR #104    │  ← row 3: branch + PR link
+│  ⎇ session/cahi-58                      ↑ PR #104    │  ← row 3: branch + PR link
 │                                                     │
 │  ✓ CI passing   ✓ Approved   3m ago                │  ← row 4: CI + review + timestamp
 │                                                     │
@@ -493,10 +493,10 @@ scrollbar:        4px, --border-default color, no track
 padding:          12px 16px
 ```
 
-**Log entry prefixes**: Timestamp in `--text-tertiary`, then content. System messages from ao itself (not the agent) in `--status-attention` amber so the user can distinguish orchestrator-injected messages from agent output.
+**Log entry prefixes**: Timestamp in `--text-tertiary`, then content. System messages from cahi itself (not the agent) in `--status-attention` amber so the user can distinguish orchestrator-injected messages from agent output.
 
 ```
-  10:23:41  Spawning agent on branch session/ao-58...
+  10:23:41  Spawning agent on branch session/cahi-58...
   10:23:44  Agent ready. Claude session: f81637f1
   10:24:12  Running tests...
   10:24:45  Tests passed. Committing.
@@ -554,23 +554,23 @@ The dashboard is divided into horizontal zones. Each zone is a group of session 
 
 ### Vercel Deployments List
 **URL**: https://vercel.com/dashboard (requires auth) / https://vercel.com
-**Why relevant**: The deployment list row pattern — compact rows with inline status dot, deployment name (monospace), branch, and a merge-like "Promote to Production" action — is the closest existing product to what ao's session card in compact/list mode should be. Pure restraint: the status dot carries enormous signal on a dark background with nothing competing for attention.
+**Why relevant**: The deployment list row pattern — compact rows with inline status dot, deployment name (monospace), branch, and a merge-like "Promote to Production" action — is the closest existing product to what cahi's session card in compact/list mode should be. Pure restraint: the status dot carries enormous signal on a dark background with nothing competing for attention.
 
 ### Linear Issue List
 **URL**: https://linear.app
-**Why relevant**: The tightest example of information-dense card/row design in developer tools. Each issue shows: state dot, priority indicator, title, assignee, estimate, and labels — all in a compact row with zero wasted pixels. The state dot system (colored circles for Todo/In Progress/Done/Cancelled) is directly applicable to ao's working/idle/ready/exited states. The row hover state (very subtle background change) is the right level of interactivity feedback.
+**Why relevant**: The tightest example of information-dense card/row design in developer tools. Each issue shows: state dot, priority indicator, title, assignee, estimate, and labels — all in a compact row with zero wasted pixels. The state dot system (colored circles for Todo/In Progress/Done/Cancelled) is directly applicable to cahi's working/idle/ready/exited states. The row hover state (very subtle background change) is the right level of interactivity feedback.
 
 ### Grafana Dashboard (Dense Panel Layout)
 **URL**: https://grafana.com/grafana/dashboards (community dashboards)
-**Why relevant**: Grafana demonstrates that 30+ data panels can coexist in a single viewport without overwhelming users — when the data is organized by visual weight and semantic color. The panel border system (1px subtle borders, consistent padding), the metric display pattern (large number + small label + sparkline), and the zone/row organization all have direct analogues to ao's session grid.
+**Why relevant**: Grafana demonstrates that 30+ data panels can coexist in a single viewport without overwhelming users — when the data is organized by visual weight and semantic color. The panel border system (1px subtle borders, consistent padding), the metric display pattern (large number + small label + sparkline), and the zone/row organization all have direct analogues to cahi's session grid.
 
 ### GitHub Actions Workflow Visualization
 **URL**: https://docs.github.com/en/actions
-**Why relevant**: The job graph in GitHub Actions shows dependency chains between CI steps with status-colored nodes (green pass, red fail, amber in-progress, gray skipped). This is the best existing model for representing "pipeline state at a glance." The status dot → label → duration pattern for each job is directly applicable to ao's CI status display.
+**Why relevant**: The job graph in GitHub Actions shows dependency chains between CI steps with status-colored nodes (green pass, red fail, amber in-progress, gray skipped). This is the best existing model for representing "pipeline state at a glance." The status dot → label → duration pattern for each job is directly applicable to cahi's CI status display.
 
 ### VS Code GitHub Copilot Chat Panel (Agent Mode)
 **URL**: https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode
-**Why relevant**: The sequential tool-invocation list ("Analyzing files... Running tests... Proposing edits...") inside the Copilot chat panel is the right model for ao's terminal activity feed — transparent, labeled steps rather than raw log output. Each step is collapsible. This makes AI activity *legible* rather than just *visible*.
+**Why relevant**: The sequential tool-invocation list ("Analyzing files... Running tests... Proposing edits...") inside the Copilot chat panel is the right model for cahi's terminal activity feed — transparent, labeled steps rather than raw log output. Each step is collapsible. This makes AI activity *legible* rather than just *visible*.
 
 ---
 
@@ -579,7 +579,7 @@ The dashboard is divided into horizontal zones. Each zone is a group of session 
 ### Anti-patterns specific to this product category
 
 **1. Spacious single-project layout**
-Linear, Notion, and most project management tools are designed for one project at a time. ao has 30 sessions simultaneously. Do not adopt their card proportions. A 320×240px card works for one project on screen; at 30 sessions, it requires 4 viewports of scrolling.
+Linear, Notion, and most project management tools are designed for one project at a time. cahi has 30 sessions simultaneously. Do not adopt their card proportions. A 320×240px card works for one project on screen; at 30 sessions, it requires 4 viewports of scrolling.
 
 **2. Status color overloading**
 Using the same amber for "warning" as for "this agent has been idle for 3 hours" vs. "CI is failing" vs. "review changes requested" — these are different severities that should have different visual treatments. Define strict semantic rules for each status color and don't let the same color mean two different things.
@@ -591,7 +591,7 @@ Every badge must earn its visual weight. A card shouldn't have 6 badges. If a se
 The merge action should be one click on the card — not "click merge → confirm modal → click confirm in modal." Destructive actions (kill session, delete worktree) use confirmation. Merging a pre-approved PR is not destructive — it's the *goal*. One click.
 
 **5. Sidebar-heavy navigation**
-A wide left sidebar eats horizontal space that could show more columns of cards. ao has two states: dashboard view (all sessions) and single-session view (one terminal). Navigation should be a top bar (32px) or a narrow 48px icon rail, not a 240px sidebar.
+A wide left sidebar eats horizontal space that could show more columns of cards. cahi has two states: dashboard view (all sessions) and single-session view (one terminal). Navigation should be a top bar (32px) or a narrow 48px icon rail, not a 240px sidebar.
 
 **6. Light mode as the design authority**
 If you design light mode first and adapt to dark, you'll get light-mode design thinking applied to dark backgrounds (gray instead of true near-black, drop shadows instead of border-based elevation, etc.). Dark mode must be the primary design direction.
@@ -626,7 +626,7 @@ A working agent can be in "Needs Response" (CI failing while it runs). An idle a
 
 **Terminal**: xterm.js with `@xterm/addon-fit`. Use the dracula or custom dark theme matching the color system above.
 
-**Real-time updates**: Server-Sent Events (already in ao's architecture) for status changes. Status transitions should animate (200ms ease) — not snap — so the user can track what changed.
+**Real-time updates**: Server-Sent Events (already in cahi's architecture) for status changes. Status transitions should animate (200ms ease) — not snap — so the user can track what changed.
 
 **Design token implementation**: CSS custom properties on `:root`. All color tokens defined as custom properties, not Tailwind color classes directly. This enables runtime theme switching and makes the semantic token system enforceable.
 

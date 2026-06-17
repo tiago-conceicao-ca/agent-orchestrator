@@ -1,21 +1,21 @@
 #!/bin/bash
-# Switch the AO QA VM to a specific branch for testing.
+# Switch the CAHI QA VM to a specific branch for testing.
 # Usage: bash scripts/qa-switch-branch.sh
 #
 # Target VM : aoqa.centralindia.cloudapp.azure.com
 # SSH user  : azureuser
-# Repo path : /srv/ao-preview/manual-qa/agent-orchestrator
-# Tmux      : ao-qa
+# Repo path : /srv/cahi-preview/manual-qa/cahi
+# Tmux      : cahi-qa
 
 set -euo pipefail
 
 VM_HOST="aoqa.centralindia.cloudapp.azure.com"
 VM_USER="azureuser"
 VM_KEY="$HOME/.ssh/qakeypair.pem"
-REPO_PATH="/srv/ao-preview/manual-qa/agent-orchestrator"
-TMUX_SESSION="ao-qa"
+REPO_PATH="/srv/cahi-preview/manual-qa/cahi"
+TMUX_SESSION="cahi-qa"
 
-UPSTREAM_REMOTE="https://github.com/ComposioHQ/agent-orchestrator.git"
+UPSTREAM_REMOTE="https://github.com/contaazul/cahi.git"
 
 BRANCH_CORE="feat/multi-pr-per-session"
 BRANCH_UI="feat/multi-pr-card-ui"
@@ -25,7 +25,7 @@ BRANCH_UI="feat/multi-pr-card-ui"
 echo ""
 echo "Which repository?"
 echo ""
-echo "  1) Upstream — ComposioHQ/agent-orchestrator (default)"
+echo "  1) Upstream — contaazul/cahi (default)"
 echo "  2) Fork     — enter your GitHub fork URL"
 echo ""
 read -rp "Enter 1 or 2 [default: 1]: " repo_choice
@@ -37,7 +37,7 @@ case "$repo_choice" in
     REMOTE_NAME="origin"
     ;;
   2)
-    read -rp "Enter your fork URL (e.g. https://github.com/yourname/agent-orchestrator.git): " fork_url
+    read -rp "Enter your fork URL (e.g. https://github.com/yourname/cahi.git): " fork_url
     if [[ -z "$fork_url" ]]; then
       echo "No URL provided. Exiting."
       exit 1
@@ -92,11 +92,11 @@ REMOTE_NAME="$4"
 REMOTE_URL="$5"
 
 echo ""
-echo "==> Stopping AO..."
+echo "==> Stopping CAHI..."
 cd "$REPO_PATH"
-ao stop 2>/dev/null || true
+cahi stop 2>/dev/null || true
 
-echo "==> Waiting for AO to fully stop..."
+echo "==> Waiting for CAHI to fully stop..."
 sleep 3
 
 echo "==> Setting up remote '$REMOTE_NAME'..."
@@ -116,12 +116,12 @@ pnpm install --frozen-lockfile
 echo "==> Building..."
 pnpm build
 
-echo "==> Restarting AO in tmux session '$TMUX_SESSION'..."
+echo "==> Restarting CAHI in tmux session '$TMUX_SESSION'..."
 CAHI_BIN="$REPO_PATH/packages/cahi/node_modules/.bin/cahi"
 tmux send-keys -t "$TMUX_SESSION:0" "" Enter
 tmux send-keys -t "$TMUX_SESSION:0" "cd $REPO_PATH && $CAHI_BIN start" Enter
 
 echo ""
-echo "Done. AO is starting on branch: $BRANCH"
+echo "Done. CAHI is starting on branch: $BRANCH"
 echo "Dashboard: http://aoqa.centralindia.cloudapp.azure.com:4000"
 REMOTE

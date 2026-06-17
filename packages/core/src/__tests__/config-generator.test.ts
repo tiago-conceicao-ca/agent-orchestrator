@@ -271,7 +271,7 @@ describe("generateConfigFromUrl", () => {
 
     // Check top-level structure
     expect(config["$schema"]).toBe(
-      "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
+      "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
     );
     expect(config.port).toBe(4000);
     expect(config.defaults).toEqual({
@@ -418,7 +418,7 @@ describe("configToYaml", () => {
     const config = { port: 3000, projects: { app: { name: "App" } } };
     const yaml = configToYaml(config);
     expect(yaml).toContain(
-      "$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
+      "$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
     );
     expect(yaml).toContain("port: 3000");
     expect(yaml).toContain("name: App");

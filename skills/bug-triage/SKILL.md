@@ -52,7 +52,7 @@ lsof -i :3000
 
 # CAHI event log — structured timeline
 cahi events list --limit 50                          # recent events
-cahi events list --session ao-5 --limit 100          # filter by session
+cahi events list --session cahi-5 --limit 100          # filter by session
 cahi events list --log-level error --since 1h        # errors only
 cahi events search "spawn failed"                    # full-text search
 cahi events stats                                    # counts by kind/source
@@ -93,7 +93,7 @@ CAHI runs on **Windows, macOS, Linux** as first-class targets. If env info indic
 - **Shell syntax** — PowerShell lacks `&&`, `$VAR`, `$(cat ...)`, `/dev/null`, here-docs
 - **`process.platform === "win32"` inline** — must use `isWindows()` from `@contaazul/cahi-core`
 - **`process.kill(-pid)`** — POSIX-only; use `killProcessTree()`
-- **Named pipes vs Unix sockets** — Windows uses `\\.\pipe\ao-pty-<id>`
+- **Named pipes vs Unix sockets** — Windows uses `\\.\pipe\cahi-pty-<id>`
 - **`localhost`** — Windows resolves to `::1` first, causing ~21s stalls on IPv4-only servers
 - **NTFS case-insensitivity** — use `pathsEqual()`, not `===`
 - **ConPTY orphans** — can trigger WER dialogs if pty-host not shut down cooperatively
@@ -288,10 +288,10 @@ gh api "repos/{owner}/{repo}/commits?path={path}&per_page=10" --jq '.[] | "\(.sh
 Diff **published** packages (not local builds) when regression follows an upgrade:
 
 ```bash
-mkdir -p /tmp/ao-diff/{v1,v2}
-curl -sL https://registry.npmjs.org/@scope/pkg/-/pkg-OLD.tgz | tar xz -C /tmp/ao-diff/v1
-curl -sL https://registry.npmjs.org/@scope/pkg/-/pkg-NEW.tgz | tar xz -C /tmp/ao-diff/v2
-diff -rq /tmp/ao-diff/v1/package/ /tmp/ao-diff/v2/package/
+mkdir -p /tmp/cahi-diff/{v1,v2}
+curl -sL https://registry.npmjs.org/@scope/pkg/-/pkg-OLD.tgz | tar xz -C /tmp/cahi-diff/v1
+curl -sL https://registry.npmjs.org/@scope/pkg/-/pkg-NEW.tgz | tar xz -C /tmp/cahi-diff/v2
+diff -rq /tmp/cahi-diff/v1/package/ /tmp/cahi-diff/v2/package/
 ```
 
 Example: [PR #1608](https://github.com/contaazul/cahi/pull/1608) — source analysis led to wrong theories, npm diff showed the only change was a `=` prefix on tmux `set-option`.

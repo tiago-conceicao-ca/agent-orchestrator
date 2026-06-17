@@ -1579,7 +1579,7 @@ export function registerStart(program: Command): void {
                 // to from the current directory. addProjectToConfig is
                 // canonical-aware: when that config happens to be the global
                 // one (the canonical fallback), the project lands in the
-                // global registry; when it is a cwd-local agent-orchestrator
+                // global registry; when it is a cwd-local cahi
                 // .yaml, the project is appended there. This matches the
                 // pre-B.2 behavior — the menu's "add" path deliberately does
                 // not spawn an orchestrator session, so the user can review

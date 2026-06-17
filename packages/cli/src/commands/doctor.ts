@@ -25,7 +25,7 @@ import {
 } from "../lib/update-check.js";
 
 // ---------------------------------------------------------------------------
-// Helpers — match the PASS / WARN / FAIL style of ao-doctor.sh
+// Helpers — match the PASS / WARN / FAIL style of cahi-doctor.sh
 // ---------------------------------------------------------------------------
 
 function pass(msg: string): void {
@@ -344,7 +344,7 @@ async function sendTestNotifications(
     message: "Test notification from cahi doctor --test-notify",
     sessionId: "doctor-test",
     projectId: "doctor",
-    data: { source: "ao-doctor" },
+    data: { source: "cahi-doctor" },
   });
 
   if (result.targets.length === 0) {
@@ -420,7 +420,7 @@ export function registerDoctor(program: Command): void {
 
       let shellExitCode: number;
       try {
-        shellExitCode = await runRepoScript("ao-doctor.sh", scriptArgs);
+        shellExitCode = await runRepoScript("cahi-doctor.sh", scriptArgs);
       } catch (err) {
         console.error(err instanceof Error ? err.message : String(err));
         shellExitCode = 1;

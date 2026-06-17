@@ -86,7 +86,7 @@ function buildPackageJson(input: PluginScaffoldInput): string {
         "@types/node": NODE_TYPES_VERSION,
         typescript: TYPESCRIPT_VERSION,
       },
-      keywords: ["agent-orchestrator", "plugin", input.slot, manifestName],
+      keywords: ["cahi", "plugin", input.slot, manifestName],
     },
     null,
     2,

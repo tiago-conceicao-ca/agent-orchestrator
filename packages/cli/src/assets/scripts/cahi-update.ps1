@@ -1,9 +1,9 @@
-﻿# PowerShell port of ao-update.sh — Windows-native source-checkout updater for AO.
-# Invoked by `ao update` on Windows via runRepoScript() when install method is 'git'.
+﻿# PowerShell port of cahi-update.sh — Windows-native source-checkout updater for AO.
+# Invoked by `cahi update` on Windows via runRepoScript() when install method is 'git'.
 
 $ErrorActionPreference = 'Stop'
 
-# Manual arg parsing — matches ao-update.sh's `--skip-smoke` / `--smoke-only` /
+# Manual arg parsing — matches cahi-update.sh's `--skip-smoke` / `--smoke-only` /
 # `-h` / `--help` flags rather than PowerShell's `-SkipSmoke` convention, so the
 # calling contract is identical on Linux/macOS/Windows.
 $SkipSmoke = $false
@@ -24,10 +24,10 @@ foreach ($a in $args) {
 
 if ($Help) {
     @'
-Usage: ao update [--skip-smoke] [--smoke-only]
+Usage: cahi update [--skip-smoke] [--smoke-only]
 
-Fast-forwards the local Agent Orchestrator install repo to main, installs deps,
-clean-rebuilds all workspace packages, refreshes the ao launcher, and runs smoke tests.
+Fast-forwards the local CAHI install repo to main, installs deps,
+clean-rebuilds all workspace packages, refreshes the cahi launcher, and runs smoke tests.
 
 Options:
   --skip-smoke  Skip smoke tests after rebuild
@@ -65,7 +65,7 @@ function Resolve-RepoRoot {
     if ($fromScript) { return $fromScript }
     $fromCwd = Find-RepoRootFrom (Get-Location).Path
     if ($fromCwd) { return $fromCwd }
-    Write-Error "Unable to find Agent Orchestrator repo root. Fix: run via ao update or set CAHI_REPO_ROOT."
+    Write-Error "Unable to find CAHI repo root. Fix: run via cahi update or set CAHI_REPO_ROOT."
     exit 1
 }
 
@@ -156,12 +156,12 @@ function Ensure-RepoClean([string]$reason) {
 function Ensure-OnTargetBranch {
     $current = (& git branch --show-current).Trim()
     if ($current -ne $TargetBranch) {
-        Write-Error "Current branch is $current, expected $TargetBranch. Fix: git switch $TargetBranch then rerun ao update."
+        Write-Error "Current branch is $current, expected $TargetBranch. Fix: git switch $TargetBranch then rerun cahi update."
         exit 1
     }
 }
 
-Write-Host "Agent Orchestrator Update`n"
+Write-Host "CAHI Update`n"
 
 Require-Command 'node' 'install Node.js 20+'
 
@@ -176,11 +176,11 @@ if (-not $SmokeOnly) {
 
     & git rev-parse --is-inside-work-tree *> $null
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "The update command must run inside the Agent Orchestrator git checkout."
+        Write-Error "The update command must run inside the CAHI git checkout."
         exit 1
     }
 
-    Ensure-RepoClean 'Working tree is dirty. Fix: commit or stash local changes before running ao update.'
+    Ensure-RepoClean 'Working tree is dirty. Fix: commit or stash local changes before running cahi update.'
     Ensure-OnTargetBranch
 
     Sync-OriginWithUpstream
@@ -201,7 +201,7 @@ if (-not $SmokeOnly) {
         Run-Cmd pnpm build
 
         Write-Host ""
-        Write-Host "Refreshing ao launcher..."
+        Write-Host "Refreshing cahi launcher..."
         Push-Location (Join-Path $RepoRoot 'packages/cahi')
         try {
             & npm link --force

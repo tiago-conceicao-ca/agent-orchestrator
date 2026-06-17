@@ -78,7 +78,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           title: (
             <span className="flex items-center gap-2 font-semibold">
               <img
-                src="/ao-logo.svg"
+                src="/cahi-logo.svg"
                 alt=""
                 aria-hidden="true"
                 width={22}

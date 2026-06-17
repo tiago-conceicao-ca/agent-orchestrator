@@ -175,7 +175,7 @@ Modeled on Linear's verified 4-tier system:
 | `--status-done` | `#3E3E54` | Session complete | Visually recedes |
 | `--status-error` | `#EF4444` | Crash, hard failure | Urgent |
 
-*Note: Linear uses `#27A644` for green, `#EB5757` for red, `#F0BF00` for yellow. ao's status palette is aligned but not identical.*
+*Note: Linear uses `#27A644` for green, `#EB5757` for red, `#F0BF00` for yellow. cahi's status palette is aligned but not identical.*
 
 #### Interactive Accent
 
@@ -321,12 +321,12 @@ The primary unit. Each card = one agent session.
 ```
 ┌─ 3px status strip ──────────────────────────────────────┐
 │                                                          │
-│  ● working    session/ao-58                    [···]    │  ← 10px dot + 11px mono ID + menu
+│  ● working    session/cahi-58                    [···]    │  ← 10px dot + 11px mono ID + menu
 │                                                          │
 │  Implement UI/UX research dashboard                      │  ← 14px/500 ticket title (2 lines max)
 │  GitHub #58                                             │  ← 11px tertiary tracker ref
 │                                                          │
-│  ⎇ session/ao-58                      ↑ PR #104        │  ← 11px mono branch + PR link
+│  ⎇ session/cahi-58                      ↑ PR #104        │  ← 11px mono branch + PR link
 │                                                          │
 │  ✓ CI passing    ✓ Approved    3m ago                   │  ← 11px badges + timestamp
 │                                                          │
@@ -524,23 +524,23 @@ scrollbar-color: rgba(255,255,255,0.1) transparent;
 
 ### Linear issue list — *the* density benchmark
 **URL**: https://linear.app (see `screenshots/linear-homepage.png`)
-**Why**: The product UI visible in Linear's homepage hero screenshot shows exactly the information density and row compactness that ao session cards should match. Issue ID in muted monospace, title truncated, labels as small pill badges, state dot left-aligned. Zero wasted pixels.
+**Why**: The product UI visible in Linear's homepage hero screenshot shows exactly the information density and row compactness that cahi session cards should match. Issue ID in muted monospace, title truncated, labels as small pill badges, state dot left-aligned. Zero wasted pixels.
 
 ### Vercel deployment list
 **URL**: https://vercel.com/dashboard
-**Why**: Each deployment row = name (mono) + status dot + branch + timestamp. The status dot on a near-black background carries the full state signal with nothing competing. This is the right level of restraint for ao's done/idle sessions.
+**Why**: Each deployment row = name (mono) + status dot + branch + timestamp. The status dot on a near-black background carries the full state signal with nothing competing. This is the right level of restraint for cahi's done/idle sessions.
 
 ### GitHub Actions job graph
 **URL**: https://docs.github.com/en/actions/writing-workflows/quickstart
-**Why**: Status-colored nodes (green pass, red fail, gray skip, amber running) in a dependency graph. The best existing model for "pipeline state at a glance." The icon+color combination for each step is directly applicable to ao's CI status display.
+**Why**: Status-colored nodes (green pass, red fail, gray skip, amber running) in a dependency graph. The best existing model for "pipeline state at a glance." The icon+color combination for each step is directly applicable to cahi's CI status display.
 
 ### Grafana panel layout — density reference
 **URL**: https://grafana.com/grafana/dashboards
-**Why**: Demonstrates that 30+ data panels in one viewport is possible — when organized by visual weight, semantic color, and zone separation. The panel border system (1px subtle border, consistent padding, consistent label typography) is the right density model for ao's session card grid.
+**Why**: Demonstrates that 30+ data panels in one viewport is possible — when organized by visual weight, semantic color, and zone separation. The panel border system (1px subtle border, consistent padding, consistent label typography) is the right density model for cahi's session card grid.
 
 ### GitHub Copilot agent mode in VS Code
 **URL**: https://code.visualstudio.com/blogs/2025/02/24/introducing-copilot-agent-mode
-**Why**: Sequential labeled tool invocations ("Analyzing files... Running tests... Proposing edits...") is the right model for ao's terminal activity feed — transparent step disclosure rather than raw log dump. Each step collapsible. Makes AI activity *legible* rather than just *visible*.
+**Why**: Sequential labeled tool invocations ("Analyzing files... Running tests... Proposing edits...") is the right model for cahi's terminal activity feed — transparent step disclosure rather than raw log dump. Each step collapsible. Makes AI activity *legible* rather than just *visible*.
 
 ---
 
@@ -548,7 +548,7 @@ scrollbar-color: rgba(255,255,255,0.1) transparent;
 
 ### Anti-patterns for this product specifically
 
-**1. Spacious card proportions** — ao has 30 sessions. Linear/Notion card sizes assume 1 project per screen.
+**1. Spacious card proportions** — cahi has 30 sessions. Linear/Notion card sizes assume 1 project per screen.
 
 **2. Status color overloading** — Define strict semantic rules. Amber = "needs human attention." Green = "positive outcome / merge-ready." Red = "error/failure." Never use the same color for two different meanings.
 
@@ -577,14 +577,14 @@ scrollbar-color: rgba(255,255,255,0.1) transparent;
 ## 6. Implementation Stack Recommendation
 
 **Frontend**: Next.js 15 (App Router) + Tailwind CSS 4 + shadcn/ui (Radix UI primitives)
-- Matches ao's existing stack
+- Matches cahi's existing stack
 - Used by Supabase at scale — validated for serious developer tooling
 
 **Design tokens**: CSS custom properties on `:root`. All colors defined as tokens, not Tailwind classes directly. Enables runtime theming and makes the semantic system enforceable.
 
 **Terminal**: xterm.js + `@xterm/addon-fit`. Dark theme with the color system above.
 
-**Real-time**: Server-Sent Events (existing in ao's architecture). State transitions animate via CSS transition (250ms ease).
+**Real-time**: Server-Sent Events (existing in cahi's architecture). State transitions animate via CSS transition (250ms ease).
 
 **Icons**: `lucide-react` (npm package, tree-shakeable). Same package used by shadcn/ui components.
 

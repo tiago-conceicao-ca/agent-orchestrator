@@ -14,7 +14,7 @@ import { getDefaultRuntime } from "./platform.js";
 // Main is the canonical config-schema contract; schema evolution must remain
 // forward-compatible and additive for older CLIs that stamp this URL.
 export const CONFIG_SCHEMA_URL =
-  "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json";
+  "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json";
 
 export function withConfigSchema<T extends Record<string, unknown>>(
   config: T,

@@ -13,7 +13,7 @@
 
 ```
 Repo (versioned):
-~/any/path/to/agent-orchestrator/
+~/any/path/to/cahi/
   cahi.yaml              ← Config file (only this matters)
   packages/
   ...
@@ -42,7 +42,7 @@ Runtime Data (not versioned):
 **Hash Derivation (from config location):**
 
 ```typescript
-const configDir = path.dirname(configPath); // /Users/alice/code/agent-orchestrator
+const configDir = path.dirname(configPath); // /Users/alice/code/cahi
 const hash = sha256(configDir).slice(0, 12); // a3b4c5d6e7f8
 
 // Each project managed by this config gets a directory
@@ -93,7 +93,7 @@ projects:
 {sessionPrefix}-{num}
 
 int-1, int-2    (integrator)
-ao-1, ao-2      (agent-orchestrator)
+cahi-1, cahi-2      (cahi)
 ss-1, ss-2      (safe-split)
 ```
 
@@ -103,11 +103,11 @@ ss-1, ss-2      (safe-split)
 {hash}-{sessionPrefix}-{num}
 
 a3b4c5d6e7f8-int-1
-a3b4c5d6e7f8-ao-1
+a3b4c5d6e7f8-cahi-1
 f1e2d3c4b5a6-int-1    (different checkout, no collision!)
 ```
 
-On Unix this is the tmux session name. On Windows (where the default runtime is `process`, not `tmux`) the same string identifies the named pipe path `\\.\pipe\ao-pty-{sessionId}` and is recorded in `~/.cahi/windows-pty-hosts.json`.
+On Unix this is the tmux session name. On Windows (where the default runtime is `process`, not `tmux`) the same string identifies the named pipe path `\\.\pipe\cahi-pty-{sessionId}` and is recorded in `~/.cahi/windows-pty-hosts.json`.
 
 ### Prefix Generation (Clean Heuristic)
 
@@ -121,7 +121,7 @@ function generateSessionPrefix(projectId: string): string {
     return uppercase.join("").toLowerCase();
   }
 
-  // kebab-case: agent-orchestrator → ao
+  // kebab-case: cahi → cahi
   if (projectId.includes("-") || projectId.includes("_")) {
     const sep = projectId.includes("-") ? "-" : "_";
     return projectId
@@ -161,7 +161,7 @@ project=integrator
 issue=INT-100
 branch=feat/INT-100
 status=working
-tmuxName=a3b4c5d6e7f8-int-1            # Unix; on Windows the runtime handle is `pipePath=\\.\pipe\ao-pty-<sessionId>` plus `ptyHostPid`
+tmuxName=a3b4c5d6e7f8-int-1            # Unix; on Windows the runtime handle is `pipePath=\\.\pipe\cahi-pty-<sessionId>` plus `ptyHostPid`
 worktree=/Users/alice/.cahi/a3b4c5d6e7f8-integrator/worktrees/int-1
 createdAt=2026-02-17T10:30:00Z
 pr=https://github.com/contaazul/integrator/pull/123

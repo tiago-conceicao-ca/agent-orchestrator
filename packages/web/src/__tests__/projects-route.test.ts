@@ -243,33 +243,33 @@ describe("POST /api/projects", () => {
   });
 
   it("registers same-basename projects with distinct hashed IDs", async () => {
-    const repoA = path.join(tempRoot, "company-a", "agent-orchestrator");
-    const repoB = path.join(tempRoot, "company-b", "agent-orchestrator");
+    const repoA = path.join(tempRoot, "company-a", "cahi");
+    const repoB = path.join(tempRoot, "company-b", "cahi");
     mkdirSync(path.join(repoA, ".git"), { recursive: true });
     mkdirSync(path.join(repoB, ".git"), { recursive: true });
     writeFileSync(
       path.join(repoA, ".git", "config"),
-      '[remote "origin"]\n  url = git@github.com:acme/agent-orchestrator-a.git\n',
+      '[remote "origin"]\n  url = git@github.com:acme/cahi-a.git\n',
     );
     writeFileSync(
       path.join(repoB, ".git", "config"),
-      '[remote "origin"]\n  url = git@github.com:acme/agent-orchestrator-b.git\n',
+      '[remote "origin"]\n  url = git@github.com:acme/cahi-b.git\n',
     );
 
     const { POST } = await import("@/app/api/projects/route");
-    await POST(makeRequest({ projectId: "agent-orchestrator", name: "AO A", path: repoA }));
+    await POST(makeRequest({ projectId: "cahi", name: "AO A", path: repoA }));
 
     const response = await POST(
-      makeRequest({ projectId: "agent-orchestrator", name: "AO B", path: repoB }),
+      makeRequest({ projectId: "cahi", name: "AO B", path: repoB }),
     );
 
     const idA = generateExternalId(
       realpathSync(repoA),
-      "git@github.com:acme/agent-orchestrator-a.git",
+      "git@github.com:acme/cahi-a.git",
     );
     const idB = generateExternalId(
       realpathSync(repoB),
-      "git@github.com:acme/agent-orchestrator-b.git",
+      "git@github.com:acme/cahi-b.git",
     );
     expect(response.status).toBe(201);
     await expect(response.json()).resolves.toMatchObject({
@@ -287,25 +287,25 @@ describe("POST /api/projects", () => {
   });
 
   it("ignores suffix allocation flags and returns the hashed project ID", async () => {
-    const repoA = path.join(tempRoot, "company-a", "agent-orchestrator");
-    const repoB = path.join(tempRoot, "company-b", "agent-orchestrator");
+    const repoA = path.join(tempRoot, "company-a", "cahi");
+    const repoB = path.join(tempRoot, "company-b", "cahi");
     mkdirSync(path.join(repoA, ".git"), { recursive: true });
     mkdirSync(path.join(repoB, ".git"), { recursive: true });
     writeFileSync(
       path.join(repoA, ".git", "config"),
-      '[remote "origin"]\n  url = git@github.com:acme/agent-orchestrator-a.git\n',
+      '[remote "origin"]\n  url = git@github.com:acme/cahi-a.git\n',
     );
     writeFileSync(
       path.join(repoB, ".git", "config"),
-      '[remote "origin"]\n  url = git@github.com:acme/agent-orchestrator-b.git\n',
+      '[remote "origin"]\n  url = git@github.com:acme/cahi-b.git\n',
     );
 
     const { POST } = await import("@/app/api/projects/route");
-    await POST(makeRequest({ projectId: "agent-orchestrator", name: "AO A", path: repoA }));
+    await POST(makeRequest({ projectId: "cahi", name: "AO A", path: repoA }));
 
     const response = await POST(
       makeRequest({
-        projectId: "agent-orchestrator",
+        projectId: "cahi",
         name: "AO B",
         path: repoB,
         useDefaultProjectId: true,
@@ -315,7 +315,7 @@ describe("POST /api/projects", () => {
     expect(response.status).toBe(201);
     const idB = generateExternalId(
       realpathSync(repoB),
-      "git@github.com:acme/agent-orchestrator-b.git",
+      "git@github.com:acme/cahi-b.git",
     );
     await expect(response.json()).resolves.toMatchObject({
       projectId: idB,
@@ -324,7 +324,7 @@ describe("POST /api/projects", () => {
     expect(saved?.projects[idB]).toMatchObject({
       path: realpathSync(repoB),
       displayName: "AO B",
-      sessionPrefix: "ao-1",
+      sessionPrefix: "cahi-1",
     });
   });
 });

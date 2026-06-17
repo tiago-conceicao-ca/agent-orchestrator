@@ -1,6 +1,6 @@
 # Minimal setup for a single GitHub repo with GitHub Issues
 # Perfect for getting started quickly
-$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 
 projects:
   my-app:

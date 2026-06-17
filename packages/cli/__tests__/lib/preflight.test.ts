@@ -77,7 +77,7 @@ describe("preflight.checkBuilt", () => {
   it("throws pnpm hint when ao-core not found in monorepo", async () => {
     mockExistsSync.mockReturnValue(false);
     await expect(
-      preflight.checkBuilt("/home/user/agent-orchestrator/packages/web"),
+      preflight.checkBuilt("/home/user/cahi/packages/web"),
     ).rejects.toThrow("pnpm install && pnpm build");
   });
 

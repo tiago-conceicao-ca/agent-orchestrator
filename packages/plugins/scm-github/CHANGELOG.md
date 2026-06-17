@@ -35,11 +35,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -49,7 +49,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -101,7 +101,7 @@
 
 - a8bc746: scm-github: cache 4 more hot-path reads (CI, mergeability, pending comments, detectPR)
 
-  Completes the bulk of the AO-side caching work alongside the prior PR view
+  Completes the bulk of the CAHI-side caching work alongside the prior PR view
   cache. Per-method TTLs match the approved policy: 5s max for
   decision-influencing fields.
   - `getCIChecks` (`gh pr checks`): 5s TTL
@@ -109,7 +109,7 @@
   - `getPendingComments` (`gh api graphql` review threads): 5s TTL — ETag doesn't help on GraphQL per Experiment 2
   - `detectPR` (`gh pr list --head BRANCH`): 5s TTL, **positive-only** — `[]` results are never cached so a freshly created PR surfaces on the next poll. Branch-keyed entry is invalidated by `mergePR`/`closePR` alongside the number-keyed entries.
 
-  Combined with the prior PR view cache, this covers the top 6 AO-side gh
+  Combined with the prior PR view cache, this covers the top 6 CAHI-side gh
   operation categories that accounted for ~85% of calls in tier-5 bench traces.
 
   Tests: 85 existing + 9 new cache tests, all 162 passing.
@@ -118,7 +118,7 @@
 
   The lifecycle worker repeatedly polls each PR for state, summary, reviews,
   and review decision. Trace data showed `gh pr view` was the single largest
-  AO-side endpoint at 1,280 calls per 5-session tier-5 run with >97% duplicate
+  CAHI-side endpoint at 1,280 calls per 5-session tier-5 run with >97% duplicate
   rate (e.g. PR #184 polled 86× for `--json state` alone in 11.5 minutes).
 
   Adds an in-process per-instance cache inside `createGitHubSCM()`, keyed by
@@ -132,7 +132,7 @@
   - `getReviewDecision`: 5s
 
   `assignPRToCurrentUser`, `mergePR`, and `closePR` each invalidate the entire
-  PR cache for that PR after the mutation, so AO never sees stale state from
+  PR cache for that PR after the mutation, so CAHI never sees stale state from
   its own writes. Failures are not cached.
 
   `getCIChecksFromStatusRollup` and `getMergeability` are intentionally NOT
@@ -170,4 +170,4 @@
 ### Patch Changes
 
 - Updated dependencies [3a650b0]
-  - @composio/ao-core@0.2.0
+  - @composio/cahi-core@0.2.0

@@ -700,7 +700,7 @@ export function registerStatus(program: Command): void {
 
 async function showFallbackStatus(): Promise<void> {
   if (isWindows()) {
-    console.log(chalk.dim("No agent-orchestrator config found. Run `cahi start` first."));
+    console.log(chalk.dim("No cahi config found. Run `cahi start` first."));
     return;
   }
   const allTmux = await getTmuxSessions();

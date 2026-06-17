@@ -70,7 +70,7 @@ export default { manifest, create, detect } satisfies PluginModule<Notifier>;
 
 ## Manifest rules
 
-- **`name`** must match the suffix of your package name. `@acme/ao-plugin-notifier-pagerduty` → `name: "pagerduty"`. The registry looks up plugins by `slot:name` key.
+- **`name`** must match the suffix of your package name. `@acme/cahi-plugin-notifier-pagerduty` → `name: "pagerduty"`. The registry looks up plugins by `slot:name` key.
 - **`slot`** must use `as const` to preserve the string literal type — `"notifier" as const`, not `"notifier"`.
 - **`version`** follows semver. Start at `0.1.0`.
 - **`displayName`** is optional. When omitted, `name` is used in log output.
@@ -98,7 +98,7 @@ cahi plugin create ./my-plugins/pagerduty \
   --name "PagerDuty" \
   --description "Route urgent alerts to PagerDuty" \
   --author "Alice" \
-  --package-name "ao-plugin-notifier-pagerduty"
+  --package-name "cahi-plugin-notifier-pagerduty"
 ```
 
 Add `--non-interactive` to require all fields to be provided via flags (useful in CI).
@@ -116,7 +116,7 @@ The CLI asks for four things, in order:
 | Plugin slot | `notifier` (selected from a list of all 7 slots) |
 | Short description | `Route urgent alerts to PagerDuty` |
 | Author | `Alice` |
-| Package name | `ao-plugin-notifier-pagerduty` (pre-filled from slot + name) |
+| Package name | `cahi-plugin-notifier-pagerduty` (pre-filled from slot + name) |
 
 </Step>
 <Step>
@@ -211,7 +211,7 @@ Once published to npm, switch to `source: registry` (or `source: npm`):
 plugins:
   - name: pagerduty
     source: registry
-    package: "ao-plugin-notifier-pagerduty"
+    package: "cahi-plugin-notifier-pagerduty"
     version: "^1.0.0"
 ```
 
@@ -373,11 +373,11 @@ An npm package. CAHI installs it into its internal plugin cache on first use and
 plugins:
   - name: pagerduty
     source: registry
-    package: "ao-plugin-notifier-pagerduty"
+    package: "cahi-plugin-notifier-pagerduty"
     version: "^1.0.0"
 ```
 
-Use `cahi plugin install ao-plugin-notifier-pagerduty` to add this block automatically.
+Use `cahi plugin install cahi-plugin-notifier-pagerduty` to add this block automatically.
 
 ### 3. Local path (`source: local`)
 
@@ -400,7 +400,7 @@ For `tracker`, `scm`, and `notifier` blocks you can embed the `package` or `path
 projects:
   myapp:
     tracker:
-      package: "@acme/ao-plugin-tracker-jira"
+      package: "@acme/cahi-plugin-tracker-jira"
       version: "^1.0.0"
       projectKey: "MYAPP"
 ```
@@ -412,7 +412,7 @@ projects:
   myapp:
     tracker:
       plugin: jira
-      package: "@acme/ao-plugin-tracker-jira"
+      package: "@acme/cahi-plugin-tracker-jira"
       version: "^1.0.0"
 ```
 

@@ -262,7 +262,7 @@ describe("update command", () => {
       mockRunRepoScript.mockResolvedValue(0);
       await program.parseAsync(["node", "test", "update", "--skip-smoke"]);
       expect(mockRunRepoScript).toHaveBeenCalledWith(
-        "ao-update.sh",
+        "cahi-update.sh",
         expect.arrayContaining(["--skip-smoke"]),
       );
     });
@@ -314,12 +314,12 @@ describe("update command", () => {
 
     it("runs the update script with default args", async () => {
       await program.parseAsync(["node", "test", "update"]);
-      expect(mockRunRepoScript).toHaveBeenCalledWith("ao-update.sh", []);
+      expect(mockRunRepoScript).toHaveBeenCalledWith("cahi-update.sh", []);
     });
 
     it("shows an actionable error when the bundled update script is missing", async () => {
       mockRunRepoScript.mockRejectedValue(
-        new Error("Script not found: ao-update.sh. Expected at: /tmp/ao-update.sh"),
+        new Error("Script not found: cahi-update.sh. Expected at: /tmp/cahi-update.sh"),
       );
 
       await expect(program.parseAsync(["node", "test", "update"])).rejects.toThrow(
@@ -330,18 +330,18 @@ describe("update command", () => {
       expect(mockCheckForUpdate).not.toHaveBeenCalled();
       expect(mockInvalidateCache).not.toHaveBeenCalled();
       expect(vi.mocked(console.error)).toHaveBeenCalledWith(
-        expect.stringContaining("ao-update.sh is missing from the bundled assets"),
+        expect.stringContaining("cahi-update.sh is missing from the bundled assets"),
       );
     });
 
     it("passes through --skip-smoke", async () => {
       await program.parseAsync(["node", "test", "update", "--skip-smoke"]);
-      expect(mockRunRepoScript).toHaveBeenCalledWith("ao-update.sh", ["--skip-smoke"]);
+      expect(mockRunRepoScript).toHaveBeenCalledWith("cahi-update.sh", ["--skip-smoke"]);
     });
 
     it("passes through --smoke-only", async () => {
       await program.parseAsync(["node", "test", "update", "--smoke-only"]);
-      expect(mockRunRepoScript).toHaveBeenCalledWith("ao-update.sh", ["--smoke-only"]);
+      expect(mockRunRepoScript).toHaveBeenCalledWith("cahi-update.sh", ["--smoke-only"]);
     });
 
     it("invalidates cache after successful update", async () => {

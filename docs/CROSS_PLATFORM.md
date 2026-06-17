@@ -119,7 +119,7 @@ import {
 
 | Symbol | Purpose |
 |--------|---------|
-| `getPipePath(sessionId)` | Returns `\\.\pipe\ao-pty-<sessionId>`. Don't construct the path manually. |
+| `getPipePath(sessionId)` | Returns `\\.\pipe\cahi-pty-<sessionId>`. Don't construct the path manually. |
 | `connectPtyHost(pipePath, timeoutMs?)` | Open a `net.Socket` to the named pipe with timeout. |
 | `ptyHostSendMessage(pipePath, message)` | Send keystrokes; chunks into ≤512-char pieces with 15 ms gaps to dodge ConPTY input-buffer truncation. |
 | `ptyHostGetOutput(pipePath, lines?)` | Request scrollback buffer. Returns `""` on timeout. |
@@ -226,7 +226,7 @@ import { forwardSignalsToChild } from "../lib/shell.js";
 | Platform | Default runtime | How PTYs work |
 |----------|----------------|---------------|
 | macOS / Linux | `tmux` | Real tmux server, POSIX signals, Unix sockets |
-| Windows | `process` | `node-pty` + ConPTY, named pipes (`\\.\pipe\ao-pty-…`), pty-host helper process |
+| Windows | `process` | `node-pty` + ConPTY, named pipes (`\\.\pipe\cahi-pty-…`), pty-host helper process |
 
 Pick the runtime via `getDefaultRuntime()`, never hardcode. Plugin code that runs across runtimes must handle both — for Windows that means no `tmux` shell-outs, no SIGTERM/SIGKILL group kills, no POSIX-only tools.
 

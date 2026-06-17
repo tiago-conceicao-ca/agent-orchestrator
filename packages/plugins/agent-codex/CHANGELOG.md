@@ -39,11 +39,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -53,7 +53,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -97,7 +97,7 @@
 ### Patch Changes
 
 - b0d0994: Improve Claude Code and Codex session cost estimates to account for cached-token spend, make Codex restore commands fall back to approval prompts for worker sessions instead of blindly reusing dangerous bypass flags, and register the Codex plugin in the web dashboard so native activity detection works there.
-- e1bb51f: Fix restore behavior across AO session recovery flows.
+- e1bb51f: Fix restore behavior across CAHI session recovery flows.
   - restore the latest dead-but-restorable orchestrator on `cahi start` instead of silently spawning a new orchestrator when tmux is gone
   - make worker session orchestrator navigation prefer the most recently active live orchestrator for the project
   - make permissionless Codex restores preserve dangerous bypass semantics so resumed workers behave like fresh permissionless launches
@@ -128,6 +128,6 @@
 
 ### Patch Changes
 
-- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/cahi`. Made `@composio/cahi-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 - Updated dependencies [3a650b0]
-  - @composio/ao-core@0.2.0
+  - @composio/cahi-core@0.2.0

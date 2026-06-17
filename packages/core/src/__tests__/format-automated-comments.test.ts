@@ -18,7 +18,7 @@ function makeComment(overrides: Partial<AutomatedComment> = {}): AutomatedCommen
 
 const prInfo: Pick<PRInfo, "owner" | "repo" | "number"> = {
   owner: "composio",
-  repo: "agent-orchestrator",
+  repo: "cahi",
   number: 1334,
 };
 
@@ -34,12 +34,12 @@ describe("formatAutomatedCommentsMessage", () => {
 
   it("interpolates owner/repo/PR number into guidance when PR is provided", () => {
     const msg = formatAutomatedCommentsMessage([makeComment()], prInfo);
-    expect(msg).toContain("gh api repos/composio/agent-orchestrator/pulls/1334/reviews --paginate");
+    expect(msg).toContain("gh api repos/composio/cahi/pulls/1334/reviews --paginate");
     expect(msg).toContain(
-      "gh api repos/composio/agent-orchestrator/pulls/1334/reviews/REVIEW_ID/comments --paginate",
+      "gh api repos/composio/cahi/pulls/1334/reviews/REVIEW_ID/comments --paginate",
     );
     expect(msg).toContain(
-      "gh api repos/composio/agent-orchestrator/pulls/1334/comments --paginate",
+      "gh api repos/composio/cahi/pulls/1334/comments --paginate",
     );
     expect(msg).not.toContain("OWNER/REPO");
     expect(msg).not.toContain("/pulls/PR/");

@@ -1,7 +1,7 @@
-# Gitleaks configuration for Agent Orchestrator
+# Gitleaks configuration for CAHI
 # Prevents accidental commits of secrets, API keys, tokens, etc.
 
-title = "Agent Orchestrator Secret Scanning"
+title = "CAHI Secret Scanning"
 
 # Use all default gitleaks rules
 [extend]

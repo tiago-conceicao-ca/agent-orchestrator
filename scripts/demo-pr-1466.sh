@@ -6,7 +6,7 @@
 # Designed to be run live for a screencast — silent narration via section
 # banners, no live typing, deterministic output.
 #
-# Strict sandbox: redirects $HOME to /tmp/ao-demo-1466 so getAoBaseDir()
+# Strict sandbox: redirects $HOME to /tmp/cahi-demo-1466 so getAoBaseDir()
 # resolves there instead of touching the operator's real ~/.cahi.
 # After the script exits the original $HOME of the parent shell is unaffected.
 #
@@ -20,7 +20,7 @@ set -euo pipefail
 
 # ─── config ────────────────────────────────────────────────────────────────
 
-DEMO_HOME="/tmp/ao-demo-1466"
+DEMO_HOME="/tmp/cahi-demo-1466"
 DEMO_PORT="3947"
 CAHI_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CAHI_CLI="$CAHI_REPO/packages/cli/dist/index.js"
@@ -31,14 +31,14 @@ CAHI_CLI="$CAHI_REPO/packages/cli/dist/index.js"
 # global config would break tests that touch the global registry).
 REAL_HOME="$HOME"
 
-# Sandbox the entire script under a fake HOME so AO's hardcoded
+# Sandbox the entire script under a fake HOME so CAHI's hardcoded
 # ~/.cahi path is redirected. Belt-and-suspenders: also
 # pin CAHI_GLOBAL_CONFIG explicitly.
 export HOME="$DEMO_HOME"
 export CAHI_GLOBAL_CONFIG="$DEMO_HOME/.cahi/config.yaml"
 
-# Local CLI invoker — never use the system `ao`.
-ao() {
+# Local CLI invoker — never use the system `cahi`.
+cahi() {
   node "$CAHI_CLI" "$@"
 }
 
@@ -75,7 +75,7 @@ mkdir -p "$DEMO_HOME/.cahi"
 # from the redirected HOME.
 cat >"$DEMO_HOME/.gitconfig" <<'GITCONFIG'
 [user]
-  name = AO Demo
+  name = CAHI Demo
   email = demo@example.com
 [init]
   defaultBranch = main
@@ -86,7 +86,7 @@ GITCONFIG
 note "Repo:    $CAHI_REPO"
 note "CLI:     $CAHI_CLI"
 note "Sandbox: $DEMO_HOME"
-note "Port:    $DEMO_PORT (no real ao daemon spawned in this demo)"
+note "Port:    $DEMO_PORT (no real cahi daemon spawned in this demo)"
 sleep 2
 
 # ─── helpers: realistic project + session seeding ─────────────────────────
@@ -195,7 +195,7 @@ EOF
   cat >"$dir/README.md" <<EOF
 # ${pkg}
 
-Demo project for the AO PR #1466 migration screencast. Standard TypeScript
+Demo project for the CAHI PR #1466 migration screencast. Standard TypeScript
 package layout — sources in \`src/\`, tests in \`tests/\`, vitest harness.
 
 ## Develop
@@ -260,10 +260,10 @@ LIFECYCLE_WORKING='{"version":2,"session":{"kind":"worker","state":"working"},"r
 LIFECYCLE_STUCK='{"version":2,"session":{"kind":"worker","state":"stuck","reason":"agent_idle_too_long"},"runtime":{"state":"alive"},"pr":{"state":"unknown"}}'
 LIFECYCLE_ORCH='{"version":2,"session":{"kind":"orchestrator","state":"working"},"runtime":{"state":"alive"},"pr":{"state":"none"}}'
 
-# ao-1: the headline session — has BOTH agent-report state AND report-watcher
+# cahi-1: the headline session — has BOTH agent-report state AND report-watcher
 # counters set, plus PR fields. Exercises the entire @ashish921998 flat-key
 # contract in a single record.
-seed_session "$HASH_DIR_A" "ao-1" \
+seed_session "$HASH_DIR_A" "cahi-1" \
 "project=myproject
 agent=claude-code
 status=working
@@ -281,16 +281,16 @@ reportWatcherLastAuditedAt=2026-04-21T12:36:00.000Z
 prAutoDetect=on
 dashboardPort=4000
 terminalWsPort=3001
-branch=session/ao-1
-worktree=$DEMO_REPO_A/worktrees/ao-1
+branch=session/cahi-1
+worktree=$DEMO_REPO_A/worktrees/cahi-1
 statePayload=$LIFECYCLE_WORKING
 stateVersion=2
 issue=demo/myproject#101
 pr=demo/myproject#41
-runtimeHandle={\"id\":\"ao-1\",\"runtimeName\":\"tmux\",\"data\":{\"name\":\"my-1\"}}"
+runtimeHandle={\"id\":\"cahi-1\",\"runtimeName\":\"tmux\",\"data\":{\"name\":\"my-1\"}}"
 
-# ao-3: stuck session with report-watcher counter (also exercises @ashish921998 fix)
-seed_session "$HASH_DIR_A" "ao-3" \
+# cahi-3: stuck session with report-watcher counter (also exercises @ashish921998 fix)
+seed_session "$HASH_DIR_A" "cahi-3" \
 "project=myproject
 agent=claude-code
 status=stuck
@@ -303,8 +303,8 @@ reportWatcherTriggerActivatedAt=2026-04-21T14:00:00.000Z
 reportWatcherLastAuditedAt=2026-04-21T14:55:00.000Z
 prAutoDetect=on
 dashboardPort=4000
-branch=session/ao-3
-worktree=$DEMO_REPO_A/worktrees/ao-3
+branch=session/cahi-3
+worktree=$DEMO_REPO_A/worktrees/cahi-3
 statePayload=$LIFECYCLE_STUCK
 stateVersion=2"
 
@@ -322,23 +322,23 @@ statePayload=$LIFECYCLE_ORCH
 stateVersion=2
 role=orchestrator"
 
-# ao-2 in archive — V1 archive file at sessions/archive/<sid>_<ts>.
-# Migration's job: flatten this into sessions/ao-2.json with terminated lifecycle.
-cat >"$HASH_DIR_A/sessions/archive/ao-2_20260420T100000Z" <<'V1META'
+# cahi-2 in archive — V1 archive file at sessions/archive/<sid>_<ts>.
+# Migration's job: flatten this into sessions/cahi-2.json with terminated lifecycle.
+cat >"$HASH_DIR_A/sessions/archive/cahi-2_20260420T100000Z" <<'V1META'
 project=myproject
 agent=claude-code
 status=killed
 createdAt=2026-04-20T08:00:00.000Z
-branch=session/ao-2
+branch=session/cahi-2
 statePayload={"version":2,"session":{"kind":"worker","state":"terminated","reason":"manually_killed"},"runtime":{"state":"missing","reason":"manual_kill_requested"},"pr":{"state":"unknown"}}
 stateVersion=2
 V1META
 
-# Real worktree content for ao-1 — proves worktree migration moves files,
+# Real worktree content for cahi-1 — proves worktree migration moves files,
 # not just empty directories. Uses git worktree add so it's a registered
 # worktree, exactly what the migrator handles in production.
-git -C "$DEMO_REPO_A" worktree add -b session/ao-1 "$HASH_DIR_A/worktrees/ao-1" main >/dev/null 2>&1 || true
-echo "// pending edits for issue #101" >"$HASH_DIR_A/worktrees/ao-1/src/lib/util.ts.draft"
+git -C "$DEMO_REPO_A" worktree add -b session/cahi-1 "$HASH_DIR_A/worktrees/cahi-1" main >/dev/null 2>&1 || true
+echo "// pending edits for issue #101" >"$HASH_DIR_A/worktrees/cahi-1/src/lib/util.ts.draft"
 
 # ── V1 hash dir 2: frontend ───────────────────────────────────────────────
 HASH_DIR_B="$DEMO_HOME/.cahi/bbbbbb111111-frontend"
@@ -388,7 +388,7 @@ projects:
       platform: github
       originUrl: https://github.com/demo/myproject
     defaultBranch: main
-    source: ao-project-add
+    source: cahi-project-add
     registeredAt: 1776000000
     displayName: myproject
     sessionPrefix: my
@@ -402,7 +402,7 @@ projects:
       platform: github
       originUrl: https://github.com/demo/frontend
     defaultBranch: main
-    source: ao-project-add
+    source: cahi-project-add
     registeredAt: 1776000100
     displayName: frontend
     sessionPrefix: fe
@@ -426,16 +426,16 @@ echo "  V1 hash dir 2 (frontend):"
 echo "    sessions/         : $(ls "$HASH_DIR_B/sessions" | grep -v '^archive$' | tr '\n' ' ')"
 echo "    sessions/archive/ : $(ls "$HASH_DIR_B/sessions/archive" 2>/dev/null | tr '\n' ' ')"
 echo
-echo "  Session metadata format (key=value, flat strings) — ao-1:"
-sed 's/^/    /' "$HASH_DIR_A/sessions/ao-1"
+echo "  Session metadata format (key=value, flat strings) — cahi-1:"
+sed 's/^/    /' "$HASH_DIR_A/sessions/cahi-1"
 sleep 6
 
-step "ao migrate-storage --dry-run  (shows the plan, mutates nothing)"
-ao migrate-storage --dry-run --force || true
+step "cahi migrate-storage --dry-run  (shows the plan, mutates nothing)"
+cahi migrate-storage --dry-run --force || true
 sleep 3
 
-step "ao migrate-storage  (atomic per-project, with rollback on failure)"
-ao migrate-storage --force
+step "cahi migrate-storage  (atomic per-project, with rollback on failure)"
+cahi migrate-storage --force
 sleep 2
 
 step "After — V2 layout (projects/{projectId}/sessions/{sid}.json)"
@@ -453,10 +453,10 @@ for p in "$DEMO_HOME"/.cahi/projects/*; do
   fi
 done
 echo
-# Inspect the JSON for ao-1 (the headline session: agent-report state set,
+# Inspect the JSON for cahi-1 (the headline session: agent-report state set,
 # PR fields, runtimeHandle as embedded JSON — exercises the most fields).
 MIGRATED_PROJECT="myproject"
-SESSION_JSON="$DEMO_HOME/.cahi/projects/$MIGRATED_PROJECT/sessions/ao-1.json"
+SESSION_JSON="$DEMO_HOME/.cahi/projects/$MIGRATED_PROJECT/sessions/cahi-1.json"
 sleep 4
 
 step "Migrated session JSON (note: typed fields, no key=value soup)"
@@ -507,7 +507,7 @@ console.log('    ' + (ok ? 'PASS' : 'FAIL') + ' — agent-report flat-key contra
 sleep 5
 
 step "Rollback safety: re-running migration is a no-op (markers prevent re-process)"
-ao migrate-storage --force 2>&1 | tail -5
+cahi migrate-storage --force 2>&1 | tail -5
 sleep 3
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -515,9 +515,9 @@ banner "Act 2 — Cross-project CLI (the P1 review fix)"
 # ───────────────────────────────────────────────────────────────────────────
 
 note "Behavior under test:"
-note "  1. ao start (project=A)            → running.json {pid, projects:[A]}"
-note "  2. ao stop A                       → projects:[]            (parent alive)"
-note "  3. ao start A                      → projects:[A] same pid  (ATTACH, no 2nd daemon)"
+note "  1. cahi start (project=A)            → running.json {pid, projects:[A]}"
+note "  2. cahi stop A                       → projects:[]            (parent alive)"
+note "  3. cahi start A                      → projects:[A] same pid  (ATTACH, no 2nd daemon)"
 note ""
 note "Pre-fix: step 3 fell through to runStartup() → spawned a SECOND dashboard"
 note "on a new port, clobbered running.json. Reproduced and fixed in commit bfc7f48f."
@@ -556,15 +556,15 @@ grep -B 1 -A 7 "No project filter — sidebar needs all sessions" \
 sleep 4
 
 # ───────────────────────────────────────────────────────────────────────────
-banner "Act 4 — Restore from ao stop  (last-stop.json round-trip)"
+banner "Act 4 — Restore from cahi stop  (last-stop.json round-trip)"
 # ───────────────────────────────────────────────────────────────────────────
 
-step "Simulate what ao stop writes to last-stop.json"
+step "Simulate what cahi stop writes to last-stop.json"
 cat >"$DEMO_HOME/.cahi/last-stop.json" <<JSON
 {
   "stoppedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "projectId": "$MIGRATED_PROJECT",
-  "sessionIds": ["ao-1"],
+  "sessionIds": ["cahi-1"],
   "otherProjects": []
 }
 JSON
@@ -572,7 +572,7 @@ echo
 sed 's/^/    /' "$DEMO_HOME/.cahi/last-stop.json"
 sleep 3
 
-step "What ao start does with it (start.ts)"
+step "What cahi start does with it (start.ts)"
 echo
 grep -n "readLastStop\|Restore .* sessions" \
   "$CAHI_REPO/packages/cli/src/commands/start.ts" | head -6 | sed 's/^/    /'
@@ -589,7 +589,7 @@ sleep 3
 banner "Act 5 — Ctrl+C performs a full graceful shutdown (no tmux orphans)"
 # ───────────────────────────────────────────────────────────────────────────
 
-note "SIGINT/SIGTERM handler in start.ts mirrors ao stop:"
+note "SIGINT/SIGTERM handler in start.ts mirrors cahi stop:"
 note "  kill all sessions → write last-stop.json → unregister → process.exit"
 note "  10s hard timeout via setTimeout().unref() in case cleanup hangs."
 sleep 2
@@ -601,7 +601,7 @@ grep -n "shutdown.*signal: NodeJS.Signals\|10s hard timeout\|SHUTDOWN_TIMEOUT_MS
 sleep 3
 
 # ───────────────────────────────────────────────────────────────────────────
-banner "Act 6 — Empty-repo guard for ao start <URL>"
+banner "Act 6 — Empty-repo guard for cahi start <URL>"
 # ───────────────────────────────────────────────────────────────────────────
 
 note "Before fix: empty repos caused 'Unable to resolve base ref' deep inside"

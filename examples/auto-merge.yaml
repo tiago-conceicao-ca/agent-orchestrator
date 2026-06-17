@@ -1,6 +1,6 @@
 # Aggressive automation with auto-merge
 # Automatically merges approved PRs with passing CI
-$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 
 projects:
   my-app:

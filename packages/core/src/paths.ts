@@ -1,5 +1,5 @@
 /**
- * Path utilities for the AO storage directory structure.
+ * Path utilities for the CAHI storage directory structure.
  *
  * V2 layout (projects/{projectId}/):
  *   getProjectDir(projectId)          → ~/.cahi/projects/{projectId}
@@ -58,7 +58,7 @@ export function generateProjectId(projectPath: string): string {
  * Rules:
  * 1. ≤4 chars: use as-is (lowercase)
  * 2. CamelCase: extract uppercase letters (PyTorch → pt)
- * 3. kebab/snake case: use initials (agent-orchestrator → ao)
+ * 3. kebab/snake case: use initials (my-cool-project → mcp)
  * 4. Single word: first 3 chars (integrator → int)
  */
 export function generateSessionPrefix(projectId: string): string {
@@ -125,7 +125,7 @@ export function getProjectWorktreesDir(projectId: string): string {
   return join(getProjectDir(projectId), "worktrees");
 }
 
-/** Get the AO-local code review store directory for a project. */
+/** Get the CAHI-local code review store directory for a project. */
 export function getProjectCodeReviewsDir(projectId: string): string {
   return join(getProjectDir(projectId), "code-reviews");
 }
@@ -210,7 +210,7 @@ export function getOriginFilePath(storageKey: string | undefined): string {
 /**
  * Generate user-facing session name.
  * Format: {prefix}-{num}
- * Example: "int-1", "ao-42"
+ * Example: "int-1", "cahi-42"
  */
 export function generateSessionName(prefix: string, num: number): string {
   return `${prefix}-${num}`;
@@ -253,7 +253,7 @@ export function parseTmuxName(tmuxName: string): {
 
 /**
  * Parse a V2 tmux session name (no hash prefix, same as session name).
- * Format: {prefix}-{num} e.g. "ao-84", "my-app-1"
+ * Format: {prefix}-{num} e.g. "cahi-84", "my-app-1"
  * Prefix must match sessionPrefix validation: [a-zA-Z0-9_-]+
  */
 export function parseTmuxNameV2(tmuxName: string): {
@@ -276,7 +276,7 @@ export function expandHome(filepath: string): string {
   return filepath;
 }
 
-/** Get the base AO directory (~/.cahi/) */
+/** Get the base CAHI directory (~/.cahi/) */
 export function getAoBaseDir(): string {
   return expandHome("~/.cahi");
 }

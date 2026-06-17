@@ -111,21 +111,21 @@ describe("global-config storage identity", () => {
 
   it("generates deterministic external IDs from path and origin", () => {
     const repoPath = createRepo(
-      "agent-orchestrator",
-      "https://github.com/OpenAI/agent-orchestrator.git",
+      "cahi",
+      "https://github.com/OpenAI/cahi.git",
     );
 
-    expect(generateExternalId(repoPath, "https://github.com/OpenAI/agent-orchestrator.git")).toBe(
-      generateExternalId(repoPath, "https://github.com/OpenAI/agent-orchestrator.git"),
+    expect(generateExternalId(repoPath, "https://github.com/OpenAI/cahi.git")).toBe(
+      generateExternalId(repoPath, "https://github.com/OpenAI/cahi.git"),
     );
-    expect(generateExternalId(repoPath, null)).toMatch(/^agent-orchestrator_[0-9a-f]{10}$/);
+    expect(generateExternalId(repoPath, null)).toMatch(/^cahi_[0-9a-f]{10}$/);
   });
 
   it("generates different external IDs for same-basename projects at different paths", () => {
-    const repoA = createRepo(join("company-a", "agent-orchestrator"));
-    const repoB = createRepo(join("company-b", "agent-orchestrator"));
+    const repoA = createRepo(join("company-a", "cahi"));
+    const repoB = createRepo(join("company-b", "cahi"));
 
-    expect(generateExternalId(repoA)).toMatch(/^agent-orchestrator_[0-9a-f]{10}$/);
+    expect(generateExternalId(repoA)).toMatch(/^cahi_[0-9a-f]{10}$/);
     expect(generateExternalId(repoA)).not.toBe(generateExternalId(repoB));
   });
 
@@ -142,26 +142,26 @@ describe("global-config storage identity", () => {
   });
 
   it("registers same-basename projects with hashed external IDs", () => {
-    const repoA = createRepo(join("company-a", "agent-orchestrator"));
-    const repoB = createRepo(join("company-b", "agent-orchestrator"));
+    const repoA = createRepo(join("company-a", "cahi"));
+    const repoB = createRepo(join("company-b", "cahi"));
 
     const idA = registerProjectInGlobalConfig(
-      "agent-orchestrator",
+      "cahi",
       "AO A",
       repoA,
       { sessionPrefix: "aoa" },
       configPath,
     );
     const idB = registerProjectInGlobalConfig(
-      "agent-orchestrator",
+      "cahi",
       "AO B",
       repoB,
       { sessionPrefix: "aob" },
       configPath,
     );
 
-    expect(idA).toMatch(/^agent-orchestrator_[0-9a-f]{10}$/);
-    expect(idB).toMatch(/^agent-orchestrator_[0-9a-f]{10}$/);
+    expect(idA).toMatch(/^cahi_[0-9a-f]{10}$/);
+    expect(idB).toMatch(/^cahi_[0-9a-f]{10}$/);
     expect(idA).not.toBe(idB);
   });
 
@@ -189,18 +189,18 @@ describe("global-config storage identity", () => {
   });
 
   it("allocates a suffixed generated session prefix for same-basename projects", () => {
-    const repoA = createRepo(join("company-a", "agent-orchestrator"));
-    const repoB = createRepo(join("company-b", "agent-orchestrator"));
+    const repoA = createRepo(join("company-a", "cahi"));
+    const repoB = createRepo(join("company-b", "cahi"));
 
     const idA = registerProjectInGlobalConfig(
-      "agent-orchestrator",
+      "cahi",
       "AO A",
       repoA,
       undefined,
       configPath,
     );
     const idB = registerProjectInGlobalConfig(
-      "agent-orchestrator",
+      "cahi",
       "AO B",
       repoB,
       undefined,
@@ -208,8 +208,8 @@ describe("global-config storage identity", () => {
     );
 
     const config = loadGlobalConfig(configPath);
-    expect(config?.projects[idA]?.sessionPrefix).toBe("ao");
-    expect(config?.projects[idB]?.sessionPrefix).toBe("ao-1");
+    expect(config?.projects[idA]?.sessionPrefix).toBe("cahi");
+    expect(config?.projects[idB]?.sessionPrefix).toBe("cahi-1");
   });
 
   it("strips stale shadow fields from legacy entries and rewrites the config", () => {

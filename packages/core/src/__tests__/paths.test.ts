@@ -34,7 +34,7 @@ describe("paths", () => {
   });
 
   it("keeps session prefix generation unchanged", () => {
-    expect(generateSessionPrefix("agent-orchestrator")).toBe("ao");
+    expect(generateSessionPrefix("my-cool-project")).toBe("mcp");
     expect(generateSessionPrefix("Integrator")).toBe("int");
     expect(generateSessionName("ao", 7)).toBe("ao-7");
   });
@@ -109,7 +109,7 @@ describe("V2 paths", () => {
 describe("generateProjectId", () => {
   it("uses basename of path", () => {
     expect(generateProjectId("/home/user/repos/integrator")).toBe("integrator");
-    expect(generateProjectId("~/repos/agent-orchestrator")).toBe("agent-orchestrator");
+    expect(generateProjectId("~/repos/cahi")).toBe("cahi");
   });
 });
 

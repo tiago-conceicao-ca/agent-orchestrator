@@ -75,25 +75,25 @@ case "$PROJECT" in
         SESSION_SCRIPT="$HOME/claude-splitly-session-v2"
         PROJECT_NAME="splitly"
         ;;
-    agent-orchestrator|ao)
-        SESSION_SCRIPT="$HOME/claude-ao-session"
-        PROJECT_NAME="ao"
+    cahi|cahi)
+        SESSION_SCRIPT="$HOME/claude-cahi-session"
+        PROJECT_NAME="cahi"
         ;;
     "")
-        echo "Usage: ~/claude-spawn <integrator|splitly|ao> [issue]"
+        echo "Usage: ~/claude-spawn <integrator|splitly|cahi> [issue]"
         echo ""
         echo "Examples:"
         echo "  ~/claude-spawn integrator"
         echo "  ~/claude-spawn integrator https://linear.app/composio/issue/INT-1020"
         echo "  ~/claude-spawn splitly 294"
-        echo "  ~/claude-spawn ao AO-1"
+        echo "  ~/claude-spawn cahi CAHI-1"
         echo ""
         echo "Run '~/claude-spawn help' for more information."
         exit 1
         ;;
     *)
         echo "Unknown project: $PROJECT"
-        echo "Use 'integrator' (or 'i'), 'splitly' (or 's'), or 'agent-orchestrator' (or 'ao')"
+        echo "Use 'integrator' (or 'i'), 'splitly' (or 's'), or 'cahi' (or 'cahi')"
         exit 1
         ;;
 esac

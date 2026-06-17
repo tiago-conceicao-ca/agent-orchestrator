@@ -1,13 +1,13 @@
 #!/bin/bash
-# claude-ao-session - Worktree-based session manager for agent-orchestrator
+# claude-cahi-session - Worktree-based session manager for cahi
 
 set -e
 
-MAIN_REPO=~/agent-orchestrator
-WORKTREE_DIR=~/.worktrees/ao
+MAIN_REPO=~/cahi
+WORKTREE_DIR=~/.worktrees/cahi
 SESSION_DIR=~/.cahi-sessions
 DEFAULT_BRANCH="main"
-GITHUB_REPO="ComposioHQ/agent-orchestrator"
+GITHUB_REPO="contaazul/cahi"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 usage() {
-    echo "Usage: ~/claude-ao-session <command> [args]"
+    echo "Usage: ~/claude-cahi-session <command> [args]"
     echo ""
     echo "Commands:"
     echo "  new [LINEAR-ID] [--open]  Create new session (optionally with Linear ticket)"
@@ -30,7 +30,7 @@ usage() {
 
 get_next_session_number() {
     local max=0
-    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^ao-[0-9]*$" | sed 's/ao-//'); do
+    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^cahi-[0-9]*$" | sed 's/cahi-//'); do
         if [ "$session" -gt "$max" ] 2>/dev/null; then
             max=$session
         fi
@@ -52,7 +52,7 @@ cmd_new() {
     done
 
     local session_num=$(get_next_session_number)
-    local session_name="ao-$session_num"
+    local session_name="cahi-$session_num"
     local worktree_path="$WORKTREE_DIR/$session_name"
 
     echo -e "${BLUE}Creating session: $session_name${NC}"
@@ -106,7 +106,7 @@ cmd_ls() {
     echo -e "${BLUE}Agent-Orchestrator Sessions:${NC}"
     echo ""
 
-    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^ao-" | sort -V); do
+    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^cahi-" | sort -V); do
         local meta_file="$SESSION_DIR/$session"
         local worktree="" branch="" status="" pr=""
 
@@ -128,13 +128,13 @@ cmd_ls() {
 }
 
 cmd_attach() {
-    [ -z "$1" ] && echo "Usage: ~/claude-ao-session attach <session>" && exit 1
+    [ -z "$1" ] && echo "Usage: ~/claude-cahi-session attach <session>" && exit 1
     tmux attach -t "$1"
 }
 
 cmd_kill() {
     local session="$1"
-    [ -z "$session" ] && echo "Usage: ~/claude-ao-session kill <session>" && exit 1
+    [ -z "$session" ] && echo "Usage: ~/claude-cahi-session kill <session>" && exit 1
 
     local meta_file="$SESSION_DIR/$session"
     local worktree=""
@@ -174,7 +174,7 @@ cmd_kill() {
 cmd_cleanup() {
     echo "Checking for completed sessions..."
 
-    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^ao-"); do
+    for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^cahi-"); do
         local meta_file="$SESSION_DIR/$session"
         local pr="" issue=""
 
@@ -193,7 +193,7 @@ cmd_cleanup() {
 
         # Check Linear ticket status if we have an issue URL
         if [ -n "$issue" ] && [ -n "${LINEAR_API_KEY:-}" ]; then
-            local ticket_id=$(echo "$issue" | grep -o 'AO-[0-9]*')
+            local ticket_id=$(echo "$issue" | grep -o 'CAHI-[0-9]*')
             if [ -n "$ticket_id" ]; then
                 local ticket_state=$(curl -s -X POST https://api.linear.app/graphql \
                     -H "Authorization: $LINEAR_API_KEY" \
@@ -212,7 +212,7 @@ cmd_cleanup() {
 
 cmd_update() {
     local session="${CAHI_SESSION:-}"
-    [ -z "$session" ] && echo "Error: Not in an ao session" && exit 1
+    [ -z "$session" ] && echo "Error: Not in an cahi session" && exit 1
 
     local meta_file="$SESSION_DIR/$session"
     local worktree=$(grep "^worktree=" "$meta_file" 2>/dev/null | cut -d= -f2-)

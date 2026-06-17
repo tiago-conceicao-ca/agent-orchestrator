@@ -17,7 +17,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scriptPath = join(packageRoot, "src", "assets", "scripts", "ao-doctor.sh");
+const scriptPath = join(packageRoot, "src", "assets", "scripts", "cahi-doctor.sh");
 
 function writeExecutable(path: string, content: string): void {
   writeFileSync(path, content);
@@ -60,8 +60,8 @@ function createHealthyPackageInstall(tempRoot: string): string {
     JSON.stringify({ name: "@contaazul/cahi-cli", version: "0.2.5" }, null, 2),
   );
   writeFileSync(join(fakeInstall, "dist", "index.js"), 'console.log("0.2.5");\n');
-  writeFileSync(join(fakeInstall, "dist", "assets", "scripts", "ao-doctor.sh"), "#!/bin/bash\n");
-  writeFileSync(join(fakeInstall, "dist", "assets", "scripts", "ao-update.sh"), "#!/bin/bash\n");
+  writeFileSync(join(fakeInstall, "dist", "assets", "scripts", "cahi-doctor.sh"), "#!/bin/bash\n");
+  writeFileSync(join(fakeInstall, "dist", "assets", "scripts", "cahi-update.sh"), "#!/bin/bash\n");
   return fakeInstall;
 }
 
@@ -102,9 +102,9 @@ function createHealthyPath(binDir: string): void {
 // Skipped on Windows: bash is required to execute the doctor script and is not
 // guaranteed to be available without Git for Windows. The Windows code path
 // (Git Bash auto-detection in runRepoScript) is exercised at runtime, not here.
-describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
+describe.skipIf(process.platform === "win32")("cahi-doctor.sh", () => {
   it("reports a healthy install as PASS", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-script-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-script-"));
     const fakeRepo = createHealthyRepo(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -138,7 +138,7 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
   });
 
   it("applies safe fixes for missing launcher, missing dirs, and stale temp files when grep output is colored", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-fix-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-fix-"));
     const fakeRepo = createHealthyRepo(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -204,7 +204,7 @@ describe.skipIf(process.platform === "win32")("ao-doctor.sh", () => {
   });
 
   it("repairs a dangling ao launcher shim in fix mode", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-dangling-launcher-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-dangling-launcher-"));
     const fakeRepo = createHealthyRepo(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -261,7 +261,7 @@ exit 0`,
   });
 
   it("warns about and repairs a non-executable node-pty spawn-helper", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-node-pty-helper-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-node-pty-helper-"));
     const fakeRepo = createHealthyRepo(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });
@@ -322,7 +322,7 @@ exit 0`,
   });
 
   it("reports a healthy packaged install without source-checkout failures", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "ao-doctor-package-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "cahi-doctor-package-"));
     const fakeInstall = createHealthyPackageInstall(tempRoot);
     const binDir = join(tempRoot, "bin");
     mkdirSync(binDir, { recursive: true });

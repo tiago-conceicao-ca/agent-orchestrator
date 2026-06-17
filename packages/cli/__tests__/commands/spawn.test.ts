@@ -275,10 +275,10 @@ describe("spawn command", () => {
     // Multi-project config where AO is running for the default project
     // but the issue belongs to a different project.
     (mockConfigRef.current as Record<string, unknown>).projects = {
-      "agent-orchestrator": {
-        name: "Agent Orchestrator",
-        repo: "org/agent-orchestrator",
-        path: join(tmpDir, "agent-orchestrator"),
+      "cahi": {
+        name: "CAHI",
+        repo: "org/cahi",
+        path: join(tmpDir, "cahi"),
         defaultBranch: "main",
         sessionPrefix: "ao",
       },
@@ -290,16 +290,16 @@ describe("spawn command", () => {
         sessionPrefix: "xid",
       },
     };
-    mkdirSync(join(tmpDir, "agent-orchestrator"), { recursive: true });
+    mkdirSync(join(tmpDir, "cahi"), { recursive: true });
     mkdirSync(join(tmpDir, "x402-identity"), { recursive: true });
 
     // The cwd shouldn't change the result — prefix takes priority.
-    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(join(tmpDir, "agent-orchestrator"));
+    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(join(tmpDir, "cahi"));
     mockGetRunning.mockResolvedValue({
       pid: 1234,
       port: 3000,
       startedAt: "",
-      projects: ["agent-orchestrator", "x402-identity"],
+      projects: ["cahi", "x402-identity"],
     });
 
     const fakeSession: Session = {
@@ -329,10 +329,10 @@ describe("spawn command", () => {
 
   it("routes via sessionPrefix when that matches instead of project id", async () => {
     (mockConfigRef.current as Record<string, unknown>).projects = {
-      "agent-orchestrator": {
-        name: "Agent Orchestrator",
-        repo: "org/agent-orchestrator",
-        path: join(tmpDir, "agent-orchestrator"),
+      "cahi": {
+        name: "CAHI",
+        repo: "org/cahi",
+        path: join(tmpDir, "cahi"),
         defaultBranch: "main",
         sessionPrefix: "ao",
       },
@@ -344,14 +344,14 @@ describe("spawn command", () => {
         sessionPrefix: "xid",
       },
     };
-    mkdirSync(join(tmpDir, "agent-orchestrator"), { recursive: true });
+    mkdirSync(join(tmpDir, "cahi"), { recursive: true });
     mkdirSync(join(tmpDir, "x402-identity"), { recursive: true });
-    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(join(tmpDir, "agent-orchestrator"));
+    cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(join(tmpDir, "cahi"));
     mockGetRunning.mockResolvedValue({
       pid: 1234,
       port: 3000,
       startedAt: "",
-      projects: ["agent-orchestrator", "x402-identity"],
+      projects: ["cahi", "x402-identity"],
     });
 
     const fakeSession: Session = {
@@ -897,10 +897,10 @@ describe("batch-spawn command", () => {
 
   it("groups cross-project issues and routes each to the correct project", async () => {
     (mockConfigRef.current as Record<string, unknown>).projects = {
-      "agent-orchestrator": {
-        name: "Agent Orchestrator",
-        repo: "org/agent-orchestrator",
-        path: join(tmpDir, "agent-orchestrator"),
+      "cahi": {
+        name: "CAHI",
+        repo: "org/cahi",
+        path: join(tmpDir, "cahi"),
         defaultBranch: "main",
         sessionPrefix: "ao",
       },
@@ -912,17 +912,17 @@ describe("batch-spawn command", () => {
         sessionPrefix: "xid",
       },
     };
-    mkdirSync(join(tmpDir, "agent-orchestrator"), { recursive: true });
+    mkdirSync(join(tmpDir, "cahi"), { recursive: true });
     mkdirSync(join(tmpDir, "x402-identity"), { recursive: true });
     mockGetRunning.mockResolvedValue({
       pid: 1234,
       port: 3000,
       startedAt: "",
-      projects: ["agent-orchestrator", "x402-identity"],
+      projects: ["cahi", "x402-identity"],
     });
 
     mockSessionManager.spawn
-      .mockResolvedValueOnce(makeFakeSession({ id: "ao-1", projectId: "agent-orchestrator" }))
+      .mockResolvedValueOnce(makeFakeSession({ id: "ao-1", projectId: "cahi" }))
       .mockResolvedValueOnce(makeFakeSession({ id: "xid-1", projectId: "x402-identity" }));
 
     const program = setupBatch();
@@ -930,18 +930,18 @@ describe("batch-spawn command", () => {
       "node",
       "test",
       "batch-spawn",
-      "agent-orchestrator/10",
+      "cahi/10",
       "x402-identity/20",
     ]);
 
     const spawnCalls = mockSessionManager.spawn.mock.calls.map((call) => call[0]);
     expect(spawnCalls).toEqual(
       expect.arrayContaining([
-        { projectId: "agent-orchestrator", issueId: "10" },
+        { projectId: "cahi", issueId: "10" },
         { projectId: "x402-identity", issueId: "20" },
       ]),
     );
-    expect(mockSessionManager.list).toHaveBeenCalledWith("agent-orchestrator");
+    expect(mockSessionManager.list).toHaveBeenCalledWith("cahi");
     expect(mockSessionManager.list).toHaveBeenCalledWith("x402-identity");
     // Exactly one list() per project group — locks the grouping contract so a
     // regression that lists every project for every issue is caught.
@@ -951,10 +951,10 @@ describe("batch-spawn command", () => {
 
   it("skips a prefixed issue that already has an active session in the target project", async () => {
     (mockConfigRef.current as Record<string, unknown>).projects = {
-      "agent-orchestrator": {
-        name: "Agent Orchestrator",
-        repo: "org/agent-orchestrator",
-        path: join(tmpDir, "agent-orchestrator"),
+      "cahi": {
+        name: "CAHI",
+        repo: "org/cahi",
+        path: join(tmpDir, "cahi"),
         defaultBranch: "main",
         sessionPrefix: "ao",
       },
@@ -966,13 +966,13 @@ describe("batch-spawn command", () => {
         sessionPrefix: "xid",
       },
     };
-    mkdirSync(join(tmpDir, "agent-orchestrator"), { recursive: true });
+    mkdirSync(join(tmpDir, "cahi"), { recursive: true });
     mkdirSync(join(tmpDir, "x402-identity"), { recursive: true });
     mockGetRunning.mockResolvedValue({
       pid: 1234,
       port: 3000,
       startedAt: "",
-      projects: ["agent-orchestrator", "x402-identity"],
+      projects: ["cahi", "x402-identity"],
     });
 
     // Pre-existing active session in x402-identity for issue 20
@@ -991,7 +991,7 @@ describe("batch-spawn command", () => {
     });
 
     mockSessionManager.spawn.mockResolvedValueOnce(
-      makeFakeSession({ id: "ao-2", projectId: "agent-orchestrator" }),
+      makeFakeSession({ id: "ao-2", projectId: "cahi" }),
     );
 
     const program = setupBatch();
@@ -999,13 +999,13 @@ describe("batch-spawn command", () => {
       "node",
       "test",
       "batch-spawn",
-      "agent-orchestrator/10",
+      "cahi/10",
       "x402-identity/20",
     ]);
 
     expect(mockSessionManager.spawn).toHaveBeenCalledTimes(1);
     expect(mockSessionManager.spawn).toHaveBeenCalledWith({
-      projectId: "agent-orchestrator",
+      projectId: "cahi",
       issueId: "10",
     });
   });

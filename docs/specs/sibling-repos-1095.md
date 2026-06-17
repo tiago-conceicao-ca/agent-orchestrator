@@ -39,7 +39,7 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 ### Fase 1 — Core: criar/remover worktree de sibling
 - `addSibling(sessionId, repoOrProjectId, branch?)`: resolve o `path` do repo fonte (do projeto registrado) → `git worktree add {managed-path} {branch}` → grava `SiblingRef` na metadata da sessão.
 - `removeSibling(sessionId, repo)`: `git worktree remove` + tira da metadata.
-- **Cleanup no kill**: ao matar a sessão, remover seus worktrees de sibling (best-effort), como o worktree primário.
+- **Cleanup no kill**: cahi matar a sessão, remover seus worktrees de sibling (best-effort), como o worktree primário.
 - (Opcional) `mode: readonly-symlink` → cria symlink em vez de worktree (pra refs read-only tipo ca-starters-front).
 - Reusa o `workspace-worktree` (mesmas funções de criação/limpeza/stale-path).
 - Verify: add cria worktree isolado + grava metadata; remove limpa; kill remove os siblings; colisão entre 2 sessões paralelas não acontece.
@@ -84,7 +84,7 @@ interface Session { /* ... */ siblings: SiblingRef[]; }  // metadata-backed, igu
 ## Decisões (aprovadas 2026-06-10)
 1. **Catálogo de siblings** = **projetos registrados** (o `path` de cada projeto é a fonte do `git worktree add`).
 2. **Namespace CLI** = **`cahi session sibling …`**.
-3. **Symlink de adjacência `../sibling` = SIM (em escopo).** Todo sibling em `mode: worktree` ganha, além do worktree isolado, uma adjacência por-sessão de modo que ferramentas (pattern-library) o encontrem como `../{name}` relativo ao cwd da sessão — sem colisão entre sessões paralelas. `mode: readonly-symlink` = só symlink (sem worktree), pra refs read-only (ex: ca-starters-front).
+3. **Symlink de adjacência `../sibling` = SIM (em escopo).** Todo sibling em `mode: worktree` ganha, além do worktree isolado, uma adjacência por-sessão de modo que ferramentas (pattern-library) o encontrem como `../{name}` relativo cahi cwd da sessão — sem colisão entre sessões paralelas. `mode: readonly-symlink` = só symlink (sem worktree), pra refs read-only (ex: ca-starters-front).
 4. **`cahi start`** = só estabelece o catálogo disponível (não cria worktree de worker no start).
 
 ## Entrega
@@ -101,7 +101,7 @@ Esta PR entrega a **fundação** do #1095: o modelo de dados e o núcleo (core).
 - **Fase 1 (core add/remove):**
   - `addSibling(sessionId, repoOrProjectId, opts?)` — resolve a fonte no catálogo (projetos registrados, por id ou `owner/name`); `mode: "worktree"` (default) faz `git worktree add` num caminho isolado por sessão `{worktreeDir}/{sessionId}__sib__{name}` reusando o plugin `workspace-worktree` (stale-path cleanup, base-ref, fetch, recovery). Branch default = branch única por sessão (`sib/{sessionId}/{name}`) baseada no defaultBranch da fonte — necessária porque o git recusa um segundo worktree na mesma branch já checada-out, e garante zero colisão entre sessões paralelas. `opts.branch` sobrescreve. `mode: "readonly-symlink"` cria só um symlink (junction no Windows) pro repo fonte.
   - `removeSibling(sessionId, repo)` — `workspace.destroy` (worktree) ou unlink (symlink) + remove da metadata.
-  - **Cleanup no kill** — `kill()` remove os worktrees/symlinks de sibling da sessão (best-effort), igual ao worktree primário; metadata é preservada (sessão é terminada, não editada).
+  - **Cleanup no kill** — `kill()` remove os worktrees/symlinks de sibling da sessão (best-effort), igual cahi worktree primário; metadata é preservada (sessão é terminada, não editada).
 
 **Testes (TDD):** round-trip de metadata + back-compat; `addSibling` cria worktree isolado no caminho por-sessão; duas sessões paralelas montando o mesmo repo recebem worktrees DIFERENTES (sem colisão); `removeSibling` limpa; kill remove os siblings; `readonly-symlink` cria symlink e não worktree.
 

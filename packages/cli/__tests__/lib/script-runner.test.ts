@@ -77,11 +77,11 @@ describe("script-runner", () => {
 
   it.skipIf(process.platform === "win32")("uses the repository root for source checkouts", () => {
     const modulePath =
-      "/Users/test/agent-orchestrator/packages/cli/src/lib/script-runner.ts";
+      "/Users/test/cahi/packages/cli/src/lib/script-runner.ts";
 
     expect(resolveScriptLayoutFromPath(modulePath)).toBe("source-checkout");
     expect(resolveDefaultRepoRootFromPath(modulePath)).toBe(
-      "/Users/test/agent-orchestrator",
+      "/Users/test/cahi",
     );
   });
 
@@ -106,7 +106,7 @@ describe("script-runner", () => {
     process.env["CAHI_REPO_ROOT"] = tempRoot;
 
     expect(() => resolveRepoRoot()).toThrowError(
-      `CAHI_REPO_ROOT=${tempRoot} does not look like an agent-orchestrator checkout`,
+      `CAHI_REPO_ROOT=${tempRoot} does not look like an cahi checkout`,
     );
 
     rmSync(tempRoot, { recursive: true, force: true });
@@ -158,10 +158,10 @@ describe("script-runner", () => {
       mockSpawn.mockReturnValue(child);
       setTimeout(() => child.emit("exit", 0, null), 0);
 
-      // ao-doctor.sh ships with a sibling ao-doctor.ps1, so the Windows
+      // cahi-doctor.sh ships with a sibling cahi-doctor.ps1, so the Windows
       // branch in runRepoScript() should rewrite to .ps1 and dispatch via
       // PowerShell instead of bash.
-      await runRepoScript("ao-doctor.sh", ["--check", "tmux"]);
+      await runRepoScript("cahi-doctor.sh", ["--check", "tmux"]);
 
       expect(mockSpawn).toHaveBeenCalledTimes(1);
       const [shell, args, opts] = mockSpawn.mock.calls[0] as [string, string[], { cwd: string }];
@@ -169,7 +169,7 @@ describe("script-runner", () => {
       // PS binary: pwsh.exe / powershell.exe found on PATH or System32.
       expect(shell.toLowerCase()).toMatch(/(pwsh|powershell)\.exe$/);
 
-      // Args: PowerShell flags first, then -File <ao-doctor.ps1>, then user args.
+      // Args: PowerShell flags first, then -File <cahi-doctor.ps1>, then user args.
       expect(args.slice(0, 5)).toEqual([
         "-NoProfile",
         "-NonInteractive",
@@ -177,9 +177,9 @@ describe("script-runner", () => {
         "Bypass",
         "-File",
       ]);
-      expect(args[5]).toMatch(/ao-doctor\.ps1$/);
+      expect(args[5]).toMatch(/cahi-doctor\.ps1$/);
       // .sh is NOT what got resolved — the rewrite to .ps1 happened.
-      expect(args[5]).not.toMatch(/ao-doctor\.sh$/);
+      expect(args[5]).not.toMatch(/cahi-doctor\.sh$/);
       expect(args.slice(6)).toEqual(["--check", "tmux"]);
 
       // cwd is pinned to CAHI_REPO_ROOT just like the bash path does.
@@ -207,8 +207,8 @@ describe("script-runner", () => {
 
       // No .ps1 lookup happens, falls through to bash branch which then
       // resolveScriptPath fails because we ship no .nope file.
-      await expect(runRepoScript("ao-doctor.nope", [])).rejects.toThrowError(
-        /Script not found: ao-doctor\.nope/,
+      await expect(runRepoScript("cahi-doctor.nope", [])).rejects.toThrowError(
+        /Script not found: cahi-doctor\.nope/,
       );
       expect(mockSpawn).not.toHaveBeenCalled();
 
@@ -230,13 +230,13 @@ describe("script-runner", () => {
     mockSpawn.mockReturnValue(child);
     setTimeout(() => child.emit("exit", 0, null), 0);
 
-    await runRepoScript("ao-doctor.sh", []);
+    await runRepoScript("cahi-doctor.sh", []);
 
     expect(mockSpawn).toHaveBeenCalledWith(
       // On Windows the resolved bash is an absolute path (e.g. Git Bash);
       // on POSIX it is the literal "bash" passed through to the shell.
       expect.stringMatching(/(^bash$|bash(\.exe)?$)/),
-      [expect.stringContaining("ao-doctor.sh")],
+      [expect.stringContaining("cahi-doctor.sh")],
       expect.objectContaining({
         cwd: tempRoot,
         env: expect.objectContaining({

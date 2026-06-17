@@ -7,14 +7,14 @@ import { fileURLToPath } from "node:url";
 // because spawnSync("bash", ...) requires Git Bash and the bash-specific scenarios
 // don't apply to the PS1 port. These tests run only on Windows and exercise the
 // PS1 script's argparse + help text — the high-frequency surface that breaks
-// when someone touches ao-update.ps1.
+// when someone touches cahi-update.ps1.
 //
 // Full happy-path coverage (fake git/pnpm/npm binaries via .cmd shims) deserves
 // its own diff; this file establishes the baseline so any developer who breaks
 // the PS1 script's argparse or syntax is caught immediately.
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scriptPath = join(packageRoot, "src", "assets", "scripts", "ao-update.ps1");
+const scriptPath = join(packageRoot, "src", "assets", "scripts", "cahi-update.ps1");
 
 function runPwsh(args: string[], extraEnv: Record<string, string> = {}) {
   return spawnSync(
@@ -27,11 +27,11 @@ function runPwsh(args: string[], extraEnv: Record<string, string> = {}) {
   );
 }
 
-describe.runIf(process.platform === "win32")("ao-update.ps1", () => {
+describe.runIf(process.platform === "win32")("cahi-update.ps1", () => {
   it("prints usage and exits 0 for --help", () => {
     const result = runPwsh(["--help"]);
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Usage: ao update");
+    expect(result.stdout).toContain("Usage: cahi update");
     expect(result.stdout).toContain("--skip-smoke");
     expect(result.stdout).toContain("--smoke-only");
   });
@@ -39,7 +39,7 @@ describe.runIf(process.platform === "win32")("ao-update.ps1", () => {
   it("prints usage and exits 0 for -h", () => {
     const result = runPwsh(["-h"]);
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Usage: ao update");
+    expect(result.stdout).toContain("Usage: cahi update");
   });
 
   it("rejects unknown flags with exit 1", () => {

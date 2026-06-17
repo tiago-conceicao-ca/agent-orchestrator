@@ -249,7 +249,7 @@ export function getGitUpdateRef(): string {
 /**
  * Map an install method + channel to the command the user should run.
  *
- * Git installs always run `ao update` (which delegates to `ao-update.sh`)
+ * Git installs always run `ao update` (which delegates to `cahi-update.sh`)
  * regardless of channel — the channel only affects npm-published builds.
  *
  * Homebrew is special: we never auto-install. We surface the brew command as

@@ -99,7 +99,7 @@ export function registerProjectCommand(program: Command): void {
             source: "cli",
             kind: "cli.project_register_failed",
             level: "warn",
-            summary: `ao project add: no agent-orchestrator config found`,
+            summary: `ao project add: no cahi config found`,
             data: { resolvedPath, reason: "no_config_found" },
           });
           console.error(chalk.red(`No cahi.yaml found at ${resolvedPath}`));
@@ -139,7 +139,7 @@ export function registerProjectCommand(program: Command): void {
           });
           console.error(
             chalk.red(
-              `Found agent-orchestrator config at ${existingConfigPath}, but it could not be loaded: ${error instanceof Error ? error.message : String(error)}`,
+              `Found cahi config at ${existingConfigPath}, but it could not be loaded: ${error instanceof Error ? error.message : String(error)}`,
             ),
           );
         }

@@ -82,8 +82,8 @@ describe("assembled adjacency view paths (#1095 Decision 3)", () => {
   });
 
   it("assembledPrimaryViewPath nests the primary repo name under __ws", () => {
-    expect(assembledPrimaryViewPath(worktreeDir, "ao-10", "agent-orchestrator")).toBe(
-      join(worktreeDir, "ao-10__ws", "agent-orchestrator"),
+    expect(assembledPrimaryViewPath(worktreeDir, "ao-10", "cahi")).toBe(
+      join(worktreeDir, "ao-10__ws", "cahi"),
     );
   });
 

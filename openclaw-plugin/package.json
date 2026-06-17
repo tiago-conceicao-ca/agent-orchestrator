@@ -1,7 +1,7 @@
 {
   "name": "composio-ao-plugin",
   "version": "0.3.1",
-  "description": "OpenClaw plugin for Agent Orchestrator — AI tools, slash commands, hooks, and health monitoring for managing parallel coding agents from OpenClaw",
+  "description": "OpenClaw plugin for CAHI — AI tools, slash commands, hooks, and health monitoring for managing parallel coding agents from OpenClaw",
   "license": "MIT",
   "author": "Dhruv Sharma (https://github.com/illegalcall)",
   "engines": {
@@ -22,12 +22,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ComposioHQ/agent-orchestrator.git",
+    "url": "https://github.com/contaazul/cahi.git",
     "directory": "openclaw-plugin"
   },
-  "homepage": "https://github.com/ComposioHQ/agent-orchestrator/tree/main/openclaw-plugin",
-  "bugs": "https://github.com/ComposioHQ/agent-orchestrator/issues",
-  "keywords": ["openclaw", "openclaw-plugin", "plugin", "agent-orchestrator", "composio", "ai-agents", "coding-agents"],
+  "homepage": "https://github.com/contaazul/cahi/tree/main/openclaw-plugin",
+  "bugs": "https://github.com/contaazul/cahi/issues",
+  "keywords": ["openclaw", "openclaw-plugin", "plugin", "cahi", "composio", "ai-agents", "coding-agents"],
   "publishConfig": {
     "access": "public"
   }

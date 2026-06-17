@@ -51,7 +51,7 @@ describe("opencode-agents-md", () => {
     mkdirSync(workspacePath, { recursive: true });
     writeFileSync(
       join(workspacePath, "AGENTS.md"),
-      "# Existing\n\nBefore.\n\n<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## Agent Orchestrator\n\nOld prompt.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n\nAfter.\n",
+      "# Existing\n\nBefore.\n\n<!-- CAHI_ORCHESTRATOR_PROMPT_START -->\n## CAHI\n\nOld prompt.\n<!-- CAHI_ORCHESTRATOR_PROMPT_END -->\n\nAfter.\n",
       "utf-8",
     );
     const promptFile = join(root, "prompt.md");

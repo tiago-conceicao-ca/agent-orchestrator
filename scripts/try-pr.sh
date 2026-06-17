@@ -38,7 +38,7 @@ if [ "$2" = "--with-web" ]; then
   WITH_WEB=true
 fi
 
-WORKTREES_DIR="${CAHI_WORKTREES_DIR:-$HOME/.worktrees/ao}"
+WORKTREES_DIR="${CAHI_WORKTREES_DIR:-$HOME/.worktrees/cahi}"
 WORKTREE="$WORKTREES_DIR/$SESSION"
 
 if [ ! -d "$WORKTREE" ]; then

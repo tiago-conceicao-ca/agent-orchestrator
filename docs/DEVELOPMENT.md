@@ -44,8 +44,8 @@ const dataDir = `~/.cahi/${instanceId}`;
 This means:
 
 - Multiple orchestrator checkouts on the same machine never collide
-- Runtime handles are globally unique: `{hash}-{prefix}-{num}` (tmux session name on Unix; suffix of the named pipe `\\.\pipe\ao-pty-{sessionId}` on Windows)
-- User-facing names stay clean: `ao-1`, `myapp-2`
+- Runtime handles are globally unique: `{hash}-{prefix}-{num}` (tmux session name on Unix; suffix of the named pipe `\\.\pipe\cahi-pty-{sessionId}` on Windows)
+- User-facing names stay clean: `cahi-1`, `myapp-2`
 
 ### Session Lifecycle
 
@@ -91,7 +91,7 @@ For AI agent-specific guidance (including high-risk files like `types.ts`, `life
 
 ```bash
 git clone https://github.com/contaazul/cahi.git
-cd agent-orchestrator
+cd cahi
 pnpm install
 pnpm build
 cp cahi.yaml.example cahi.yaml
@@ -111,10 +111,10 @@ cd packages/web && pnpm dev
 ### Project structure
 
 ```
-agent-orchestrator/
+cahi/
 ├── packages/
 │   ├── core/              # Core types, services, config
-│   ├── cli/               # CLI tool (ao command)
+│   ├── cli/               # CLI tool (cahi command)
 │   ├── web/               # Next.js dashboard
 │   ├── plugins/           # All plugin packages
 │   │   ├── runtime-*/     # Runtime plugins (tmux, docker, k8s)
@@ -391,7 +391,7 @@ curl http://localhost:4000/api/sessions/{session-id}
 # Attach to the runtime session directly
 # Unix:
 tmux attach -t {hash}-{prefix}-{num}
-# Windows: there's no tmux. Use the CAHI command, which connects to \\.\pipe\ao-pty-<sessionId>:
+# Windows: there's no tmux. Use the CAHI command, which connects to \\.\pipe\cahi-pty-<sessionId>:
 cahi session attach <sessionId>
 
 # Enable verbose logging
@@ -406,15 +406,15 @@ This project uses itself to develop itself — agents work in git worktrees:
 
 ```bash
 # Create a worktree for a feature branch
-git worktree add ../ao-feature-x feat/feature-x
-cd ../ao-feature-x
+git worktree add ../cahi-feature-x feat/feature-x
+cd ../cahi-feature-x
 
 # Install and build in the worktree
 pnpm install
 pnpm build
 
 # Copy config
-cp ../agent-orchestrator/cahi.yaml .
+cp ../cahi/cahi.yaml .
 
 # Start dev server
 cd packages/web && pnpm dev
@@ -466,7 +466,7 @@ Store in `.env.local` (gitignored). Never commit real values.
 ## Key Design Decisions
 
 **Why flat metadata files instead of a database?**
-Debuggability: `cat ~/.cahi/a3b4-myapp/sessions/ao-1` shows full state. No database to spin up, no schema to migrate, survives crashes.
+Debuggability: `cat ~/.cahi/a3b4-myapp/sessions/cahi-1` shows full state. No database to spin up, no schema to migrate, survives crashes.
 
 **Why polling instead of webhooks?**
 Simpler local setup (no ngrok), survives orchestrator restarts, works offline. CI/review state is fetched, not pushed.

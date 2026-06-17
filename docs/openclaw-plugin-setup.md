@@ -12,7 +12,7 @@ How to set up the CAHI plugin for OpenClaw so the AI bot delegates all coding wo
 ## 1. Install the Plugin
 
 ```bash
-# From the agent-orchestrator repo
+# From the cahi repo
 cd openclaw-plugin
 openclaw plugins install .
 ```
@@ -20,18 +20,18 @@ openclaw plugins install .
 Or manually copy the plugin files:
 
 ```bash
-mkdir -p ~/.openclaw/extensions/agent-orchestrator
-cp openclaw-plugin/index.ts ~/.openclaw/extensions/agent-orchestrator/
-cp openclaw-plugin/openclaw.plugin.json ~/.openclaw/extensions/agent-orchestrator/
-cp openclaw-plugin/package.json ~/.openclaw/extensions/agent-orchestrator/
+mkdir -p ~/.openclaw/extensions/cahi
+cp openclaw-plugin/index.ts ~/.openclaw/extensions/cahi/
+cp openclaw-plugin/openclaw.plugin.json ~/.openclaw/extensions/cahi/
+cp openclaw-plugin/package.json ~/.openclaw/extensions/cahi/
 ```
 
 ## 2. Install the Skill
 
 ```bash
-mkdir -p ~/.openclaw/extensions/skills/agent-orchestrator
-cp skills/agent-orchestrator/SKILL.md ~/.openclaw/extensions/skills/agent-orchestrator/
-cp -r skills/agent-orchestrator/references ~/.openclaw/extensions/skills/agent-orchestrator/ 2>/dev/null
+mkdir -p ~/.openclaw/extensions/skills/cahi
+cp skills/cahi/SKILL.md ~/.openclaw/extensions/skills/cahi/
+cp -r skills/cahi/references ~/.openclaw/extensions/skills/cahi/ 2>/dev/null
 ```
 
 ## 3. Configure OpenClaw
@@ -49,7 +49,7 @@ openclaw config set tools.profile "full"
 openclaw config set tools.allow '["group:plugins"]'
 
 # 3. Trust the plugin
-openclaw config set plugins.allow '["agent-orchestrator"]'
+openclaw config set plugins.allow '["cahi"]'
 ```
 
 ### Required: Disable Conflicting Built-in Skills
@@ -79,8 +79,8 @@ openclaw config set messages.groupChat.historyLimit 100
 ### Plugin Config (if `cahi` isn't in PATH or repo isn't in default location)
 
 ```bash
-# Set the path to the ao binary
-openclaw config set plugins.entries.cahi.config.aoPath "/path/to/ao"
+# Set the path to the cahi binary
+openclaw config set plugins.entries.cahi.config.aoPath "/path/to/cahi"
 
 # Set the working directory (must contain cahi.yaml)
 openclaw config set plugins.entries.cahi.config.aoCwd "/path/to/your/repo"
@@ -145,7 +145,7 @@ pm2 restart openclaw-gateway
 # Or however you run OpenClaw
 
 # Verify the plugin loaded
-openclaw plugins list | grep agent-orchestrator
+openclaw plugins list | grep cahi
 
 # Verify tools are visible
 openclaw agent --agent main -m "List your tools"
@@ -173,7 +173,7 @@ openclaw agent --agent main -m "List your tools"
 | Bot says "no ao_* tools available" | `tools.profile` is not `full` or `tools.allow` missing `group:plugins` | Run `/cahi setup` |
 | Bot writes code directly | `coding-agent` skill is active or `exec`/`write` not denied | Run `/cahi setup` |
 | `cahi spawn` returns "No config found" | `aoCwd` not set or wrong path | Set `plugins.entries.cahi.config.aoCwd` |
-| `ao: not found` | `cahi` not in PATH | Create symlink or set `aoPath` in plugin config |
+| `cahi: not found` | `cahi` not in PATH | Create symlink or set `aoPath` in plugin config |
 | Only 2-3 issues shown (not all) | Bot answering from stale session memory | Clear sessions: `rm ~/.openclaw/agents/main/sessions/sessions.json` |
 | Bot only responds in DMs | `groupPolicy` is `allowlist` | Set `channels.discord.groupPolicy` to `open` |
 | Bot responds to every message | `mentionPatterns` too broad | Remove patterns, rely on native @mentions |
@@ -186,7 +186,7 @@ Discord message → OpenClaw Gateway → AI Model (with CAHI tools)
                                           ↓
                                     ao_spawn tool
                                           ↓
-                              CAHI CLI (agent-orchestrator)
+                              CAHI CLI (cahi)
                                           ↓
                               Git worktree + Claude Code agent
                                           ↓

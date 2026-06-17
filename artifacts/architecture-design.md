@@ -34,7 +34,7 @@ Human only intervenes when notified. Everything else is handled.
 1. **Push, not pull**: Notifications are the primary interface. Dashboard is secondary drill-down.
 2. **Server-centric**: One central daemon (`cahi start`) manages every registered project, and all agents report to it. Each project gets its own orchestrator agent — one orchestrator per project, never a single orchestrator spanning all projects.
 3. **Plugin everything**: 8 pluggable abstraction slots. Swap any component.
-4. **Works out of the box**: Default config (tmux + claude-code + worktree + github) requires zero setup beyond `npx agent-orchestrator init`.
+4. **Works out of the box**: Default config (tmux + claude-code + worktree + github) requires zero setup beyond `npx cahi init`.
 5. **Silence by default, loud when needed**: Auto-handle routine issues (CI failures, review comments). Only notify the human when their judgment or action is truly required.
 6. **Runtime agnostic**: tmux is just one way to run agents. Docker, K8s, cloud, SSH, child processes — all through the same interface.
 
@@ -647,13 +647,13 @@ reactions:
 | **Config**          | YAML + Zod validation                   | Human-readable, type-safe                            |
 | **State**           | Flat metadata files + Event log (JSONL) | Stateless orchestrator, crash recovery               |
 | **Package manager** | pnpm workspaces                         | Fast, monorepo-native                                |
-| **Distribution**    | npm (`npx agent-orchestrator`)          | Zero install                                         |
+| **Distribution**    | npm (`npx cahi`)          | Zero install                                         |
 
 ### Why TypeScript Throughout
 
 1. **One language** — Plugin authors only need TypeScript/JavaScript
 2. **Shared types** — No serialization boundaries between core, web, CLI, plugins
-3. **npm distribution** — `npx agent-orchestrator` works everywhere
+3. **npm distribution** — `npx cahi` works everywhere
 4. **Next.js** — Web + API server in one process, great DX
 5. **Largest ecosystem** — More packages on npm than any other registry
 6. **Performance is fine** — Bottleneck is AI agents, not orchestrator. We shell out to tmux/git/docker anyway.
@@ -663,7 +663,7 @@ reactions:
 ## Directory Structure
 
 ```
-agent-orchestrator/
+cahi/
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
@@ -689,7 +689,7 @@ agent-orchestrator/
 │   │           ├── status.ts          # cahi status
 │   │           ├── spawn.ts           # cahi spawn <project> [issue]
 │   │           ├── batch-spawn.ts     # cahi batch-spawn <project> <issues...>
-│   │           ├── session.ts         # ao session [ls|kill|cleanup]
+│   │           ├── session.ts         # cahi session [ls|kill|cleanup]
 │   │           ├── send.ts            # cahi send <session> <message>
 │   │           ├── review-check.ts    # cahi review-check [project]
 │   │           ├── dashboard.ts       # cahi dashboard (starts web)

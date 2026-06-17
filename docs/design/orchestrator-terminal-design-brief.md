@@ -34,18 +34,18 @@ The orchestrator terminal page should diverge from the generic session detail la
 
 ┌─ Status strip ──────────────────────────────────────────────────────────┐
 │  3 merge-ready   2 needs-response   12 working   4 done                 │
-│  ao-orchestrator  ● Active  ·  Uptime: 2h 14m                          │
+│  cahi-orchestrator  ● Active  ·  Uptime: 2h 14m                          │
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─ Terminal (fills remaining height) ─────────────────────────────────────┐
 │ ┌─────────────────────────────────────────────────────────────────────┐ │
-│ │ ● ao-orchestrator  Connected  XDA              [↕ fullscreen]       │ │
+│ │ ● cahi-orchestrator  Connected  XDA              [↕ fullscreen]       │ │
 │ │─────────────────────────────────────────────────────────────────────│ │
 │ │                                                                     │ │
 │ │  [Orchestrator] Spawning session for issue #299...                  │ │
-│ │  [Orchestrator] Session ao-62 created.                              │ │
-│ │  [Orchestrator] Checking CI for ao-58: failing (2 checks)          │ │
-│ │  [Orchestrator] Sent fix-ci message to ao-58.                      │ │
+│ │  [Orchestrator] Session cahi-62 created.                              │ │
+│ │  [Orchestrator] Checking CI for cahi-58: failing (2 checks)          │ │
+│ │  [Orchestrator] Sent fix-ci message to cahi-58.                      │ │
 │ │                                                                     │ │
 │ └─────────────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -63,7 +63,7 @@ The orchestrator page must be visually distinct so users always know which "leve
 
 2. **Nav label**: The "orchestrator" label persists in the nav bar (right-aligned). Always visible even in fullscreen-adjacent states.
 
-3. **Terminal chrome**: Instead of the session ID `ao-62`, the orchestrator chrome shows `ao-orchestrator` in a different color — `--accent-violet` instead of the default `--text-muted`.
+3. **Terminal chrome**: Instead of the session ID `cahi-62`, the orchestrator chrome shows `cahi-orchestrator` in a different color — `--accent-violet` instead of the default `--text-muted`.
 
 These three changes are purely visual and require no structural changes to shared components.
 
@@ -98,7 +98,7 @@ Same as session detail bar, plus a persistent right-side label:
 A compact horizontal summary bar. Reads left-to-right by urgency (mirrors dashboard zone order).
 
 ```
-[3 merge-ready]  [2 responding]  [12 working]  [4 done]  ─────  ao-orchestrator  ● Active  ·  2h 14m
+[3 merge-ready]  [2 responding]  [12 working]  [4 done]  ─────  cahi-orchestrator  ● Active  ·  2h 14m
 ```
 
 ```css
@@ -143,7 +143,7 @@ Right side of the strip shows session identity and uptime:
   font-size: 11px;
   color: var(--text-muted);
 }
-/* "ao-orchestrator" in --font-mono */
+/* "cahi-orchestrator" in --font-mono */
 /* Activity dot: same 8px CSS dot as elsewhere */
 /* Uptime: computed from session.createdAt */
 ```
@@ -174,10 +174,10 @@ theme: {
 
 **Terminal chrome bar** (the header bar with connection status):
 ```
-[● violet]  ao-orchestrator  Connected  XDA              [↕ fullscreen]
+[● violet]  cahi-orchestrator  Connected  XDA              [↕ fullscreen]
 ```
 
-The session ID `ao-orchestrator` is displayed in `--accent-violet` instead of `--text-muted` to maintain the identity signal. All other chrome elements same as `DirectTerminal.tsx`.
+The session ID `cahi-orchestrator` is displayed in `--accent-violet` instead of `--text-muted` to maintain the identity signal. All other chrome elements same as `DirectTerminal.tsx`.
 
 **Log coloring** (aspirational — requires orchestrator to emit structured ANSI output):
 
@@ -186,9 +186,9 @@ If the orchestrator emits ANSI escape codes, the terminal will naturally show co
 Structured orchestrator log prefix pattern (for the orchestrator to implement, not the UI):
 ```
 \e[35m[Orchestrator]\e[0m Spawning session for issue #299...   (violet prefix)
-\e[32m[ao-62]\e[0m Session created on branch feat/issue-299    (green for new)
-\e[33m[ao-58]\e[0m CI failing — 2 checks                       (amber for issues)
-\e[31m[ao-45]\e[0m Crashed — activity: exited                  (red for errors)
+\e[32m[cahi-62]\e[0m Session created on branch feat/issue-299    (green for new)
+\e[33m[cahi-58]\e[0m CI failing — 2 checks                       (amber for issues)
+\e[31m[cahi-45]\e[0m Crashed — activity: exited                  (red for errors)
 ```
 
 ---
@@ -201,7 +201,7 @@ In fullscreen:
 - A minimal overlay in the top-right corner maintains context:
 
 ```
-                                     [ao-orchestrator] [● Active] [exit fullscreen]
+                                     [cahi-orchestrator] [● Active] [exit fullscreen]
 ```
 
 ```css

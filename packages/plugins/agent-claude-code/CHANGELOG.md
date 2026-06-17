@@ -16,7 +16,7 @@
 
   Claude Code emits a lifecycle hook on every state transition that matters
   (`PermissionRequest`, `StopFailure`, `Notification`, `Stop`, `PreToolUse`,
-  …). Until now, AO ignored all but one of them and tried to infer the
+  …). Until now, CAHI ignored all but one of them and tried to infer the
   same information by regex-matching Claude's rendered terminal output —
   fragile by construction. Every Claude UI tweak (footer wording, status
   verb, spinner glyph) broke a heuristic; PR #1932 spent 15 commits
@@ -61,7 +61,7 @@
 
 ### Patch Changes
 
-- a610601: Split Claude Code activity-detection logic out of `index.ts` into a dedicated `activity-detection.ts` module. Removes two unreachable switch branches (`case "permission_request"` → `waiting_input` and `case "error"` → `blocked`) that targeted JSONL types Claude never actually emits. `waiting_input` continues to flow through the AO activity-JSONL safety net added in #1903.
+- a610601: Split Claude Code activity-detection logic out of `index.ts` into a dedicated `activity-detection.ts` module. Removes two unreachable switch branches (`case "permission_request"` → `waiting_input` and `case "error"` → `blocked`) that targeted JSONL types Claude never actually emits. `waiting_input` continues to flow through the CAHI activity-JSONL safety net added in #1903.
 
   Closes the `blocked` gap for Claude Code: extend `readLastJsonlEntry` in core to also surface top-level `subtype` and `level` fields, and map `{type:"system", level:"error"}` → `blocked` in the cascade. This catches Claude's real api_error shape (`{type:"system", subtype:"api_error", level:"error", cause:{code:"ConnectionRefused"|"FailedToOpenSocket"|...}}`) so a session stuck in the API retry loop now reports `blocked` instead of `ready`. New fields on `readLastJsonlEntry` are additive and don't break existing callers (Codex, OpenCode, Aider).
 
@@ -101,11 +101,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -115,7 +115,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -159,7 +159,7 @@
 ### Patch Changes
 
 - b0d0994: Improve Claude Code and Codex session cost estimates to account for cached-token spend, make Codex restore commands fall back to approval prompts for worker sessions instead of blindly reusing dangerous bypass flags, and register the Codex plugin in the web dashboard so native activity detection works there.
-- e465a47: Fix `toClaudeProjectPath` to fold underscores (and any other non-alphanumeric character) to dashes, matching Claude Code's actual on-disk slug encoding. Previously only `/`, `.`, and `:` were normalized, so AO project data dirs of the form `<sanitized>_<hash>` produced slugs that pointed to non-existent directories — `getSessionInfo` and `getRestoreCommand` could never locate the session JSONL, `claudeSessionUuid` never got persisted, and restoring orchestrator/worker sessions in any multi-project setup failed with a 409 "getRestoreCommand returned null". Fixes #1611.
+- e465a47: Fix `toClaudeProjectPath` to fold underscores (and any other non-alphanumeric character) to dashes, matching Claude Code's actual on-disk slug encoding. Previously only `/`, `.`, and `:` were normalized, so CAHI project data dirs of the form `<sanitized>_<hash>` produced slugs that pointed to non-existent directories — `getSessionInfo` and `getRestoreCommand` could never locate the session JSONL, `claudeSessionUuid` never got persisted, and restoring orchestrator/worker sessions in any multi-project setup failed with a 409 "getRestoreCommand returned null". Fixes #1611.
 - Updated dependencies [2306078]
 - Updated dependencies [faaddb1]
 - Updated dependencies [f330a1e]
@@ -186,6 +186,6 @@
 
 ### Patch Changes
 
-- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/cahi`. Made `@composio/cahi-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 - Updated dependencies [3a650b0]
-  - @composio/ao-core@0.2.0
+  - @composio/cahi-core@0.2.0

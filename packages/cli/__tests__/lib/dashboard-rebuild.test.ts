@@ -42,7 +42,7 @@ describe("isInstalledUnderNodeModules", () => {
   });
 
   it("returns false for monorepo paths", () => {
-    expect(isInstalledUnderNodeModules("/home/user/agent-orchestrator/packages/web")).toBe(false);
+    expect(isInstalledUnderNodeModules("/home/user/cahi/packages/web")).toBe(false);
   });
 });
 

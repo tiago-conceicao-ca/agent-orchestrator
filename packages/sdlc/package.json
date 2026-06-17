@@ -1,7 +1,7 @@
 {
   "name": "@contaazul/cahi-sdlc",
   "version": "0.0.0",
-  "description": "SDLC orchestrator — multi-phase workflow engine over agent-orchestrator",
+  "description": "SDLC orchestrator — multi-phase workflow engine over cahi",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",

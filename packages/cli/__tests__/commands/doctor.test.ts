@@ -203,13 +203,13 @@ describe("doctor command", () => {
   it("runs the doctor script with no extra args by default", async () => {
     await program.parseAsync(["node", "test", "doctor"]);
 
-    expect(mockRunRepoScript).toHaveBeenCalledWith("ao-doctor.sh", []);
+    expect(mockRunRepoScript).toHaveBeenCalledWith("cahi-doctor.sh", []);
   });
 
   it("passes through --fix", async () => {
     await program.parseAsync(["node", "test", "doctor", "--fix"]);
 
-    expect(mockRunRepoScript).toHaveBeenCalledWith("ao-doctor.sh", ["--fix"]);
+    expect(mockRunRepoScript).toHaveBeenCalledWith("cahi-doctor.sh", ["--fix"]);
   });
 
   it("checks configured plugin references when config is present", async () => {

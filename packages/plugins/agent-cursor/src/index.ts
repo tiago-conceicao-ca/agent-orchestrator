@@ -322,7 +322,7 @@ function createCursorAgent(): Agent {
           });
           const ttySet = new Set(ttys.map((t) => t.replace(/^\/dev\//, "")));
           // Match "agent" or ".agent" binary (Cursor's CLI is called "agent")
-          // Use word boundary to avoid matching "agent-orchestrator" etc.
+          // Use word boundary to avoid matching "cahi" etc.
           // Include optional dot prefix to match installations with dot-prefixed names
           const processRe = /(?:^|\/)\.?agent\b(?:\s|$)/;
           for (const line of psOut.split("\n")) {

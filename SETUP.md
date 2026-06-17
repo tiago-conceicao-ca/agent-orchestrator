@@ -62,9 +62,9 @@ Comprehensive guide to installing, configuring, and troubleshooting CAHI.
 - **Public dashboard URL** - If running CAHI behind a reverse proxy (e.g. inside a remote dev container, on a VPS fronted by Caddy/nginx/Traefik)
   - Set `CAHI_PUBLIC_URL` to the externally-reachable URL of the dashboard
   - All console output, `cahi open` browser launches, and orchestrator-prompt session links use this URL instead of `http://localhost:<port>`
-  - Example: `export CAHI_PUBLIC_URL="https://ao.example.com"`
-  - When the dashboard is served on a standard port (HTTPS 443 / HTTP 80) the dashboard JS connects the mux WebSocket to `/ao-terminal-mux` on the same hostname. Your proxy needs to forward that path to the direct terminal server (`DIRECT_TERMINAL_PORT`, default 14801) — its upgrade handler accepts both `/mux` and `/ao-terminal-mux`. For custom paths set `TERMINAL_WS_PATH=/your/path`.
-  - **`CAHI_PATH_BASED_MUX=1`** (opt-in) — if your proxy can only forward one hostname:port pair (e.g. Cloudflare Tunnel pointed at a single `service:` URL with no path-based ingress), set this and `cahi start` will run a small bundled HTTP/WS proxy on `PORT` that demultiplexes: HTTP forwards to Next.js (shifted to `PORT + 1000`, override with `NEXT_INTERNAL_PORT`), and `wss://hostname/ao-terminal-mux` is tunneled to `DIRECT_TERMINAL_PORT/mux`. Tradeoff: an extra Node process and one extra hop per HTTP request, in exchange for a one-line proxy config on the operator side.
+  - Example: `export CAHI_PUBLIC_URL="https://cahi.example.com"`
+  - When the dashboard is served on a standard port (HTTPS 443 / HTTP 80) the dashboard JS connects the mux WebSocket to `/cahi-terminal-mux` on the same hostname. Your proxy needs to forward that path to the direct terminal server (`DIRECT_TERMINAL_PORT`, default 14801) — its upgrade handler accepts both `/mux` and `/cahi-terminal-mux`. For custom paths set `TERMINAL_WS_PATH=/your/path`.
+  - **`CAHI_PATH_BASED_MUX=1`** (opt-in) — if your proxy can only forward one hostname:port pair (e.g. Cloudflare Tunnel pointed at a single `service:` URL with no path-based ingress), set this and `cahi start` will run a small bundled HTTP/WS proxy on `PORT` that demultiplexes: HTTP forwards to Next.js (shifted to `PORT + 1000`, override with `NEXT_INTERNAL_PORT`), and `wss://hostname/cahi-terminal-mux` is tunneled to `DIRECT_TERMINAL_PORT/mux`. Tradeoff: an extra Node process and one extra hop per HTTP request, in exchange for a one-line proxy config on the operator side.
 
 ## Installation
 
@@ -103,7 +103,7 @@ If you want to develop or contribute to CAHI:
 ```bash
 # Clone the repository
 git clone https://github.com/contaazul/cahi
-cd agent-orchestrator
+cd cahi
 
 # Run the setup script (installs deps, builds, links CLI)
 bash scripts/setup.sh
@@ -425,7 +425,7 @@ git switch main
 cahi update
 ```
 
-`cahi update` is intentionally conservative: it requires a clean working tree on `main`, fast-forwards from `origin/main`, reinstalls dependencies, clean-rebuilds the critical core/CLI/web packages, refreshes the launcher with `npm link`, and runs CLI smoke tests. Works on macOS, Linux, and Windows (Windows uses the bundled `ao-update.ps1` script automatically). Use `cahi update --skip-smoke` to stop after rebuild, or `cahi update --smoke-only` to rerun just the smoke checks.
+`cahi update` is intentionally conservative: it requires a clean working tree on `main`, fast-forwards from `origin/main`, reinstalls dependencies, clean-rebuilds the critical core/CLI/web packages, refreshes the launcher with `npm link`, and runs CLI smoke tests. Works on macOS, Linux, and Windows (Windows uses the bundled `cahi-update.ps1` script automatically). Use `cahi update --skip-smoke` to stop after rebuild, or `cahi update --smoke-only` to rerun just the smoke checks.
 
 ### "No cahi.yaml found"
 
@@ -825,7 +825,7 @@ cahi session ls
 cahi session kill <session-name>
 
 # Cleanup script (example)
-cahi session ls --json --include-terminated | jq -r '.data[] | select(.status == "merged") | .id' | xargs -I{} ao session kill {}
+cahi session ls --json --include-terminated | jq -r '.data[] | select(.status == "merged") | .id' | xargs -I{} cahi session kill {}
 ```
 
 > **Note:** `cahi session ls --json` and `cahi status --json` emit `{ data: [...], meta: { hiddenTerminatedCount } }`. By default terminated sessions (`killed`, `terminated`, `done`, `merged`, `errored`, `cleanup`) are hidden — pass `--include-terminated` to include them in `data`.

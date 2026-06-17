@@ -1,5 +1,5 @@
 /**
- * OpenClaw Plugin: Agent Orchestrator v0.3.0
+ * OpenClaw Plugin: CAHI v0.3.0
  *
  * Open-source, pluggable agentic coding orchestrator. Manages durable coding
  * agents (Claude Code, Codex, OpenCode) and wires up feedback loops so PR
@@ -632,7 +632,7 @@ export default function (api: PluginApi) {
     // Inform the model that AO is available and what it offers.
     // Not a command — just context so the model can make an informed choice.
     const routingContext = [
-      "[Agent Orchestrator] This project has AO installed — an open-source orchestrator " +
+      "[CAHI] This project has AO installed — an open-source orchestrator " +
         "for durable coding agents (Claude Code, Codex, OpenCode). ao_spawn creates an " +
         "isolated git worktree, starts an agent, and wires up feedback loops so PR reviews " +
         "and CI failures automatically route to the right agent.",
@@ -689,7 +689,7 @@ export default function (api: PluginApi) {
   api.registerCommand({
     name: "ao",
     description:
-      "Agent Orchestrator — /ao sessions | status | spawn | issues | batch-spawn | retry | kill | doctor",
+      "CAHI — /ao sessions | status | spawn | issues | batch-spawn | retry | kill | doctor",
     acceptsArgs: true,
     requireAuth: true,
     handler: async (ctx: CommandContext) => {
@@ -810,7 +810,7 @@ export default function (api: PluginApi) {
           // 3. Trust the plugin
           const mergedPluginsAllow = mergeStringLists(
             readOpenClawStringArraySetting("plugins.allow", ["plugins", "allow"]),
-            ["agent-orchestrator"],
+            ["cahi"],
           );
           if (
             runSetup("openclaw", [
@@ -844,7 +844,7 @@ export default function (api: PluginApi) {
         default:
           return {
             text: [
-              "Agent Orchestrator commands:",
+              "CAHI commands:",
               "  /ao sessions              — list all sessions",
               "  /ao status                — all sessions overview",
               "  /ao issues [owner/repo]   — list open issues",
@@ -867,7 +867,7 @@ export default function (api: PluginApi) {
   api.registerTool({
     name: "ao_sessions",
     description:
-      "Returns live session data from Agent Orchestrator — what agents are running, " +
+      "Returns live session data from CAHI — what agents are running, " +
       "their status, branches, and progress. Use when the user asks about status or progress.",
     parameters: { type: "object", properties: {}, required: [] },
     async execute() {
@@ -1038,7 +1038,7 @@ export default function (api: PluginApi) {
 
   api.registerTool({
     name: "ao_send",
-    description: "Send a message to a running Agent Orchestrator session.",
+    description: "Send a message to a running CAHI session.",
     parameters: {
       type: "object",
       properties: {
@@ -1064,7 +1064,7 @@ export default function (api: PluginApi) {
   api.registerTool({
     name: "ao_kill",
     description:
-      "Kill an Agent Orchestrator session. Always confirm with the user before calling this.",
+      "Kill an CAHI session. Always confirm with the user before calling this.",
     parameters: {
       type: "object",
       properties: {
@@ -1090,7 +1090,7 @@ export default function (api: PluginApi) {
 
   api.registerTool({
     name: "ao_doctor",
-    description: "Run Agent Orchestrator health checks. Use when troubleshooting.",
+    description: "Run CAHI health checks. Use when troubleshooting.",
     parameters: { type: "object", properties: {}, required: [] },
     async execute() {
       const result = tryRunAo(config, ["doctor"], 30_000);

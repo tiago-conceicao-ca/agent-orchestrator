@@ -1,17 +1,17 @@
 {
   "name": "@contaazul/cahi-web",
   "version": "0.9.2",
-  "description": "Web dashboard for agent-orchestrator",
+  "description": "Web dashboard for cahi",
   "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ComposioHQ/agent-orchestrator.git",
+    "url": "https://github.com/contaazul/cahi.git",
     "directory": "packages/web"
   },
-  "homepage": "https://github.com/ComposioHQ/agent-orchestrator",
+  "homepage": "https://github.com/contaazul/cahi",
   "bugs": {
-    "url": "https://github.com/ComposioHQ/agent-orchestrator/issues"
+    "url": "https://github.com/contaazul/cahi/issues"
   },
   "engines": {
     "node": ">=20.18.3"

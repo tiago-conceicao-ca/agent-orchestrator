@@ -79,7 +79,7 @@ interface NotifyTemplate {
   data: NotificationDataV3;
 }
 
-const DEMO_PR_URL = "https://github.com/ComposioHQ/agent-orchestrator/pull/1579";
+const DEMO_PR_URL = "https://github.com/contaazul/cahi/pull/1579";
 
 const DEMO_PR_CONTEXT: NotificationEventContext = {
   pr: {
@@ -89,7 +89,7 @@ const DEMO_PR_CONTEXT: NotificationEventContext = {
     branch: "ao/demo-notifier-harness",
     baseBranch: "main",
     owner: "ComposioHQ",
-    repo: "agent-orchestrator",
+    repo: "cahi",
     isDraft: false,
   },
   prs: [
@@ -100,7 +100,7 @@ const DEMO_PR_CONTEXT: NotificationEventContext = {
       branch: "ao/demo-notifier-harness",
       baseBranch: "main",
       owner: "ComposioHQ",
-      repo: "agent-orchestrator",
+      repo: "cahi",
       isDraft: false,
     },
   ],
@@ -319,7 +319,7 @@ export const NOTIFY_TEST_ACTIONS: NotifyAction[] = [
   },
   {
     label: "View PR",
-    url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579",
+    url: "https://github.com/contaazul/cahi/pull/1579",
   },
   {
     label: "Acknowledge",

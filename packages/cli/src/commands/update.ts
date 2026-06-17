@@ -351,13 +351,13 @@ async function handleGitUpdate(opts: {
   if (opts.smokeOnly) args.push("--smoke-only");
 
   try {
-    const exitCode = await runRepoScript("ao-update.sh", args);
+    const exitCode = await runRepoScript("cahi-update.sh", args);
     if (exitCode !== 0) {
       recordActivityEvent({
         source: "cli",
         kind: "cli.update_failed",
         level: "error",
-        summary: `ao update (git) failed: ao-update.sh exited non-zero`,
+        summary: `ao update (git) failed: cahi-update.sh exited non-zero`,
         data: { method: "git", exitCode },
       });
       if (shouldRestart) {
@@ -370,17 +370,17 @@ async function handleGitUpdate(opts: {
       await restartAoAfterUpdate(lifecyclePlan, { restore: opts.restore !== false });
     }
   } catch (error) {
-    if (error instanceof Error && error.message.includes("Script not found: ao-update.sh")) {
+    if (error instanceof Error && error.message.includes("Script not found: cahi-update.sh")) {
       recordActivityEvent({
         source: "cli",
         kind: "cli.update_failed",
         level: "error",
-        summary: `ao update (git) failed: ao-update.sh missing from bundled assets`,
+        summary: `ao update (git) failed: cahi-update.sh missing from bundled assets`,
         data: { method: "git", reason: "script_missing" },
       });
       console.error(
         chalk.red(
-          "ao-update.sh is missing from the bundled assets. " +
+          "cahi-update.sh is missing from the bundled assets. " +
             "If you're running from a source checkout, rebuild with `pnpm --filter @contaazul/cahi-cli build`. " +
             "If you're on a package install, reinstall the package.",
         ),

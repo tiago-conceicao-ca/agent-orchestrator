@@ -8,7 +8,7 @@ The orchestration layer for parallel AI agents at Conta Azul. Spawn parallel AI 
 
 </div>
 
-> **CAHI** (Conta Azul Hub for Intelligence) brings together **Agent Orchestrator**, **Taskmaster**-style structured task planning, and **Conta Azul's AI-native initiative & principles** into a single platform for running fleets of AI coding agents. _Formerly Agent Orchestrator._
+> **CAHI** (Conta Azul Hub for Intelligence) brings together **CAHI**, **Taskmaster**-style structured task planning, and **Conta Azul's AI-native initiative & principles** into a single platform for running fleets of AI coding agents. _Formerly CAHI._
 
 ---
 
@@ -44,7 +44,7 @@ cd cahi && bash scripts/setup.sh
 ```
 </details>
 
-> **Upgrading from a previous Agent Orchestrator (`ao`) install?** Run [`scripts/migrate-ao-to-cahi.sh`](scripts/migrate-ao-to-cahi.sh) to move your legacy on-disk data into `~/.cahi` (and `~/.cahi/bin`, `~/.config/cahi`) and rewrite each registered project's config to `cahi.yaml`. Pass `--dry-run` first to preview every change.
+> **Upgrading from a previous CAHI (`cahi`) install?** Run [`scripts/migrate-cahi-to-cahi.sh`](scripts/migrate-cahi-to-cahi.sh) to move your legacy on-disk data into `~/.cahi` (and `~/.cahi/bin`, `~/.config/cahi`) and rewrite each registered project's config to `cahi.yaml`. Pass `--dry-run` first to preview every change.
 
 ### Zsh Completion
 

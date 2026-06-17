@@ -122,7 +122,7 @@ To run CAHI persistently in the background as a launchd service, create a plist 
   <string>com.cahi.orchestrator</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/ao</string>
+    <string>/usr/local/bin/cahi</string>
     <string>start</string>
   </array>
   <key>RunAtLoad</key>
@@ -164,7 +164,7 @@ If you want to expose CAHI over a domain name with TLS, or place it behind an au
 ```nginx
 server {
   listen 443 ssl;
-  server_name ao.example.com;
+  server_name cahi.example.com;
 
   # SSL cert config here
 
@@ -207,7 +207,7 @@ HOST=0.0.0.0 NEXT_PUBLIC_TERMINAL_WS_PATH=/ws/terminal cahi start
 Caddy handles WebSocket upgrades automatically — no explicit `Upgrade` headers needed:
 
 ```
-ao.example.com {
+cahi.example.com {
   reverse_proxy /ws/terminal/* 127.0.0.1:14800
   reverse_proxy /ws/direct/* 127.0.0.1:14801
   reverse_proxy 127.0.0.1:3000

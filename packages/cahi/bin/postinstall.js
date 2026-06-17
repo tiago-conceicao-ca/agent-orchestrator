@@ -9,12 +9,12 @@
  *
  * 2. Verifies the prebuilt binary is compatible with the current Node.js version.
  *    If not (common with nvm/fnm/volta), rebuilds from source via npx node-gyp.
- *    See: https://github.com/ComposioHQ/agent-orchestrator/issues/987
+ *    See: https://github.com/contaazul/cahi/issues/987
  *
  * 3. Verifies better-sqlite3 has a native binding for this Node ABI.
  *    Node majors can ship new NODE_MODULE_VERSION values before better-sqlite3
  *    publishes matching prebuilds; global installs must rebuild from source.
- *    See: https://github.com/ComposioHQ/agent-orchestrator/issues/1822
+ *    See: https://github.com/contaazul/cahi/issues/1822
  *
  * 4. Clears stale Next.js runtime cache (.next/cache) from @composio/ao-web
  *    after a version upgrade, so `ao start` serves fresh dashboard assets.

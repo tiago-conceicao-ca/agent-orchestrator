@@ -98,7 +98,7 @@ describe("isInstalledUnderNodeModules", () => {
     const { isInstalledUnderNodeModules } = await import("../../src/lib/dashboard-rebuild.js");
 
     expect(
-      isInstalledUnderNodeModules("/home/user/node_modules_backup/agent-orchestrator/packages/web"),
+      isInstalledUnderNodeModules("/home/user/node_modules_backup/cahi/packages/web"),
     ).toBe(false);
   });
 });
@@ -108,7 +108,7 @@ describe("assertDashboardRebuildSupported", () => {
     const { assertDashboardRebuildSupported } = await import("../../src/lib/dashboard-rebuild.js");
 
     expect(() =>
-      assertDashboardRebuildSupported("/home/user/agent-orchestrator/packages/web"),
+      assertDashboardRebuildSupported("/home/user/cahi/packages/web"),
     ).not.toThrow();
   });
 

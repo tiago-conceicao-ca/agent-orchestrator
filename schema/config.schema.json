@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
-  "title": "Agent Orchestrator Config",
+  "$id": "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
+  "title": "CAHI Config",
   "description": "Schema for cahi.yaml.",
   "type": "object",
   "additionalProperties": false,
@@ -10,7 +10,7 @@
     "$schema": {
       "type": "string",
       "format": "uri-reference",
-      "default": "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
+      "default": "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
       "description": "Optional schema reference for editor autocomplete and validation."
     },
     "port": {

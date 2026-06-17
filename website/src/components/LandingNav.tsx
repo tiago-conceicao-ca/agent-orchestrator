@@ -23,7 +23,7 @@ export function LandingNav() {
         href="#"
         className="inline-flex items-center gap-2 text-base font-semibold text-white no-underline font-sans font-[680] tracking-tight"
       >
-        <img src="/ao-logo.svg" alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7" />
+        <img src="/cahi-logo.svg" alt="" aria-hidden="true" width={28} height={28} className="h-7 w-7" />
         CAHI
       </a>
       <ul className="hidden md:flex items-center gap-8 list-none">

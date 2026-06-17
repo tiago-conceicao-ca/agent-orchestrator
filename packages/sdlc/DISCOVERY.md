@@ -1,19 +1,19 @@
 # SDLC Orchestrator — Discovery Spike (Task 0)
 
-Live AO integration APIs, confirmed against this worktree's `@contaazul/cahi-core`
-(the actual compile target — not `/tmp/ao-ref`, though they match). This locks the
+Live CAHI integration APIs, confirmed against this worktree's `@contaazul/cahi-core`
+(the actual compile target — not `/tmp/cahi-ref`, though they match). This locks the
 seams Track E builds on so integration code doesn't drift.
 
 ## Package specifier substitutions (placeholder → real)
 
-The plan uses `@ao/*` placeholders. The real specifiers in this monorepo are:
+The plan uses `@cahi/*` placeholders. The real specifiers in this monorepo are:
 
 | Plan placeholder | Real specifier |
 |---|---|
-| `@ao/sdlc` | `@contaazul/cahi-sdlc` |
-| `@ao/core` | `@contaazul/cahi-core` |
-| `@ao/cli`  | `@contaazul/cahi-cli` |
-| `@ao/web`  | `@contaazul/cahi-web` |
+| `@cahi/sdlc` | `@contaazul/cahi-sdlc` |
+| `@cahi/core` | `@contaazul/cahi-core` |
+| `@cahi/cli`  | `@contaazul/cahi-cli` |
+| `@cahi/web`  | `@contaazul/cahi-web` |
 
 Used everywhere below and in all package.json / imports / test filters.
 
@@ -89,7 +89,7 @@ Used everywhere below and in all package.json / imports / test filters.
 
 ## Deep subpath imports (Tasks 16/17/18) — decision
 
-The plan imports e.g. `@ao/sdlc/workflow/engine`. The sdlc `package.json` has
+The plan imports e.g. `@cahi/sdlc/workflow/engine`. The sdlc `package.json` has
 `main: ./dist/index.js` and no `exports` subpath map. **Decision: import everything from
 the `@contaazul/cahi-sdlc` barrel** (cleaner, no exports map, consistent). The barrel
 (`src/index.ts`) re-exports all symbols CLI/web need: `WorkflowEngine`, `RunStore`,
@@ -133,7 +133,7 @@ artifact refs). Task 20 wires it for real so a run can complete end-to-end.
 
 `claude` 2.1.161 is on PATH and the ContaAzul pattern-library plugin is installed
 user-level at `~/.claude/plugins/cache/ca-pattern-library` (with the `gerar-backend`
-skill). So headless `claude -p` sessions spawned by AO on this host inherit
+skill). So headless `claude -p` sessions spawned by CAHI on this host inherit
 pattern-library.
 
 ### gerar-backend ContaAzul-workspace prerequisite
@@ -157,7 +157,7 @@ Node.js. Write the code files…"* — no ContaAzul skill, no prereq gate.
 ### Readable artifact paths
 
 - `normalize-plan` writes the normalized plan markdown to
-  `${os.tmpdir()}/ao-sdlc-${runId}-plan.md` and returns that absolute path as
+  `${os.tmpdir()}/cahi-sdlc-${runId}-plan.md` and returns that absolute path as
   `artifactRef`, so the lens agent can `Read` it.
 - `generate-backend` returns the spawned task worktree path(s) (one per line) as
   `artifactRef` (`Session.workspacePath`, surfaced through `SpawnFn`), falling back to
@@ -196,5 +196,5 @@ rewrite `import.meta.url` and break the prompt path).
 
 The orchestrator wiring hardcodes no target. `cahi sdlc start --project <id>` parameterizes
 the spawn target; at live-smoke time the target is a FRESH THROWAWAY dir so the generated
-Node CRUD lands there, not in agent-orchestrator. `examples/sample-plan.md` is the 2-task
+Node CRUD lands there, not in cahi. `examples/sample-plan.md` is the 2-task
 Node Users CRUD plan (`User store` → `HTTP CRUD API`).

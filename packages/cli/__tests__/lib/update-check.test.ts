@@ -293,7 +293,7 @@ describe("update-check", () => {
       mockReadFileSync.mockReturnValue(JSON.stringify({ name: "@contaazul/cahi" }));
 
       expect(
-        classifyInstallPath("/home/user/agent-orchestrator/packages/cli/src/lib/update-check.ts"),
+        classifyInstallPath("/home/user/cahi/packages/cli/src/lib/update-check.ts"),
       ).toBe("git");
     });
 

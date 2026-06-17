@@ -46,16 +46,16 @@
 
 ### Minor Changes
 
-- 6d48022: Wire CLI activity events into `cahi start`, `cahi stop`, `cahi spawn`, `cahi update`, `cahi setup`, `cahi migrate-storage`, and shared CLI helpers. `cahi events list --source cli` now answers RCA questions like "did AO start cleanly?", "was AO killed or did it crash?", and "did `cahi spawn`/`cahi stop` fail and why?". Adds `"cli"` to the `ActivityEventSource` union and 30+ event-emit sites covering startup, graceful and forced shutdown, restore, project resolution, config recovery, and migration paths.
-- ecdf0c7: Add `CAHI_PUBLIC_URL` environment variable for users running AO behind a reverse proxy (remote dev containers, VPS deployments, internal tooling). When set, all user-facing dashboard URLs — `cahi start` / `cahi dashboard` console output, `cahi open` browser launches, and `projectSessionUrl()` links surfaced to the orchestrator agent — use the public URL instead of `http://localhost:<port>`. Internal IPC (`daemon.ts` reload calls) still uses localhost since that traffic stays on the host.
+- 6d48022: Wire CLI activity events into `cahi start`, `cahi stop`, `cahi spawn`, `cahi update`, `cahi setup`, `cahi migrate-storage`, and shared CLI helpers. `cahi events list --source cli` now answers RCA questions like "did CAHI start cleanly?", "was CAHI killed or did it crash?", and "did `cahi spawn`/`cahi stop` fail and why?". Adds `"cli"` to the `ActivityEventSource` union and 30+ event-emit sites covering startup, graceful and forced shutdown, restore, project resolution, config recovery, and migration paths.
+- ecdf0c7: Add `CAHI_PUBLIC_URL` environment variable for users running CAHI behind a reverse proxy (remote dev containers, VPS deployments, internal tooling). When set, all user-facing dashboard URLs — `cahi start` / `cahi dashboard` console output, `cahi open` browser launches, and `projectSessionUrl()` links surfaced to the orchestrator agent — use the public URL instead of `http://localhost:<port>`. Internal IPC (`daemon.ts` reload calls) still uses localhost since that traffic stays on the host.
 
-  Also documents the existing `TERMINAL_WS_PATH` env var and the dashboard's automatic path-based mux WebSocket routing for standard-port (HTTPS / HTTP) deployments — these together let users front AO with a single hostname and one reverse-proxy rule, no extra ports or subdomains.
+  Also documents the existing `TERMINAL_WS_PATH` env var and the dashboard's automatic path-based mux WebSocket routing for standard-port (HTTPS / HTTP) deployments — these together let users front CAHI with a single hostname and one reverse-proxy rule, no extra ports or subdomains.
 
 ### Patch Changes
 
 - fcedb25: Wire activity events for the recovery subsystem, metadata-corruption detection, and agent-report apply path. New event kinds: `recovery.session_failed`, `recovery.action_failed`, `metadata.corrupt_detected`, `api.agent_report.session_not_found`, `api.agent_report.transition_rejected`. Adds `"recovery"` to the `ActivityEventSource` union. Lets RCA reconstruct `cahi recover` invocations, find every silent metadata overwrite, and audit rejected agent transitions. Adds `cahi events list --source` and `--kind` so these forensic event queries are available from the CLI.
 - 2980570: Add the notifier test harness, dashboard notifications, and desktop notifier setup.
-- d5d0f07: Rebuild missing better-sqlite3 native bindings during ao postinstall and replace noisy activity-events native-binding failures with a one-line diagnostic.
+- d5d0f07: Rebuild missing better-sqlite3 native bindings during cahi postinstall and replace noisy activity-events native-binding failures with a one-line diagnostic.
 - Updated dependencies [73bed33]
 - Updated dependencies [a610601]
 - Updated dependencies [8c71bde]
@@ -130,11 +130,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -144,7 +144,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -159,7 +159,7 @@
   The Windows runtime architecture (pty-host, pipe protocol, registry, sweep,
   mux WS Windows branch) is documented in `docs/ARCHITECTURE.md`.
 
-- fe33bb7: Worker sessions now learn how to message the orchestrator that spawned them. When a project has an orchestrator running, the worker's system prompt gains a "Talking to the Orchestrator" section with the literal `cahi send <prefix>-orchestrator "<message>"` command (rendered at prompt-build time, no env var, no shell-syntax variants). `cahi send` itself now auto-prefixes outgoing messages with `[from $CAHI_SESSION_ID]` when invoked from inside an AO session, so the receiver always knows who's writing — symmetric across worker→orchestrator, orchestrator→worker, and worker→worker. Humans running `cahi send` from a normal terminal stay unprefixed. (#1786)
+- fe33bb7: Worker sessions now learn how to message the orchestrator that spawned them. When a project has an orchestrator running, the worker's system prompt gains a "Talking to the Orchestrator" section with the literal `cahi send <prefix>-orchestrator "<message>"` command (rendered at prompt-build time, no env var, no shell-syntax variants). `cahi send` itself now auto-prefixes outgoing messages with `[from $CAHI_SESSION_ID]` when invoked from inside an CAHI session, so the receiver always knows who's writing — symmetric across worker→orchestrator, orchestrator→worker, and worker→worker. Humans running `cahi send` from a normal terminal stay unprefixed. (#1786)
 - 7c46dc9: feat(release): weekly release train — channels, onboarding, dashboard banner, cron
 
   Ships the full release pipeline described in `release-process.html`:
@@ -193,7 +193,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
     dismissal persists per-version in `localStorage`.
   - **Bun + Homebrew detection.** New install-method classifiers for
     `~/.bun/install/global/` (auto-installs `bun add -g @contaazul/cahi@<channel>`)
-    and `/Cellar/ao/` (notice only — `brew upgrade ao` to avoid clobbering
+    and `/Cellar/cahi/` (notice only — `brew upgrade cahi` to avoid clobbering
     brew's symlinks). `installMethod` config field overrides path detection.
 
   Supersedes #1525 (incorporates the canary + release infrastructure with the
@@ -236,7 +236,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Patch Changes
 
-- 0f539a3: Fix dashboard 404 after adding a project from the "AO is already running" menu. The CLI now notifies the running daemon to reload its cached config so the new project's page is reachable immediately.
+- 0f539a3: Fix dashboard 404 after adding a project from the "CAHI is already running" menu. The CLI now notifies the running daemon to reload its cached config so the new project's page is reachable immediately.
 - Updated dependencies
 - Updated dependencies
 - Updated dependencies [40aeb78]
@@ -326,7 +326,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 - 2306078: Add SQLite-backed activity event logging for session and lifecycle diagnostics, plus `cahi events` commands for listing, searching, and inspecting event log stats.
 - f09cc72: `cahi session ls` hides terminal sessions in text output by default; use `--include-terminated` for the full text list.
-- e1bb51f: Fix restore behavior across AO session recovery flows.
+- e1bb51f: Fix restore behavior across CAHI session recovery flows.
   - restore the latest dead-but-restorable orchestrator on `cahi start` instead of silently spawning a new orchestrator when tmux is gone
   - make worker session orchestrator navigation prefer the most recently active live orchestrator for the project
   - make permissionless Codex restores preserve dangerous bypass semantics so resumed workers behave like fresh permissionless launches
@@ -342,7 +342,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
   - **TMPDIR isolation.** Every `opencode` child we spawn now points at
     `~/.cahi/.bun-tmp/` via `TMPDIR`/`TMP`/`TEMP`. Bun's
     embedded shared-library extraction lands there instead of the system
-    `/tmp`, so the cli janitor only ever sweeps AO-owned files. Other
+    `/tmp`, so the cli janitor only ever sweeps CAHI-owned files. Other
     users' or other applications' Bun artifacts on a shared host can no
     longer be touched by the regex.
   - **Single shared session-list cache.** Core and the agent-opencode
@@ -437,7 +437,7 @@ in `POST /api/update` so the dashboard returns a structured 409.
 ### Patch Changes
 
 - Updated dependencies [5315e4e]
-  - @composio/ao-web@0.2.2
+  - @composio/cahi-web@0.2.2
 
 ## 0.2.1
 
@@ -453,28 +453,28 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Minor Changes
 
-- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/cahi`. Made `@composio/cahi-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 
 ### Patch Changes
 
 - Updated dependencies [3a650b0]
-  - @composio/ao-core@0.2.0
-  - @composio/ao-web@0.2.0
-  - @composio/ao-plugin-agent-claude-code@0.2.0
-  - @composio/ao-plugin-agent-aider@0.2.0
-  - @composio/ao-plugin-agent-codex@0.2.0
-  - @composio/ao-plugin-agent-opencode@0.2.0
-  - @composio/ao-plugin-notifier-composio@0.2.0
-  - @composio/ao-plugin-notifier-desktop@0.2.0
-  - @composio/ao-plugin-notifier-openclaw@0.1.1
-  - @composio/ao-plugin-notifier-slack@0.2.0
-  - @composio/ao-plugin-notifier-webhook@0.2.0
-  - @composio/ao-plugin-runtime-process@0.2.0
-  - @composio/ao-plugin-runtime-tmux@0.2.0
-  - @composio/ao-plugin-scm-github@0.2.0
-  - @composio/ao-plugin-terminal-iterm2@0.2.0
-  - @composio/ao-plugin-terminal-web@0.2.0
-  - @composio/ao-plugin-tracker-github@0.2.0
-  - @composio/ao-plugin-tracker-linear@0.2.0
-  - @composio/ao-plugin-workspace-clone@0.2.0
-  - @composio/ao-plugin-workspace-worktree@0.2.0
+  - @composio/cahi-core@0.2.0
+  - @composio/cahi-web@0.2.0
+  - @composio/cahi-plugin-agent-claude-code@0.2.0
+  - @composio/cahi-plugin-agent-aider@0.2.0
+  - @composio/cahi-plugin-agent-codex@0.2.0
+  - @composio/cahi-plugin-agent-opencode@0.2.0
+  - @composio/cahi-plugin-notifier-composio@0.2.0
+  - @composio/cahi-plugin-notifier-desktop@0.2.0
+  - @composio/cahi-plugin-notifier-openclaw@0.1.1
+  - @composio/cahi-plugin-notifier-slack@0.2.0
+  - @composio/cahi-plugin-notifier-webhook@0.2.0
+  - @composio/cahi-plugin-runtime-process@0.2.0
+  - @composio/cahi-plugin-runtime-tmux@0.2.0
+  - @composio/cahi-plugin-scm-github@0.2.0
+  - @composio/cahi-plugin-terminal-iterm2@0.2.0
+  - @composio/cahi-plugin-terminal-web@0.2.0
+  - @composio/cahi-plugin-tracker-github@0.2.0
+  - @composio/cahi-plugin-tracker-linear@0.2.0
+  - @composio/cahi-plugin-workspace-clone@0.2.0
+  - @composio/cahi-plugin-workspace-worktree@0.2.0

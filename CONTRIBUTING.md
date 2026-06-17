@@ -34,7 +34,7 @@ Include:
 
 ```bash
 git clone https://github.com/contaazul/cahi.git
-cd agent-orchestrator
+cd cahi
 pnpm install
 pnpm build
 ```
@@ -58,7 +58,7 @@ cp cahi.yaml.example cahi.yaml
 pnpm --filter @contaazul/cahi-web dev
 ```
 
-### Refreshing a local AO install
+### Refreshing a local CAHI install
 
 If your local `cahi` launcher or built packages seem stale, refresh the install from a clean `main` checkout:
 
@@ -72,19 +72,19 @@ cahi update
 
 ## Release Architecture (maintainers only)
 
-AO uses a **two-stage release pipeline**. This public repo handles version bumps, git tags, and GitHub releases. npm publishing runs on a private server (AO cron job) that polls GitHub releases and publishes when a new tag is ahead of the current npm version. Org compliance forbids npm publish credentials in public repositories, so `NPM_TOKEN` never enters this repo.
+CAHI uses a **two-stage release pipeline**. This public repo handles version bumps, git tags, and GitHub releases. npm publishing runs on a private server (CAHI cron job) that polls GitHub releases and publishes when a new tag is ahead of the current npm version. Org compliance forbids npm publish credentials in public repositories, so `NPM_TOKEN` never enters this repo.
 
 ### Where things happen
 
 | Stage                    | Where                          | Responsibility                                                           |
 | ------------------------ | ------------------------------ | ------------------------------------------------------------------------ |
 | Versioning + GitHub release | This repo (public, CI)      | Changesets version bumps, git tags, `gh release create`                  |
-| npm publish              | Private server (AO cron)       | Detects new GitHub releases → builds → `pnpm changeset publish`         |
+| npm publish              | Private server (CAHI cron)       | Detects new GitHub releases → builds → `pnpm changeset publish`         |
 
 The flow on every release:
 
 ```
-This repo (public CI)                         Private server (AO cron)
+This repo (public CI)                         Private server (CAHI cron)
 ──────────────────────                        ─────────────────────────
 release.yml:                                  Polls gh release list
   changeset version                           Detects new vX.Y.Z tag
@@ -105,8 +105,8 @@ This repo requires **no additional secrets** beyond the automatic `GITHUB_TOKEN`
 
 ### How releases are cut
 
-- **Stable**: merge the "chore: version packages" PR opened by `changesets/action`. `release.yml` tags the bumped packages and creates a `vX.Y.Z` GitHub release. The AO cron detects the new release and publishes to npm `@latest`.
-- **Nightly**: `canary.yml` runs on cron (23:30 IST Fri–Tue) or via `workflow_dispatch`. It snapshots versions to `X.Y.Z-nightly-<sha>` format (e.g., `0.6.1-nightly-7c46dc92`), tags, and creates a prerelease GitHub release. The AO cron detects the new prerelease and publishes to npm `@nightly`.
+- **Stable**: merge the "chore: version packages" PR opened by `changesets/action`. `release.yml` tags the bumped packages and creates a `vX.Y.Z` GitHub release. The CAHI cron detects the new release and publishes to npm `@latest`.
+- **Nightly**: `canary.yml` runs on cron (23:30 IST Fri–Tue) or via `workflow_dispatch`. It snapshots versions to `X.Y.Z-nightly-<sha>` format (e.g., `0.6.1-nightly-7c46dc92`), tags, and creates a prerelease GitHub release. The CAHI cron detects the new prerelease and publishes to npm `@nightly`.
 
 There is no path from this repo that calls `npm publish` directly.
 
@@ -114,13 +114,13 @@ There is no path from this repo that calls `npm publish` directly.
 
 `release.yml` is idempotent: each step (tag push, GitHub release creation) is gated on whether that piece of state already exists, so a re-run after a partial failure picks up only the missing steps.
 
-The AO cron is also idempotent — `pnpm changeset publish` skips packages whose current version is already on the registry, so re-running after a partial publish is safe.
+The CAHI cron is also idempotent — `pnpm changeset publish` skips packages whose current version is already on the registry, so re-running after a partial publish is safe.
 
 ### Recovery
 
 If `release.yml` fails after the GitHub release was created, **re-run the failed workflow**: the state-detection step will see that the tag and release already exist and skip those steps.
 
-If the AO cron fails to publish, it will retry on the next poll cycle (every 15 minutes). No manual intervention needed for transient failures. For persistent issues, check the cron logs on the private server.
+If the CAHI cron fails to publish, it will retry on the next poll cycle (every 15 minutes). No manual intervention needed for transient failures. For persistent issues, check the cron logs on the private server.
 
 ## Testing your changes
 
@@ -249,7 +249,7 @@ pnpm --filter @contaazul/cahi-runtime-myplugin test
 
 ### Publishing to the Marketplace Registry
 
-To list your plugin in the AO marketplace so others can install it with `cahi plugin install`, submit a PR that adds an entry to `packages/cli/src/assets/plugin-registry.json`.
+To list your plugin in the CAHI marketplace so others can install it with `cahi plugin install`, submit a PR that adds an entry to `packages/cli/src/assets/plugin-registry.json`.
 
 Each entry requires:
 

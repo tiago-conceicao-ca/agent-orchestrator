@@ -1,6 +1,6 @@
 # Linear integration with custom team
 # Requires LINEAR_API_KEY environment variable
-$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 
 projects:
   my-app:

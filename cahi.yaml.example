@@ -1,6 +1,6 @@
-# Agent Orchestrator Configuration
+# CAHI Configuration
 # Copy to cahi.yaml and customize.
-$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 
 # Runtime data directories are auto-derived from this config location under:
 #   ~/.cahi/{hash}-{projectId}/

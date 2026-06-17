@@ -152,14 +152,14 @@ describe("ao project add", () => {
       "ao",
       "project",
       "add",
-      "/tmp/agent-orchestrator",
+      "/tmp/cahi",
       "--default",
     ]);
 
     expect(mockRegisterProject).toHaveBeenCalledWith(
-      expect.stringContaining("agent-orchestrator"),
-      "agent-orchestrator",
-      "agent-orchestrator",
+      expect.stringContaining("cahi"),
+      "cahi",
+      "cahi",
     );
   });
 

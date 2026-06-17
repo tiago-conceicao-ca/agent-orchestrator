@@ -4,7 +4,7 @@ import { isValidRepoString, extractOwnerRepo } from "../../src/lib/repo-utils.js
 describe("isValidRepoString", () => {
   it("accepts valid owner/repo", () => {
     expect(isValidRepoString("acme/my-app")).toBe(true);
-    expect(isValidRepoString("ComposioHQ/agent-orchestrator")).toBe(true);
+    expect(isValidRepoString("contaazul/cahi")).toBe(true);
     expect(isValidRepoString("org/repo")).toBe(true);
   });
 

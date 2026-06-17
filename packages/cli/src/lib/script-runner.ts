@@ -55,7 +55,7 @@ export function resolveRepoRoot(): string {
   if (!isValidRepoRootForLayout(resolved, DEFAULT_SCRIPT_LAYOUT)) {
     const expected =
       DEFAULT_SCRIPT_LAYOUT === "source-checkout"
-        ? "an agent-orchestrator checkout"
+        ? "an cahi checkout"
         : "an installed @contaazul/cahi-cli package";
     throw new Error(`CAHI_REPO_ROOT=${override} does not look like ${expected}`);
   }

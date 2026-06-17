@@ -99,4 +99,4 @@ Tone: Capability amplification.
 **Typography split**: Monospace-forward (LangSmith with JetBrains Mono as primary) vs. clean sans (Supabase with Inter, Retool with Px Grotesk).
 **Semantic color as brand**: Supabase `#3ECF8E` green = inseparable from identity. PlanetScale OKLCH green scale.
 **Progressive disclosure**: All use expandable rows, tabs, collapsible sections to manage complexity.
-**AI activity representation**: Copilot = inline step disclosure in dev environment. LangSmith = separate observability dashboard with trace trees. ao sits between these — a monitoring dashboard for the agent lifecycle.
+**AI activity representation**: Copilot = inline step disclosure in dev environment. LangSmith = separate observability dashboard with trace trees. cahi sits between these — a monitoring dashboard for the agent lifecycle.

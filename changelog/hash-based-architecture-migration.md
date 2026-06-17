@@ -82,7 +82,7 @@ The hash is the first 12 characters of `SHA256(realpath(dirname(configPath)))`:
 
 Three levels of naming for compatibility:
 
-1. **User-facing**: `int-1`, `ao-42` (short, clean)
+1. **User-facing**: `int-1`, `cahi-42` (short, clean)
 2. **Tmux**: `a3b4c5d6e7f8-int-1` (globally unique across all configs)
 3. **Metadata file**: `int-1` (within project-specific `sessions/` directory)
 
@@ -119,8 +119,8 @@ projects:
 ~/.cahi-sessions/
 ├── int-1          # Flat directory, all projects mixed
 ├── int-2
-├── ao-1
-└── ao-2
+├── cahi-1
+└── cahi-2
 ```
 
 **After**:
@@ -131,8 +131,8 @@ projects:
 │   ├── int-1      # Integrator project sessions
 │   └── int-2
 └── f9e8d7c6b5a4-my-app/sessions/
-    ├── ao-1       # My-app project sessions
-    └── ao-2
+    ├── cahi-1       # My-app project sessions
+    └── cahi-2
 ```
 
 **Impact**: Existing metadata files **will not be automatically migrated**. See migration steps below.
@@ -147,8 +147,8 @@ projects:
 │   ├── int-1
 │   └── int-2
 └── my-app/
-    ├── ao-1
-    └── ao-2
+    ├── cahi-1
+    └── cahi-2
 ```
 
 **After**:
@@ -159,8 +159,8 @@ projects:
 │   ├── int-1
 │   └── int-2
 └── f9e8d7c6b5a4-my-app/worktrees/
-    ├── ao-1
-    └── ao-2
+    ├── cahi-1
+    └── cahi-2
 ```
 
 **Impact**: Existing worktrees **will not be automatically migrated**. Git will report them as "missing" and they must be manually removed.
@@ -237,7 +237,7 @@ worktreeDir: ~/.cahi-worktrees
 tmux ls
 
 # Kill all orchestrator sessions (adjust prefix as needed)
-tmux ls | grep -E '^(int|ao|app)-[0-9]+:' | cut -d: -f1 | xargs -I{} tmux kill-session -t {}
+tmux ls | grep -E '^(int|cahi|app)-[0-9]+:' | cut -d: -f1 | xargs -I{} tmux kill-session -t {}
 
 # Or kill all tmux sessions (nuclear option)
 tmux kill-server
@@ -418,7 +418,7 @@ No conflicts, complete isolation!
 # Calculate hash for your config directory
 echo -n "/path/to/your/config/dir" | sha256sum | cut -c1-12
 
-# Or let ao print it
+# Or let cahi print it
 cahi status
 # Output shows: Config: /path/to/config.yaml
 # Hash will be in directory names: ~/.cahi/{hash}-{project}/
@@ -446,7 +446,7 @@ If you encounter issues during migration:
 2. Check new directory structure: `ls -la ~/.cahi/`
 3. Check config validation: `cahi status`
 4. Review git worktrees: `git worktree list` (from project directory)
-5. Check logs: `journalctl -u ao-orchestrator` or tmux session output
+5. Check logs: `journalctl -u cahi-orchestrator` or tmux session output
 
 For bugs or questions, file an issue: https://github.com/contaazul/cahi/issues
 

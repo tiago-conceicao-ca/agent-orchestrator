@@ -13,14 +13,14 @@ set -euo pipefail
 # ── Config ───────────────────────────────────────────────────────────────────
 
 GITHUB_USER="Laraib-1629"
-REPO_NAME="ao-qa-test"
+REPO_NAME="cahi-qa-test"
 REPO_FULL="$GITHUB_USER/$REPO_NAME"
 
 VM_HOST="aoqa.centralindia.cloudapp.azure.com"
 VM_USER="azureuser"
 VM_KEY="$HOME/.ssh/qakeypair.pem"
-VM_REPO_PATH="/srv/ao-preview/manual-qa/$REPO_NAME"
-VM_CAHI_PATH="/srv/ao-preview/manual-qa/agent-orchestrator"
+VM_REPO_PATH="/srv/cahi-preview/manual-qa/$REPO_NAME"
+VM_CAHI_PATH="/srv/cahi-preview/manual-qa/cahi"
 CAHI_BIN="$VM_CAHI_PATH/packages/cahi/node_modules/.bin/cahi"
 
 # ── 1. Create GitHub repo (idempotent) ───────────────────────────────────────
@@ -34,7 +34,7 @@ else
   echo "    Creating repo $REPO_FULL..."
   gh repo create "$REPO_FULL" \
     --public \
-    --description "Throwaway repo for AO multi-PR QA testing" \
+    --description "Throwaway repo for CAHI multi-PR QA testing" \
     --add-readme
   echo "    Repo created."
   # Give GitHub a moment to initialize
@@ -64,8 +64,8 @@ seed_issue() {
 seed_issue \
   "Add README.md with project description" \
   "Create a \`README.md\` at the repo root with:
-- A project title: **AO QA Test Repo**
-- One-line description: *Throwaway repo for Agent Orchestrator QA testing*
+- A project title: **CAHI QA Test Repo**
+- One-line description: *Throwaway repo for CAHI QA testing*
 
 Open a single pull request."
 
@@ -100,7 +100,7 @@ Both PRs should be open at the same time. This tests multi-PR tracking per sessi
 seed_issue \
   "Add package.json" \
   "Create a \`package.json\` at the repo root with:
-- \`name\`: \`ao-qa-test\`
+- \`name\`: \`cahi-qa-test\`
 - \`version\`: \`1.0.0\`
 - \`type\`: \`module\`
 
@@ -136,7 +136,7 @@ fi
 
 echo "==> Updating cahi.yaml..."
 cat > "$VM_CAHI_PATH/cahi.yaml" << YAML
-\$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+\$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 
 port: 3000
 terminalPort: 14800
@@ -148,8 +148,8 @@ defaults:
   workspace: worktree
 
 projects:
-  ao-qa-test:
-    name: AO Multi-PR QA Test
+  cahi-qa-test:
+    name: CAHI Multi-PR QA Test
     repo: $REPO_FULL
     path: $VM_REPO_PATH
     defaultBranch: main
@@ -161,14 +161,14 @@ projects:
       Do not wait for a PR to be merged before opening a second PR.
 YAML
 
-echo "==> Stopping AO..."
+echo "==> Stopping CAHI..."
 "$CAHI_BIN" stop 2>/dev/null || pkill -f 'start-all.js' 2>/dev/null || true
 sleep 3
 
-echo "==> Restarting AO..."
-tmux has-session -t ao-qa 2>/dev/null || tmux new-session -d -s ao-qa
-tmux send-keys -t ao-qa:0 "" Enter
-tmux send-keys -t ao-qa:0 "cd $VM_CAHI_PATH && $CAHI_BIN start" Enter
+echo "==> Restarting CAHI..."
+tmux has-session -t cahi-qa 2>/dev/null || tmux new-session -d -s cahi-qa
+tmux send-keys -t cahi-qa:0 "" Enter
+tmux send-keys -t cahi-qa:0 "cd $VM_CAHI_PATH && $CAHI_BIN start" Enter
 
 echo ""
 echo "Done. VM is configured."
@@ -182,8 +182,8 @@ echo "Throwaway repo : https://github.com/$REPO_FULL"
 echo "Dashboard      : http://aoqa.centralindia.cloudapp.azure.com"
 echo ""
 echo "Next steps:"
-echo "  1. Wait ~15s for AO to start"
-echo "  2. Open the dashboard and go to the 'AO Multi-PR QA Test' project"
+echo "  1. Wait ~15s for CAHI to start"
+echo "  2. Open the dashboard and go to the 'CAHI Multi-PR QA Test' project"
 echo "  3. Spawn sessions:"
 echo "     ssh -i ~/.ssh/qakeypair.pem $VM_USER@$VM_HOST"
 echo "     cd $VM_CAHI_PATH && $CAHI_BIN batch-spawn 1 2 3 4"

@@ -33,13 +33,13 @@ fail_step() {
 
 # Test starts here
 echo -e "${BLUE}╔════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Agent Orchestrator - Onboarding Integration Test     ║${NC}"
+echo -e "${BLUE}║  CAHI - Onboarding Integration Test     ║${NC}"
 echo -e "${BLUE}╔════════════════════════════════════════════════════════╗${NC}"
 echo ""
 
 # Step 1: Simulate git clone (already done by Docker COPY, but we cd into it)
 start_step "Step 1: Navigate to repository"
-cd /workspace/agent-orchestrator || fail_step "Repository not found"
+cd /workspace/cahi || fail_step "Repository not found"
 end_step "Step 1: Repository accessible"
 
 # Step 2: Run setup script

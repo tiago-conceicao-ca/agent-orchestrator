@@ -24,13 +24,13 @@ case "$PROJECT" in
         SESSIONS_DIR="$HOME/.splitly-sessions"
         SESSION_PREFIX="splitly"
         ;;
-    agent-orchestrator|ao)
-        REPO="ComposioHQ/agent-orchestrator"
+    cahi|cahi)
+        REPO="contaazul/cahi"
         SESSIONS_DIR="$HOME/.cahi-sessions"
-        SESSION_PREFIX="ao"
+        SESSION_PREFIX="cahi"
         ;;
     *)
-        echo "Usage: $0 [integrator|splitly|ao] [--dry-run]"
+        echo "Usage: $0 [integrator|splitly|cahi] [--dry-run]"
         exit 1
         ;;
 esac

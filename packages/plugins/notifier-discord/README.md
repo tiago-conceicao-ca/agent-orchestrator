@@ -25,7 +25,7 @@ notifiers:
 | Option | Default | Description |
 |--------|---------|-------------|
 | `webhookUrl` | (required) | Discord webhook URL |
-| `username` | "Agent Orchestrator" | Bot display name |
+| `username` | "CAHI" | Bot display name |
 | `avatarUrl` | (none) | Bot avatar image URL |
 | `threadId` | (none) | Post to a specific thread |
 | `retries` | 2 | Retry attempts on 5xx |

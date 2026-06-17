@@ -1,5 +1,5 @@
 ---
-name: ao-weekly-release
+name: cahi-weekly-release
 description: "Generate the weekly CAHI release notes. Runs every Thursday 10:00 IST from the bot cron, or on-demand. Queries the GitHub API for the latest release, merged PRs, commits, contributors, and star counts, and produces a publishable markdown post in the house style. Output is posted to Discord by the cron job after this skill returns."
 metadata:
   schedule: "30 4 * * 4"
@@ -22,9 +22,9 @@ The two modes produce the same output; the flag is recorded in the footer so rea
 ## How to run
 
 ```bash
-python3 skills/release-notes/ao-weekly-release/run.py --mode scheduled
-python3 skills/release-notes/ao-weekly-release/run.py --mode on-demand
-python3 skills/release-notes/ao-weekly-release/run.py --mode on-demand --since 2026-04-07
+python3 skills/release-notes/cahi-weekly-release/run.py --mode scheduled
+python3 skills/release-notes/cahi-weekly-release/run.py --mode on-demand
+python3 skills/release-notes/cahi-weekly-release/run.py --mode on-demand --since 2026-04-07
 ```
 
 Requirements: `gh` CLI authenticated against `contaazul/cahi`, `python3` ≥ 3.9. No other dependencies — the runner only uses the stdlib and shells out to `gh`.
@@ -42,7 +42,7 @@ Exit codes: `0` success, `1` input/validation error, `2` `gh` query failure, `3`
 
 ## Output format
 
-The output is a single markdown document. Section order is fixed — do not reorder. The reference post the style is calibrated against is [surajmarkup.in/research/ao-april-release](https://surajmarkup.in/research/ao-april-release/).
+The output is a single markdown document. Section order is fixed — do not reorder. The reference post the style is calibrated against is [surajmarkup.in/research/cahi-april-release](https://surajmarkup.in/research/cahi-april-release/).
 
 1. **Title + date.** `# CAHI — Week of {Mon DD, YYYY}`. Use the Monday of the report week, not the run day.
 2. **Positioning line.** One sentence, no more than 25 words, describing what this week delivered. Factual, not marketing. No "excited to announce", no "we're thrilled", no rocket emojis.
@@ -80,7 +80,7 @@ The runner never invents PR numbers, contributor names, or summary text. Every d
 
 ## Skill update workflow
 
-All changes go through PRs to `skills/release-notes/ao-weekly-release/`. The cron pulls latest `main` before each run (`git fetch origin && git checkout main && git reset --hard origin/main`), so merged changes take effect on the next scheduled execution. No manual redeployment.
+All changes go through PRs to `skills/release-notes/cahi-weekly-release/`. The cron pulls latest `main` before each run (`git fetch origin && git checkout main && git reset --hard origin/main`), so merged changes take effect on the next scheduled execution. No manual redeployment.
 
 When editing this skill:
 

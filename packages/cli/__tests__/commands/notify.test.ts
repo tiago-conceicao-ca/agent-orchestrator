@@ -226,7 +226,7 @@ describe("notify command", () => {
         subject: {
           pr: {
             number: 1579,
-            url: "https://github.com/ComposioHQ/agent-orchestrator/pull/1579",
+            url: "https://github.com/contaazul/cahi/pull/1579",
           },
         },
         ci: {

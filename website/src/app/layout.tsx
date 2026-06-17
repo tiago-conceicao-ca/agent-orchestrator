@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: "CAHI — Conta Azul Hub for Intelligence",
   },
   description:
-    "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
+    "AI-native platform for running parallel coding agents. CAHI (formerly CAHI) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
   keywords: ["AI agents", "coding agents", "Claude Code", "agent orchestration", "parallel agents", "open source"],
   authors: [{ name: "Conta Azul", url: "https://github.com/contaazul" }],
   creator: "Conta Azul",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "CAHI",
     title: "CAHI — Conta Azul Hub for Intelligence",
     description:
-      "AI-native platform for running parallel coding agents. CAHI (formerly Agent Orchestrator) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
+      "AI-native platform for running parallel coding agents. CAHI (formerly CAHI) combines orchestration and Taskmaster planning behind Conta Azul's AI-native initiative — spawn Claude Code, Codex, Aider, and more in isolated worktrees, all managed from one dashboard.",
     images: [{ url: "/og-image.png", width: 1024, height: 1024, alt: "CAHI" }],
   },
   robots: {

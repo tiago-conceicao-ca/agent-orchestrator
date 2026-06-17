@@ -23,7 +23,7 @@ a coding worker, but they must not reuse the worker's terminal context.
 ## Flow 3: Orchestrator requests reviews
 
 1. Start with a worker card that is ready for review.
-2. From the orchestrator flow, issue the AO review command for that worker.
+2. From the orchestrator flow, issue the CAHI review command for that worker.
 3. Confirm a queued review run appears on the review board.
 4. Confirm the review run is linked to the coding worker and displays worker metadata.
 5. Confirm no reviewer coding session metadata is created.
@@ -67,9 +67,9 @@ a coding worker, but they must not reuse the worker's terminal context.
 
 ## Flow 9: CLI and UI share the same review store
 
-1. Request a review through the orchestrator AO command path.
+1. Request a review through the orchestrator CAHI command path.
 2. Confirm the run appears in `/review?project=:projectId` without refreshing any mocked data.
-3. Execute that run through the orchestrator AO command path and a deterministic local reviewer command.
+3. Execute that run through the orchestrator CAHI command path and a deterministic local reviewer command.
 4. Confirm the UI reflects the persisted result after a reload.
 
 ## Flow 10: Clean review result
@@ -105,6 +105,6 @@ a coding worker, but they must not reuse the worker's terminal context.
 
 1. Complete a review run with open findings.
 2. From the review board, click `Feedback` for that review run.
-3. Confirm AO sends the stored finding details to the linked coding worker.
+3. Confirm CAHI sends the stored finding details to the linked coding worker.
 4. Confirm the review run moves to `Waiting`.
 5. Confirm open findings become sent findings and are no longer counted as open.

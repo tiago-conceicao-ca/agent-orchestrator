@@ -11,7 +11,7 @@ while [ $# -gt 0 ]; do
       ;;
     -h|--help)
       cat <<'EOF'
-Usage: ao doctor [--fix]
+Usage: cahi doctor [--fix]
 
 Checks install, PATH, binaries, service health, web terminal support, stale temp files, and runtime sanity.
 
@@ -285,13 +285,13 @@ check_install_layout() {
       fail "packaged CLI entrypoint is missing. Fix: reinstall @contaazul/cahi"
     fi
 
-    if [ -f "$REPO_ROOT/dist/assets/scripts/ao-doctor.sh" ]; then
+    if [ -f "$REPO_ROOT/dist/assets/scripts/cahi-doctor.sh" ]; then
       pass "bundled doctor script is available"
     else
       fail "bundled doctor script is missing. Fix: reinstall @contaazul/cahi"
     fi
 
-    if [ -f "$REPO_ROOT/dist/assets/scripts/ao-update.sh" ]; then
+    if [ -f "$REPO_ROOT/dist/assets/scripts/cahi-update.sh" ]; then
       pass "bundled update script is available"
     else
       fail "bundled update script is missing. Fix: reinstall @contaazul/cahi"
@@ -326,7 +326,7 @@ check_runtime_sanity() {
     fi
 
     if node "$REPO_ROOT/dist/index.js" --version >/dev/null 2>&1; then
-      pass "packaged CLI runtime sanity check passed (ao --version)"
+      pass "packaged CLI runtime sanity check passed (cahi --version)"
     else
       fail "packaged CLI runtime sanity check failed. Fix: reinstall @contaazul/cahi"
     fi
@@ -339,7 +339,7 @@ check_runtime_sanity() {
   fi
 
   if node "$REPO_ROOT/packages/cahi/bin/cahi.js" --version >/dev/null 2>&1; then
-    pass "launcher runtime sanity check passed (ao --version)"
+    pass "launcher runtime sanity check passed (cahi --version)"
   else
     fail "launcher runtime sanity check failed. Fix: run pnpm build and refresh the launcher"
   fi
@@ -349,7 +349,7 @@ check_config_dirs() {
   local config_path data_dir worktree_dir
   config_path="$(find_config || true)"
   if [ -z "$config_path" ]; then
-    warn "No agent-orchestrator config was found. Fix: run ao start in a target repo"
+    warn "No cahi config was found. Fix: run cahi start in a target repo"
     return
   fi
 
@@ -373,7 +373,7 @@ check_config_dirs() {
 
 check_stale_temp_files() {
   local temp_root stale_count deleted_count
-  temp_root="${CAHI_DOCTOR_TMP_ROOT:-${TMPDIR:-/tmp}/agent-orchestrator}"
+  temp_root="${CAHI_DOCTOR_TMP_ROOT:-${TMPDIR:-/tmp}/cahi}"
   if [ ! -d "$temp_root" ]; then
     pass "temp root exists check skipped because $temp_root does not exist"
     return
@@ -395,7 +395,7 @@ check_stale_temp_files() {
     return
   fi
 
-  warn "$stale_count stale temp files older than 60 minutes found under $temp_root. Fix: rerun ao doctor --fix"
+  warn "$stale_count stale temp files older than 60 minutes found under $temp_root. Fix: rerun cahi doctor --fix"
 }
 
 file_mode_octal() {
@@ -420,7 +420,7 @@ const repoRoot = process.argv[2];
 
 function resolvePackageJson(fromDir) {
   try {
-    return createRequire(path.join(fromDir, "ao-doctor.js")).resolve("node-pty/package.json");
+    return createRequire(path.join(fromDir, "cahi-doctor.js")).resolve("node-pty/package.json");
   } catch {
     return null;
   }
@@ -525,10 +525,10 @@ check_node_pty_spawn_helper() {
     return
   fi
 
-  warn "node-pty spawn-helper is not executable at $helper_path (mode 0o$mode). Web dashboard terminals can fail with posix_spawnp failed. Fix: run ao doctor --fix or chmod +x $helper_path. See ao#1770."
+  warn "node-pty spawn-helper is not executable at $helper_path (mode 0o$mode). Web dashboard terminals can fail with posix_spawnp failed. Fix: run cahi doctor --fix or chmod +x $helper_path. See ao#1770."
 }
 
-printf 'Agent Orchestrator Doctor\n\n'
+printf 'CAHI Doctor\n\n'
 
 check_node
 check_git
@@ -549,4 +549,4 @@ if [ "$FAIL_COUNT" -gt 0 ]; then
   exit 1
 fi
 
-printf 'Environment looks healthy enough to run Agent Orchestrator.\n'
+printf 'Environment looks healthy enough to run CAHI.\n'

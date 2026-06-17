@@ -4,7 +4,7 @@
 
 **CAHI (Conta Azul Hub for Intelligence)** is a platform for spawning and managing parallel AI coding agents across distributed systems. It runs multiple agents (Claude Code, Codex, Aider, OpenCode) simultaneously — each in an isolated git worktree with its own PR — and provides a single dashboard to supervise them all. Agents autonomously fix CI failures, address review comments, and manage PRs.
 
-CAHI combines **Agent Orchestrator** (the orchestration engine), **Taskmaster**-style structured task planning, and **Conta Azul's AI-native initiative & principles** into one platform. _Formerly Agent Orchestrator (AO); the `cahi` CLI replaces the old `ao` command._
+CAHI combines **CAHI** (the orchestration engine), **Taskmaster**-style structured task planning, and **Conta Azul's AI-native initiative & principles** into one platform. _Formerly CAHI; the `cahi` CLI replaces the old `cahi` command._
 
 **Org:** Conta Azul
 **Repo:** `github.com/contaazul/cahi`
@@ -19,7 +19,7 @@ packages/
   core/           # Engine: types, config, session manager, lifecycle, plugin registry
   cli/            # CLI tool (`cahi` command) — depends on all plugins
   web/            # Next.js 15 dashboard (App Router, React 19, Tailwind v4)
-  ao/             # Global CLI wrapper (thin shim around cli)
+  cahi/             # Global CLI wrapper (thin shim around cli)
   plugins/
     agent-claude-code/    agent-aider/    agent-codex/    agent-opencode/
     runtime-tmux/         runtime-process/
@@ -233,8 +233,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Records `LastStopState` with `otherProjects` field for cross-project session restore
 
 ### cahi update
-- For package-manager installs, `cahi update` pauses a running AO via `cahi stop --yes`, runs the global package update, verifies `cahi --version`, then restarts with `cahi start --restore` (or `--no-restore` if requested)
-- Failed package-manager updates must report that AO was not updated, include actionable remediation, and restart the previous installation if AO was paused
+- For package-manager installs, `cahi update` pauses a running CAHI via `cahi stop --yes`, runs the global package update, verifies `cahi --version`, then restarts with `cahi start --restore` (or `--no-restore` if requested)
+- Failed package-manager updates must report that CAHI was not updated, include actionable remediation, and restart the previous installation if CAHI was paused
 
 ### Dashboard sidebar
 - Sidebar always shows sessions from ALL projects regardless of which project page is active
@@ -248,7 +248,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Cross-Platform (Windows) Compatibility
 
-AO ships on macOS, Linux, **and Windows**. All three are first-class.
+CAHI ships on macOS, Linux, **and Windows**. All three are first-class.
 
 ### The Golden Rule
 
@@ -388,8 +388,8 @@ The `skills/` directory contains reusable workflow documents for common tasks. L
 | Skill | When to load |
 |-------|-------------|
 | [`skills/bug-triage/SKILL.md`](skills/bug-triage/SKILL.md) | Triage a bug report — investigate, search duplicates, file GitHub issues, push fix PRs |
-| [`skills/agent-orchestrator/SKILL.md`](skills/agent-orchestrator/SKILL.md) | Architecture and conventions for working on this codebase |
-| [`skills/release-notes/ao-weekly-release/SKILL.md`](skills/release-notes/ao-weekly-release/SKILL.md) | Generate weekly release notes from git history |
+| [`skills/cahi/SKILL.md`](skills/cahi/SKILL.md) | Architecture and conventions for working on this codebase |
+| [`skills/release-notes/cahi-weekly-release/SKILL.md`](skills/release-notes/cahi-weekly-release/SKILL.md) | Generate weekly release notes from git history |
 | [`skills/social-media/SKILL.md`](skills/social-media/SKILL.md) | Social media post generation |
 
 See [`skills/README.md`](skills/README.md) for how to install skills into other coding agents (Cursor, Copilot, Codex, etc.).
@@ -467,8 +467,8 @@ import {
   shellEscape,                  // Safe command argument escaping
   validateUrl,                  // Webhook URL validation
   readLastJsonlEntry,           // Efficient JSONL log tail (native agent JSONL)
-  readLastActivityEntry,        // Read last AO activity JSONL entry
-  checkActivityLogState,        // Extract sticky waiting_input/blocked from AO JSONL
+  readLastActivityEntry,        // Read last CAHI activity JSONL entry
+  checkActivityLogState,        // Extract sticky waiting_input/blocked from CAHI JSONL
   getActivityFallbackState,     // Last-resort fallback: actionable states + liveness age decay
   recordTerminalActivity,       // Shared recordActivity impl (classify + dedup + append)
   classifyTerminalActivity,     // Classify terminal output via detectActivity
@@ -558,7 +558,7 @@ async getActivityState(session, readyThresholdMs?): Promise<ActivityDetection | 
   if (!running) return { state: "exited", timestamp };
 
   // 2. ACTIONABLE STATES — check for waiting_input/blocked
-  //    Source: native JSONL (Claude Code, Codex) OR AO activity JSONL (others)
+  //    Source: native JSONL (Claude Code, Codex) OR CAHI activity JSONL (others)
   //    These are the only states checkActivityLogState() surfaces.
   //    If found, return immediately.
 
@@ -585,9 +585,9 @@ async getActivityState(session, readyThresholdMs?): Promise<ActivityDetection | 
 | Pattern | Used by | How it works |
 |---------|---------|-------------|
 | **Native JSONL** | Claude Code, Codex | Agent writes its own JSONL with rich state (`permission_request`, `tool_call`, `error`, etc.). `getActivityState` reads the last entry and maps it to activity states. |
-| **AO Activity JSONL** | Aider, OpenCode, new agents | Agent implements `recordActivity`. Lifecycle manager calls it each poll cycle with terminal output. It calls `classifyTerminalActivity()` → `appendActivityEntry()` to write to `{workspacePath}/.cahi/activity.jsonl`. `getActivityState` reads from this file. |
+| **CAHI Activity JSONL** | Aider, OpenCode, new agents | Agent implements `recordActivity`. Lifecycle manager calls it each poll cycle with terminal output. It calls `classifyTerminalActivity()` → `appendActivityEntry()` to write to `{workspacePath}/.cahi/activity.jsonl`. `getActivityState` reads from this file. |
 
-**For agents using AO Activity JSONL (the common case for new plugins):**
+**For agents using CAHI Activity JSONL (the common case for new plugins):**
 
 1. Implement `recordActivity` — delegate to the shared `recordTerminalActivity()`:
 ```typescript

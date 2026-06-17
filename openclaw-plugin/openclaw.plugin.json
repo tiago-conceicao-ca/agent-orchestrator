@@ -1,7 +1,7 @@
 {
-  "id": "agent-orchestrator",
-  "name": "Agent Orchestrator",
-  "description": "Control and monitor Agent Orchestrator (AO) from OpenClaw. Slash commands, AI tools, issue board scanning, proactive planning, and health monitoring.",
+  "id": "cahi",
+  "name": "CAHI",
+  "description": "Control and monitor CAHI from OpenClaw. Slash commands, AI tools, issue board scanning, proactive planning, and health monitoring.",
   "version": "0.3.0",
   "configSchema": {
     "type": "object",

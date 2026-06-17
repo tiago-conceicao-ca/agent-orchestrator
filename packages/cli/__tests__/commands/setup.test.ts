@@ -96,7 +96,7 @@ const SLACK_NEW_WEBHOOK_URL = testHttpsUrl(["hooks", "slack", "com"], "/services
 
 vi.mock("@contaazul/cahi-core", () => ({
   CONFIG_SCHEMA_URL:
-    "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
+    "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
   DEFAULT_DASHBOARD_NOTIFICATION_LIMIT: 50,
   findConfigFile: (...args: unknown[]) => mockFindConfigFile(...args),
   getDashboardNotificationStorePath: (configPath: string) =>

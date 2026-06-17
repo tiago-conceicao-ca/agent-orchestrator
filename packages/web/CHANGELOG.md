@@ -116,11 +116,11 @@
 
 - 0f5ae0b: feat: native Windows support
 
-  AO now runs natively on Windows. The default runtime on Windows is `process`
+  CAHI now runs natively on Windows. The default runtime on Windows is `process`
   (ConPTY via `node-pty` + named pipes — no tmux, no WSL); the dashboard,
   agents (claude-code, codex, kimicode, aider, opencode, cursor), `cahi doctor`,
   and `cahi update` all work out of the box. Each session gets a small detached
-  pty-host helper that wraps a ConPTY behind `\\.\pipe\ao-pty-<sessionId>`,
+  pty-host helper that wraps a ConPTY behind `\\.\pipe\cahi-pty-<sessionId>`,
   registered so `cahi stop` can reach it.
 
   A new cross-platform abstraction layer (`packages/core/src/platform.ts`)
@@ -130,7 +130,7 @@
   `canonicalCompareKey` to handle NTFS case-insensitivity. PATH wrappers for
   agent plugins (`gh`, `git`) ship as `.cjs` + `.cmd` shims on Windows;
   `script-runner` runs `.ps1` siblings of `.sh` scripts via PowerShell. New
-  `ao-doctor.ps1` / `ao-update.ps1` shipped.
+  `cahi-doctor.ps1` / `cahi-update.ps1` shipped.
 
   `cahi open` is now cross-platform: it sources sessions from `sm.list()`
   instead of `tmux list-sessions` (so `runtime-process` sessions on Windows
@@ -178,14 +178,14 @@ in `POST /api/update` so the dashboard returns a structured 409.
     dismissal persists per-version in `localStorage`.
   - **Bun + Homebrew detection.** New install-method classifiers for
     `~/.bun/install/global/` (auto-installs `bun add -g @contaazul/cahi@<channel>`)
-    and `/Cellar/ao/` (notice only — `brew upgrade ao` to avoid clobbering
+    and `/Cellar/cahi/` (notice only — `brew upgrade cahi` to avoid clobbering
     brew's symlinks). `installMethod` config field overrides path detection.
 
   Supersedes #1525 (incorporates the canary + release infrastructure with the
   cron / no-stale-SHA-guard / no-merged-PR-comment modifications called out in
   the design doc).
 
-- 71326bc: Add inline rename for worker sessions in the sidebar. Each worker row now shows a small pencil button on hover; clicking it swaps the label for an input pre-filled with the current title. Enter persists via `PATCH /api/sessions/:id`, Escape cancels, and an empty value reverts the session to its default title. The rename is written to the existing `displayName` metadata field and is now the highest-priority signal in `getSessionTitle`, so a user-chosen label always beats PR/issue titles. The session ID (`ao-N`) remains the canonical identifier — only display surfaces change. (#1647)
+- 71326bc: Add inline rename for worker sessions in the sidebar. Each worker row now shows a small pencil button on hover; clicking it swaps the label for an input pre-filled with the current title. Enter persists via `PATCH /api/sessions/:id`, Escape cancels, and an empty value reverts the session to its default title. The rename is written to the existing `displayName` metadata field and is now the highest-priority signal in `getSessionTitle`, so a user-chosen label always beats PR/issue titles. The session ID (`cahi-N`) remains the canonical identifier — only display surfaces change. (#1647)
 
 ### Patch Changes
 
@@ -259,13 +259,13 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 - b0d0994: Improve Claude Code and Codex session cost estimates to account for cached-token spend, make Codex restore commands fall back to approval prompts for worker sessions instead of blindly reusing dangerous bypass flags, and register the Codex plugin in the web dashboard so native activity detection works there.
 - 0cf0190: Make session detail agent reports collapsible and add explicit audit attribution for the session, actor, and report source command.
-- e1bb51f: Fix restore behavior across AO session recovery flows.
+- e1bb51f: Fix restore behavior across CAHI session recovery flows.
   - restore the latest dead-but-restorable orchestrator on `cahi start` instead of silently spawning a new orchestrator when tmux is gone
   - make worker session orchestrator navigation prefer the most recently active live orchestrator for the project
   - make permissionless Codex restores preserve dangerous bypass semantics so resumed workers behave like fresh permissionless launches
 
 - 08667c8: Keep closed-unmerged sessions actionable in the dashboard by removing them from the done lane unless the runtime actually ended, and hide restore controls for merged sessions that are intentionally non-restorable.
-- eca3001: Fix DirectTerminal "can't find session" when the project uses a wrapped storageKey. `ao-core` names tmux sessions as `{storageKey}-{sessionId}`, where `storageKey` can be either a bare 12-char hash or the legacy wrapped form `{hash}-{projectName}` (e.g. `361287ebbad1-smx-foundation`). The web resolver only handled the bare-hash form, so lookups for sessions like `sf-orchestrator-1` against the tmux name `361287ebbad1-smx-foundation-sf-orchestrator-1` always returned `null` and the terminal never attached (#1486).
+- eca3001: Fix DirectTerminal "can't find session" when the project uses a wrapped storageKey. `cahi-core` names tmux sessions as `{storageKey}-{sessionId}`, where `storageKey` can be either a bare 12-char hash or the legacy wrapped form `{hash}-{projectName}` (e.g. `361287ebbad1-smx-foundation`). The web resolver only handled the bare-hash form, so lookups for sessions like `sf-orchestrator-1` against the tmux name `361287ebbad1-smx-foundation-sf-orchestrator-1` always returned `null` and the terminal never attached (#1486).
 
   The resolver now looks up the owning storageKey on disk (from the session record at `~/.cahi/{storageKey}/sessions/{sessionId}`) and asks tmux for the exact `{storageKey}-{sessionId}` name. The on-disk record is the authoritative disambiguator, so sessions whose IDs happen to be suffixes of other session IDs (e.g. looking up `app-1` while `my-app-1` exists in the same project) cannot be falsely matched. If the on-disk record is missing, the resolver still recovers bare-hash sessions via the tmux session listing as a fallback.
 
@@ -345,16 +345,16 @@ in `POST /api/update` so the dashboard returns a structured 409.
 
 ### Minor Changes
 
-- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/ao`. Made `@composio/ao-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
+- 3a650b0: Zero-friction onboarding: `cahi start` auto-detects project, generates config, and launches dashboard — no prompts, no manual setup. Renamed npm package to `@composio/cahi`. Made `@composio/cahi-web` publishable with production entry point. Cross-platform agent detection. Auto-port-finding. Permission auto-retry in shell scripts.
 
 ### Patch Changes
 
 - Updated dependencies [3a650b0]
-  - @composio/ao-core@0.2.0
-  - @composio/ao-plugin-agent-claude-code@0.2.0
-  - @composio/ao-plugin-agent-opencode@0.2.0
-  - @composio/ao-plugin-runtime-tmux@0.2.0
-  - @composio/ao-plugin-scm-github@0.2.0
-  - @composio/ao-plugin-tracker-github@0.2.0
-  - @composio/ao-plugin-tracker-linear@0.2.0
-  - @composio/ao-plugin-workspace-worktree@0.2.0
+  - @composio/cahi-core@0.2.0
+  - @composio/cahi-plugin-agent-claude-code@0.2.0
+  - @composio/cahi-plugin-agent-opencode@0.2.0
+  - @composio/cahi-plugin-runtime-tmux@0.2.0
+  - @composio/cahi-plugin-scm-github@0.2.0
+  - @composio/cahi-plugin-tracker-github@0.2.0
+  - @composio/cahi-plugin-tracker-linear@0.2.0
+  - @composio/cahi-plugin-workspace-worktree@0.2.0

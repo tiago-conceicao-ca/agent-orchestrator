@@ -1,7 +1,7 @@
 ---
-name: agent-orchestrator
+name: cahi
 description: "Open-source, pluggable agentic coding orchestrator. Manages durable coding agents (Claude Code, Codex, OpenCode) through a simple interface — spawn agents, track progress, and let feedback loops like PR reviews and CI failures automatically route to the right agents. Use for fixing bugs, building features, working on GitHub issues, checking status, and managing agent sessions."
-metadata: {"openclaw": {"emoji": "🤖", "requires": {"bins": ["ao", "gh"], "anyBins": ["node", "npm"], "env": ["ANTHROPIC_API_KEY"]}, "os": ["darwin", "linux", "win32"]}}
+metadata: {"openclaw": {"emoji": "🤖", "requires": {"bins": ["cahi", "gh"], "anyBins": ["node", "npm"], "env": ["ANTHROPIC_API_KEY"]}, "os": ["darwin", "linux", "win32"]}}
 ---
 
 # CAHI
@@ -148,7 +148,7 @@ openclaw config set tools.profile "full"
 openclaw config set tools.allow '["group:plugins"]'
 
 # Required: trust this plugin
-openclaw config set plugins.allow '["agent-orchestrator"]'
+openclaw config set plugins.allow '["cahi"]'
 
 # Optional: increase message context for group chats
 openclaw config set messages.groupChat.historyLimit 100
@@ -175,7 +175,7 @@ What to know:
 |-------|-----|
 | CAHI tools not visible to AI | Run `/cahi setup` — needs `tools.profile: "full"` and `tools.allow: ["group:plugins"]` |
 | `cahi spawn` fails with "No config" | Set `aoCwd` in plugin config to your repo path (where `cahi.yaml` lives) |
-| `ao: not found` | Install CAHI globally or set `aoPath` in plugin config |
+| `cahi: not found` | Install CAHI globally or set `aoPath` in plugin config |
 | `spawn tmux ENOENT` (macOS / Linux) | `brew install tmux` (macOS) or `apt install tmux` (Linux) |
 | `spawn tmux ENOENT` (Windows) | Your config has `runtime: tmux` set explicitly. Switch to `runtime: process` (or remove the override — `process` is the Windows default; ConPTY is used natively, no tmux required) |
 | Bot only responds in DMs | Set `channels.discord.groupPolicy` to `"open"` |

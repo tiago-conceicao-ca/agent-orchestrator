@@ -1,4 +1,4 @@
-# ao Dashboard — Design Research Artifacts
+# cahi Dashboard — Design Research Artifacts
 
 *Compiled February 2026 via competitive analysis, Playwright CSS extraction, and codebase audit.*
 

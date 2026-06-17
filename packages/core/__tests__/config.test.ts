@@ -82,7 +82,7 @@ describe("Config Loading", () => {
       writeFileSync(
         configPath,
         `
-$schema: https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json
+$schema: https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json
 projects:
   test-project:
     repo: test/repo
@@ -93,7 +93,7 @@ projects:
 
       const config = loadConfig(configPath);
       expect(config["$schema"]).toBe(
-        "https://raw.githubusercontent.com/ComposioHQ/agent-orchestrator/main/schema/config.schema.json",
+        "https://raw.githubusercontent.com/contaazul/cahi/main/schema/config.schema.json",
       );
     });
 

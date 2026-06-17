@@ -43,13 +43,13 @@ describe("storage-key", () => {
   describe("deriveStorageKey", () => {
     it("is deterministic for a repo root project", () => {
       const key = deriveStorageKey({
-        originUrl: "git@github.com:OpenAI/agent-orchestrator.git",
+        originUrl: "git@github.com:OpenAI/cahi.git",
         gitRoot: "/repo",
         projectPath: "/repo",
       });
 
       const expected = createHash("sha256")
-        .update("https://github.com/OpenAI/agent-orchestrator#")
+        .update("https://github.com/OpenAI/cahi#")
         .digest("hex")
         .slice(0, 12);
 
@@ -58,12 +58,12 @@ describe("storage-key", () => {
 
     it("distinguishes monorepo subdirectories", () => {
       const rootKey = deriveStorageKey({
-        originUrl: "https://github.com/OpenAI/agent-orchestrator.git",
+        originUrl: "https://github.com/OpenAI/cahi.git",
         gitRoot: "/repo",
         projectPath: "/repo/packages/web",
       });
       const otherKey = deriveStorageKey({
-        originUrl: "https://github.com/OpenAI/agent-orchestrator.git",
+        originUrl: "https://github.com/OpenAI/cahi.git",
         gitRoot: "/repo",
         projectPath: "/repo/packages/core",
       });

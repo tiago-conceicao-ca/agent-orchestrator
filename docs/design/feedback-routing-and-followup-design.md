@@ -113,9 +113,9 @@ For any PR action, orchestrator enforces:
 
 Canonical markers in issue/PR body:
 
-1. `<!-- ao:feedback-tool:<tool> -->`
-2. `<!-- ao:dedupe-key:<dedupeKey> -->`
-3. `<!-- ao:session:<sessionId> -->` (if session spawned)
+1. `<!-- cahi:feedback-tool:<tool> -->`
+2. `<!-- cahi:dedupe-key:<dedupeKey> -->`
+3. `<!-- cahi:session:<sessionId> -->` (if session spawned)
 
 ## 5) Idempotency and Retry Semantics
 

@@ -1,4 +1,4 @@
-# Dashboard Design Language — exploration (ao-2-1)
+# Dashboard Design Language — exploration (cahi-2-1)
 
 A design-language exploration for the CAHI dashboard, captured as live HTML mockups
 plus the rationale behind them. This is an **iteration on / proposal alongside**

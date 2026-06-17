@@ -16,10 +16,10 @@ while [ $# -gt 0 ]; do
       ;;
     -h|--help)
       cat <<'EOF'
-Usage: ao update [--skip-smoke] [--smoke-only]
+Usage: cahi update [--skip-smoke] [--smoke-only]
 
-Fast-forwards the local Agent Orchestrator install repo to main, installs deps,
-clean-rebuilds all workspace packages, refreshes the ao launcher, and runs smoke tests.
+Fast-forwards the local CAHI install repo to main, installs deps,
+clean-rebuilds all workspace packages, refreshes the cahi launcher, and runs smoke tests.
 
 Options:
   --skip-smoke  Skip smoke tests after rebuild
@@ -69,7 +69,7 @@ resolve_repo_root() {
 }
 
 if ! REPO_ROOT="$(resolve_repo_root)"; then
-  printf 'Unable to find Agent Orchestrator repo root. Fix: run via ao update or set CAHI_REPO_ROOT.\n' >&2
+  printf 'Unable to find CAHI repo root. Fix: run via cahi update or set CAHI_REPO_ROOT.\n' >&2
   exit 1
 fi
 
@@ -178,13 +178,13 @@ ensure_on_target_branch() {
   local current_branch
   current_branch="$(git branch --show-current)"
   if [ "$current_branch" != "$TARGET_BRANCH" ]; then
-    printf 'Current branch is %s, expected %s. Fix: git switch %s && rerun ao update.\n' \
+    printf 'Current branch is %s, expected %s. Fix: git switch %s && rerun cahi update.\n' \
       "$current_branch" "$TARGET_BRANCH" "$TARGET_BRANCH" >&2
     exit 1
   fi
 }
 
-printf 'Agent Orchestrator Update\n\n'
+printf 'CAHI Update\n\n'
 
 require_command node "install Node.js 20+"
 
@@ -198,11 +198,11 @@ if [ "$SMOKE_ONLY" = false ]; then
   require_command npm "install npm with Node.js"
 
   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    printf 'The update command must run inside the Agent Orchestrator git checkout.\n' >&2
+    printf 'The update command must run inside the CAHI git checkout.\n' >&2
     exit 1
   fi
 
-  ensure_repo_clean "Working tree is dirty. Fix: commit or stash local changes before running ao update."
+  ensure_repo_clean "Working tree is dirty. Fix: commit or stash local changes before running cahi update."
   ensure_on_target_branch
 
   maybe_sync_origin_with_upstream
@@ -220,7 +220,7 @@ if [ "$SMOKE_ONLY" = false ]; then
     run_cmd pnpm -r --if-present clean
     run_cmd pnpm build
 
-    printf '\nRefreshing ao launcher...\n'
+    printf '\nRefreshing cahi launcher...\n'
     (
       cd "$REPO_ROOT/packages/cahi"
       npm_link_error="$(mktemp)"

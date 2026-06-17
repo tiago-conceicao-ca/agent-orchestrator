@@ -1,5 +1,5 @@
 /**
- * Shared utility functions for agent-orchestrator plugins.
+ * Shared utility functions for cahi plugins.
  */
 
 import { open, stat } from "node:fs/promises";

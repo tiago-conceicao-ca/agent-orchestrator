@@ -206,7 +206,7 @@ describe("workspace-worktree (integration)", () => {
     }
   }, 30_000);
 
-  // Regression for https://github.com/ComposioHQ/agent-orchestrator/issues/1741.
+  // Regression for https://github.com/contaazul/cahi/issues/1741.
   // After a clean destroy(), the local session branch is intentionally kept so
   // the user's commits aren't lost. restore() must re-attach that branch
   // without recreating it (-b) or force-resetting it (-B), so the session's

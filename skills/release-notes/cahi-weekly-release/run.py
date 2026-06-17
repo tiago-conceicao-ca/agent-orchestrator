@@ -24,7 +24,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
-DEFAULT_REPO = "ComposioHQ/agent-orchestrator"
+DEFAULT_REPO = "contaazul/cahi"
 DEFAULT_WINDOW_DAYS = 7
 MAX_BODY_CHARS = 2000
 MIN_HIGHLIGHTS = 8
@@ -313,7 +313,7 @@ def stars_delta_estimate(repo: str, current: int | None) -> int | None:
     if current is None:
         return None
     cache_dir = os.environ.get("CAHI_RELEASE_NOTES_CACHE") or os.path.expanduser(
-        "~/.cache/ao-weekly-release"
+        "~/.cache/cahi-weekly-release"
     )
     cache_path = os.path.join(cache_dir, f"{repo.replace('/', '__')}.json")
     previous: int | None = None
@@ -410,7 +410,7 @@ def render_markdown(snap: Snapshot) -> str:
         sys.exit(EXIT_NO_ACTIVITY)
 
     week_label = snap.since.strftime("%b %d, %Y")
-    title = f"# Agent Orchestrator — Week of {week_label}"
+    title = f"# CAHI — Week of {week_label}"
 
     positioning = build_positioning_line(snap)
 
@@ -457,7 +457,7 @@ def render_markdown(snap: Snapshot) -> str:
         f"- Release: {release_url}",
         f"- Full changelog: {changelog_url}",
         f"- Repository: https://github.com/{snap.repo}",
-        "- Discord: https://discord.gg/agent-orchestrator",
+        "- Discord: https://discord.gg/cahi",
     ]
 
     release_version = version if version != "latest" else "X.Y.Z"
