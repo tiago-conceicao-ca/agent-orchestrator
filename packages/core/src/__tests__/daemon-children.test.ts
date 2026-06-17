@@ -160,11 +160,11 @@ describe("AO orphan detection", () => {
 
     expect(detectAoOrphansFromPsOutput(output)).toEqual([
       expect.objectContaining({ pid: 90350, role: "next-server" }),
-      expect.objectContaining({ pid: 90351, role: "ao-web" }),
-      expect.objectContaining({ pid: 47457, role: "ao-web" }),
-      expect.objectContaining({ pid: 47458, role: "ao-web" }),
-      expect.objectContaining({ pid: 47575, role: "ao-web" }),
-      expect.objectContaining({ pid: 47580, role: "ao-web" }),
+      expect.objectContaining({ pid: 90351, role: "cahi-web" }),
+      expect.objectContaining({ pid: 47457, role: "cahi-web" }),
+      expect.objectContaining({ pid: 47458, role: "cahi-web" }),
+      expect.objectContaining({ pid: 47575, role: "cahi-web" }),
+      expect.objectContaining({ pid: 47580, role: "cahi-web" }),
       expect.objectContaining({ pid: 9914, role: "lifecycle-worker" }),
     ]);
   });

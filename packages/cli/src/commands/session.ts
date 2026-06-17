@@ -212,7 +212,7 @@ export function registerSession(program: Command): void {
         const dataPipePath = sessionInfo?.runtimeHandle?.data?.["pipePath"];
         const pipePath = typeof dataPipePath === "string" && dataPipePath
           ? dataPipePath
-          : `\\\\.\\pipe\\ao-pty-${
+          : `\\\\.\\pipe\\cahi-pty-${
               sessionInfo?.runtimeHandle?.id ??
               (config.configPath
                 ? `${generateConfigHash(config.configPath)}-${sessionName}`

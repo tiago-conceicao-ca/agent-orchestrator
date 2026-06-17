@@ -414,7 +414,7 @@ export function classifyAoOrphanCommand(command: string): string | null {
     normalized.includes("@contaazul/cahi-web") &&
     (normalized.includes("/dist-server/") || normalized.includes(" dist-server/"))
   ) {
-    return "ao-web";
+    return "cahi-web";
   }
   if (
     normalized.includes("/ao lifecycle-worker ") ||

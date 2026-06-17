@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe("isInstalledUnderNodeModules", () => {
   it("returns true for paths with node_modules segment", () => {
-    expect(isInstalledUnderNodeModules("/usr/local/lib/node_modules/@composio/ao-web")).toBe(true);
+    expect(isInstalledUnderNodeModules("/usr/local/lib/node_modules/@contaazul/cahi-web")).toBe(true);
   });
 
   it("returns false for monorepo paths", () => {

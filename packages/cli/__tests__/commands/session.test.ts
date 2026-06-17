@@ -769,7 +769,7 @@ describe("session attach", () => {
       issueId: null,
       pr: null,
       workspacePath: null,
-      runtimeHandle: { id: "hash-app-1", runtimeName: "process", data: { pipePath: "\\\\.\\pipe\\ao-pty-hash-app-1" } },
+      runtimeHandle: { id: "hash-app-1", runtimeName: "process", data: { pipePath: "\\\\.\\pipe\\cahi-pty-hash-app-1" } },
       agentInfo: null,
       createdAt: new Date(),
       lastActivityAt: new Date(),
@@ -809,7 +809,7 @@ describe("session attach", () => {
 
     // close handler calls process.exit(0) which throws synchronously through emit
     expect(() => mockSocket.emit("close")).toThrow("process.exit(0)");
-    expect(mockNetConnect).toHaveBeenCalledWith("\\\\.\\pipe\\ao-pty-hash-app-1");
+    expect(mockNetConnect).toHaveBeenCalledWith("\\\\.\\pipe\\cahi-pty-hash-app-1");
     // Remove stdin listeners to prevent cross-test contamination
     process.stdin.removeAllListeners("data");
     mockIsWindows.mockReturnValue(false);
@@ -921,7 +921,7 @@ describe("session attach", () => {
     // Should use config hash fallback for pipe path
     expect(mockNetConnect).toHaveBeenCalled();
     const pipePath = mockNetConnect.mock.calls[0][0] as string;
-    expect(pipePath).toMatch(/\\\\\.\\pipe\\ao-pty-/);
+    expect(pipePath).toMatch(/\\\\\.\\pipe\\cahi-pty-/);
 
     // Clean up: trigger error to exit
     expect(() => mockSocket.emit("error", new Error("ENOENT"))).toThrow("process.exit(1)");
@@ -939,7 +939,7 @@ describe("session attach", () => {
       issueId: null,
       pr: null,
       workspacePath: null,
-      runtimeHandle: { id: "hash-app-1", runtimeName: "process", data: { pipePath: "\\\\.\\pipe\\ao-pty-hash-app-1" } },
+      runtimeHandle: { id: "hash-app-1", runtimeName: "process", data: { pipePath: "\\\\.\\pipe\\cahi-pty-hash-app-1" } },
       agentInfo: null,
       createdAt: new Date(),
       lastActivityAt: new Date(),

@@ -20,7 +20,7 @@ const {
   mockIsWindows: vi.fn(() => false),
   mockKillProcessTree: vi.fn().mockResolvedValue(undefined),
   mockGetShell: vi.fn(() => ({ cmd: "sh", args: (c: string) => ["-c", c] })),
-  mockGetPipePath: vi.fn((id: string) => `\\\\.\\pipe\\ao-pty-${id}`),
+  mockGetPipePath: vi.fn((id: string) => `\\\\.\\pipe\\cahi-pty-${id}`),
   mockPtyHostSendMessage: vi.fn().mockResolvedValue(undefined),
   mockPtyHostGetOutput: vi.fn().mockResolvedValue(""),
   mockPtyHostIsAlive: vi.fn().mockResolvedValue(true),

@@ -267,7 +267,7 @@ export function resolveTmuxSession(
  * Without it (legacy callers), walks all projects and returns the first
  * matching pipePath — which can collide when two projects share a sessionId.
  *
- * @returns Full pipe path (e.g., "\\\\.\\pipe\\ao-pty-win1-orchestrator"), or null
+ * @returns Full pipe path (e.g., "\\\\.\\pipe\\cahi-pty-win1-orchestrator"), or null
  */
 export function resolvePipePath(
   sessionId: string,

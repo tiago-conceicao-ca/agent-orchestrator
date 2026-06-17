@@ -46,7 +46,7 @@ export interface PtyHostStatus {
  * Returns the Windows named pipe path for a given session ID.
  */
 export function getPipePath(sessionId: string): string {
-  return `\\\\.\\pipe\\ao-pty-${sessionId}`;
+  return `\\\\.\\pipe\\cahi-pty-${sessionId}`;
 }
 
 // ---------------------------------------------------------------------------

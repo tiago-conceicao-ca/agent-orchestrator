@@ -89,7 +89,7 @@ describe("isInstalledUnderNodeModules", () => {
   it("returns true for a Windows node_modules path segment", async () => {
     const { isInstalledUnderNodeModules } = await import("../../src/lib/dashboard-rebuild.js");
 
-    expect(isInstalledUnderNodeModules("C:\\Users\\me\\node_modules\\@composio\\ao-web")).toBe(
+    expect(isInstalledUnderNodeModules("C:\\Users\\me\\node_modules\\@contaazul\\cahi-web")).toBe(
       true,
     );
   });

@@ -21,7 +21,7 @@ function makePipeSocket(): Socket & EventEmitter {
 function makeDeps(pipeSocket: Socket & EventEmitter): PipeRelayDeps {
   return {
     connect: vi.fn(() => pipeSocket),
-    resolvePipePath: vi.fn((id: string) => `\\\\.\\pipe\\ao-pty-${id}`),
+    resolvePipePath: vi.fn((id: string) => `\\\\.\\pipe\\cahi-pty-${id}`),
   };
 }
 
@@ -43,7 +43,7 @@ describe("handleWindowsPipeMessage", () => {
 
     handleWindowsPipeMessage({ id: "s1", type: "open" }, ws, pipes, bufs, deps);
 
-    expect(deps.connect).toHaveBeenCalledWith("\\\\.\\pipe\\ao-pty-s1");
+    expect(deps.connect).toHaveBeenCalledWith("\\\\.\\pipe\\cahi-pty-s1");
     expect(pipes.has("s1")).toBe(true);
 
     // Simulate connect
@@ -226,7 +226,7 @@ describe("handleWindowsPipeMessage", () => {
     const sockB = makePipeSocket();
     const connect = vi.fn((path: string) => (path.includes("projA") ? sockA : sockB));
     const resolvePipePath = vi.fn(
-      (id: string, projectId?: string) => `\\\\.\\pipe\\ao-pty-${projectId}-${id}`,
+      (id: string, projectId?: string) => `\\\\.\\pipe\\cahi-pty-${projectId}-${id}`,
     );
     const deps: PipeRelayDeps = { connect, resolvePipePath };
     const pipes = new Map<string, Socket>();
@@ -237,8 +237,8 @@ describe("handleWindowsPipeMessage", () => {
 
     expect(resolvePipePath).toHaveBeenNthCalledWith(1, "s1", "projA");
     expect(resolvePipePath).toHaveBeenNthCalledWith(2, "s1", "projB");
-    expect(connect).toHaveBeenNthCalledWith(1, "\\\\.\\pipe\\ao-pty-projA-s1");
-    expect(connect).toHaveBeenNthCalledWith(2, "\\\\.\\pipe\\ao-pty-projB-s1");
+    expect(connect).toHaveBeenNthCalledWith(1, "\\\\.\\pipe\\cahi-pty-projA-s1");
+    expect(connect).toHaveBeenNthCalledWith(2, "\\\\.\\pipe\\cahi-pty-projB-s1");
     expect(pipes.get("projA:s1")).toBe(sockA);
     expect(pipes.get("projB:s1")).toBe(sockB);
 

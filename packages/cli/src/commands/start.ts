@@ -1253,7 +1253,7 @@ async function runStartup(
  * Best effort — if it fails, just warn the user.
  */
 /** Pattern matching AO dashboard processes (production and dev mode). */
-const DASHBOARD_CMD_PATTERN = /next-server|start-all\.js|next dev|ao-web/;
+const DASHBOARD_CMD_PATTERN = /next-server|start-all\.js|next dev|cahi-web/;
 
 /**
  * Check whether a process listening on the given port is an AO dashboard

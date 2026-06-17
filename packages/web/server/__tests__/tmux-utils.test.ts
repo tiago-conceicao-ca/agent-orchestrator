@@ -1161,7 +1161,7 @@ describe("resolvePipePath", () => {
     Object.defineProperty(process, "platform", { value: originalPlatform });
   });
 
-  const PIPE = "\\\\.\\pipe\\ao-pty-aabbccddeef0-ao-1";
+  const PIPE = "\\\\.\\pipe\\cahi-pty-aabbccddeef0-ao-1";
   const sessionFileContent =
     "worktree=C:\\Users\\u\\.worktrees\\proj\\ao-1\n" +
     "branch=session/ao-1\n" +
@@ -1219,7 +1219,7 @@ describe("resolvePipePath", () => {
 
   it("reads V2 JSON metadata under projects/{projectId}/sessions/{sessionId}.json", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
-    const PIPE2 = "\\\\.\\pipe\\ao-pty-ao-1";
+    const PIPE2 = "\\\\.\\pipe\\cahi-pty-ao-1";
     const v2Json = JSON.stringify({
       runtimeHandle: { id: "ao-1", runtimeName: "process", data: { pipePath: PIPE2 } },
     });
@@ -1274,8 +1274,8 @@ describe("resolvePipePath", () => {
 
   it("uses projectId to disambiguate when two projects share a sessionId", () => {
     Object.defineProperty(process, "platform", { value: "win32" });
-    const PIPE_A = "\\\\.\\pipe\\ao-pty-projA-ao-1";
-    const PIPE_B = "\\\\.\\pipe\\ao-pty-projB-ao-1";
+    const PIPE_A = "\\\\.\\pipe\\cahi-pty-projA-ao-1";
+    const PIPE_B = "\\\\.\\pipe\\cahi-pty-projB-ao-1";
     const metaFor = (pipe: string) =>
       JSON.stringify({
         runtimeHandle: { id: "ao-1", runtimeName: "process", data: { pipePath: pipe } },

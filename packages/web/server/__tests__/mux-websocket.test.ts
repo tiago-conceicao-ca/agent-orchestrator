@@ -566,7 +566,7 @@ describe("Windows pipe ui.terminal_pty_lost activity events", () => {
     const winPipeBuffers = new Map<string, Buffer>();
     const deps = {
       connect: vi.fn(() => pipe as unknown as Socket),
-      resolvePipePath: vi.fn(() => "\\\\.\\pipe\\ao-pty-app-1"),
+      resolvePipePath: vi.fn(() => "\\\\.\\pipe\\cahi-pty-app-1"),
     };
 
     handleWindowsPipeMessage(
