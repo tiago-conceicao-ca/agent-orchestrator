@@ -77,7 +77,7 @@ export function registerUpdate(program: Command): void {
         restore?: boolean;
       }) => {
         if (opts.skipSmoke && opts.smokeOnly) {
-          console.error("`ao update` does not allow `--skip-smoke` together with `--smoke-only`.");
+          console.error("`cahi update` does not allow `--skip-smoke` together with `--smoke-only`.");
           process.exit(1);
         }
 
@@ -266,7 +266,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
     });
     console.error(
       chalk.red(
-        "\nAO update stopped before installing because AO still appears to be running after `ao stop --yes`.",
+        "\nAO update stopped before installing because AO still appears to be running after `cahi stop --yes`.",
       ),
     );
     if (afterStop.activeSessions.length > 0) {
@@ -278,7 +278,7 @@ async function pauseAoForUpdate(plan: UpdateLifecyclePlan): Promise<boolean> {
         console.error(chalk.dim(`    … and ${afterStop.activeSessions.length - 5} more`));
       }
     }
-    console.error(chalk.dim("Run `ao stop` and retry `ao update` after AO is fully stopped."));
+    console.error(chalk.dim("Run `cahi stop` and retry `cahi update` after AO is fully stopped."));
     process.exit(1);
   }
 
@@ -717,7 +717,7 @@ function classifyInstallFailure(output: string): { kind: string; guidance: strin
     return {
       kind: "pnpm_virtual_store",
       guidance:
-        "pnpm's global store metadata is inconsistent. Try `pnpm store prune`, then retry `ao update`. " +
+        "pnpm's global store metadata is inconsistent. Try `pnpm store prune`, then retry `cahi update`. " +
         "If pnpm remains stuck, use the npm fallback below.",
     };
   }
@@ -732,7 +732,7 @@ function classifyInstallFailure(output: string): { kind: string; guidance: strin
     return {
       kind: "network",
       guidance:
-        "The registry request failed due to a network error. Check connectivity/VPN/proxy settings and retry `ao update`.",
+        "The registry request failed due to a network error. Check connectivity/VPN/proxy settings and retry `cahi update`.",
     };
   }
   if (
@@ -760,7 +760,7 @@ function classifyInstallFailure(output: string): { kind: string; guidance: strin
   return {
     kind: "unknown",
     guidance:
-      "The package manager failed before AO could verify the new version. Retry `ao update` after addressing the package-manager error below.",
+      "The package manager failed before AO could verify the new version. Retry `cahi update` after addressing the package-manager error below.",
   };
 }
 
@@ -784,7 +784,7 @@ function printInstallFailure(opts: {
     ),
   );
   console.error(chalk.yellow(classification.guidance));
-  console.error(chalk.dim(`\nTo retry: ao update`));
+  console.error(chalk.dim(`\nTo retry: cahi update`));
   if (opts.command !== fallbackCommand) {
     console.error(chalk.dim(`You can also try: ${fallbackCommand}`));
   }

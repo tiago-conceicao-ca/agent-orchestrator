@@ -723,7 +723,7 @@ describe("update command", () => {
         .mocked(console.error)
         .mock.calls.map((c) => String(c[0]))
         .join("\n");
-      expect(stderr).toContain("AO still appears to be running after `ao stop --yes`");
+      expect(stderr).toContain("AO still appears to be running after `cahi stop --yes`");
     });
 
     it("prints a friendly pnpm diagnostic and npm fallback when pnpm fails", async () => {

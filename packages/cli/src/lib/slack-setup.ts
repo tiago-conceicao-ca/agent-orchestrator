@@ -12,7 +12,7 @@ import {
 } from "./notifier-routing.js";
 
 const SLACK_APPS_URL = "https://api.slack.com/apps";
-const DEFAULT_USERNAME = "Agent Orchestrator";
+const DEFAULT_USERNAME = "CAHI";
 const SETUP_TIMEOUT_MS = 10_000;
 
 export interface SlackSetupOptions {
@@ -79,7 +79,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new SlackSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -418,7 +418,7 @@ async function resolveInteractiveSetup(
   const existingWebhookUrl = stringValue(existingSlack["webhookUrl"]);
   const optionRoutingPreset = resolveSlackRoutingPreset(opts.routingPreset);
 
-  clack.intro(chalk.bgCyan(chalk.black(" ao setup slack ")));
+  clack.intro(chalk.bgCyan(chalk.black(" cahi setup slack ")));
   explainChannelBinding();
 
   while (true) {
@@ -471,7 +471,7 @@ function resolveNonInteractiveSetup(
     (opts.refresh ? stringValue(existingSlack["webhookUrl"]) : undefined);
   if (!webhookUrl) {
     throw new SlackSetupError(
-      "Slack webhook URL is required. Pass --webhook-url, or run `ao setup slack --refresh` with an existing Slack config.",
+      "Slack webhook URL is required. Pass --webhook-url, or run `cahi setup slack --refresh` with an existing Slack config.",
     );
   }
 

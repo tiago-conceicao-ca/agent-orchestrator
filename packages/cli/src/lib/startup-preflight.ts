@@ -102,7 +102,7 @@ export async function ensureGit(context: string): Promise<void> {
   }
 
   console.error(chalk.red("\n✗ Git is required but is not installed.\n"));
-  console.log(chalk.bold("  Install Git manually, then re-run ao start:\n"));
+  console.log(chalk.bold("  Install Git manually, then re-run cahi start:\n"));
   for (const hint of gitInstallHints()) {
     console.log(chalk.cyan(`    ${hint}`));
   }
@@ -184,7 +184,7 @@ export async function ensureTmux(configPath?: string): Promise<{ switchedToProce
     console.log(
       chalk.bold("  Set ") +
         chalk.cyan("runtime: process") +
-        chalk.bold(" in cahi.yaml, then re-run ao start.\n"),
+        chalk.bold(" in cahi.yaml, then re-run cahi start.\n"),
     );
     process.exit(1);
   }
@@ -206,7 +206,7 @@ export async function ensureTmux(configPath?: string): Promise<{ switchedToProce
   }
 
   console.error(chalk.red("\n✗ tmux is required but is not installed.\n"));
-  console.log(chalk.bold("  Install tmux manually, then re-run ao start:\n"));
+  console.log(chalk.bold("  Install tmux manually, then re-run cahi start:\n"));
   for (const hint of tmuxInstallHints()) {
     console.log(chalk.cyan(`    ${hint}`));
   }
@@ -229,7 +229,7 @@ export function warnAboutLegacyStorage(): void {
       chalk.yellow(
         `\n  ⚠ Found ${nonEmptyDirCount} legacy storage director${nonEmptyDirCount === 1 ? "y" : "ies"} that need${nonEmptyDirCount === 1 ? "s" : ""} migration.\n` +
           `    Sessions stored in the old format won't appear until migrated.\n` +
-          `    Run ${chalk.bold("ao migrate-storage")} to upgrade (use ${chalk.bold("--dry-run")} to preview).\n`,
+          `    Run ${chalk.bold("cahi migrate-storage")} to upgrade (use ${chalk.bold("--dry-run")} to preview).\n`,
       ),
     );
   } catch {
@@ -266,7 +266,7 @@ export async function warnAboutOpenClawStatus(config: OrchestratorConfig): Promi
     if (installation.state === "running") {
       console.log(
         chalk.yellow(
-          `⚠ OpenClaw is running at ${installation.gatewayUrl} but AO is not configured to use it. Run \`ao setup openclaw\` if you want OpenClaw notifications.`,
+          `⚠ OpenClaw is running at ${installation.gatewayUrl} but AO is not configured to use it. Run \`cahi setup openclaw\` if you want OpenClaw notifications.`,
         ),
       );
     }

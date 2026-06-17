@@ -669,7 +669,7 @@ describe("start command — OpenClaw preflight", () => {
       .mocked(console.log)
       .mock.calls.map((c) => c.join(" "))
       .join("\n");
-    expect(output).toContain("ao setup openclaw");
+    expect(output).toContain("cahi setup openclaw");
   });
 });
 
@@ -1084,7 +1084,7 @@ describe("start command — orchestrator session strategy display", () => {
     await program.parseAsync(["node", "test", "start", "--no-dashboard"]);
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
     expect(output).not.toContain("tmux attach -t tmux-session-1");
   });
 
@@ -1105,7 +1105,7 @@ describe("start command — orchestrator session strategy display", () => {
     await program.parseAsync(["node", "test", "start", "--no-dashboard"]);
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
     expect(output).not.toContain("reused existing session");
   });
 
@@ -1129,7 +1129,7 @@ describe("start command — orchestrator session strategy display", () => {
       await program.parseAsync(["node", "test", "start", "--no-dashboard"]);
 
       const output = getLoggedOutput();
-      expect(output).toContain("ao session attach app-orchestrator");
+      expect(output).toContain("cahi session attach app-orchestrator");
       expect(output).not.toContain("reused existing session");
     },
   );
@@ -1159,7 +1159,7 @@ describe("start command — orchestrator session strategy display", () => {
     const output = getLoggedOutput();
     expect(mockSessionManager.kill).not.toHaveBeenCalled();
     expect(mockSessionManager.spawnOrchestrator).not.toHaveBeenCalled();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
   });
 
   it("restores the latest restorable orchestrator when tmux is gone", async () => {
@@ -1246,7 +1246,7 @@ describe("start command — orchestrator session strategy display", () => {
     await program.parseAsync(["node", "test", "start", "--no-dashboard"]);
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
     expect(mockSessionManager.restore).toHaveBeenCalledWith("app-orchestrator");
     expect(mockSessionManager.spawnOrchestrator).not.toHaveBeenCalled();
   });
@@ -1404,7 +1404,7 @@ describe("start command — orchestrator session strategy display", () => {
     expect(mockSessionManager.spawnOrchestrator).toHaveBeenCalledTimes(1);
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
     expect(output).not.toContain("(restored)");
   });
 
@@ -1439,7 +1439,7 @@ describe("start command — orchestrator session strategy display", () => {
     expect(mockSessionManager.restore).not.toHaveBeenCalled();
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
     expect(output).not.toContain("/sessions/my-app-orchestrator");
   });
 
@@ -1522,7 +1522,7 @@ describe("start command — orchestrator session strategy display", () => {
     expect(mockSessionManager.restore).not.toHaveBeenCalled();
 
     const output = getLoggedOutput();
-    expect(output).toContain("ao session attach app-orchestrator");
+    expect(output).toContain("cahi session attach app-orchestrator");
   });
 
   it("fails and cleans up dashboard when orchestrator setup throws", async () => {

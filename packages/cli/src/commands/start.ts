@@ -499,7 +499,7 @@ async function cloneRepo(parsed: ParsedRepoUrl, targetDir: string, cwd: string):
  * Returns the loaded config.
  */
 export async function autoCreateConfig(workingDir: string): Promise<OrchestratorConfig> {
-  console.log(chalk.bold.cyan("\n  Agent Orchestrator — First Run Setup\n"));
+  console.log(chalk.bold.cyan("\n  CAHI — First Run Setup\n"));
   console.log(chalk.dim("  Detecting project and generating config...\n"));
 
   const env = await detectEnvironment(workingDir);
@@ -577,7 +577,7 @@ export async function autoCreateConfig(workingDir: string): Promise<Orchestrator
   const outputPath = resolve(workingDir, "cahi.yaml");
   if (existsSync(outputPath)) {
     console.log(chalk.yellow(`⚠ Config already exists: ${outputPath}`));
-    console.log(chalk.dim("  Use 'ao start' to start with the existing config.\n"));
+    console.log(chalk.dim("  Use 'cahi start' to start with the existing config.\n"));
     return loadConfig(outputPath);
   }
   writeLocalProjectConfig(workingDir, localConfig, outputPath);
@@ -981,7 +981,7 @@ async function runStartup(
   );
   if (siblingCatalogSummary) {
     console.log(chalk.dim(`\n  Sibling repos available to mount: ${siblingCatalogSummary}`));
-    console.log(chalk.dim("  Mount with: ao session sibling add <session> <repo>\n"));
+    console.log(chalk.dim("  Mount with: cahi session sibling add <session> <repo>\n"));
   }
 
   if (shouldStartLifecycle) {
@@ -1043,7 +1043,7 @@ async function runStartup(
         if (currentProjectSessions.length > 0) {
           console.log(
             chalk.yellow(
-              `\n  ${currentProjectSessions.length} session(s) were active before last ao stop (${stoppedAgo}):`,
+              `\n  ${currentProjectSessions.length} session(s) were active before last cahi stop (${stoppedAgo}):`,
             ),
           );
           console.log(chalk.dim(`  ${currentProjectSessions.join(", ")}\n`));
@@ -1160,7 +1160,7 @@ async function runStartup(
                 });
                 console.log(
                   chalk.dim(
-                    `  Kept ${failedSessionIds.size} session(s) in last-stop record for retry on next ao start.\n`,
+                    `  Kept ${failedSessionIds.size} session(s) in last-stop record for retry on next cahi start.\n`,
                   ),
                 );
               } else {
@@ -1212,7 +1212,7 @@ async function runStartup(
     const target =
       opts?.dashboard !== false
         ? projectSessionUrl(port, projectId, selectedOrchestratorId)
-        : `ao session attach ${selectedOrchestratorId}`;
+        : `cahi session attach ${selectedOrchestratorId}`;
 
     console.log(chalk.cyan("Orchestrator:"), `${target}${restoreNote}`);
   }
@@ -1345,7 +1345,7 @@ async function maybeSweepAoOrphansOnStart(reapOrphans: boolean | undefined): Pro
   if (!reapOrphans) {
     console.log(
       chalk.yellow(
-        `  Found ${orphans.length} orphaned AO child process(es). Run \`ao start --reap-orphans\` to clean them up.`,
+        `  Found ${orphans.length} orphaned AO child process(es). Run \`cahi start --reap-orphans\` to clean them up.`,
       ),
     );
     return;
@@ -1417,7 +1417,7 @@ async function attachAndSpawnOrchestrator(opts: {
     console.log(
       chalk.yellow(
         `\nℹ Lifecycle polling for "${projectId}" will attach within ~60s\n` +
-          `  because the running ao start process now supervises active global projects.\n`,
+          `  because the running cahi start process now supervises active global projects.\n`,
       ),
     );
   }
@@ -1446,8 +1446,8 @@ export function registerStart(program: Command): void {
     .option("--dev", "Use Next.js dev server with hot reload (for dashboard UI development)")
     .option("--interactive", "Prompt to configure config settings")
     .option("--reap-orphans", "Kill orphaned AO child processes before starting")
-    .option("--restore", "Restore sessions from last ao stop without prompting")
-    .option("--no-restore", "Skip restoring sessions from last ao stop")
+    .option("--restore", "Restore sessions from last cahi stop without prompting")
+    .option("--no-restore", "Skip restoring sessions from last cahi stop")
     .action(
       async (
         projectArg?: string,
@@ -1514,7 +1514,7 @@ export function registerStart(program: Command): void {
               console.log(`Dashboard: ${dashboardUrl(running.port)}`);
               console.log(`PID: ${running.pid}`);
               console.log(`Projects: ${running.projects.join(", ")}`);
-              console.log(`To restart: ao stop && ao start`);
+              console.log(`To restart: cahi stop && cahi start`);
               unlockStartup();
               process.exit(0);
             }

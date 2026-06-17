@@ -335,7 +335,7 @@ describe("status command", () => {
     await program.parseAsync(["node", "test", "status"]);
 
     const output = consoleSpy.mock.calls.map((c) => c[0]).join("\n");
-    expect(output).toContain("AGENT ORCHESTRATOR STATUS");
+    expect(output).toContain("CAHI STATUS");
     expect(output).toContain("My App");
   });
 

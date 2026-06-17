@@ -234,7 +234,7 @@ async function checkOpenClawNotifier(
 ): Promise<void> {
   const openclawConfig = config.notifiers?.["openclaw"];
   if (!openclawConfig || openclawConfig.plugin !== "openclaw") {
-    warn("OpenClaw notifier is not configured. Fix: run ao setup openclaw");
+    warn("OpenClaw notifier is not configured. Fix: run cahi setup openclaw");
     return;
   }
 
@@ -341,7 +341,7 @@ async function sendTestNotifications(
   const result = await runNotifyTest(config, registry, {
     templateName: "basic",
     all: true,
-    message: "Test notification from ao doctor --test-notify",
+    message: "Test notification from cahi doctor --test-notify",
     sessionId: "doctor-test",
     projectId: "doctor",
     data: { source: "ao-doctor" },

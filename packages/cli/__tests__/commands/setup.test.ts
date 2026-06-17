@@ -3704,7 +3704,7 @@ projects:
       text?: string;
     };
     expect(payload).toMatchObject({
-      username: "Agent Orchestrator",
+      username: "CAHI",
       text: "AO Slack notifications are ready.",
     });
     expect(payload.channel).toBeUndefined();
@@ -3721,7 +3721,7 @@ projects:
     expect(parsed.notifiers?.["slack"]).toMatchObject({
       plugin: "slack",
       webhookUrl: "https://hooks.slack.com/services/T000/B000/secret",
-      username: "Agent Orchestrator",
+      username: "CAHI",
     });
     expect(parsed.notifiers?.["slack"]?.channel).toBeUndefined();
     expect(parsed.notificationRouting?.["urgent"]).toContain("slack");
@@ -4121,7 +4121,7 @@ projects:
       avatar_url?: string;
     };
     expect(payload).toMatchObject({
-      username: "Agent Orchestrator",
+      username: "CAHI",
       content: "AO Discord notifications are ready.",
     });
     expect(payload.avatar_url).toBeUndefined();
@@ -4146,7 +4146,7 @@ projects:
     expect(parsed.notifiers?.["discord"]).toMatchObject({
       plugin: "discord",
       webhookUrl: "https://discord.com/api/webhooks/123/secret",
-      username: "Agent Orchestrator",
+      username: "CAHI",
       retries: 2,
       retryDelayMs: 1000,
     });

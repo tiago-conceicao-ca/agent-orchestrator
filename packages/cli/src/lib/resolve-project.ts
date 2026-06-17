@@ -223,7 +223,7 @@ async function fromUrlIntoGlobal(arg: string, deps: ResolveDeps): Promise<Resolv
     throw new Error(
       `Repository "${parsed.ownerRepo}" appears to be empty (no commits or refs).\n` +
         `  AO needs at least one commit on the default branch to spawn an orchestrator.\n` +
-        `  Push an initial commit, then re-run \`ao start ${arg}\`.`,
+        `  Push an initial commit, then re-run \`cahi start ${arg}\`.`,
     );
   }
 
@@ -276,7 +276,7 @@ async function fromUrl(arg: string, deps: ResolveDeps, opts: ResolveOptions): Pr
     return fromUrlIntoGlobal(arg, deps);
   }
 
-  console.log(chalk.bold.cyan("\n  Agent Orchestrator — Quick Start\n"));
+  console.log(chalk.bold.cyan("\n  CAHI — Quick Start\n"));
   const spinner = ora();
 
   spinner.start("Parsing repository URL");
@@ -466,7 +466,7 @@ async function fromCwdOrId(
     if (!project) {
       throw new Error(
         `Project "${arg}" is not registered in the global config (${config.configPath}).\n` +
-          `  Run \`ao project add\` or \`ao start <path|url>\` first.`,
+          `  Run \`cahi project add\` or \`cahi start <path|url>\` first.`,
       );
     }
     return {

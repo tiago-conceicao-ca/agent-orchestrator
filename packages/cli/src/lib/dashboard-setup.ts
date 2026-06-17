@@ -65,7 +65,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new DashboardSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -183,7 +183,7 @@ async function resolveInteractiveSetup(
   const optionRoutingPreset = resolveDashboardRoutingPreset(opts.routingPreset);
   const existingLimit = parseLimit(existingDashboard["limit"]);
 
-  clack.intro(chalk.bgCyan(chalk.black(" ao setup dashboard ")));
+  clack.intro(chalk.bgCyan(chalk.black(" cahi setup dashboard ")));
 
   while (true) {
     const limitInput = await clack.text({

@@ -83,7 +83,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new WebhookSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -311,7 +311,7 @@ async function resolveInteractiveSetup(
   const existingToken = getBearerToken(existingWebhook["headers"]);
   const optionRoutingPreset = resolveWebhookRoutingPreset(opts.routingPreset);
 
-  clack.intro(chalk.bgCyan(chalk.black(" ao setup webhook ")));
+  clack.intro(chalk.bgCyan(chalk.black(" cahi setup webhook ")));
 
   while (true) {
     const resolvedUrl = await resolveInteractiveUrl(clack, opts, existingUrl);
@@ -371,7 +371,7 @@ function resolveNonInteractiveSetup(
     stringValue(opts.url) ?? (opts.refresh ? stringValue(existingWebhook["url"]) : undefined);
   if (!url) {
     throw new WebhookSetupError(
-      "Webhook URL is required. Pass --url, or run `ao setup webhook --refresh` with an existing webhook config.",
+      "Webhook URL is required. Pass --url, or run `cahi setup webhook --refresh` with an existing webhook config.",
     );
   }
 

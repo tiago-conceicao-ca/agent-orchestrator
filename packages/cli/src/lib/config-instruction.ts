@@ -6,7 +6,7 @@ import { CONFIG_SCHEMA_URL } from "@contaazul/cahi-core";
 
 export function getConfigInstruction(): string {
   return `
-# Agent Orchestrator Config Reference
+# CAHI Config Reference
 # File: cahi.yaml
 
 $schema: ${CONFIG_SCHEMA_URL}
@@ -118,7 +118,7 @@ notifiers:
     # backend: cahi-app
   dashboard:
     plugin: dashboard
-    # Run 'ao setup dashboard' to retain notifications in the web dashboard
+    # Run 'cahi setup dashboard' to retain notifications in the web dashboard
     # limit: 50
   slack:
     plugin: slack
@@ -131,10 +131,10 @@ notifiers:
     # url: http://127.0.0.1:18789/hooks/agent
     # openclawConfigPath: ~/.openclaw/openclaw.json
     # OpenClaw owns hooks.token in openclaw.json
-    # Run 'ao setup openclaw' for guided configuration
+    # Run 'cahi setup openclaw' for guided configuration
   composio:
     plugin: composio
-    # Run 'ao setup composio' to connect Slack through Composio
+    # Run 'cahi setup composio' to connect Slack through Composio
     # userId: aoagent
     # connectedAccountId: ca_...
     # channelName: "#agents"
@@ -142,7 +142,7 @@ notifiers:
     # toolVersion: "20260508_00" # optional Slack override
   composio-discord:
     plugin: composio
-    # Run 'ao setup composio-discord' for Discord webhook mode through Composio
+    # Run 'cahi setup composio-discord' for Discord webhook mode through Composio
     # defaultApp: discord
     # mode: webhook
     # webhookUrl: https://discord.com/api/webhooks/...
@@ -150,7 +150,7 @@ notifiers:
     # composioApiKey: ak_... # optional; otherwise uses COMPOSIO_API_KEY
   composio-discord-bot:
     plugin: composio
-    # Run 'ao setup composio-discord-bot' for Discord bot mode through Composio
+    # Run 'cahi setup composio-discord-bot' for Discord bot mode through Composio
     # defaultApp: discord
     # mode: bot
     # channelId: "1234567890"
@@ -159,7 +159,7 @@ notifiers:
     # composioApiKey: ak_... # optional; otherwise uses COMPOSIO_API_KEY
   composio-mail:
     plugin: composio
-    # Run 'ao setup composio-mail' to connect Gmail through Composio
+    # Run 'cahi setup composio-mail' to connect Gmail through Composio
     # defaultApp: gmail
     # emailTo: alerts@example.com
     # userId: aoagent

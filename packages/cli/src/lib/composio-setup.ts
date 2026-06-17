@@ -1067,17 +1067,17 @@ function printComposioAppRequirements(choice: ComposioAppChoice): void {
     console.log("  Required: Composio API key, userId, Discord webhook URL.");
     console.log("  AO creates/stores a Composio connected account from the webhook token.");
     console.log("  No Discord bot invite is required for webhook mode.");
-    console.log("  Current command: ao setup composio-discord --webhook-url <url>");
+    console.log("  Current command: cahi setup composio-discord --webhook-url <url>");
   } else if (choice === "discord-bot") {
     console.log(chalk.bold("Composio Discord bot setup"));
     console.log("  Required: Composio API key, userId, Discord channel id.");
     console.log("  Also required once: bot token, unless you already have connectedAccountId.");
-    console.log("  Current command: ao setup composio-discord-bot --channel-id <id>");
+    console.log("  Current command: cahi setup composio-discord-bot --channel-id <id>");
   } else if (choice === "gmail") {
     console.log(chalk.bold("Composio Gmail setup"));
     console.log("  Required: Composio API key, userId, recipient email, Gmail connectedAccountId.");
     console.log("  Gmail OAuth/auth config must be usable in Composio with send/profile access.");
-    console.log("  Current command: ao setup composio-mail --email-to <email>");
+    console.log("  Current command: cahi setup composio-mail --email-to <email>");
   }
   console.log(
     chalk.dim("This interactive hub currently implements Slack, Discord webhook/bot, and Gmail."),
@@ -3932,7 +3932,7 @@ export async function runComposioSetupAction(opts: ComposioSetupOptions): Promis
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -3966,7 +3966,7 @@ export async function runComposioSetupAction(opts: ComposioSetupOptions): Promis
   if (resolved.connectionUrl && !resolved.connectedAccountId) {
     console.log(
       chalk.yellow(
-        "Slack connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `ao setup composio`.",
+        "Slack connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `cahi setup composio`.",
       ),
     );
     console.log(chalk.dim("No config was changed."));
@@ -3995,7 +3995,7 @@ export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): P
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -4030,7 +4030,7 @@ export async function runComposioSlackSetupAction(opts: ComposioSetupOptions): P
   if (resolved.connectionUrl && !resolved.connectedAccountId) {
     console.log(
       chalk.yellow(
-        "Slack connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `ao setup composio-slack`.",
+        "Slack connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `cahi setup composio-slack`.",
       ),
     );
     console.log(chalk.dim("No config was changed."));
@@ -4275,7 +4275,7 @@ async function resolveMailSetup(
 
     if (account && optionConnectedAccountId) {
       throw new ComposioSetupError(
-        `Connected account ${connectedAccountId} is missing Gmail send/profile access. Connect Gmail in Composio with send access, then rerun \`ao setup composio-mail --email-to ${emailTo} --connected-account-id ${connectedAccountId}\`, or pass a different Gmail connected account.`,
+        `Connected account ${connectedAccountId} is missing Gmail send/profile access. Connect Gmail in Composio with send access, then rerun \`cahi setup composio-mail --email-to ${emailTo} --connected-account-id ${connectedAccountId}\`, or pass a different Gmail connected account.`,
       );
     }
 
@@ -4319,7 +4319,7 @@ async function resolveMailSetup(
       const account = await withConnectedAccountDetails(client, connection.account);
       if (!(await accountCanSendGmail(client, account))) {
         throw new ComposioSetupError(
-          `Connected Gmail account ${account.id} is missing Gmail send/profile access. Fix the Gmail connection in Composio, then rerun \`ao setup composio-mail\`.`,
+          `Connected Gmail account ${account.id} is missing Gmail send/profile access. Fix the Gmail connection in Composio, then rerun \`cahi setup composio-mail\`.`,
         );
       }
       return {
@@ -4347,8 +4347,8 @@ async function resolveMailSetup(
   throw new ComposioSetupError(
     [
       `No active Gmail connected account with send access was found for user ${userId}.`,
-      "Connect Gmail in Composio first, then rerun `ao setup composio-mail`, or rerun with `--connect` to print a Composio connect URL.",
-      `You can also pass an existing Gmail account with \`ao setup composio-mail --email-to ${emailTo} --connected-account-id ca_...\`.`,
+      "Connect Gmail in Composio first, then rerun `cahi setup composio-mail`, or rerun with `--connect` to print a Composio connect URL.",
+      `You can also pass an existing Gmail account with \`cahi setup composio-mail --email-to ${emailTo} --connected-account-id ca_...\`.`,
     ].join(" "),
   );
 }
@@ -4365,7 +4365,7 @@ export async function runComposioDiscordWebhookSetupAction(
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -4422,7 +4422,7 @@ export async function runComposioDiscordBotSetupAction(
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -4476,7 +4476,7 @@ export async function runComposioMailSetupAction(opts: ComposioMailSetupOptions)
 
   if (!configPath) {
     throw new ComposioSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -4511,7 +4511,7 @@ export async function runComposioMailSetupAction(opts: ComposioMailSetupOptions)
   if (resolved.connectionUrl && !resolved.connectedAccountId) {
     console.log(
       chalk.yellow(
-        "Gmail connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `ao setup composio-mail`.",
+        "Gmail connection did not complete yet. Open the connect URL above, finish the Composio flow, then rerun `cahi setup composio-mail`.",
       ),
     );
     console.log(chalk.dim("No config was changed."));

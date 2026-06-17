@@ -167,7 +167,7 @@ function permissionDeniedMessage(): string {
   return (
     "macOS notification permission is denied for Cahi Notifier.app.\n" +
     "  Open System Settings > Notifications > Cahi Notifier and enable Allow Notifications.\n" +
-    "  Then rerun: ao setup desktop --force"
+    "  Then rerun: cahi setup desktop --force"
   );
 }
 
@@ -226,7 +226,7 @@ function printStatus(): void {
 
 function copyBundledApp(targetAppPath = getInstalledNotifierAppPath()): string {
   if (currentPlatform() !== "darwin") {
-    throw new DesktopSetupError("ao setup desktop is currently only supported on macOS.");
+    throw new DesktopSetupError("cahi setup desktop is currently only supported on macOS.");
   }
 
   const sourceAppPath = getBundledNotifierAppPath();
@@ -464,7 +464,7 @@ function resolveAutoBackend(appPath: string): DesktopBackend {
   if (commandExists("terminal-notifier")) return "terminal-notifier";
   if (commandExists("osascript")) return "osascript";
   throw new DesktopSetupError(
-    "No desktop notification backend is available. Run `ao setup desktop --backend cahi-app`, or install terminal-notifier.",
+    "No desktop notification backend is available. Run `cahi setup desktop --backend cahi-app`, or install terminal-notifier.",
   );
 }
 
@@ -531,7 +531,7 @@ async function prepareDesktopBackend(
   nonInteractive: boolean,
 ): Promise<DesktopBackend> {
   if (currentPlatform() !== "darwin") {
-    throw new DesktopSetupError("ao setup desktop is currently only supported on macOS.");
+    throw new DesktopSetupError("cahi setup desktop is currently only supported on macOS.");
   }
 
   if (resolved.backend === "cahi-app") {

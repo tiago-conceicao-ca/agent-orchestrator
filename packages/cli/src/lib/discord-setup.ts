@@ -15,7 +15,7 @@ const DISCORD_APP_URL = "https://discord.com/app";
 const DISCORD_SUPPORT_WEBHOOK_URL =
   "https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks";
 const DISCORD_WEBHOOK_DOCS_URL = "https://docs.discord.com/developers/resources/webhook";
-const DEFAULT_USERNAME = "Agent Orchestrator";
+const DEFAULT_USERNAME = "CAHI";
 const DEFAULT_RETRIES = 2;
 const DEFAULT_RETRY_DELAY_MS = 1000;
 const SETUP_TIMEOUT_MS = 10_000;
@@ -118,7 +118,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new DiscordSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -155,7 +155,7 @@ function buildSetupPayload(resolved: ResolvedDiscordSetup): Record<string, unkno
         description: "This channel is now configured to receive AO notifications.",
         color: 0x57f287,
         timestamp: new Date().toISOString(),
-        footer: { text: "Agent Orchestrator" },
+        footer: { text: "CAHI" },
       },
     ],
   };
@@ -453,7 +453,7 @@ async function resolveInteractiveSetup(
   const existingWebhookUrl = stringValue(existingDiscord["webhookUrl"]);
   const optionRoutingPreset = resolveDiscordRoutingPreset(opts.routingPreset);
 
-  clack.intro(chalk.bgCyan(chalk.black(" ao setup discord ")));
+  clack.intro(chalk.bgCyan(chalk.black(" cahi setup discord ")));
   explainChannelBinding();
 
   while (true) {
@@ -565,7 +565,7 @@ function resolveNonInteractiveSetup(
     (opts.refresh ? stringValue(existingDiscord["webhookUrl"]) : undefined);
   if (!webhookUrl) {
     throw new DiscordSetupError(
-      "Discord webhook URL is required. Pass --webhook-url, or run `ao setup discord --refresh` with an existing Discord config.",
+      "Discord webhook URL is required. Pass --webhook-url, or run `cahi setup discord --refresh` with an existing Discord config.",
     );
   }
 

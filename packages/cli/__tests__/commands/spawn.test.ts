@@ -535,7 +535,7 @@ describe("spawn command", () => {
     const errors = errorSpy.mock.calls.map((c) => String(c[0])).join("\n");
     expect(errors).toContain("accepts at most 1 argument, but 2 were provided");
     expect(errors).toContain("Use:");
-    expect(errors).toContain("ao spawn [issue]");
+    expect(errors).toContain("cahi spawn [issue]");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
 
@@ -1024,7 +1024,7 @@ describe("spawn daemon-polling enforcement", () => {
       .mock.calls.map((c) => String(c[0]))
       .join("\n");
     expect(errors).toContain("AO is not running");
-    expect(errors).toContain("ao start");
+    expect(errors).toContain("cahi start");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
 
@@ -1046,7 +1046,7 @@ describe("spawn daemon-polling enforcement", () => {
       .join("\n");
     expect(errors).toContain("not polling project");
     expect(errors).toContain("my-app");
-    expect(errors).toContain("ao start my-app");
+    expect(errors).toContain("cahi start my-app");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
 });
@@ -1072,7 +1072,7 @@ describe("batch-spawn daemon-polling enforcement", () => {
       .mock.calls.map((c) => String(c[0]))
       .join("\n");
     expect(errors).toContain("AO is not running");
-    expect(errors).toContain("ao start");
+    expect(errors).toContain("cahi start");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
 
@@ -1094,7 +1094,7 @@ describe("batch-spawn daemon-polling enforcement", () => {
       .join("\n");
     expect(errors).toContain("not polling project");
     expect(errors).toContain("my-app");
-    expect(errors).toContain("ao start my-app");
+    expect(errors).toContain("cahi start my-app");
     expect(mockSessionManager.spawn).not.toHaveBeenCalled();
   });
 });

@@ -100,7 +100,7 @@ export async function maybePromptForUpdateChannel(deps: PromptDeps = {}): Promis
   );
   console.log(
     chalk.dim(
-      "  You can switch later with `ao config set updateChannel <value>` —\n  the next `ao update` will prompt before installing the other channel's build.\n",
+      "  You can switch later with `cahi config set updateChannel <value>` —\n  the next `cahi update` will prompt before installing the other channel's build.\n",
     ),
   );
 
@@ -110,7 +110,7 @@ export async function maybePromptForUpdateChannel(deps: PromptDeps = {}): Promis
     raw = await promptFn("Update channel:", [
       { value: "stable", label: "Stable — weekly releases. Recommended for most users.", hint: "@latest" },
       { value: "nightly", label: "Nightly — daily builds. Bleeding edge.", hint: "@nightly" },
-      { value: "manual", label: "Manual — no checks. Run `ao update` yourself.", hint: "default if dismissed" },
+      { value: "manual", label: "Manual — no checks. Run `cahi update` yourself.", hint: "default if dismissed" },
     ]);
   } catch {
     raw = "manual";
@@ -127,7 +127,7 @@ export async function maybePromptForUpdateChannel(deps: PromptDeps = {}): Promis
   persistUpdateChannel(channel);
   console.log(chalk.green(`  ✓ Update channel set to ${chalk.bold(channel)}`));
   console.log(
-    chalk.dim(`  Change it later with: ao config set updateChannel <stable|nightly|manual>\n`),
+    chalk.dim(`  Change it later with: cahi config set updateChannel <stable|nightly|manual>\n`),
   );
 }
 

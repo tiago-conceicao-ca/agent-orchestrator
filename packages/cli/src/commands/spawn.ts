@@ -27,7 +27,7 @@ import { projectSessionUrl } from "../lib/routes.js";
 function autoDetectProject(config: OrchestratorConfig): string {
   const projectIds = Object.keys(config.projects);
   if (projectIds.length === 0) {
-    throw new Error("No projects configured. Run 'ao start' first.");
+    throw new Error("No projects configured. Run 'cahi start' first.");
   }
   if (projectIds.length === 1) {
     return projectIds[0];
@@ -116,12 +116,12 @@ async function ensureAOPollingProject(projectId: string): Promise<void> {
   const running = await getRunning();
   if (!running) {
     throw new Error(
-      `AO is not running — lifecycle polling is inactive. Run \`ao start\` before spawning sessions so they get CI/review routing and state advancement.`,
+      `AO is not running — lifecycle polling is inactive. Run \`cahi start\` before spawning sessions so they get CI/review routing and state advancement.`,
     );
   }
   if (!running.projects.includes(projectId)) {
     throw new Error(
-      `The running AO instance (pid ${running.pid}) is not polling project "${projectId}". Run \`ao start ${projectId}\` before spawning so sessions get tracked.`,
+      `The running AO instance (pid ${running.pid}) is not polling project "${projectId}". Run \`cahi start ${projectId}\` before spawning so sessions get tracked.`,
     );
   }
 }
@@ -323,9 +323,9 @@ export function registerSpawn(program: Command): void {
         if (command.args.length > 1) {
           console.error(
             chalk.red(
-              `✗ \`ao spawn\` accepts at most 1 argument, but ${command.args.length} were provided.\n\n` +
+              `✗ \`cahi spawn\` accepts at most 1 argument, but ${command.args.length} were provided.\n\n` +
                 `Use:\n` +
-                `  ao spawn [issue]`,
+                `  cahi spawn [issue]`,
             ),
           );
           process.exit(1);
@@ -342,7 +342,7 @@ export function registerSpawn(program: Command): void {
         }
 
         if (!opts.claimPr && opts.assignOnGithub) {
-          console.error(chalk.red("--assign-on-github requires --claim-pr on `ao spawn`."));
+          console.error(chalk.red("--assign-on-github requires --claim-pr on `cahi spawn`."));
           process.exit(1);
         }
 

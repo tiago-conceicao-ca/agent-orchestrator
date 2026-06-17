@@ -158,7 +158,7 @@ export function registerOpen(program: Command): void {
               chalk.dim(`    died at ${when}: session=${sr}, runtime=${rr}`),
             );
             console.log(
-              chalk.dim(`    restart with: ao session restore ${session.id}`),
+              chalk.dim(`    restart with: cahi session restore ${session.id}`),
             );
           } else {
             console.log(`  ${chalk.green(session.id)} — opened ${chalk.dim(url)}`);

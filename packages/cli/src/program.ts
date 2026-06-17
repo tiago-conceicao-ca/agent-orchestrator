@@ -28,8 +28,8 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name("ao")
-    .description("Agent Orchestrator — manage parallel AI coding agents")
+    .name("cahi")
+    .description("CAHI — manage parallel AI coding agents")
     .version(getCliVersion());
 
   registerStart(program);

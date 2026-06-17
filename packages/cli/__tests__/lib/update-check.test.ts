@@ -363,7 +363,7 @@ describe("update-check", () => {
 
   describe("getUpdateCommand", () => {
     it("returns 'ao update' for git installs", () => {
-      expect(getUpdateCommand("git")).toBe("ao update");
+      expect(getUpdateCommand("git")).toBe("cahi update");
     });
 
     it("returns npm install command for npm-global installs", () => {
@@ -987,7 +987,7 @@ describe("update-check", () => {
       expect(info.installMethod).toBe("git");
       expect(info.isOutdated).toBe(true);
       expect(info.latestVersion).toBe("origin/main");
-      expect(info.recommendedCommand).toBe("ao update");
+      expect(info.recommendedCommand).toBe("cahi update");
       expect(mockFetch).not.toHaveBeenCalled();
       const written = JSON.parse(mockWriteFileSync.mock.calls[0][1] as string);
       expect(written.installMethod).toBe("git");
@@ -1130,7 +1130,7 @@ describe("update-check", () => {
 
       const output = stderrSpy.mock.calls[0]![0] as string;
       expect(output).toContain("Update available from origin/main");
-      expect(output).toContain("Run: ao update");
+      expect(output).toContain("Run: cahi update");
       expect(output).not.toContain("99.0.0");
     });
 

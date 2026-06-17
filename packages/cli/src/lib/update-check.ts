@@ -262,7 +262,7 @@ export function getUpdateCommand(method: InstallMethod, channel: UpdateChannel =
   const tag = channel === "nightly" ? "nightly" : "latest";
   switch (method) {
     case "git":
-      return "ao update";
+      return "cahi update";
     case "npm-global":
       return `npm install -g @contaazul/cahi@${tag}`;
     case "pnpm-global":

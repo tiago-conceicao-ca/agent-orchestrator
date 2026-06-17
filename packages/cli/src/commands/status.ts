@@ -454,7 +454,7 @@ export function registerStatus(program: Command): void {
         try {
           config = loadConfig();
         } catch {
-          console.log(chalk.yellow("No config found. Run `ao start` first."));
+          console.log(chalk.yellow("No config found. Run `cahi start` first."));
           console.log(chalk.dim("Falling back to session discovery...\n"));
           await showFallbackStatus();
           return;
@@ -481,7 +481,7 @@ export function registerStatus(program: Command): void {
           : allSessions.filter((s) => !isTerminalSession(s));
 
         if (!opts.json) {
-          console.log(banner("AGENT ORCHESTRATOR STATUS"));
+          console.log(banner("CAHI STATUS"));
           if (opts.watch) {
             console.log(
               chalk.dim(
@@ -700,7 +700,7 @@ export function registerStatus(program: Command): void {
 
 async function showFallbackStatus(): Promise<void> {
   if (isWindows()) {
-    console.log(chalk.dim("No agent-orchestrator config found. Run `ao start` first."));
+    console.log(chalk.dim("No agent-orchestrator config found. Run `cahi start` first."));
     return;
   }
   const allTmux = await getTmuxSessions();
@@ -709,7 +709,7 @@ async function showFallbackStatus(): Promise<void> {
     return;
   }
 
-  console.log(banner("AGENT ORCHESTRATOR STATUS"));
+  console.log(banner("CAHI STATUS"));
   console.log();
   console.log(
     chalk.dim(`  ${allTmux.length} tmux session${allTmux.length !== 1 ? "s" : ""} found\n`),

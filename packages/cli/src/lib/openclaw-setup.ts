@@ -110,7 +110,7 @@ function readConfigContext(): ConfigContext {
   const configPath = findConfigFile() ?? undefined;
   if (!configPath) {
     throw new OpenClawSetupError(
-      "No cahi.yaml found. Run 'ao start' first to create one.",
+      "No cahi.yaml found. Run 'cahi start' first to create one.",
     );
   }
 
@@ -600,7 +600,7 @@ async function resolveInteractiveSetup(
   const existingUrl = stringValue(existingOpenClaw["url"]);
   const initialOpenClawConfigPath = getConfiguredOpenClawConfigPath(opts, existingOpenClaw);
 
-  clack.intro(chalk.bgCyan(chalk.black(" ao setup openclaw ")));
+  clack.intro(chalk.bgCyan(chalk.black(" cahi setup openclaw ")));
 
   let url: string | undefined;
   let tokenInfo: TokenInfo | undefined;
@@ -678,7 +678,7 @@ async function resolveNonInteractiveSetup(
       throw new OpenClawSetupError(
         "Error: OpenClaw gateway not reachable and no --url provided.\n" +
           "  Start OpenClaw first, or pass --url explicitly:\n" +
-          "  Example: ao setup openclaw --url http://127.0.0.1:18789/hooks/agent --openclaw-config-path ~/.openclaw/openclaw.json --non-interactive",
+          "  Example: cahi setup openclaw --url http://127.0.0.1:18789/hooks/agent --openclaw-config-path ~/.openclaw/openclaw.json --non-interactive",
       );
     }
   }
@@ -706,7 +706,7 @@ async function resolveNonInteractiveSetup(
     );
   }
 
-  console.log(chalk.dim("Skipping setup probe in non-interactive mode. Run `ao setup openclaw --status` to verify."));
+  console.log(chalk.dim("Skipping setup probe in non-interactive mode. Run `cahi setup openclaw --status` to verify."));
 
   const routingPreset = resolveOpenClawRoutingPreset(opts.routingPreset) ?? (opts.refresh ? undefined : "urgent-action");
 
@@ -809,7 +809,7 @@ async function runInteractiveSetupProbe(resolved: ResolvedOpenClawSetup): Promis
       `OpenClaw setup probe did not pass yet: ${result.error ?? "unknown validation error"}`,
     ),
   );
-  console.log(chalk.dim("Restart OpenClaw, then run `ao setup openclaw --status` to verify."));
+  console.log(chalk.dim("Restart OpenClaw, then run `cahi setup openclaw --status` to verify."));
 }
 
 async function printStatus(): Promise<void> {
@@ -880,10 +880,10 @@ export async function runOpenClawSetupAction(opts: OpenClawSetupOptions): Promis
     clack.outro(
       `${chalk.green("OpenClaw setup complete!")} AO will send notifications to OpenClaw.\n` +
         chalk.dim("  Test it with: ao notify test --to openclaw --template basic\n") +
-        chalk.dim("  Restart AO with 'ao stop && ao start' to activate."),
+        chalk.dim("  Restart AO with 'cahi stop && cahi start' to activate."),
     );
   } else {
     console.log(chalk.green("\n✓ OpenClaw setup complete."));
-    console.log(chalk.dim("Restart AO to activate: ao stop && ao start"));
+    console.log(chalk.dim("Restart AO to activate: cahi stop && cahi start"));
   }
 }

@@ -24,7 +24,7 @@ function assertPortfolioEnabled(): void {
   if (isPortfolioEnabled()) return;
   console.error(
     chalk.red(
-      "Portfolio mode is disabled. Unset CAHI_ENABLE_PORTFOLIO or set it to 1 to use `ao project`.",
+      "Portfolio mode is disabled. Unset CAHI_ENABLE_PORTFOLIO or set it to 1 to use `cahi project`.",
     ),
   );
   process.exit(1);
@@ -44,7 +44,7 @@ export function registerProjectCommand(program: Command): void {
       if (portfolio.length === 0) {
         console.log(chalk.dim("No projects in portfolio."));
         console.log(
-          chalk.dim("Run `ao start` in a project or `ao project add <path>` to register one."),
+          chalk.dim("Run `cahi start` in a project or `cahi project add <path>` to register one."),
         );
         return;
       }
@@ -121,7 +121,7 @@ export function registerProjectCommand(program: Command): void {
           });
           console.error(
             chalk.red(
-              `Found old-format config at ${existingConfigPath}. Run \`ao start\` in that project to migrate it before using \`ao project add\`.`,
+              `Found old-format config at ${existingConfigPath}. Run \`cahi start\` in that project to migrate it before using \`cahi project add\`.`,
             ),
           );
         } catch (error) {
