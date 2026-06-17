@@ -60,7 +60,7 @@ function spawnDetached(cmd: string, args: string[]): boolean {
  */
 function openWindowsConsole(sessionId: string, cwd: string | undefined): boolean {
   const title = `ao:${sessionId}`;
-  const inner = ["ao", "session", "attach", sessionId];
+  const inner = ["cahi", "session", "attach", sessionId];
 
   const wtArgs = ["-w", "0", "new-tab", "--title", title];
   if (cwd) wtArgs.push("-d", cwd);

@@ -336,7 +336,7 @@ describe("open command (Windows)", () => {
       "-w", "0", "new-tab",
       "--title", "ao:tr-orchestrator",
       "-d", TEST_REPO_PATH,
-      "cmd.exe", "/k", "ao", "session", "attach", "tr-orchestrator",
+      "cmd.exe", "/k", "cahi", "session", "attach", "tr-orchestrator",
     ]);
     expect(mockOpenUrl).not.toHaveBeenCalled();
   });
@@ -355,7 +355,7 @@ describe("open command (Windows)", () => {
     expect(mockSpawn.mock.calls[1][1]).toEqual([
       "/c", "start", "ao:tr-orchestrator",
       "/d", TEST_REPO_PATH,
-      "cmd.exe", "/k", "ao", "session", "attach", "tr-orchestrator",
+      "cmd.exe", "/k", "cahi", "session", "attach", "tr-orchestrator",
     ]);
   });
 

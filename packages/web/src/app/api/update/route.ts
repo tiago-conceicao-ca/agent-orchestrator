@@ -76,7 +76,7 @@ export async function POST(_req: NextRequest) {
   // runner. The handler is a noop in production; the user will see "no
   // version change" on next page load if the install never ran.
   try {
-    const child = spawn("ao", ["update"], {
+    const child = spawn("cahi", ["update"], {
       detached: true,
       stdio: "ignore",
       shell: isWindows(),

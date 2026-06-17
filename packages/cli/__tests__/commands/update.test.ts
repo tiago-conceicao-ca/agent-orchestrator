@@ -588,7 +588,7 @@ describe("update command", () => {
 
     it("runs stop → package install → version verification → start/restore when sessions are active", async () => {
       mockSpawn.mockImplementation((cmd: string, args: string[]) => {
-        if (cmd === "ao" && args[0] === "--version") {
+        if (cmd === "cahi" && args[0] === "--version") {
           return createMockChild(0, undefined, { stdout: "0.3.0\n" });
         }
         return createMockChild(0, undefined, { stdout: "" });
@@ -598,7 +598,7 @@ describe("update command", () => {
 
       expect(mockSpawn).toHaveBeenCalledTimes(4);
       expect(mockSpawn.mock.calls[0]).toEqual([
-        "ao",
+        "cahi",
         ["stop", "--yes"],
         expect.objectContaining({
           stdio: "inherit",
@@ -607,10 +607,10 @@ describe("update command", () => {
       ]);
       expect(mockSpawn.mock.calls[1][0]).toBe("pnpm");
       expect(mockSpawn.mock.calls[1][1]).toEqual(["add", "-g", "@contaazul/cahi@latest"]);
-      expect(mockSpawn.mock.calls[2][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[2][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[2][1]).toEqual(["--version"]);
       expect(mockSpawn.mock.calls[3]).toEqual([
-        "ao",
+        "cahi",
         ["start", "my-app", "--restore"],
         expect.objectContaining({
           stdio: "inherit",
@@ -631,7 +631,7 @@ describe("update command", () => {
       mockExistsSync.mockReturnValue(false);
       mockSessions.value = [];
       mockSpawn.mockImplementation((cmd: string, args: string[]) => {
-        if (cmd === "ao" && args[0] === "--version") {
+        if (cmd === "cahi" && args[0] === "--version") {
           return createMockChild(0, undefined, { stdout: "0.3.0\n" });
         }
         return createMockChild(0, undefined, { stdout: "" });
@@ -641,7 +641,7 @@ describe("update command", () => {
 
       expect(mockSpawn).toHaveBeenCalledTimes(2);
       expect(mockSpawn.mock.calls[0][0]).toBe("pnpm");
-      expect(mockSpawn.mock.calls[1][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[1][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[1][1]).toEqual(["--version"]);
     });
 
@@ -654,11 +654,11 @@ describe("update command", () => {
       });
       mockSessions.value = [{ id: "orphan-1", status: "working", projectId: "my-app" }];
       mockSpawn.mockImplementation((cmd: string, args: string[]) => {
-        if (cmd === "ao" && args[0] === "stop") {
+        if (cmd === "cahi" && args[0] === "stop") {
           mockSessions.value = [];
           return createMockChild(0, undefined, { stdout: "" });
         }
-        if (cmd === "ao" && args[0] === "--version") {
+        if (cmd === "cahi" && args[0] === "--version") {
           return createMockChild(0, undefined, { stdout: "0.3.0\n" });
         }
         return createMockChild(0, undefined, { stdout: "" });
@@ -666,7 +666,7 @@ describe("update command", () => {
 
       await program.parseAsync(["node", "test", "update"]);
 
-      expect(mockSpawn.mock.calls[0][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[0][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[0][1]).toEqual(["stop", "--yes"]);
       expect(mockSpawn.mock.calls[0][2]).toEqual(
         expect.objectContaining({
@@ -674,16 +674,16 @@ describe("update command", () => {
         }),
       );
       expect(mockSpawn.mock.calls[1][0]).toBe("pnpm");
-      expect(mockSpawn.mock.calls[2][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[2][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[2][1]).toEqual(["--version"]);
-      expect(mockSpawn.mock.calls.some((call) => call[0] === "ao" && call[1][0] === "start")).toBe(
+      expect(mockSpawn.mock.calls.some((call) => call[0] === "cahi" && call[1][0] === "start")).toBe(
         false,
       );
     });
 
     it("honors --no-restore when restarting after update", async () => {
       mockSpawn.mockImplementation((cmd: string, args: string[]) => {
-        if (cmd === "ao" && args[0] === "--version") {
+        if (cmd === "cahi" && args[0] === "--version") {
           return createMockChild(0, undefined, { stdout: "0.3.0\n" });
         }
         return createMockChild(0, undefined, { stdout: "" });
@@ -692,7 +692,7 @@ describe("update command", () => {
       await program.parseAsync(["node", "test", "update", "--no-restore"]);
 
       expect(mockSpawn.mock.calls.at(-1)).toEqual([
-        "ao",
+        "cahi",
         ["start", "my-app", "--no-restore"],
         expect.objectContaining({
           stdio: "inherit",
@@ -716,7 +716,7 @@ describe("update command", () => {
       );
 
       expect(mockSpawn).toHaveBeenCalledTimes(1);
-      expect(mockSpawn.mock.calls[0][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[0][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[0][1]).toEqual(["stop", "--yes"]);
       expect(mockSpawn.mock.calls.some((call) => call[0] === "pnpm")).toBe(false);
       const stderr = vi
@@ -1046,9 +1046,9 @@ describe("update command", () => {
 
       await program.parseAsync(["node", "test", "update"]);
 
-      expect(mockSpawn.mock.calls[0][0]).toBe("ao");
+      expect(mockSpawn.mock.calls[0][0]).toBe("cahi");
       expect(mockSpawn.mock.calls[0][1]).toEqual(["stop", "--yes"]);
-      expect(mockSpawn.mock.calls.at(-1)?.[0]).toBe("ao");
+      expect(mockSpawn.mock.calls.at(-1)?.[0]).toBe("cahi");
       expect(mockSpawn.mock.calls.at(-1)?.[1]).toEqual(["start", "my-app", "--restore"]);
     });
   });

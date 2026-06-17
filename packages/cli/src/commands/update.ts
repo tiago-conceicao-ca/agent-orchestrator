@@ -318,7 +318,7 @@ function runAoLifecycleCommand(
   opts: { configPath?: string } = {},
 ): Promise<number> {
   return new Promise<number>((resolveExit) => {
-    const child = spawn("ao", args, {
+    const child = spawn("cahi", args, {
       stdio: "inherit",
       shell: isWindows(),
       windowsHide: true,
@@ -674,7 +674,7 @@ async function verifyInstalledVersion(
   expectedVersion: string,
   previousVersion: string,
 ): Promise<VerificationResult> {
-  const result = await runCommandCapture("ao", ["--version"]);
+  const result = await runCommandCapture("cahi", ["--version"]);
   const output = result.output.trim();
   const actualVersion = parseAoVersion(output);
 

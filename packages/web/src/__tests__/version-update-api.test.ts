@@ -246,7 +246,7 @@ describe("POST /api/update", () => {
     const res = await updatePOST(makeReq());
     expect(res.status).toBe(202);
     expect(mockSpawn).toHaveBeenCalledWith(
-      "ao",
+      "cahi",
       ["update"],
       expect.objectContaining({
         detached: true,
@@ -264,7 +264,7 @@ describe("POST /api/update", () => {
     const body = (await res.json()) as { ok: boolean };
     expect(body.ok).toBe(true);
     expect(mockSpawn).toHaveBeenCalledWith(
-      "ao",
+      "cahi",
       ["update"],
       expect.objectContaining({
         detached: true,
