@@ -112,7 +112,7 @@ What works:
 | `cahi spawn` and `cahi spawn --prompt` | Supported through the process runtime |
 | GitHub, GitLab, and Linear tracker/SCM integrations | Supported when their CLIs or credentials are configured |
 | Browser dashboard terminal | Supported through the direct PTY server |
-| Slack, Discord, webhook, Composio, and OpenClaw notifiers | Supported |
+| Slack, Discord, webhook, and Composio notifiers | Supported |
 
 What is limited:
 
@@ -120,7 +120,7 @@ What is limited:
 | --- | --- | --- |
 | `runtime: tmux` | Not available natively | `runtime: process` |
 | iTerm2 terminal integration | Not available | Browser dashboard terminal |
-| Desktop notifier | No-op on Windows | Slack, Discord, webhook, Composio, or OpenClaw |
+| Desktop notifier | No-op on Windows | Slack, Discord, webhook, or Composio |
 | tmux attach commands | Not available | Dashboard terminal and CAHI session commands |
 
 Use PowerShell or Git Bash for normal CLI commands. If a command behaves differently because of shell quoting, put longer instructions in a file and send them with `cahi send --file`.

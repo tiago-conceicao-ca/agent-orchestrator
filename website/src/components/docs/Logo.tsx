@@ -36,7 +36,6 @@ const FILE_LOGOS = new Set([
   "linux",
   "microsoft",
   "openai",
-  "openclaw",
   "opencode",
   "slack",
   "tmux",

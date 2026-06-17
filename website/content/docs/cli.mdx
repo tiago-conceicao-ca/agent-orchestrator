@@ -27,7 +27,7 @@ cahi
 ├── config-help                 Print the config schema and a guide
 ├── notify                      test
 ├── session                     ls, attach, kill, cleanup, restore, claim-pr, remap
-├── setup                       dashboard, desktop, webhook, slack, discord, composio, openclaw
+├── setup                       dashboard, desktop, webhook, slack, discord, composio
 └── plugin                      list, search, create, install, update, uninstall
 ```
 
@@ -165,7 +165,7 @@ Positional `[target]` — session name, project id, or `"all"`. Defaults to all 
 | `--fix` | — | Apply safe fixes for launcher and stale-temp issues |
 | `--test-notify` | — | Send a test notification through each configured notifier |
 
-Runs `cahi-doctor.sh` for shell-level checks, then TypeScript checks (version freshness, plugin resolution, notifier connectivity). OpenClaw is the only notifier probed without side effects.
+Runs `cahi-doctor.sh` for shell-level checks, then TypeScript checks (version freshness, plugin resolution, notifier connectivity).
 
 ### `cahi update`
 
@@ -281,26 +281,6 @@ writing `notificationRouting`.
 | `cahi setup composio-discord` | Configure Discord webhook mode through Composio |
 | `cahi setup composio-discord-bot` | Configure Discord bot mode through Composio |
 | `cahi setup composio-mail` | Configure Gmail through Composio |
-| `cahi setup openclaw` | Configure OpenClaw gateway notifications |
-
-### `cahi setup openclaw`
-
-> Connect CAHI notifications to an OpenClaw gateway
-
-| Flag | Default | Purpose |
-|---|---|---|
-| `--url <url>` | — | OpenClaw webhook URL |
-| `--token <token>` | — | Remote/manual fallback; local setup should read `hooks.token` from OpenClaw config |
-| `--openclaw-config-path <path>` | `~/.openclaw/openclaw.json` | OpenClaw config path that contains `hooks.token` |
-| `--routing-preset <preset>` | — | `urgent-only` · `urgent-action` · `all` |
-| `--refresh` | — | Reuse existing values and rewrite CAHI config |
-| `--no-test` | — | Skip the setup token probe |
-| `--force` | — | Replace a conflicting `notifiers.openclaw` entry |
-| `--status` | — | Show OpenClaw config, gateway state, and token probe status |
-| `--non-interactive` | — | Skip prompts — auto-detect OpenClaw on localhost |
-
-Interactive mode (TTY) uses `@clack/prompts` with review/change steps for the gateway URL, OpenClaw config path, and routing preset. OpenClaw owns the token in `hooks.token`; CAHI does not generate it or write shell-profile exports.
-
 ## Plugin subcommands
 
 ### `cahi plugin list`
@@ -335,12 +315,6 @@ No flags.
 ### `cahi plugin install <reference>`
 
 > Install a plugin into the current config
-
-| Flag | Default | Purpose |
-|---|---|---|
-| `--url <url>` | — | Passed to `cahi setup openclaw` when installing `notifier-openclaw` |
-| `--token <token>` | — | Remote/manual OpenClaw token fallback |
-| `--openclaw-config-path <path>` | `~/.openclaw/openclaw.json` | OpenClaw config path that contains `hooks.token` |
 
 `<reference>` is a marketplace id, npm package name, or local path.
 
