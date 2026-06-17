@@ -174,7 +174,7 @@ export function SdlcRunDetail({
           </button>
           <div className="dashboard-app-header__brand">
             <span className="dashboard-app-header__brand-dot" aria-hidden="true" />
-            <span>Agent Orchestrator</span>
+            <span>CAHI</span>
           </div>
           <span className="dashboard-app-header__sep" aria-hidden="true" />
           <span className="dashboard-app-header__project">{headerProjectLabel}</span>

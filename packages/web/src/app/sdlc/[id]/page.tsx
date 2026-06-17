@@ -8,7 +8,7 @@ export async function generateMetadata(props: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await props.params;
-  return { title: { absolute: `ao | SDLC ${id}` } };
+  return { title: { absolute: `cahi | SDLC ${id}` } };
 }
 
 export default async function SdlcRunRoute(props: {

@@ -14,7 +14,7 @@ export async function generateMetadata(props: {
   const searchParams = await props.searchParams;
   const projectFilter = resolveReviewProjectFilter(searchParams.project);
   const projectName = getReviewProjectName(projectFilter);
-  return { title: { absolute: `ao | ${projectName} Reviews` } };
+  return { title: { absolute: `cahi | ${projectName} Reviews` } };
 }
 
 export default async function ReviewRoute(props: { searchParams: Promise<{ project?: string }> }) {

@@ -714,7 +714,7 @@ describe("notifier-composio", () => {
           connectedAccountId: "ca_gmail",
           arguments: {
             recipient_email: "test@test.com",
-            subject: "Agent Orchestrator Message",
+            subject: "CAHI Message",
             body: expect.stringContaining("<!doctype html>"),
             is_html: true,
           },

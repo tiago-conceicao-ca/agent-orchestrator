@@ -14,7 +14,7 @@ export async function generateMetadata(props: {
   const searchParams = await props.searchParams;
   const projectFilter = resolveSdlcProjectFilter(searchParams.project);
   const projectName = getSdlcProjectName(projectFilter);
-  return { title: { absolute: `ao | ${projectName} SDLC` } };
+  return { title: { absolute: `cahi | ${projectName} SDLC` } };
 }
 
 export default async function SdlcRoute(props: { searchParams: Promise<{ project?: string }> }) {

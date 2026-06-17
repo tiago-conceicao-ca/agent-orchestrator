@@ -1,11 +1,9 @@
 import type { MetadataRoute } from "next";
-import { getProjectName } from "@/lib/project-name";
 
 export default function manifest(): MetadataRoute.Manifest {
-  const projectName = getProjectName();
   return {
-    name: `ao | ${projectName}`,
-    short_name: "ao",
+    name: `cahi | Orchestrator`,
+    short_name: "cahi",
     description: "Dashboard for managing parallel AI coding agents",
     start_url: "/",
     scope: "/",

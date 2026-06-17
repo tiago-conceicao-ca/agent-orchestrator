@@ -57,7 +57,7 @@ describe("notifier-discord", () => {
     await notifier.notify(makeEvent());
 
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.username).toBe("Agent Orchestrator");
+    expect(body.username).toBe("CAHI");
     expect(body.allowed_mentions).toEqual({ parse: [] });
     expect(body.embeds).toHaveLength(1);
 
@@ -66,7 +66,7 @@ describe("notifier-discord", () => {
     expect(embed.description).toBe("CI failed after 5 retries");
     expect(embed.color).toBe(0xed4245); // red for urgent
     expect(embed.timestamp).toBe("2026-03-20T12:00:00.000Z");
-    expect(embed.footer.text).toBe("Agent Orchestrator");
+    expect(embed.footer.text).toBe("CAHI");
   });
 
   it("includes project and priority fields", async () => {

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { getProjectName } from "@/lib/project-name";
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 import { Providers } from "@/app/providers";
 import { schibstedGrotesk, jetbrainsMono } from "@/fonts/fonts";
@@ -22,17 +21,16 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const projectName = getProjectName();
   return {
     title: {
-      template: `%s | ${projectName}`,
-      default: `ao | ${projectName}`,
+      template: `%s | cahi | Orchestrator`,
+      default: `cahi | Orchestrator`,
     },
     description: "Dashboard for managing parallel AI coding agents",
     appleWebApp: {
       capable: true,
       statusBarStyle: "black-translucent",
-      title: `ao | ${projectName}`,
+      title: `cahi | Orchestrator`,
     },
   };
 }

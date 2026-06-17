@@ -1,16 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@/lib/project-name", () => ({
-  getProjectName: () => "Agent Orchestrator",
-}));
+import { describe, expect, it } from "vitest";
 
 describe("app manifest", () => {
-  it("builds the PWA manifest with project-aware naming and icons", async () => {
+  it("builds the PWA manifest with cahi naming and icons", async () => {
     const { default: manifest } = await import("./manifest");
 
     expect(manifest()).toMatchObject({
-      name: "ao | Agent Orchestrator",
-      short_name: "ao",
+      name: "cahi | Orchestrator",
+      short_name: "cahi",
       start_url: "/",
       scope: "/",
       display: "standalone",

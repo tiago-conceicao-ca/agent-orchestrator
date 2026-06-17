@@ -322,7 +322,7 @@ describe("notifier-slack integration", () => {
       const contextBlock = getBlocks(body).find(
         (block) =>
           block.type === "context" &&
-          block.elements?.[0]?.text?.includes("Sent by Agent Orchestrator"),
+          block.elements?.[0]?.text?.includes("Sent by CAHI"),
       );
       const contextText = contextBlock!.elements[0].text;
       const unixTs = Math.floor(ts.getTime() / 1000);

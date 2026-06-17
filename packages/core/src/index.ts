@@ -1,7 +1,7 @@
 /**
  * @contaazul/cahi-core
  *
- * Core library for the Agent Orchestrator.
+ * Core library for CAHI.
  * Exports all types, config loader, and service implementations.
  */
 

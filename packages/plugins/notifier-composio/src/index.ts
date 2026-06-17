@@ -64,8 +64,8 @@ const VALID_APPS = new Set<string>(["slack", "discord", "gmail"]);
 const VALID_DISCORD_MODES = new Set<string>(["webhook", "bot"]);
 const DEFAULT_COMPOSIO_USER_ID = "aoagent";
 
-const GMAIL_SUBJECT = "Agent Orchestrator Notification";
-const GMAIL_POST_SUBJECT = "Agent Orchestrator Message";
+const GMAIL_SUBJECT = "CAHI Notification";
+const GMAIL_POST_SUBJECT = "CAHI Message";
 const DISCORD_WEBHOOK_TOOL_SLUG = "DISCORDBOT_EXECUTE_WEBHOOK";
 const DISCORD_EMBED_TITLE_MAX = 256;
 const DISCORD_EMBED_DESCRIPTION_MAX = 4096;
@@ -664,7 +664,7 @@ function formatDiscordMessagePayload(
         ...(data?.subject.pr?.url ? { url: data.subject.pr.url } : {}),
         fields,
         timestamp: event.timestamp.toISOString(),
-        footer: { text: "Agent Orchestrator" },
+        footer: { text: "CAHI" },
       },
     ],
     ...(components.length > 0 ? { components } : {}),
@@ -903,7 +903,7 @@ function buildSlackAttachment(event: OrchestratorEvent, actions?: NotifyAction[]
       elements: [
         {
           type: "mrkdwn",
-          text: `Sent by Agent Orchestrator  •  ${formatSlackDate(event.timestamp)}`,
+          text: `Sent by CAHI  •  ${formatSlackDate(event.timestamp)}`,
         },
       ],
     },
@@ -1348,7 +1348,7 @@ function formatEmailHtml(event: OrchestratorEvent, actions?: NotifyAction[]): st
             <tr>
               <td style="padding:18px 28px 24px;">
                 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:13px 14px;color:#6b7280;font-size:12px;line-height:18px;">
-                  Sent by Agent Orchestrator.
+                  Sent by CAHI.
                 </div>
               </td>
             </tr>
@@ -1379,7 +1379,7 @@ function formatPostEmailBody(message: string): string {
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
             <tr>
               <td style="background:#0f172a;padding:22px 26px;">
-                <div style="font-size:12px;line-height:16px;color:#dbeafe;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">Agent Orchestrator</div>
+                <div style="font-size:12px;line-height:16px;color:#dbeafe;font-weight:800;text-transform:uppercase;letter-spacing:.08em;">CAHI</div>
                 <h1 style="margin:10px 0 0;color:#ffffff;font-size:22px;line-height:29px;font-weight:800;">Message</h1>
               </td>
             </tr>

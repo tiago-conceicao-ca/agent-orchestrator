@@ -316,7 +316,7 @@ function buildAttachment(event: OrchestratorEvent, actions?: NotifyAction[]): Sl
       elements: [
         {
           type: "mrkdwn",
-          text: `Sent by Agent Orchestrator  •  ${formatSlackDate(event.timestamp)}`,
+          text: `Sent by CAHI  •  ${formatSlackDate(event.timestamp)}`,
         },
       ],
     },
@@ -355,7 +355,7 @@ async function postToWebhook(webhookUrl: string, payload: Record<string, unknown
 export function create(config?: Record<string, unknown>): Notifier {
   const webhookUrl = config?.webhookUrl as string | undefined;
   const defaultChannel = config?.channel as string | undefined;
-  const username = (config?.username as string) ?? "Agent Orchestrator";
+  const username = (config?.username as string) ?? "CAHI";
 
   if (!webhookUrl) {
     console.warn("[notifier-slack] No webhookUrl configured — notifications will be no-ops");

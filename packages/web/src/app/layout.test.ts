@@ -1,8 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@/lib/project-name", () => ({
-  getProjectName: () => "Agent Orchestrator",
-}));
+import { describe, expect, it } from "vitest";
 
 describe("app layout metadata", () => {
   it("exports the themed mobile viewport colors", async () => {
@@ -14,18 +10,18 @@ describe("app layout metadata", () => {
     ]);
   });
 
-  it("builds metadata with the project-aware title and apple web app settings", async () => {
+  it("builds metadata with the cahi title and apple web app settings", async () => {
     const { generateMetadata } = await import("./layout");
 
     await expect(generateMetadata()).resolves.toMatchObject({
       title: {
-        template: "%s | Agent Orchestrator",
-        default: "ao | Agent Orchestrator",
+        template: "%s | cahi | Orchestrator",
+        default: "cahi | Orchestrator",
       },
       appleWebApp: {
         capable: true,
         statusBarStyle: "black-translucent",
-        title: "ao | Agent Orchestrator",
+        title: "cahi | Orchestrator",
       },
     });
   });

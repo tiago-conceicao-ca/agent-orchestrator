@@ -22,7 +22,7 @@ export default function ProjectRouteLoading() {
             </svg>
           </button>
           <div className="dashboard-app-header__brand dashboard-app-header__brand--hide-mobile">
-            <span>Agent Orchestrator</span>
+            <span>CAHI</span>
           </div>
           <span className="dashboard-app-header__sep topbar-desktop-only" aria-hidden="true" />
           <span className="dashboard-app-header__project">Loading project…</span>

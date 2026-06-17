@@ -321,7 +321,7 @@ function buildEmbed(event: OrchestratorEvent, actions?: NotifyAction[]): Discord
     ...(data?.subject.pr?.url ? { url: data.subject.pr.url } : {}),
     fields,
     timestamp: event.timestamp.toISOString(),
-    footer: { text: "Agent Orchestrator" },
+    footer: { text: "CAHI" },
   };
 
   return embed;
@@ -408,7 +408,7 @@ async function postWithRetry(
 
 export function create(config?: Record<string, unknown>): Notifier {
   const webhookUrl = config?.webhookUrl as string | undefined;
-  const username = (config?.username as string) ?? "Agent Orchestrator";
+  const username = (config?.username as string) ?? "CAHI";
   const avatarUrl = config?.avatarUrl as string | undefined;
   const threadId = config?.threadId as string | undefined;
 

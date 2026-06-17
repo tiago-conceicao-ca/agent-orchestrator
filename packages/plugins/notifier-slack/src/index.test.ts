@@ -110,7 +110,7 @@ describe("notifier-slack", () => {
       await notifier.notify(makeEvent());
 
       const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-      expect(body.username).toBe("Agent Orchestrator");
+      expect(body.username).toBe("CAHI");
     });
 
     it("uses custom username when configured", async () => {
