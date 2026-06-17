@@ -3,19 +3,19 @@ const cases = [
     scenario: "Clear a bug backlog overnight",
     before: "10 issues, 3 days of context-switching",
     after: "10 agents, 10 PRs by morning",
-    command: "ao batch-spawn 101 102 103 104 105 106 107 108 109 110",
+    command: "cahi batch-spawn 101 102 103 104 105 106 107 108 109 110",
   },
   {
     scenario: "Ship a feature sprint in hours",
     before: "5 feature tickets, 1 dev, 1 week",
     after: "5 agents in parallel, PRs landing same day",
-    command: "ao batch-spawn --label feature-sprint",
+    command: "cahi batch-spawn --label feature-sprint",
   },
   {
     scenario: "Migrate an API across 20 files",
     before: "Manual find-and-replace, missed edge cases",
     after: "Agent rewrites, runs tests, fixes failures, opens PR",
-    command: "ao spawn 42 --agent claude-code",
+    command: "cahi spawn 42 --agent claude-code",
   },
 ];
 
@@ -27,7 +27,7 @@ export function LandingUseCases() {
           Use cases
         </div>
         <h2 className="font-sans font-[680] text-[clamp(1.375rem,3vw,2rem)] leading-[1.1] tracking-[-1.5px] mb-16">
-          What teams run with AO
+          What teams run with CAHI
         </h2>
       </div>
       <div className="flex flex-col gap-6">

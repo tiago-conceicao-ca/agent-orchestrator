@@ -1,7 +1,7 @@
 const steps = [
   { num: "STEP 01", title: "Install", desc: "One command. No dependencies beyond Node.js.", cmd: "npm i -g @contaazul/cahi" },
-  { num: "STEP 02", title: "Configure", desc: "Create an cahi.yaml. Pick your agents, tracker, and notifiers.", cmd: "ao start" },
-  { num: "STEP 03", title: "Launch", desc: "Assign issues and watch agents spawn.", cmd: "ao batch-spawn 1 2 3" },
+  { num: "STEP 02", title: "Configure", desc: "Create an cahi.yaml. Pick your agents, tracker, and notifiers.", cmd: "cahi start" },
+  { num: "STEP 03", title: "Launch", desc: "Assign issues and watch agents spawn.", cmd: "cahi batch-spawn 1 2 3" },
 ];
 
 export function LandingQuickStart() {
