@@ -57,7 +57,7 @@ id_ed25519
 .claude
 packages/web/cahi.yaml
 
-# Local agent orchestrator config (may contain secrets)
+# Local CAHI config (may contain secrets)
 cahi.yaml
 
 # Agent configuration and activity logs

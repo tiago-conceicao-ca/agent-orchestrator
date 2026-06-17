@@ -338,7 +338,7 @@ export async function pollBacklog(): Promise<void> {
               {
                 labels: ["agent:in-progress"],
                 removeLabels: ["agent:backlog"],
-                comment: "Claimed by agent orchestrator — session spawned.",
+                comment: "Claimed by CAHI — session spawned.",
               },
               project,
             );

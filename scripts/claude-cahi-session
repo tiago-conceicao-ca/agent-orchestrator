@@ -103,7 +103,7 @@ EOF
 }
 
 cmd_ls() {
-    echo -e "${BLUE}Agent-Orchestrator Sessions:${NC}"
+    echo -e "${BLUE}CAHI Sessions:${NC}"
     echo ""
 
     for session in $(tmux list-sessions -F "#{session_name}" 2>/dev/null | grep "^cahi-" | sort -V); do
